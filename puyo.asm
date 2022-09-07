@@ -83,6 +83,7 @@ headerBegin:
 	
 	dc.b    "PUYOPUYO                                        " ; Game Title (Overseas)
 	dc.b    "GM G-4082  -00" ; Serial
+checksum:
 	dc.b	$BC, $E7 ; Checksum
 	dc.b	"J               " ; Device Support
 	dc.l    startOfRom
@@ -95,6 +96,11 @@ headerBegin:
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
 Reset:
+	;nop
+	;nop
+	;nop
+	;nop
+	;nop
 	TST.l	$00A10008	;Predicted (Offset array entry)
 	BNE.b	loc_0000020F	;Predicted (Code-scan)
 	TST.w	$00A1000C	;Predicted (Code-scan)
@@ -294,6 +300,7 @@ errorTrapLoop:
 loc_0000051E:
 	ANDI	#$FFFE, SR
 	RTS
+; 00FF0CE0
 verticalInterrupt:
 	ORI	#$0700, SR
 	MOVEM.l	A6/A5/A4/A3/A2/A1/A0/D7/D6/D5/D4/D3/D2/D1/D0, -(A7)
@@ -417,8 +424,20 @@ loc_0000070C:
 	MOVE.w	D0, vdpControl1
 	MOVE.b	D0, $00FF0A22
 	RTS
-	dc.b	$30, $3C, $00, $03, $41, $F9, $00, $FF, $0A, $3E, $43, $F9, $00, $FF, $0A, $56, $4A, $50, $66, $00, $00, $0C, $31, $7C, $FF, $FF, $00, $00, $21, $49, $00, $02 ;0x0 (0x00000728-0x0000075A, Entry count: 0x32) [Unknown data]
-	dc.b	$D1, $FC, $00, $00, $00, $06, $D3, $FC, $00, $00, $00, $20, $51, $C8, $FF, $E2, $4E, $75 ;0x20
+loc_00000728:
+	MOVE.w #3, D0
+	LEA $00FF0A3E, A0
+	LEA $00FF0A56, A1
+loc_00000738:
+	TST.w (A0)
+	BNE.w loc_00000748
+	MOVE.w #-1, $00(A0)
+	MOVE.l A1, $02(A0)
+loc_00000748:
+	ADDA.l #6, A0
+	ADDA.l #$20, A1
+	DBF D0, loc_00000738
+	RTS
 loc_0000075A:
 	LEA	$00FF0A3E, A2
 loc_00000760:
@@ -593,6 +612,25 @@ loc_00000A14:
 	MOVE.w	(A1)+, vdpData1
 	DBF	D0, loc_00000A14
 	RTS
+;loc_00000A20:
+;	TST.b $00FF0138
+;	BNE.w loc_00000A2C
+;	RTS
+;loc_00000A2C:
+;	CLR.b $00FF0138
+;	MOVE.w #$100, Z80BusReq
+;loc_00000A3A:
+;	BTST.b $0, Z80BusReq
+;loc_00000A42:
+	;BNE.b loc_00000A3A
+	;LEA vdpControl1, A0
+	;MOVE.w #$-7F00, D0
+	;MOVE.b $00FF0A23, D0
+	;ORI.b #$10, D0
+	;MOVE.w D0, (A0)
+	;MOVE.w #loc_00009404, (A0)
+	;MOVE.w #loc_00009300, (A0)
+	;MOVE.w #loc_000096E
 	dc.b	$4A, $39, $00, $FF, $01, $38, $66, $00, $00, $04, $4E, $75, $42, $39, $00, $FF, $01, $38, $33, $FC, $01, $00, $00, $A1, $11, $00, $08, $39, $00, $00, $00, $A1 ;0x0 (0x00000A20-0x00000BA4, Entry count: 0x184) [Unknown data]
 	dc.b	$11, $00, $66, $F6, $41, $F9, $00, $C0, $00, $04, $30, $3C, $81, $00, $10, $39, $00, $FF, $0A, $23, $00, $00, $00, $10, $30, $80, $30, $BC, $94, $04, $30, $BC ;0x20
 	dc.b	$93, $00, $30, $BC, $96, $E8, $30, $BC, $95, $00, $30, $BC, $97, $7F, $30, $BC, $50, $00, $33, $FC, $00, $80, $00, $FF, $11, $06, $30, $B9, $00, $FF, $11, $06 ;0x40
@@ -1181,7 +1219,7 @@ loc_00001402:
 	TST.b	$00FF0A3C
 	BEQ.b	loc_000013FC
 	RTS
-loc_00001424:
+loc_00001424: ; This IS a lookup table
 	dc.l	loc_00001474
 loc_00001428:
 	dc.l	loc_0000148C
@@ -1339,9 +1377,28 @@ loc_00001620:
 	JMP	loc_00007308
 loc_0000162C:
 	JMP	loc_00007356
-loc_00001632:
-	dc.b	$00, $05, $00, $00, $0F, $B8, $00, $05, $00, $00, $21, $E2, $00, $05, $00, $01, $DB, $B2, $00, $07, $00, $00, $16, $82, $00, $0A, $00, $01, $00, $0B, $00, $00 ;0x0 (0x00001632-0x00001682, Entry count: 0x50) [Unknown data]
-	dc.b	$00, $06, $9B, $00, $00, $0B, $A0, $00, $00, $06, $31, $36, $00, $05, $00, $01, $CD, $34, $00, $01, $00, $0D, $0C, $00, $00, $0D, $1C, $01, $00, $0D, $15, $02 ;0x20
+loc_00001632: ;; LOOKUP TABLE
+	dc.w    $0005
+	dc.l    loc_00000FB8
+	dc.w	$0005
+	dc.l 	loc_000021E2
+	dc.w	$0005
+	dc.l	getChecksum
+	dc.w    $0007
+	dc.l    loc_00001682
+	dc.w	$000A ; ???
+	dc.l    $0001000B ;???
+	dc.w    $0000 ; ???
+	dc.l    loc_00069B00 ; ???
+	dc.w    $000B ; ???
+	dc.l	$A0000006 ; ???
+	dc.w	$3136 ; ???
+	dc.w 	$0005
+	dc.l	loc_0001CD34
+
+	
+; Shiftability: is the rest of this a lookup table???
+	dc.b    $00, $01, $00, $0D, $0C, $00, $00, $0D, $1C, $01, $00, $0D, $15, $02 ;0x20
 	dc.b	$00, $00, $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02, $00, $01 ;0x40
 loc_00001682:
 	dc.b	$00, $05, $00, $00 ;0x0 (0x00001682-0x00001686, Entry count: 0x4) [Unknown data]
@@ -1349,15 +1406,15 @@ loc_00001682:
 	dc.w	$000A, $0001, $000B, $A000 ;0x0 (0x00001688-0x00001690, Entry count: 0x8)
 	dc.l	loc_00061400
 	dc.b	$00, $05, $00, $00 ;0x0 (0x00001694-0x00001698, Entry count: 0x4) [Unknown data]
-	dc.w	$0000A49E
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	loc_0000A49E
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C960
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.w	$0001, $0004, $00FF, $013A, $0000, $0004, $00FF, $05D2, $0000, $0001 ;0x0 (0x000016AC-0x000016C0, Entry count: 0x14)
 loc_000016C0:
@@ -1366,71 +1423,73 @@ loc_000016C0:
 	dc.l	$000BA000	;Predicted
 	dc.l	loc_00061400
 	dc.w	$0013, $0082, $000F, $0003, $000C, $0020, $0001, $0005, $0000 ;0x0 (0x000016D4-0x000016E6, Entry count: 0x12)
-	dc.w	$0000CE58
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	loc_0000CE58
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001702-1	;Predicted (Code target predicted at 0x1701) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001F02	;Predicted (Code target predicted at 0x1F02) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00002103+2	;Predicted (Code target predicted at 0x2103)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-loc_00001702:
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	loc_00002103-1	;Predicted (Code target predicted at 0x2103)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+loc_00001702: ; Lookup Table for loading data and functions on the transition from title screen to menu screen
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin+$3A	;Predicted (Code target predicted at 0x13A) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_000005D4-2	;Predicted (Code target predicted at 0x5D2)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BA4
+	dc.w	$000005D2	;Predicted (Code target predicted at 0x5D2)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000BA4
 	dc.w	$0002, $0006, $0012, $0009, $0004 ;0x0 (0x00001732-0x0000173C, Entry count: 0xA)
-	dc.l	$0000174C
-	dc.l	$00001F34
-	dc.l	$00001EAC
-	dc.b	$00, $00, $1B, $38 ;0x0 (0x00001748-0x0000174C, Entry count: 0x4) [Unknown data]
+	dc.l	loc_0000174C
+	dc.l    loc_00001F34
+	;dc.l	$00001F34 TEST THIS
+	dc.l	loc_00001EAC
+	dc.l	loc_00001B38
+loc_0000174C: ; Second half of above transition
 	dc.w	$000A, $0000, $000B, $A000 ;0x0 (0x0000174C-0x00001754, Entry count: 0x8)
 	dc.l	loc_00061400
 	dc.b	$00, $05, $00, $00 ;0x0 (0x00001758-0x0000175C, Entry count: 0x4) [Unknown data]
-	dc.w	$0000C548
+	dc.w	loc_0000C548
 	dc.b	$00, $0B, $00, $00 ;0x0 (0x0000175E-0x00001762, Entry count: 0x4) [Unknown data]
 	dc.l	loc_0006C400
 	dc.w	$000F, $0004, $000C, $001F, $0001, $000D, $0500, $000D, $0401, $000D, $0B03, $0001, $0005, $0000 ;0x0 (0x00001766-0x00001782, Entry count: 0x1C)
 	dc.w	$0000B0F6
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.b	$00, $12, $00, $09, $00, $04 ;0x0 (0x000017A0-0x000017A6, Entry count: 0x6) [Unknown data]
 	dc.l	$0000187C
@@ -1442,30 +1501,30 @@ loc_00001702:
 	dc.l	loc_00063136
 	dc.b	$00, $01, $00, $05, $00, $01 ;0x0 (0x000017CE-0x000017D4, Entry count: 0x6) [Unknown data]
 	dc.w	$0000D35C
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001500	;Predicted (Code target predicted at 0x1500)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001B01	;Predicted (Code target predicted at 0x1B01) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001C02	;Predicted (Code target predicted at 0x1C02) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001D04-1	;Predicted (Code target predicted at 0x1D03)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	$0000D3A0
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.w	$0012, $0001, $0008, $0000 ;0x0 (0x00001808-0x00001810, Entry count: 0x8)
 	dc.w	$1818
@@ -1481,31 +1540,31 @@ loc_00001702:
 	dc.l	loc_00063136
 	dc.b	$00, $05, $00, $01 ;0x0 (0x0000183C-0x00001840, Entry count: 0x4) [Unknown data]
 	dc.w	$0000CCDC
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000C04-3	;Predicted (Code target predicted at 0xC01)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001504-2	;Predicted (Code target predicted at 0x1502)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001D04-1	;Predicted (Code target predicted at 0x1D03)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	$0000CD28
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.b	$00, $06, $00, $00 ;0x0 (0x00001876-0x0000187A, Entry count: 0x4) [Unknown data]
 	dc.w	$17B6
@@ -1519,110 +1578,110 @@ loc_00001890:
 loc_00001892:
 	dc.b	$00, $1E, $00, $01, $00, $05, $00, $00 ;0x0 (0x00001892-0x0000189A, Entry count: 0x8) [Unknown data]
 	dc.w	$0000C162
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000301	;Predicted (Code target predicted at 0x300)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000402-1	;Predicted (Code target predicted at 0x401)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001402	;Predicted (Code target predicted at 0x1402)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001904-1	;Predicted (Code target predicted at 0x1903) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	vectorTable+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00000BDC
 	dc.b	$00, $0B, $60, $00 ;0x0 (0x000018D2-0x000018D6, Entry count: 0x4) [Unknown data]
 	dc.l	loc_00034800
 	dc.w	$0004, $00FF, $05D2, $FF20, $0004, $00FF, $05D4, $FF60, $0005, $0000 ;0x0 (0x000018DA-0x000018EE, Entry count: 0x14)
 	dc.w	$00009B7A
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$000093F4
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000A1A4
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000A2AC
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 loc_00001904:
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_0000204E
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000A2F4
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002128
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002204
-	dc.w	vectorTable+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_0000195C	; (Predicted offset)
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6	;Predicted (Code target predicted at 0x29D6)
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002FB8	;Predicted (Code target predicted at 0x2FB8)
-	dc.w	vectorTable+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_0000187C	;Predicted (Code target predicted at 0x187C)
-	dc.w	vectorTable+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001682	;Predicted (Code target predicted at 0x1682) [Code verification failed! Opcode target not generated.]
 loc_0000195C:
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_0000208A
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000021D0
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001892	;Predicted (Code target predicted at 0x1892) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00000BC6
 	dc.b	$00, $0B, $20, $00 ;0x0 (0x00001980-0x00001984, Entry count: 0x4) [Unknown data]
 	dc.l	loc_00064000
@@ -1630,67 +1689,67 @@ loc_0000195C:
 	dc.l	loc_00061400
 	dc.w	$0012, $0003, $000D, $0100, $000D, $0201, $000D, $0403, $0005, $0000 ;0x0 (0x00001990-0x000019A4, Entry count: 0x14)
 	dc.w	loc_00002128
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001108+2	;Predicted (Code target predicted at 0x1108)
 	dc.w	loc_00000802	;Predicted (Code target predicted at 0x802)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002EBA
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00003056
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000055A4
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C14A
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001108+2	;Predicted (Code target predicted at 0x1108)
 	dc.w	loc_00001008-5	;Predicted (Code target predicted at 0x1003)
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	vectorTable+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001A14	; (Predicted offset)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002FB8
-	dc.w	vectorTable+$C-3	;Predicted (Code target predicted at 0x9) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable	; (Predicted offset)
+	dc.w	$00000000+$C-3	;Predicted (Code target predicted at 0x9) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000	; (Predicted offset)
 	dc.w	loc_0000187C	;Predicted (Code target predicted at 0x187C)
 loc_00001A0C:
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001B38	;Predicted (Code target predicted at 0x1B38) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001AAE	;Predicted (Code target predicted at 0x1AAE) [Code verification failed! Opcode target not generated.]
 loc_00001A14:
-	dc.w	vectorTable+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00000BDC
 	dc.w	$0004, $00FF, $05D2, $0000, $0004, $00FF, $05D4, $0000, $000B, $A000 ;0x0 (0x00001A1E-0x00001A32, Entry count: 0x14)
 	dc.l	loc_00061400
@@ -1698,43 +1757,43 @@ loc_00001A14:
 	dc.l	loc_00029800
 	dc.w	$000F, $0007, $000C, $0006, $0001, $0005, $0000 ;0x0 (0x00001A3E-0x00001A4C, Entry count: 0xE)
 	dc.w	$0000C652
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000402-1	;Predicted (Code target predicted at 0x401)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000D04-2	;Predicted (Code target predicted at 0xD02)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin+3	;Predicted (Code target predicted at 0x103)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C6CC
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00000BA4
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.b	$00, $07, $00, $00, $18, $7C ;0x0 (0x00001A9A-0x00001AA0, Entry count: 0x6) [Unknown data]
 	dc.w	$0004, $00FF, $1890, $0000, $0006, $0000 ;0x0 (0x00001AA0-0x00001AAC, Entry count: 0xC)
@@ -1777,31 +1836,31 @@ loc_00001D04:
 	dc.l	loc_00061400
 	dc.w	$000C, $0008, $0001, $0005, $0000 ;0x0 (0x00001D1A-0x00001D24, Entry count: 0xA)
 	dc.w	$0000BB0E
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001200	;Predicted (Code target predicted at 0x1200)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.b	$00, $12, $00, $06, $00, $00 ;0x0 (0x00001D5A-0x00001D60, Entry count: 0x6) [Unknown data]
 	dc.w	$1682
@@ -1818,6 +1877,7 @@ loc_00001E03:
 	dc.b	$08, $08, $02, $00, $05, $00, $00, $30, $56, $00, $00, $00, $04, $00, $FF, $11, $08, $10, $03, $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00 ;0x60
 	dc.b	$00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00, $00, $02, $00, $10, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $04, $00, $FF, $18 ;0x80
 	dc.b	$90, $01, $00, $00, $06, $00, $00, $1C, $EC ;0xA0
+loc_00001EAC: ;; Interestingly, $000400FF seems to denote the beginning of a jump table?
 	dc.w	$0004, $00FF, $1882, $0400, $000A, $0001, $000B, $0000 ;0x0 (0x00001EAC-0x00001EBC, Entry count: 0x10)
 	dc.l	loc_0001E000
 	dc.w	$000C, $0003, $0001, $000B, $2000 ;0x0 (0x00001EC0-0x00001ECA, Entry count: 0xA)
@@ -1826,31 +1886,32 @@ loc_00001E03:
 	dc.l	loc_00061400
 	dc.w	$000D, $0100, $000D, $0201, $000D, $0302, $000D, $0403, $0005, $0000 ;0x0 (0x00001ED6-0x00001EEA, Entry count: 0x14)
 	dc.w	$0000C9BA
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002EBA
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00003056
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000055A4
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 loc_00001F02:
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C14A
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C946
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.w	$000D, $0000, $000D, $0001, $000D, $0002, $000D, $0003, $0001, $0008, $0000 ;0x0 (0x00001F16-0x00001F2C, Entry count: 0x16)
 	dc.w	$16C0
 	dc.b	$00, $06, $00, $00, $1F, $C8 ;0x0 (0x00001F2E-0x00001F34, Entry count: 0x6) [Unknown data]
+loc_00001F34:
 	dc.w	$0004, $00FF, $1882, $0400, $0004, $00FF, $0112, $0303, $000A, $0001, $000B, $2000 ;0x0 (0x00001F34-0x00001F4C, Entry count: 0x18)
 	dc.l	loc_00064000
 	dc.b	$00, $0B, $00, $00 ;0x0 (0x00001F50-0x00001F54, Entry count: 0x4) [Unknown data]
@@ -1861,49 +1922,49 @@ loc_00001F02:
 	dc.l	loc_00061400
 	dc.w	$000C, $0003, $000C, $002A, $0001, $000F, $0004, $0005, $0000 ;0x0 (0x00001F68-0x00001F7A, Entry count: 0x12)
 	dc.w	$0000C9BA
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	loc_00000560
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	loc_000005CE-2
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001E03	;Predicted (Code target predicted at 0x1E03)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C960
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+3	;Predicted (Code target predicted at 0x3)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	vectorTable+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000016C0	;Predicted (Code target predicted at 0x16C0)
-	dc.w	vectorTable+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001FC8	; (Predicted offset)
 loc_00001FC8:
-	dc.w	vectorTable+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00000BC6
 	dc.w	$000F, $0004, $000B, $0000 ;0x0 (0x00001FD2-0x00001FDA, Entry count: 0x8)
 	dc.l	loc_00028B00
@@ -1915,36 +1976,36 @@ loc_00001FC8:
 	dc.l	loc_00061400
 	dc.w	$000C, $0008, $0001, $0005, $0000 ;0x0 (0x00001FF6-0x00002000, Entry count: 0xA)
 	dc.w	$0000C960
-	dc.w	vectorTable+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001890	;Predicted (Code target predicted at 0x1890)
 	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C9BA
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000BB0E
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00001200	;Predicted (Code target predicted at 0x1200)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	vectorTable+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable+2	;Predicted (Code target predicted at 0x2)
-	dc.w	vectorTable+1	;Predicted (Code target predicted at 0x1)
-	dc.w	vectorTable+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
 	dc.b	$00, $12, $00, $08, $00, $00, $16, $C0, $00, $06, $00, $00 ;0x0 (0x00002040-0x0000204C, Entry count: 0xC) [Unknown data]
 	dc.w	$1682
@@ -1971,7 +2032,9 @@ loc_0000208A:
 	MOVEA.l	loc_0000209A(PC,D0.w), A1
 	JMP	(A1)
 loc_0000209A:
-	dc.b	$00, $00, $21, $0E, $00, $00, $21, $0E, $00, $00, $21, $0E ;0x0 (0x0000209A-0x000020A6, Entry count: 0xC) [Unknown data]
+	dc.l	loc_0000210E
+	dc.l	loc_0000210E
+	dc.l	loc_0000210E
 	dc.l	loc_000020DA
 	dc.l	loc_000020DA
 	dc.l	loc_000020DA	;Predicted (Code target predicted at 0x20DA)
@@ -1980,18 +2043,30 @@ loc_0000209A:
 	dc.l	loc_000020DA	;Predicted (Code target predicted at 0x20DA)
 	dc.l	loc_000020DA	;Predicted (Code target predicted at 0x20DA)
 	dc.l	loc_000020DA	;Predicted (Code target predicted at 0x20DA)
-	dc.b	$00, $00, $20, $F4, $00, $00, $20, $F4, $00, $00, $20, $F4, $00, $00, $20, $F4, $00, $00, $20, $F4 ;0x0 (0x000020C6-0x000020DA, Entry count: 0x14) [Unknown data]
+	dc.l	loc_000020F4
+	dc.l	loc_000020F4
+	dc.l	loc_000020F4
+	dc.l	loc_000020F4
+	dc.l	loc_000020F4
 loc_000020DA:
 	LEA	loc_0001E000, A0
 	MOVE.w	#0, D0
 	JSR	loc_00000C82
 	MOVE.w	#3, D0
 	JMP	loc_00000BF2
-	dc.b	$41, $F9, $00, $06, $AA, $80, $30, $3C, $00, $00, $4E, $B9, $00 ;0x0 (0x000020F4-0x00002103, Entry count: 0xF) [Unknown data]
+loc_000020F4:
+	LEA loc_0006AA80, A0
+	MOVE.w  #0, D0
+	JSR loc_00000C82
 loc_00002103:
-	CMPI.l	#$303C0005, D2	;Predicted (Offset array entry)
+	MOVE.w	#5, D0
 	JMP	loc_00000BF2	;Predicted (Code-scan)
-	dc.b	$41, $F9, $00, $06, $9B, $00, $30, $3C, $00, $00, $4E, $B9, $00, $00, $0C, $82, $30, $3C, $00, $16, $4E, $F9, $00, $00, $0B, $F2 ;0x0 (0x0000210F-0x00002128, Entry count: 0x19) [Unknown data]
+loc_0000210E:
+	LEA loc_00069B00, A0
+	MOVE.w  #0, D0
+	JSR loc_00000C82
+	MOVE.w  #$16, D0
+	jmp loc_00000BF2
 loc_00002128:
 	CLR.w	D0
 	MOVE.b	$00FF0112, D0
@@ -1999,7 +2074,9 @@ loc_00002128:
 	MOVEA.l	loc_00002138(PC,D0.w), A1
 	JMP	(A1)
 loc_00002138:
-	dc.b	$00, $00, $21, $BA, $00, $00, $21, $BA, $00, $00, $21, $BA ;0x0 (0x00002138-0x00002144, Entry count: 0xC) [Unknown data]
+	dc.l    loc_000021BA
+	dc.l    loc_000021BA
+	dc.l    loc_000021BA
 	dc.l	loc_00002178
 	dc.l	loc_00002178
 	dc.l	loc_00002178	;Predicted (Code target predicted at 0x2178)
@@ -2008,23 +2085,43 @@ loc_00002138:
 	dc.l	loc_00002178	;Predicted (Code target predicted at 0x2178)
 	dc.l	loc_00002178	;Predicted (Code target predicted at 0x2178)
 	dc.l	loc_00002178	;Predicted (Code target predicted at 0x2178)
-	dc.b	$00, $00, $21, $8E, $00, $00, $21, $8E, $00, $00, $21, $8E, $00, $00, $21, $8E, $00, $00, $21, $A4 ;0x0 (0x00002164-0x00002178, Entry count: 0x14) [Unknown data]
+	dc.l    loc_0000218E
+	dc.l    loc_0000218E
+	dc.l    loc_0000218E
+	dc.l    loc_0000218E
+	dc.l    loc_000021A4
 loc_00002178:
 	MOVE.b	#2, D0
 	LEA	loc_00002210, A2
 	ADDA.l	#$00000060, A2
 	JMP	loc_00001020
-	dc.b	$10, $3C, $00, $02, $45, $F9, $00, $00, $22, $10, $D5, $FC, $00, $00, $04, $E0, $4E, $F9, $00, $00, $10, $20, $10, $3C, $00, $02, $45, $F9, $00, $00, $22, $10 ;0x0 (0x0000218E-0x000021D0, Entry count: 0x42) [Unknown data]
-	dc.b	$D5, $FC, $00, $00, $05, $00, $4E, $F9, $00, $00, $10, $20, $10, $3C, $00, $02, $45, $F9, $00, $00, $22, $10, $D5, $FC, $00, $00, $02, $A0, $4E, $F9, $00, $00 ;0x20
-	dc.b	$10, $20 ;0x40
+loc_0000218E:
+	MOVE.b  #2, D0
+	LEA loc_00002210, A2
+	ADDA.l  #$000004E0, A2
+	JMP loc_00001020
+loc_000021A4:
+	MOVE.b  #2, D0
+	LEA loc_00002210, A2
+	ADDA.l  #$00000500, A2
+	JMP loc_00001020
+loc_000021BA:
+	MOVE.b  #2, D0
+	LEA loc_00002210, A2
+	ADDA.l  #$000002A0, A2
+	JMP loc_00001020
 loc_000021D0:
 	CMPI.b	#3, $00FF0112
 	BCC.w	loc_000021E0
 	BSR.w	loc_00000FB8	;Predicted (Code-scan)
 loc_000021E0:
 	RTS
-	dc.b	$13, $FC, $00, $FF, $00, $FF, $18, $76, $13, $FC, $00, $00, $00, $FF, $18, $77, $13, $FC, $00, $00, $00, $FF, $18, $78, $13, $FC, $00, $00, $00, $FF, $18, $79 ;0x0 (0x000021E2-0x00002204, Entry count: 0x22) [Unknown data]
-	dc.b	$4E, $75 ;0x20
+loc_000021E2:
+	move.b #-1, ($00FF1876).l
+	move.b #0, ($00FF1877).l
+	move.b #0, ($00FF1878).l
+	move.b #0, ($00FF1879).l
+	rts
 loc_00002204:
 	MOVE.b	$00FF1878, $00FF0A3A
 	RTS
@@ -4385,15 +4482,64 @@ loc_00004102:
 	dc.l	loc_0000424C	;Predicted (Code target predicted at 0x424C)
 	dc.l	loc_0000424C
 	dc.l	loc_0000424C	;Predicted (Code target predicted at 0x424C)
-	dc.b	$00, $00, $41, $B6, $00, $00, $42, $4C, $00, $00, $41, $42, $00, $00, $42, $4C, $00, $00, $42, $4C, $00, $00, $42, $4C, $00, $00, $42, $4C, $00, $00, $42, $4C ;0x0 (0x00004116-0x0000424C, Entry count: 0x136) [Unknown data]
-	dc.b	$00, $00, $42, $4C, $00, $00, $42, $4C, $00, $00, $42, $4C, $43, $F9, $00, $00, $41, $90, $61, $00, $E9, $66, $65, $40, $13, $68, $00, $00, $00, $00, $13, $7C ;0x20
-	dc.b	$00, $10, $00, $08, $61, $00, $D0, $74, $02, $00, $00, $03, $06, $00, $00, $0F, $13, $40, $00, $09, $33, $68, $00, $0A, $00, $0A, $33, $68, $00, $0E, $00, $0E ;0x40
-	dc.b	$33, $7C, $14, $00, $00, $1C, $33, $7C, $FF, $FE, $00, $16, $33, $7C, $FF, $FF, $00, $20, $33, $7C, $00, $20, $00, $26, $4E, $75, $30, $3C, $00, $04, $61, $00 ;0x60
+	dc.l    loc_000041B6
+	dc.l    loc_0000424C
+	dc.l    loc_00004142
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+	dc.l    loc_0000424C
+loc_00004142:
+	LEA loc_00004190, A1
+	BSR.w loc_00002AB0
+	BCS.b loc_0000418E
+	MOVE.b $00(A0), $00(A1)
+	MOVE.b #$10, $08(A1)
+	BSR.w  loc_000011D0
+	ANDI.b #3, D0
+	ADDI.b #$F, D0
+	MOVE.b D0, $09(A1)
+	MOVE.w $0A(A0), $0A(A1)
+	MOVE.w $0E(A0), $0E(A1)
+	MOVE.w #$1400, $1C(A1)
+	MOVE.w #$FFFE, $16(A1)
+	MOVE.w #-1, $20(A1)
+	MOVE.w #$20, $26(A1)
+loc_0000418E:
+	RTS
+loc_00004190:
+	dc.b	$30, $3C, $00, $04, $61, $00 ;0x60
 	dc.b	$E9, $86, $61, $00, $E9, $8C, $11, $7C, $00, $85, $00, $06, $61, $00, $EA, $86, $53, $68, $00, $26, $67, $00, $00, $04, $4E, $75, $4E, $F9, $00, $00, $2A, $F2 ;0x80
-	dc.b	$10, $3C, $00, $20, $32, $3C, $01, $80, $36, $3C, $00, $03, $43, $F9, $00, $00, $42, $18, $61, $00, $E8, $E6, $65, $44, $13, $68, $00, $00, $00, $00, $13, $7C ;0xA0
-	dc.b	$00, $06, $00, $08, $13, $7C, $00, $0F, $00, $09, $33, $68, $00, $0A, $00, $0A, $33, $68, $00, $0E, $00, $0E, $33, $7C, $00, $18, $00, $26, $48, $E7, $80, $00 ;0xC0
-	dc.b	$4E, $B9, $00, $00, $12, $18, $23, $42, $00, $12, $4E, $B9, $00, $00, $12, $14, $23, $42, $00, $16, $4C, $DF, $00, $01, $06, $00, $00, $40, $51, $CB, $FF, $AE ;0xE0
-	dc.b	$4E, $75, $30, $3C, $00, $04, $61, $00, $E8, $FE, $61, $00, $E9, $04, $11, $7C, $00, $83, $00, $06, $4E, $B9, $00, $00, $2C, $2A, $53, $68, $00, $26, $67, $00 ;0x100
+loc_000041B6:
+	MOVE.b #$20, D0
+	MOVE.w #$180, D1
+	MOVE.w #3, D3
+loc_000041C2:
+	LEA loc_00004218, A1
+	BSR.w loc_00002AB0
+	BCS.b loc_00004212
+	MOVE.b $00(A0), $00(A1)
+	MOVE.b #$6, $08(A1)
+	MOVE.b #$F, $09(A1)
+	MOVE.w $0A(A0), $0A(A1)
+	MOVE.w $0E(A0), $0E(A1)
+	MOVE.w #$18, $26(A1)
+	MOVEM.l D0,-(SP)
+	JSR loc_00001218
+	MOVE.l D2, $12(A1)
+	JSR loc_00001214
+	MOVE.l D2, $16(A1)
+	MOVEM.l (SP)+,D0
+	ADDI.b  #$40, D0
+loc_00004212:
+	DBF D3, loc_000041C2
+	RTS
+loc_00004218:
+	dc.b	$30, $3C, $00, $04, $61, $00, $E8, $FE, $61, $00, $E9, $04, $11, $7C, $00, $83, $00, $06, $4E, $B9, $00, $00, $2C, $2A, $53, $68, $00, $26, $67, $00 ;0x100
 	dc.b	$00, $04, $4E, $75, $30, $3C, $00, $04, $61, $00, $E8, $DC, $61, $00, $E8, $E2, $4E, $F9, $00, $00, $2A, $F2 ;0x120
 loc_0000424C:
 	MOVE.w	#3, D3
@@ -6192,6 +6338,7 @@ loc_00006040:
 	SWAP	D0
 	MOVE.w	#$0F00, D0
 	JMP	loc_00000C4C
+loc_00006056:
 	dc.b	$48, $E7, $00, $80, $41, $F9, $00, $02, $78, $00, $30, $3C, $40, $00, $4E, $B9, $00, $00, $0C, $82, $4C, $DF, $01, $00, $43, $F9, $00, $00, $61, $E2, $61, $00 ;0x0 (0x00006056-0x000063BA, Entry count: 0x364) [Unknown data]
 	dc.b	$C9, $DE, $65, $00, $00, $48, $13, $7C, $00, $80, $00, $06, $13, $7C, $00, $27, $00, $08, $23, $48, $00, $2E, $13, $68, $00, $2A, $00, $2A, $0A, $29, $00, $01 ;0x20
 	dc.b	$00, $2A, $43, $F9, $00, $00, $62, $7E, $61, $00, $C9, $B4, $65, $00, $00, $1E, $13, $7C, $00, $93, $00, $06, $13, $7C, $00, $27, $00, $08, $13, $7C, $00, $01 ;0x40
@@ -6879,7 +7026,7 @@ z80Load_Loop1:
 	LEA	z80SoundDriver, A0	;Predicted (Code-scan)
 	LEA	Z80Ram, A1	;Predicted (Code-scan)
 	MOVE.w	#$13FF, D0	;Predicted (Code-scan)
-z80Load_LoadData:
+z80Load_LoadData: ; 000071C0
 	MOVE.b	(A0)+, (A1)+	;Predicted (Code-scan)
 	DBF	D0, z80Load_LoadData	;Predicted (Code-scan)
 	MOVE.b	#0, $00A01F00	;Predicted (Code-scan)
@@ -8692,6 +8839,7 @@ loc_0000A49A:
 	dc.b	$2F
 	dc.b	$FF
 	dc.b	$00 ;0x0 (0x0000A49D-0x0000A49E, Entry count: 0x1) [Unknown data]
+loc_0000A49E:
 	LEA	loc_0000A4AA, A1
 	JMP	loc_00002A54
 loc_0000A4AA:
@@ -9961,6 +10109,7 @@ loc_0000C520:
 	dc.b	$00, $08, $0A, $00, $00, $09, $0A, $16, $00, $0A, $0A, $2C, $00, $0B, $0A, $42, $00, $0C, $0A, $58, $80, $00 ;0x0 (0x0000C520-0x0000C536, Entry count: 0x16) [Unknown data]
 loc_0000C536:
 	dc.b	$00, $09, $0A, $00, $00, $0A, $0A, $16, $00, $0B, $0A, $2C, $00, $0C, $0A, $42, $80, $00 ;0x0 (0x0000C536-0x0000C548, Entry count: 0x12) [Unknown data]
+loc_0000C548:
 	LEA	loc_0000C562, A2
 	LEA	$00FF0116, A1
 	LEA	loc_00005622, A3
@@ -10599,6 +10748,7 @@ loc_0000CE2A:
 	ADDI.w	#$014C, D0
 	MOVE.w	D0, $E(A0)
 	RTS
+loc_0000CE58:
 	BSR.w	loc_0000D0F0
 	BSR.w	loc_0000CEBC
 	BSR.w	loc_00010B6C
@@ -11753,11 +11903,14 @@ loc_0000D34A:
 	dc.b	$00, $9C, $3C, $4E, $B9, $00, $00, $2A, $B0, $64, $00, $00, $04, $4E, $75, $23, $4A, $00, $2E, $13, $7C, $00, $08, $00, $08, $4E, $75, $02, $00, $08, $06, $0C ;0x3A0
 	dc.b	$13, $00, $0B, $FE, $00, $42, $40, $10, $39, $00, $FF, $01, $12, $43, $F9, $00, $00, $DB, $16, $13, $F1, $00, $00, $00, $FF, $01, $13, $43, $F9, $00, $00, $DB ;0x3C0
 	dc.b	$28, $4E, $F9, $00, $00, $2A, $54, $10, $00, $04, $0D, $03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $11, $11, $7C, $00, $FF, $00, $07, $61 ;0x3E0
-	dc.b	$00, $00, $D6, $4E, $B9, $00, $00, $2B, $26, $0C, $39, $00, $11, $00, $FF, $01, $13, $65, $00, $00, $1C, $30, $3C, $00, $2E, $4E, $B9, $00, $00, $0B, $F2, $4E ;0x400
+	dc.b	$00, $00, $D6, $4E, $B9, $00, $00, $2B, $26, $0C, $39, $00, $11, $00, $FF, $01, $13, $65, $00, $00, $1C, $30, $3C, $00, $2E, $4E, $B9, $00, $00, $0B, $F2, $4E ;0x400 (DB2F)
 	dc.b	$B9, $00, $00, $2B, $26, $30, $3C, $00, $2F, $4E, $B9, $00, $00, $0B, $F2, $61, $00, $00, $D6, $4E, $B9, $00, $00, $2B, $26, $61, $00, $02, $68, $42, $39, $00 ;0x420
 	dc.b	$FF, $18, $86, $30, $3C, $00, $C0, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $40, $10, $39, $00, $FF, $01, $12, $61, $00, $03, $60, $33 ;0x440
 	dc.b	$FC, $00, $01, $00, $FF, $18, $AA, $30, $3C, $00, $A0, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $0C, $39, $00, $11, $00, $FF, $01, $12, $65 ;0x460
-	dc.b	$00, $00, $12, $30, $3C, $01, $00, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $28, $00, $07, $30, $3C, $00, $24, $4E, $B9, $00, $00, $2B ;0x480
+	dc.b	$00, $00, $12
+; BAD CODE
+loc_0000DBB2:
+	dc.b    $30, $3C, $01, $00, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $28, $00, $07, $30, $3C, $00, $24, $4E, $B9, $00, $00, $2B ;0x480 (DBAF)
 	dc.b	$1C, $4E, $B9, $00, $00, $2B, $26, $61, $00, $02, $92, $42, $39, $00, $FF, $0A, $3B, $42, $39, $00, $FF, $0A, $3A, $52, $39, $00, $FF, $01, $12, $0C, $39, $00 ;0x4A0
 	dc.b	$12, $00, $FF, $01, $12, $64, $00, $00, $0A, $13, $FC, $00, $01, $00, $FF, $0A, $3A, $4E, $F9, $00, $00, $2A, $F2, $42, $40, $10, $39, $00, $FF, $01, $12, $43 ;0x4C0
 	dc.b	$F9, $00, $00, $DC, $4E, $42, $41, $12, $31, $00, $00, $6B, $00, $00, $18, $E5, $49, $43, $F9, $00, $00, $DC, $60, $24, $71, $10, $00, $48, $E7, $00, $80, $4E ;0x4E0
@@ -11836,7 +11989,7 @@ loc_0000E140:
 	dc.l	loc_0000E260
 	dc.l	loc_0000E182
 	dc.l	loc_0000E1A0	;Predicted (Code target predicted at 0xE1A0)
-	dc.l	vectorTable	;Predicted (Code target predicted at 0x0)
+	dc.l	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.l	loc_0000E242
 	dc.l	loc_00007356	;Predicted (Code target predicted at 0x7356)
 loc_0000E16C:
@@ -13175,6 +13328,7 @@ loc_0000FFFA:
 	ADD.w	D1, D3
 	LSL.w	#1, D3
 	MOVE.w	#$FFFF, D4
+loc_0001000B:
 	BSR.w	loc_00010066
 	MOVE.w	#1, D4
 	BSR.w	loc_00010066
@@ -14868,35 +15022,35 @@ loc_00011C4E:
 loc_00011C76:
 	dc.l	loc_0001FFFC	;Predicted
 	dc.l	$0100856C	;Predicted
-	dc.l	vectorTable+1	;Predicted
+	dc.l	$00000000+1	;Predicted
 loc_00011C82:
 	dc.l	$FFFC0100	;Predicted
 	dc.l	$856E0000	;Predicted
 loc_00011C8A:
 	dc.l	loc_0001FFFC	;Predicted
 	dc.l	$01008570	;Predicted
-	dc.l	vectorTable+1	;Predicted
+	dc.l	$00000000+1	;Predicted
 loc_00011C96:
 	dc.l	$FFFC0100	;Predicted
 	dc.l	$85720000	;Predicted
 loc_00011C9E:
 	dc.l	loc_0001FFFC	;Predicted
 	dc.l	$01008574	;Predicted
-	dc.l	vectorTable+1	;Predicted
+	dc.l	$00000000+1	;Predicted
 loc_00011CAA:
 	dc.l	$FFFC0100	;Predicted
 	dc.l	$85760000	;Predicted
 loc_00011CB2:
 	dc.l	loc_0001FFFC	;Predicted
 	dc.l	$01008578	;Predicted
-	dc.l	vectorTable+1	;Predicted
+	dc.l	$00000000+1	;Predicted
 loc_00011CBE:
 	dc.l	$FFFC0100	;Predicted
 	dc.l	$857A0000	;Predicted
 loc_00011CC6:
 	dc.l	loc_0001FFFC	;Predicted
 	dc.l	$0100857C	;Predicted
-	dc.l	vectorTable+1	;Predicted
+	dc.l	$00000000+1	;Predicted
 loc_00011CD2:
 	dc.l	$FFFC0100	;Predicted
 	dc.l	$857E0000	;Predicted
@@ -15490,13 +15644,13 @@ loc_00013816:
 	dc.l	loc_00013AAC
 	dc.l	loc_00013ABE
 	dc.l	loc_000138C2	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_00013AD0	;Predicted
 	dc.l	loc_00013ADA	;Predicted
 	dc.l	loc_00013AE4	;Predicted
 	dc.l	loc_00013AEE	;Predicted
 	dc.l	loc_00013B20	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_00013AF8
 	dc.l	loc_00013B02
 	dc.l	loc_00013B0C
@@ -15510,13 +15664,13 @@ loc_00013816:
 	dc.l	loc_000139A0
 	dc.l	loc_000139BA
 	dc.l	loc_000139DC
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_00013A06
 	dc.l	loc_00013A10	;Predicted
 	dc.l	loc_00013A22	;Predicted
 	dc.l	loc_00013A3C	;Predicted
 	dc.l	loc_00013A5E	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_0001389E	;Predicted
 	dc.l	loc_000138B0	;Predicted
 loc_0001389E:
@@ -15831,8 +15985,16 @@ loc_000141EA:
 	dc.l	loc_00014280	;Predicted
 	dc.l	loc_0001425E
 	dc.l	loc_00014270	;Predicted
-	dc.b	$00, $00, $00, $00, $00, $01, $43, $14, $00, $01, $42, $2E, $00, $00, $C2, $94, $E5, $00, $34, $38, $1E, $3A, $3A, $00, $06, $34, $00, $3A, $3C, $16, $38, $3C ;0x0 (0x00014222-0x0001424A, Entry count: 0x28) [Unknown data]
-	dc.b	$00, $18, $3E, $3C, $3C, $32, $30, $FF ;0x20
+	dc.b	$00, $00, $00, $00
+	dc.b    $00, $01, $43, $14
+	dc.b    $00, $01, $42, $2E
+	dc.b    $00, $00, $C2, $94
+	dc.b    $E5, $00, $34, $38
+	dc.b    $1E, $3A, $3A, $00
+	dc.b    $06, $34, $00, $3A; THE
+	dc.b    $3C, $16, $38, $3C
+	dc.b	$00, $18, $3E, $3C
+	dc.b    $3C, $32, $30, $FF ;0x20
 loc_0001424A:
 	dc.b	$00, $00, $00, $00, $07, $02, $A5, $00, $00, $30, $32, $00, $18, $32, $30, $3E, $3A, $00, $FF, $00 ;0x0 (0x0001424A-0x0001425E, Entry count: 0x14) [Unknown data]
 loc_0001425E:
@@ -15901,7 +16063,8 @@ loc_00014440:
 	MOVEA.l	loc_0001444C(PC,D2.w), A4
 	JMP	(A4)
 loc_0001444C:
-	dc.l	loc_0001514A
+	dc.l	
+	
 	dc.l	loc_00015204
 	dc.l	loc_00015212
 	dc.l	loc_00014E82	;Predicted (Code target predicted at 0x14E82)
@@ -16439,7 +16602,7 @@ loc_00014C34:
 	ADDQ.b	#1, $1(A3,D2.w)
 	RTS
 loc_00014C44:
-	dc.b	$00, $01, $4C, $DA ;0x0 (0x00014C44-0x00014C48, Entry count: 0x4) [Unknown data]
+	dc.l	loc_00014CDA ;0x0 (0x00014C44-0x00014C48, Entry count: 0x4) [Unknown data]
 	dc.l	loc_00014CC0
 	dc.l	loc_00014CAA
 loc_00014C50:
@@ -16471,6 +16634,7 @@ loc_00014CC0:
 	MOVE.w	D5, vdpData1
 	ADDQ.w	#2, D5
 	MOVE.w	D5, vdpData1
+loc_00014CDA:
 	MOVE.w	D1, D5
 	ADDI.w	#$0100, D5
 	BSR.w	loc_000157BA
@@ -16653,7 +16817,7 @@ loc_0001514A:
 	CLR.w	D2
 	MOVE.b	$1(A2), D2
 	LSL.w	#2, D2
-	LEA	loc_000141EA, A3
+	LEA	loc_000141EA, A3 ;THE 
 	MOVEA.l	(A3,D2.w), A4
 	MOVE.b	$2(A2), D4
 	BEQ.w	loc_0001517A
@@ -17044,7 +17208,7 @@ loc_00015678:
 	dc.l	loc_000156A8
 	dc.l	loc_000156C8
 	dc.l	loc_000156E4	;Predicted (Code target predicted at 0x156E4)
-	dc.b	$00, $01, $57, $1C ;0x0 (0x00015688-0x0001568C, Entry count: 0x4) [Unknown data]
+	dc.l	loc_0001571C ;0x0 (0x00015688-0x0001568C, Entry count: 0x4) [Unknown data]
 loc_0001568C:
 	MOVE.w	(A3)+, D6
 loc_0001568E:
@@ -17107,6 +17271,8 @@ loc_00015704:
 loc_00015714:
 	MOVE.w	D6, vdpData1	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
+loc_0001571C:
+; BAD CODE
 	dc.b	$28, $5B, $2A, $5B, $3C, $1B ;0x0 (0x0001571C-0x00015722, Entry count: 0x6) [Unknown data]
 loc_00015722:
 	CLR.b	D2	;Predicted (Code-scan)
@@ -17502,32 +17668,32 @@ loc_00017170:
 	dc.l	loc_0001727A
 	dc.l	loc_000172BC
 	dc.l	loc_000172FE
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_0001795E	;Predicted
 	dc.l	loc_00017828	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_0001771E
 	dc.l	loc_00017340
 	dc.l	loc_00017500
 	dc.l	loc_00017500	;Predicted
 	dc.l	loc_00017500	;Predicted
 	dc.l	loc_000174D6
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	loc_0001746A
 	dc.l	loc_000174CA-2
 	dc.l	loc_00017A28	;Predicted
@@ -17555,6 +17721,9 @@ loc_00017238:
 	dc.l	loc_0001C924
 	dc.b	$E3, $00 ;0x0 (0x00017278-0x0001727A, Entry count: 0x2) [Unknown data]
 loc_0001727A:
+
+
+
 	dc.b	$00, $04, $00, $01, $72, $8C, $00, $01, $72, $98, $00, $01, $72, $A4, $00, $01, $72, $B0, $00, $04, $10, $02, $CA, $18 ;0x0 (0x0001727A-0x00017292, Entry count: 0x18) [Unknown data]
 	dc.l	loc_0001C864
 	dc.b	$E3, $00, $00, $04, $10, $02, $CD, $18 ;0x0 (0x00017296-0x0001729E, Entry count: 0x8) [Unknown data]
@@ -17585,62 +17754,122 @@ loc_000172FE:
 	dc.l	loc_0001C904
 	dc.b	$E3, $00 ;0x0 (0x0001733E-0x00017340, Entry count: 0x2) [Unknown data]
 loc_00017340:
-	dc.b	$00, $13, $00, $01, $73, $8E, $00, $01, $73, $96, $00, $01, $73, $A2, $00, $01, $73, $AE, $00, $01, $73, $B6, $00, $01, $73, $C2, $00, $01, $73, $CE, $00, $01 ;0x0 (0x00017340-0x00017398, Entry count: 0x58) [Unknown data]
-	dc.b	$73, $DA, $00, $01, $73, $E6, $00, $01, $73, $F2, $00, $01, $73, $FE, $00, $01, $74, $0A, $00, $01, $74, $16, $00, $01, $74, $22, $00, $01, $74, $2E, $00, $01 ;0x20
-	dc.b	$74, $3A, $00, $01, $74, $46, $00, $01, $74, $52, $00, $01, $74, $5E, $00, $00, $50, $1C, $C0, $00, $80, $00, $00, $04 ;0x40
+	dc.w    $0013
+	dc.l    loc_0001738E
+	dc.l    loc_00017396
+	dc.l    loc_000173A2
+	dc.l    loc_000173AE
+	dc.l    loc_000173B6
+	dc.l    loc_000173C2
+	dc.l    loc_000173CE
+	dc.l    loc_000173DA
+	dc.l    loc_000173E6
+	dc.l    loc_000173F2
+	dc.l    loc_000173FE
+	dc.l    loc_0001740A
+	dc.l    loc_00017416
+	dc.l    loc_00017422
+	dc.l    loc_0001742E
+	dc.l    loc_0001743A
+	dc.l    loc_00017446
+	dc.l    loc_00017452
+	dc.l    loc_0001745E
+
+loc_0001738E: ; 2
+	dc.b	$00, $00, $50, $1C, $C0, $00, $80, $00
+loc_00017396: ; 3
+	dc.w    $0004 
 	dc.l	$200EEE00	;Predicted
 	dc.l	loc_0001862C
-	dc.l	$01000004	;Predicted
+	dc.w	$0100
+loc_000173A2: ; 3
+	dc.w    $0004	;Predicted
 	dc.l	$080EEE40	;Predicted
 	dc.l	loc_0001882C
-	dc.l	$01000000	;Predicted
+	dc.w	$0100
+loc_000173AE: ; 2
+	dc.w    $0000	;Predicted
 	dc.l	$800EE000	;Predicted
-	dc.l	$02950004	;Predicted
+	dc.w	$0295
+loc_000173B6: ; 3
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E004	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173C2: ; 3
+	dc.w    $0004	;Predicted
 	dc.l	$0C04E438	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173CE:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E934	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173DA:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04E904	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173E6:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E352	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173F2:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04E988	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_000173FE:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E970	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_0001740A:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04E568	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_00017416:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E2A4	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_00017422:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04EAC8	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_0001742E:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05E8AC	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_0001743A:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04E4BC	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$02000004	;Predicted
+	dc.w	$0200
+loc_00017446:
+	dc.w    $0004	;Predicted
 	dc.l	$1E16C30A	;Predicted
 	dc.l	loc_0001C5B0
-	dc.l	$E0000004	;Predicted
+	dc.w	$E000
+loc_00017452:
+	dc.w    $0004	;Predicted
 	dc.l	$2017C250	;Predicted
 	dc.l	loc_0001C944
-	dc.l	$E0000004	;Predicted
+	dc.w	$E000
+loc_0001745E:
+	dc.w    $0004	;Predicted
 	dc.l	$0817C290	;Predicted
 	dc.l	loc_0001CC24
-	dc.b	$E0, $00 ;0x0 (0x00017468-0x0001746A, Entry count: 0x2) [Unknown data]
+	dc.w	$E000
+	
+; Lookup End	
+
+
 loc_0001746A:
 	dc.b	$00, $07, $00, $01, $74, $88, $00, $01, $74, $90, $00, $01, $74, $98, $00, $01, $74, $A0, $00, $01, $74, $AC, $00, $01, $74, $B8, $00, $01, $74, $C0, $00, $00 ;0x0 (0x0001746A-0x000174A2, Entry count: 0x38) [Unknown data]
 	dc.b	$17, $19, $C1, $1E, $80, $00, $00, $00, $16, $11, $E1, $20, $63, $FD, $00, $00, $15, $10, $E1, $A2, $63, $FC, $00, $04 ;0x20
@@ -17660,99 +17889,290 @@ loc_000174CE:
 	dc.l	loc_00001614-3	;Predicted
 	dc.l	$C1208000	;Predicted
 loc_000174D6:
-	dc.l	loc_00030001	;Predicted
-	dc.l	$74E40001	;Predicted
-	dc.l	$74EC0001	;Predicted
-	dc.l	$74F40000	;Predicted
+	dc.w	$0003	;Predicted
+	dc.l	loc_000174E4	;Predicted
+	dc.l	loc_000174EC	;Predicted
+	dc.l	loc_000174F4
+loc_000174E4:
+	dc.w    $0000	;Predicted
 	dc.l	$401CC000	;Predicted
-	dc.l	$80000000	;Predicted
+	dc.w	$8000
+loc_000174EC:
+	dc.w    $0000	;Predicted
 	dc.l	$401CE000	;Predicted
-	dc.l	vectorTable+4	;Predicted
+	dc.w	$0000
+loc_000174F4
+	dc.w    $0004	;Predicted
 	dc.l	$0C04C61C	;Predicted
-	dc.l	loc_0001C4B6
+	dc.l	loc_0001C4B6 ; Shiftability (should this be this?)
 	dc.b	$80, $00 ;0x0 (0x000174FE-0x00017500, Entry count: 0x2) [Unknown data]
+	
+	
 loc_00017500:
-	dc.b	$00, $08, $00, $01, $75, $22, $00, $01, $75, $2A, $00, $01, $75, $34, $00, $01, $75, $3E, $00, $01, $75, $48, $00, $01, $75, $54, $00, $01, $75, $60, $00, $01 ;0x0 (0x00017500-0x00017530, Entry count: 0x30) [Unknown data]
-	dc.b	$75, $6C, $00, $00, $80, $20, $C0, $00, $05, $00, $00, $08, $28, $04, $E0, $00 ;0x20
+	dc.w	$0008 ; Lookup Table Size
+	dc.l    loc_00017522
+	dc.l    loc_0001752A
+	dc.l    loc_00017534
+	dc.l    loc_0001753E
+	dc.l    loc_00017548
+	dc.l    loc_00017554
+	dc.l    loc_00017560
+	dc.l    loc_0001756C
+loc_00017522:
+	dc.b	$00, $00, $80, $20, $C0, $00, $05, $00
+loc_0001752A:
+	dc.b    $00, $08, $28, $04, $E0, $00 ;0x20
 	dc.l	loc_0001A73E
+loc_00017534:
 	dc.b	$00, $08, $28, $0C, $E4, $00 ;0x0 (0x00017534-0x0001753A, Entry count: 0x6) [Unknown data]
 	dc.l	loc_0001A4BE
+loc_0001753E:
 	dc.b	$00, $08, $28, $0C, $F0, $00 ;0x0 (0x0001753E-0x00017544, Entry count: 0x6) [Unknown data]
 	dc.l	loc_0001A4BE
+loc_00017548:
 	dc.b	$00, $04, $08, $07, $C6, $08 ;0x0 (0x00017548-0x0001754E, Entry count: 0x6) [Unknown data]
 	dc.l	loc_0001A87E
-	dc.b	$E3, $00, $00, $04, $08, $07, $C6, $18 ;0x0 (0x00017552-0x0001755A, Entry count: 0x8) [Unknown data]
+	dc.b    $E3, $00
+loc_00017554:
+	dc.b	$00, $04, $08, $07, $C6, $18 ;0x0 (0x00017552-0x0001755A, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001A8B6
-	dc.b	$E3, $00, $00, $04, $08, $07, $C6, $28 ;0x0 (0x0001755E-0x00017566, Entry count: 0x8) [Unknown data]
+	dc.b    $E3, $00
+loc_00017560:
+	dc.b	$00, $04, $08, $07, $C6, $28 ;0x0 (0x0001755E-0x00017566, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001A8EE
-	dc.b	$E3, $00, $00, $04, $08, $07, $C6, $38 ;0x0 (0x0001756A-0x00017572, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00 
+loc_0001756C:
+	dc.b	$00, $04, $08, $07, $C6, $38 ;0x0 (0x0001756A-0x00017572, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001A926
 	dc.b	$E3, $00 ;0x0 (0x00017576-0x00017578, Entry count: 0x2) [Unknown data]
+	
+; Lookup Start
 loc_00017578:
-	dc.b	$00, $0A, $00, $01, $75, $A2, $00, $01, $75, $AA, $00, $01, $75, $B2, $00, $01, $75, $BA, $00, $01, $75, $C6, $00, $01, $75, $D2, $00, $01, $75, $DE, $00, $01 ;0x0 (0x00017578-0x0001760A, Entry count: 0x92) [Unknown data]
-	dc.b	$75, $E6, $00, $01, $75, $F2, $00, $01, $75, $FE, $00, $00, $40, $1C, $C0, $00, $80, $FF, $00, $00, $20, $03, $C7, $08, $80, $00, $00, $00, $40, $1C, $E0, $00 ;0x20
-	dc.b	$00, $00, $00, $04, $20, $07, $C8, $88, $00, $01, $A1, $5E, $81, $00, $00, $04, $20, $09, $C2, $08, $00, $01, $9F, $BE, $80, $00, $00, $04, $20, $01, $C6, $88 ;0x40
-	dc.b	$00, $01, $9F, $9E, $80, $00, $00, $00, $40, $09, $E2, $00, $00, $0F, $00, $04, $20, $04, $E6, $80, $00, $01, $9F, $1E, $00, $00, $00, $04, $20, $04, $E6, $C0 ;0x60
-	dc.b	$00, $01, $9F, $1E, $00, $00, $00, $04, $20, $04, $E6, $88, $00, $01, $9F, $1E, $00, $00 ;0x80
-loc_0001760A:
-	dc.b	$00, $01, $00, $01, $76, $10, $00, $04, $20, $14, $C2, $08, $00, $01, $A2, $3E, $81, $00 ;0x0 (0x0001760A-0x0001761C, Entry count: 0x12) [Unknown data]
+	dc.w    $000A
+	dc.l    loc_000175A2
+	dc.l    loc_000175AA
+	dc.l    loc_000175B2
+	dc.l    loc_000175BA
+	dc.l    loc_000175C6
+	dc.l    loc_000175D2
+	dc.l    loc_000175DE
+	dc.l    loc_000175E6
+	dc.l    loc_000175F2
+	dc.l    loc_000175FE
+; TODO: Go back through these and add proper lables for ones marked $0004 (and $0008)
+loc_000175A2:
+	dc.b	$00, $00, $40, $1C, $C0, $00, $80, $FF
+loc_000175AA:
+	dc.b	$00, $00, $20, $03, $C7, $08, $80, $00
+loc_000175B2:
+	dc.b    $00, $00, $40, $1C, $E0, $00, $00, $00
+loc_000175BA:
+	dc.b	$00, $04, $20, $07, $C8, $88, $00, $01, $A1, $5E, $81, $00
+loc_000175C6:
+	dc.b    $00, $04, $20, $09, $C2, $08, $00, $01, $9F, $BE, $80, $00
+loc_000175D2:
+	dc.b 	$00, $04, $20, $01, $C6, $88, $00, $01, $9F, $9E, $80, $00
+loc_000175DE:
+	dc.b 	$00, $00, $40, $09, $E2, $00, $00, $0F
+loc_000175E6:
+	dc.b 	$00, $04, $20, $04, $E6, $80, $00, $01, $9F, $1E, $00, $00
+loc_000175F2:
+	dc.b 	$00, $04, $20, $04, $E6, $C0, $00, $01, $9F, $1E, $00, $00
+loc_000175FE:
+	dc.b    $00, $04, $20, $04, $E6, $88, $00, $01, $9F, $1E, $00, $00
+; Lookup End
+	
+; Lookup Start
+	
+loc_0001760A: ; SO MANY LOOKUP TABLES
+	dc.w	$0001
+	dc.l    loc_00017610
+loc_00017610:
+	dc.b	$00, $04, $20, $14, $C2, $08, $00, $01, $A2, $3E, $81, $00
+	
+; Lookup End
+	
 loc_0001761C:
-	dc.b	$00, $06, $00, $01, $76, $36, $00, $01, $76, $3E, $00, $01, $76, $46, $00, $01, $76, $52, $00, $01, $76, $5E, $00, $01, $76, $6A, $00, $00, $80, $1C, $C0, $00 ;0x0 (0x0001761C-0x00017676, Entry count: 0x5A) [Unknown data]
-	dc.b	$00, $00, $00, $00, $80, $1C, $E0, $00, $00, $00, $00, $04, $18, $10, $C8, $20, $00, $01, $9D, $3E, $22, $00, $00, $04, $18, $04, $D8, $20, $00, $01, $9E, $BE ;0x20
-	dc.b	$23, $00, $00, $04, $20, $0D, $E4, $08, $00, $01, $9F, $BE, $00, $00, $00, $04, $20, $07, $F1, $08, $00, $01, $A1, $5E, $01, $00 ;0x40
+	dc.w	$0006
+	dc.l	loc_00017636
+	dc.l	loc_0001763E
+	dc.l	loc_00017646
+	dc.l	loc_00017652
+	dc.l	loc_0001765E
+	dc.l	loc_0001766A
+	
+loc_00017636:
+	dc.b    $00, $00, $80, $1C, $C0, $00, $00, $00
+loc_0001763E:
+	dc.b	$00, $00, $80, $1C, $E0, $00, $00, $00
+loc_00017646:
+	dc.b    $00, $04, $18, $10, $C8, $20, $00, $01, $9D, $3E, $22, $00
+loc_00017652:
+	dc.b    $00, $04, $18, $04, $D8, $20, $00, $01, $9E, $BE, $23, $00
+loc_0001765E:
+	dc.b 	$00, $04, $20, $0D, $E4, $08, $00, $01, $9F, $BE, $00, $00
+loc_0001766A:
+	dc.b    $00, $04, $20, $07, $F1, $08, $00, $01, $A1, $5E, $01, $00
+	
+; Lookup End
+	
 loc_00017676:
-	dc.b	$00, $09, $00, $01, $76, $9C, $00, $01, $76, $A4, $00, $01, $76, $B0, $00, $01, $76, $BC, $00, $01, $76, $C8, $00, $01, $76, $D4, $00, $01, $76, $E0, $00, $01 ;0x0 (0x00017676-0x000176AA, Entry count: 0x34) [Unknown data]
-	dc.b	$76, $EC, $00, $01, $76, $F8, $00, $00, $80, $1C, $C0, $00, $85, $00, $00, $04, $20, $1C, $E0, $00 ;0x20
+	dc.w    $0009
+	dc.l	loc_0001769C
+	dc.l	loc_000176A4
+	dc.l	loc_000176B0
+	dc.l	loc_000176BC
+	dc.l	loc_000176C8
+	dc.l	loc_000176D4
+	dc.l	loc_000176E0
+	dc.l	loc_000176EC
+	dc.l	loc_000176F8
+
+loc_0001769C:
+	dc.b	$00, $00, $80, $1C, $C0, $00, $85, $00
+loc_000176A4:
+	dc.b    $00, $04, $20, $1C, $E0, $00 ;0x20
 	dc.l	loc_000198C2
-	dc.b	$03, $00, $00, $04, $08, $1C, $E0, $40 ;0x0 (0x000176AE-0x000176B6, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176B0:
+	dc.b	$00, $04, $08, $1C, $E0, $40 ;0x0 (0x000176AE-0x000176B6, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00019C42
-	dc.b	$03, $00, $00, $04, $20, $1C, $E0, $50 ;0x0 (0x000176BA-0x000176C2, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176BC:
+	dc.b    $00, $04, $20, $1C, $E0, $50 ;0x0 (0x000176BA-0x000176C2, Entry count: 0x8) [Unknown data]
 	dc.l	loc_000198C2
-	dc.b	$03, $00, $00, $04, $08, $1C, $E0, $90 ;0x0 (0x000176C6-0x000176CE, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176C8:
+	dc.b    $00, $04, $08, $1C, $E0, $90 ;0x0 (0x000176C6-0x000176CE, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00019C42
-	dc.b	$03, $00, $00, $04, $02, $0E, $EA, $58 ;0x0 (0x000176D2-0x000176DA, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176D4:
+	dc.b    $00, $04, $02, $0E, $EA, $58 ;0x0 (0x000176D2-0x000176DA, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00019D22
-	dc.b	$03, $00, $00, $04, $20, $1C, $E0, $B0 ;0x0 (0x000176DE-0x000176E6, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176E0:
+	dc.b    $00, $04, $20, $1C, $E0, $B0 ;0x0 (0x000176DE-0x000176E6, Entry count: 0x8) [Unknown data]
 	dc.l	loc_000198C2
-	dc.b	$03, $00, $00, $04, $08, $1C, $E0, $F0 ;0x0 (0x000176EA-0x000176F2, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176EC:
+	dc.b    $00, $04, $08, $1C, $E0, $F0 ;0x0 (0x000176EA-0x000176F2, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00019C42
-	dc.b	$03, $00, $00, $04, $02, $0E, $EA, $B8 ;0x0 (0x000176F6-0x000176FE, Entry count: 0x8) [Unknown data]
+	dc.b	$03, $00
+loc_000176F8:
+	dc.b    $00, $04, $02, $0E, $EA, $B8 ;0x0 (0x000176F6-0x000176FE, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00019D22
 	dc.b	$03, $00 ;0x0 (0x00017702-0x00017704, Entry count: 0x2) [Unknown data]
+	
+; Lookup End
+	
 loc_00017704:
-	dc.b	$00, $02, $00, $01, $77, $0E, $00, $01, $77, $16, $00, $00, $80, $1C, $C0, $00, $85, $00, $00, $00, $80, $1C, $E0, $00, $05, $00 ;0x0 (0x00017704-0x0001771E, Entry count: 0x1A) [Unknown data]
+	dc.w    $0002
+	dc.l	loc_0001770E
+	dc.l	loc_00017716
+	
+loc_0001770E:
+	dc.b	$00, $00, $80, $1C, $C0, $00, $85, $00
+loc_00017716:
+	dc.b    $00, $00, $80, $1C, $E0, $00, $05, $00
+	
+; Lookup End
+
+
 loc_0001771E:
-	dc.b	$00, $01, $00, $01, $77, $24, $00, $00, $33, $1C, $C0, $0E, $85, $00 ;0x0 (0x0001771E-0x0001772C, Entry count: 0xE) [Unknown data]
+	dc.w    $0001
+	dc.l    loc_00017724
+	
+loc_00017724:
+	dc.b    $00, $00, $33, $1C, $C0, $0E, $85, $00 ;0x0 (0x0001771E-0x0001772C, Entry count: 0xE) [Unknown data]
+	
+; Lookup End
+	
 loc_0001772C:
-	dc.b	$00, $07, $00, $01, $77, $52, $00, $01, $77, $62, $00, $01, $77, $6E, $00, $01, $77, $7A, $00, $01, $77, $86, $00, $01, $77, $5A, $00, $01, $77, $4A, $00, $00 ;0x0 (0x0001772C-0x00017768, Entry count: 0x3C) [Unknown data]
-	dc.b	$40, $1C, $C0, $00, $01, $F8, $00, $00, $28, $04, $E4, $00, $00, $01, $00, $00, $28, $02, $ED, $00, $01, $01, $00, $04, $20, $0C, $E4, $00 ;0x20
+	dc.w    $0007
+	dc.l    loc_00017752
+	dc.l    loc_00017762
+	dc.l    loc_0001776E
+	dc.l    loc_0001777A
+	dc.l    loc_00017786
+	dc.l    loc_0001775A
+	dc.l    loc_0001774A
+	
+loc_0001774A:
+	dc.b	$00, $00, $40, $1C, $C0, $00, $01, $F8
+loc_00017752:
+	dc.b    $00, $00, $28, $04, $E4, $00, $00, $01
+loc_0001775A:
+	dc.b    $00, $00, $28, $02, $ED, $00, $01, $01
+loc_00017762:
+	dc.b    $00, $04, $20, $0C, $E4, $00
 	dc.l	loc_00019612
-	dc.b	$00, $00, $00, $04, $08, $08, $E6, $40 ;0x0 (0x0001776C-0x00017774, Entry count: 0x8) [Unknown data]
+	dc.b	$00, $00
+loc_0001776E:
+	dc.b    $00, $04, $08, $08, $E6, $40
 	dc.l	loc_00019792
-	dc.b	$00, $00, $00, $04, $20, $06, $EA, $00 ;0x0 (0x00017778-0x00017780, Entry count: 0x8) [Unknown data]
+	dc.b	$00, $00
+loc_0001777A:
+	dc.b    $00, $04, $20, $06, $EA, $00
 	dc.l	loc_000197D2
-	dc.b	$01, $00, $00, $04, $08, $06, $EA, $40 ;0x0 (0x00017784-0x0001778C, Entry count: 0x8) [Unknown data]
+	dc.b	$01, $00
+loc_00017786:
+    dc.b    $00, $04, $08, $06, $EA, $40
 	dc.l	loc_00019892
-	dc.b	$01, $00, $00, $00, $28, $04, $CE, $00, $80, $00, $00, $00, $28, $04, $EE, $00, $80, $00 ;0x0 (0x00017790-0x000177A2, Entry count: 0x12) [Unknown data]
+	dc.b	$01, $00 
+	
+	
+
+loc_00017792:
+	dc.b    $00, $00, $28, $04, $CE, $00, $80, $00, $00, $00, $28, $04, $EE, $00, $80, $00
+	
 loc_000177A2:
-	dc.b	$00, $09, $00, $01, $77, $C8, $00, $01, $77, $D4, $00, $01, $77, $E0, $00, $01, $77, $EC, $00, $01, $77, $F8, $00, $01, $78, $04, $00, $01, $78, $10, $00, $01 ;0x0 (0x000177A2-0x000177CE, Entry count: 0x2C) [Unknown data]
-	dc.b	$78, $1C, $00, $01, $77, $92, $00, $04, $20, $0E, $C0, $00 ;0x20
+	dc.w    $0009
+	dc.l    loc_000177C8
+	dc.l    loc_000177D4
+	dc.l    loc_000177E0
+	dc.l    loc_000177EC
+	dc.l    loc_000177F8
+	dc.l    loc_00017804
+	dc.l    loc_00017810
+	dc.l    loc_0001781C
+	dc.l    loc_00017792
+
+loc_000177C8:
+	dc.b    $00, $04, $20, $0E, $C0, $00
 	dc.l	loc_00017D6C
-	dc.b	$C0, $00, $00, $04, $08, $0E, $C0, $40 ;0x0 (0x000177D2-0x000177DA, Entry count: 0x8) [Unknown data]
+	dc.b	$C0, $00
+loc_000177D4:
+	dc.b    $00, $04, $08, $0E, $C0, $40
 	dc.l	loc_00017F2C
-	dc.b	$C0, $00, $00, $04, $20, $0E, $C7, $00 ;0x0 (0x000177DE-0x000177E6, Entry count: 0x8) [Unknown data]
+	dc.b	$C0, $00
+loc_000177E0:
+	dc.b    $00, $04, $20, $0E, $C7, $00
 	dc.l	loc_00017F9C
-	dc.b	$C0, $00, $00, $04, $08, $0E, $C7, $40 ;0x0 (0x000177EA-0x000177F2, Entry count: 0x8) [Unknown data]
+	dc.b	$C0, $00
+loc_000177EC:
+	dc.b    $00, $04, $08, $0E, $C7, $40
 	dc.l	loc_0001815C
-	dc.b	$C0, $00, $00, $04, $20, $0E, $E0, $00 ;0x0 (0x000177F6-0x000177FE, Entry count: 0x8) [Unknown data]
+	dc.b	$C0, $00
+loc_000177F8:
+	dc.b    $00, $04, $20, $0E, $E0, $00
 	dc.l	loc_000181CC
-	dc.b	$40, $00, $00, $04, $08, $0E, $E0, $40 ;0x0 (0x00017802-0x0001780A, Entry count: 0x8) [Unknown data]
+	dc.b	$40, $00
+loc_00017804:
+	dc.b    $00, $04, $08, $0E, $E0, $40
 	dc.l	loc_0001838C
-	dc.b	$40, $00, $00, $04, $20, $0E, $E7, $00 ;0x0 (0x0001780E-0x00017816, Entry count: 0x8) [Unknown data]
+	dc.b	$40, $00
+loc_00017810:
+	dc.b    $00, $04, $20, $0E, $E7, $00
 	dc.l	loc_000183FC
-	dc.b	$40, $00, $00, $04, $08, $0E, $E7, $40 ;0x0 (0x0001781A-0x00017822, Entry count: 0x8) [Unknown data]
+	dc.b	$40, $00
+loc_0001781C:
+	dc.b    $00, $04, $08, $0E, $E7, $40
 	dc.l	loc_000185BC
-	dc.b	$40, $00 ;0x0 (0x00017826-0x00017828, Entry count: 0x2) [Unknown data]
+	dc.b	$40, $00
+	
+	
+	
+
 loc_00017828:
 	dc.b	$00, $04, $00, $01, $78, $3A, $00, $01, $78, $46, $00, $01, $78, $52, $00, $01, $78, $5E, $00, $04, $20, $0E, $C0, $00, $00, $01, $A9, $5E, $E0, $00, $00, $04 ;0x0 (0x00017828-0x0001786A, Entry count: 0x42) [Unknown data]
 	dc.b	$08, $0E, $C0, $40, $00, $01, $AB, $1E, $E0, $00, $00, $04, $20, $0C, $C7, $00, $00, $01, $AB, $8E, $E0, $00, $00, $04, $08, $0C, $C7, $40, $00, $01, $AD, $4E ;0x20
@@ -17913,8 +18333,8 @@ loc_00017C84:
 	dc.l	$00975D00	;Predicted
 	dc.l	$82649BA1	;Predicted
 	dc.l	$6BA20020	;Predicted
-	dc.l	vectorTable+$28-1	;Predicted
-	dc.l	vectorTable+$2C-1	;Predicted
+	dc.l	$00000000+$28-1	;Predicted
+	dc.l	$00000000+$2C-1	;Predicted
 	dc.l	$0020002C	;Predicted
 	dc.l	$0027002D	;Predicted
 	dc.l	$002D002D	;Predicted
@@ -18658,12 +19078,47 @@ loc_0001CD0A:
 	BRA.w	loc_0001D3B4
 	LEA	loc_0001CE84, A1
 	JMP	loc_00002A54
-	dc.b	$13, $FC, $00, $FF, $00, $FF, $18, $34, $3A, $3C, $E0, $00, $30, $3C, $00, $1B, $3C, $3C, $40, $6C, $00, $7C, $07, $00, $4E, $B9, $00, $01, $57, $BA, $06, $45 ;0x0 (0x0001CD34-0x0001CDE8, Entry count: 0xB4) [Unknown data]
-	dc.b	$00, $80, $32, $3C, $00, $27, $33, $C6, $00, $C0, $00, $00, $0A, $06, $00, $01, $51, $C9, $FF, $F4, $02, $7C, $F8, $FF, $0A, $06, $00, $02, $51, $C8, $FF, $D6 ;0x20
-	dc.b	$61, $00, $06, $3E, $3A, $3C, $05, $A0, $3C, $3C, $A5, $00, $43, $F9, $00, $01, $CD, $A8, $61, $00, $09, $3C, $3A, $3C, $07, $96, $3C, $3C, $85, $00, $43, $F9 ;0x40
-	dc.b	$00, $01, $CD, $B2, $61, $00, $09, $2A, $43, $F9, $00, $01, $CD, $C6, $4E, $F9, $00, $00, $2A, $54, $21, $0B, $1C, $18, $13, $18, $11, $25, $FF, $00, $0D, $12 ;0x60
-	dc.b	$0F, $0D, $15, $1D, $1F, $17, $00, $13, $1D, $00, $21, $1C, $19, $18, $11, $25, $FF, $00, $30, $3C, $01, $00, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00 ;0x80
-	dc.b	$2B, $40, $42, $39, $00, $FF, $18, $34, $42, $39, $00, $FF, $0A, $3B, $4E, $F9, $00, $00, $2A, $F2 ;0xA0
+loc_0001CD34:
+	move.b #-1, ($00FF1834).l
+	move.w #$E000, D5
+	move.w #$1B, D0
+	move.w #$406C, D6
+loc_0001CD48:
+	ori #$700, SR
+	jsr	loc_000157BA
+	addi.w #$80, D5
+	move.w #$27, D1
+loc_0001CD5A:
+	move.w D6, (vdpData1).l
+	eori.b #1, D6
+	dbf D1, loc_0001CD5A
+	andi #$F8FF, SR
+	eori.b #2, D6
+	dbf D0, loc_0001CD48
+	bsr.w loc_0001D3B4
+	move.w #$5A0, D5
+	move.w #$A500, D6
+loc_0001CD80:
+	lea (loc_0001CDA8).l, A1
+	bsr.w loc_0001D6C4
+	move.w #$796, D5
+	move.w #$8500, D6
+	lea (loc_0001CDB2).l, A1
+	bsr.w loc_0001D6C4
+	lea (loc_0001CDC6).l, A1
+	jmp loc_00002A54
+loc_0001CDA8:
+	dc.b	$21, $0B, $1C, $18, $13, $18, $11, $25, $FF, $00
+loc_0001CDB2:
+	dc.b    $0D, $12 ;0x60
+	dc.b	$0F, $0D, $15, $1D, $1F, $17, $00, $13, $1D, $00, $21, $1C, $19, $18, $11, $25, $FF, $00
+loc_0001CDC6:
+	move.w #$100, D0
+	jsr loc_00002B1C
+	jsr loc_00002b40
+	clr.b ($00FF1834).l
+	clr.b ($00FF0A3B).l
+	jmp loc_00002AF2
 loc_0001CDE8:
 	LEA	loc_0001CDF4, A1
 	JMP	loc_00002A54
@@ -19156,11 +19611,11 @@ loc_0001D4AA:
 	dc.l	$28FF0790	;Predicted
 loc_0001D4BA:
 	dc.l	$85000000	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$1F1A28FF	;Predicted
 loc_0001D4C6:
 	dc.l	$08908500	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$0E192118	;Predicted
 	dc.l	$28FF0990	;Predicted
 loc_0001D4D6:
@@ -19169,7 +19624,7 @@ loc_0001D4D6:
 	dc.l	$121E28FF	;Predicted
 loc_0001D4E2:
 	dc.l	$0A908500	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$160F101E	;Predicted
 	dc.l	$28FF000A	;Predicted
 loc_0001D4F2:
@@ -19192,8 +19647,8 @@ loc_0001D52A:
 	dc.l	$0312E500	;Predicted
 	dc.l	$1A160B23	;Predicted
 	dc.l	$0F1C2E02	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable+$1C-2	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000+$1C-2	;Predicted
 	dc.l	$160B230F	;Predicted
 	dc.l	$1C2E03FF	;Predicted
 loc_0001D546:
@@ -19208,30 +19663,30 @@ loc_0001D546:
 loc_0001D566:
 	dc.l	$040CE500	;Predicted
 	dc.l	$0B280000	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$0B28FF00	;Predicted
 loc_0001D57E:
 	dc.l	$050CE500	;Predicted
 	dc.l	$0C280000	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$0C28FF00	;Predicted
 loc_0001D596:
 	dc.l	$060CE500	;Predicted
 	dc.l	$0D280000	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000	;Predicted
 	dc.l	$0D28FF00	;Predicted
 loc_0001D5AE:
 	dc.l	$078CE500	;Predicted
 	dc.l	$201D250D	;Predicted
 	dc.l	$19170016	;Predicted
 	dc.l	$0F200F16	;Predicted
-	dc.l	vectorTable+$28	;Predicted
+	dc.l	$00000000+$28	;Predicted
 	dc.l	$FF00088C	;Predicted
 loc_0001D5C6:
 	dc.l	$E500021A	;Predicted
@@ -19243,8 +19698,8 @@ loc_0001D5DA:
 	dc.l	$098CE500	;Predicted
 	dc.l	$1D0B171A	;Predicted
 	dc.l	$16131811	;Predicted
-	dc.l	vectorTable	;Predicted
-	dc.l	vectorTable+$28	;Predicted
+	dc.l	$00000000	;Predicted
+	dc.l	$00000000+$28	;Predicted
 	dc.l	$FF00021A	;Predicted
 loc_0001D5F2:
 	dc.l	$E500150F	;Predicted
@@ -19651,9 +20106,34 @@ loc_0001DB8E:
 loc_0001DB92:
 	; Apparently the ROM Checksum function is somewhere in here...
 	dc.b	$07, $B0, $08, $B0, $0A, $B0, $09, $B0, $05, $30, $06, $30, $04, $30, $03, $30, $07, $A4, $08, $A4, $0A, $A4, $09, $A4, $05, $24, $06, $24, $04, $24, $03, $24 ;0x0 (0x0001DB92-0x0001DC02, Entry count: 0x70) [Unknown data]
-	dc.b	$20, $3C, $00, $07, $FF, $FF, $52, $80, $41, $F8, $02, $00, $90, $88, $E2, $80, $34, $00, $53, $42, $48, $40, $72, $00, $D2, $58, $51, $CA, $FF, $FC, $51, $C8 ;0x20
-	dc.b	$FF, $F8, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $13, $FC, $00, $00, $00, $FF, $0A, $3A, $B2, $78, $01, $8E, $67, $00, $00, $0A ;0x40
-	dc.b	$13, $FC, $00, $FF, $00, $FF, $0A, $3A, $33, $C1, $00, $FF, $01, $06, $4E, $75 ;0x60
+getChecksum:
+	move.l #$7FFFF, D0
+	addq.l #1, D0
+	lea ($200).w, A0
+	sub.l A0, D0
+	asr.l #1, D0
+	move.w D0, D2
+	subq.w #1, D2
+	swap D0
+	moveq #0, D1
+loc_0001DBCA:
+	add.w (A0)+, D1
+	dbf D2, loc_0001DBCA
+	dbf D0, loc_0001DBCA
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	move.b #0, ($00FF0A3A).l
+	cmp.w (checksum).w, D1
+	beq.w loc_0001DBFA
+	move.b #$FF, ($00FF0A3A).l
+loc_0001DBFA:
+	move.w D1, ($00FF0106).l
+	rts
 loc_0001DC02:
 	MOVEM.l	A2/A1/D3/D2/D1/D0, -(A7)
 	LEA	$00FFFC02, A1
@@ -27316,982 +27796,17 @@ loc_00055AB6:
 	dc.b	$55, $43, $22, $21, $14, $44, $C2, $22, $41, $11, $11, $80, $F8, $0F, $55, $51, $1C, $22, $44, $44, $51, $C2, $44, $33, $45, $12, $33, $33, $34, $80, $03, $09 ;0x16E0
 	dc.b	$35, $12, $33, $34, $51, $C2, $11, $11, $52, $FE, $FF, $FF, $7F, $FB, $FF, $00 ;0x1700
 loc_000571C6:
-	dc.b	$01, $11, $80, $00, $04, $10, $00, $00, $00, $88, $03, $01, $01, $80, $0F, $01, $17, $84, $03, $01, $01, $81, $1F, $1C, $01, $77, $FF, $FF, $17, $6F, $FF, $F7 ;0x0 (0x000571C6-0x000587E2, Entry count: 0x161C) [Unknown data]
-	dc.b	$16, $FF, $FF, $71, $66, $FF, $F7, $71, $66, $F6, $77, $11, $76, $FF, $77, $16, $77, $67, $77, $17, $81, $3F, $0C, $F6, $67, $77, $77, $11, $17, $77, $71, $11 ;0x20
-	dc.b	$11, $17, $17, $80, $06, $0D, $76, $76, $66, $71, $6F, $66, $61, $11, $6F, $66, $71, $11, $7F, $81, $5F, $11, $71, $11, $77, $77, $17, $71, $17, $77, $66, $66 ;0x40
-	dc.b	$71, $77, $FF, $67, $77, $71, $F7, $80, $12, $04, $F1, $11, $71, $17, $80, $07, $82, $3F, $0C, $11, $66, $FF, $66, $17, $77, $1F, $F6, $77, $71, $17, $FF, $80 ;0x60
-	dc.b	$48, $09, $FF, $17, $11, $77, $FF, $71, $71, $7F, $FF, $80, $0E, $01, $66, $82, $3F, $08, $77, $76, $71, $66, $17, $76, $67, $F6, $82, $03, $0D, $66, $67, $F6 ;0x80
-	dc.b	$16, $66, $77, $61, $7F, $67, $71, $17, $6F, $77, $82, $3E, $06, $77, $7A, $77, $7A, $17, $77, $80, $63, $10, $76, $7A, $7A, $17, $66, $71, $17, $17, $6A, $71 ;0xA0
-	dc.b	$11, $A6, $67, $A1, $A1, $7F, $83, $1E, $1D, $11, $A7, $17, $A7, $A7, $7A, $71, $7A, $7A, $F6, $A7, $17, $A1, $7F, $6A, $1A, $7A, $AF, $67, $17, $67, $7F, $FA ;0xC0
-	dc.b	$1A, $F6, $AF, $A7, $17, $6F, $81, $FF, $1C, $A6, $66, $66, $6A, $7A, $AA, $7A, $11, $A7, $A7, $11, $1A, $1A, $66, $A1, $AA, $A1, $6F, $6A, $1A, $71, $A6, $F6 ;0xE0
-	dc.b	$A1, $A1, $AA, $FF, $A1, $81, $FF, $03, $AA, $AA, $AA, $80, $04, $02, $A1, $11, $80, $05, $08, $A1, $AA, $AA, $1A, $A1, $AA, $11, $1A, $80, $0C, $01, $16, $80 ;0x100
-	dc.b	$28, $02, $66, $A1, $80, $A8, $80, $72, $81, $03, $03, $77, $17, $67, $80, $03, $06, $77, $71, $71, $76, $77, $17, $80, $DA, $07, $77, $17, $F7, $77, $67, $17 ;0x120
-	dc.b	$F7, $80, $EB, $26, $44, $F7, $71, $4C, $CC, $67, $71, $4C, $88, $67, $71, $48, $88, $77, $15, $48, $22, $71, $54, $C8, $22, $14, $4C, $88, $22, $14, $C8, $82 ;0x140
-	dc.b	$22, $41, $7F, $66, $11, $17, $66, $61, $1C, $17, $80, $24, $80, $40, $06, $4C, $17, $66, $77, $14, $81, $80, $DB, $06, $88, $11, $67, $71, $28, $81, $80, $E3 ;0x160
-	dc.b	$03, $F6, $71, $41, $80, $1B, $81, $03, $20, $1C, $41, $76, $77, $14, $C4, $17, $67, $11, $CC, $11, $67, $11, $11, $17, $61, $14, $44, $17, $71, $4C, $7F, $77 ;0x180
-	dc.b	$14, $11, $7F, $7A, $1C, $11, $16, $77, $1C, $80, $F7, $02, $14, $17, $80, $36, $1D, $17, $C1, $76, $61, $17, $C4, $16, $61, $17, $8C, $16, $71, $C1, $76, $7A ;0x1A0
-	dc.b	$16, $FF, $76, $A1, $A6, $F7, $6A, $71, $76, $7A, $67, $11, $A6, $71, $80, $FE, $0D, $1A, $A7, $17, $A7, $17, $7A, $11, $7A, $71, $77, $A1, $A7, $AA, $EC, $BF ;0x1C0
-	dc.b	$01, $1C, $80, $BF, $01, $14, $80, $BF, $09, $14, $8C, $17, $61, $11, $C4, $17, $71, $44, $8D, $BF, $01, $C1, $80, $F2, $01, $41, $80, $BF, $01, $11, $80, $BF ;0x1E0
-	dc.b	$01, $CC, $A0, $BF, $01, $11, $80, $00, $04, $10, $00, $00, $00, $95, $03, $81, $1F, $80, $1E, $96, $02, $83, $1F, $06, $01, $17, $00, $00, $17, $77, $80, $03 ;0x200
-	dc.b	$80, $07, $0E, $11, $77, $00, $01, $77, $71, $00, $17, $76, $17, $01, $77, $66, $17, $81, $5F, $01, $77, $80, $00, $83, $04, $0F, $17, $66, $11, $77, $76, $67 ;0x220
-	dc.b	$77, $71, $76, $77, $76, $71, $77, $77, $67, $80, $03, $81, $7F, $80, $20, $04, $66, $77, $17, $76, $80, $26, $04, $76, $71, $71, $17, $81, $13, $07, $77, $71 ;0x240
-	dc.b	$11, $77, $17, $17, $71, $80, $03, $83, $3F, $01, $11, $80, $0F, $09, $77, $17, $77, $17, $67, $71, $11, $17, $6F, $80, $16, $0A, $66, $71, $77, $16, $F6, $71 ;0x260
-	dc.b	$81, $76, $F7, $14, $82, $5F, $13, $76, $66, $6A, $A7, $71, $16, $F6, $17, $6A, $71, $FF, $41, $76, $77, $16, $41, $7F, $67, $11, $81, $03, $04, $11, $6F, $61 ;0x280
-	dc.b	$41, $81, $DF, $0F, $71, $1A, $7A, $7A, $67, $17, $A7, $A7, $66, $71, $7A, $1A, $66, $61, $A7, $80, $3D, $0A, $7A, $1A, $76, $17, $77, $A1, $76, $1A, $77, $7A ;0x2A0
-	dc.b	$81, $FF, $1C, $7A, $7A, $1A, $AA, $A7, $A1, $17, $A6, $A1, $1A, $7A, $66, $A7, $A6, $66, $6A, $7A, $76, $66, $A1, $17, $AA, $A7, $1A, $A1, $11, $11, $A6, $81 ;0x2C0
-	dc.b	$FF, $0A, $A1, $AA, $1A, $A1, $1A, $A1, $AA, $A1, $1A, $1A, $80, $07, $80, $03, $80, $0A, $02, $A1, $61, $84, $03, $04, $10, $00, $00, $00, $84, $03, $16, $01 ;0x2E0
-	dc.b	$10, $00, $01, $17, $10, $01, $17, $66, $10, $17, $6F, $FF, $11, $76, $FF, $66, $17, $6F, $67, $71, $17, $80, $ED, $02, $17, $66, $80, $F1, $80, $03, $05, $66 ;0x300
-	dc.b	$F6, $77, $17, $6F, $80, $E9, $01, $F6, $80, $BE, $80, $19, $82, $E7, $01, $FF, $80, $F1, $01, $66, $82, $03, $81, $DD, $80, $E3, $03, $71, $71, $76, $80, $FA ;0x320
-	dc.b	$01, $F7, $80, $FF, $2E, $F7, $77, $67, $17, $F7, $F7, $11, $11, $44, $F7, $71, $4C, $CC, $67, $71, $4C, $88, $67, $71, $48, $88, $77, $15, $48, $22, $71, $54 ;0x340
-	dc.b	$C8, $22, $14, $4C, $88, $22, $14, $C8, $82, $22, $41, $7F, $66, $11, $17, $66, $61, $1C, $17, $80, $24, $80, $40, $01, $4C, $80, $6B, $0B, $14, $81, $7F, $67 ;0x360
-	dc.b	$71, $88, $11, $67, $71, $28, $81, $80, $7F, $03, $F6, $71, $41, $80, $1B, $81, $03, $25, $1C, $41, $76, $77, $14, $C4, $17, $67, $11, $CC, $11, $67, $11, $11 ;0x380
-	dc.b	$17, $61, $14, $44, $17, $71, $11, $7F, $77, $14, $11, $7F, $7A, $1C, $11, $16, $77, $1C, $17, $17, $6A, $14, $17, $80, $36, $57, $17, $C1, $76, $61, $17, $C4 ;0x3A0
-	dc.b	$16, $61, $17, $11, $16, $71, $C1, $76, $7A, $16, $FF, $76, $A1, $A6, $F7, $6A, $71, $76, $7A, $67, $11, $A6, $71, $6A, $1A, $7A, $1A, $A7, $17, $A7, $17, $7A ;0x3C0
-	dc.b	$11, $7A, $71, $77, $A1, $A7, $AA, $A1, $7A, $FF, $A1, $A1, $1A, $FF, $A1, $11, $16, $FA, $1A, $11, $A6, $F7, $1A, $71, $A6, $6A, $1A, $A1, $A6, $6A, $A1, $7A ;0x3E0
-	dc.b	$16, $66, $AA, $17, $A1, $16, $F6, $A1, $16, $6A, $A1, $A6, $66, $AA, $11, $AA, $AA, $81, $03, $0D, $A1, $A1, $A1, $11, $11, $A1, $11, $1A, $11, $A1, $1A, $AA ;0x400
-	dc.b	$1A, $80, $0B, $02, $AA, $11, $80, $E3, $03, $77, $17, $6F, $80, $FC, $17, $66, $71, $11, $17, $67, $14, $41, $76, $71, $54, $C1, $77, $71, $4C, $81, $77, $15 ;0x420
-	dc.b	$C8, $11, $17, $11, $C1, $11, $81, $E3, $02, $71, $48, $84, $03, $0E, $C8, $22, $22, $1C, $88, $22, $22, $11, $15, $82, $22, $11, $11, $58, $80, $03, $18, $15 ;0x440
-	dc.b	$22, $22, $81, $67, $14, $22, $17, $71, $48, $22, $17, $14, $88, $22, $81, $1C, $28, $22, $2C, $18, $22, $22, $22, $80, $24, $84, $01, $11, $88, $C1, $71, $C2 ;0x460
-	dc.b	$22, $8C, $1C, $82, $22, $85, $11, $11, $25, $11, $11, $11, $21, $80, $03, $01, $2D, $80, $82, $17, $2D, $1A, $11, $1D, $2E, $AA, $11, $1D, $28, $16, $14, $88 ;0x480
-	dc.b	$88, $11, $48, $28, $54, $1C, $82, $28, $11, $11, $5C, $80, $03, $02, $11, $5C, $80, $AA, $29, $15, $DE, $EE, $DD, $11, $EF, $FF, $EE, $DD, $17, $71, $1A, $7A ;0x4A0
-	dc.b	$81, $A1, $41, $A7, $11, $14, $41, $7A, $8C, $C4, $17, $A1, $22, $88, $1A, $1A, $C2, $88, $51, $A7, $5C, $28, $C1, $7A, $15, $C2, $81, $AA, $94, $BF, $04, $C1 ;0x4C0
-	dc.b	$77, $15, $CC, $8B, $BF, $01, $5C, $80, $C7, $80, $B7, $03, $1C, $C8, $18, $80, $BB, $01, $88, $80, $BF, $06, $1C, $22, $1A, $AB, $A5, $82, $84, $BF, $03, $41 ;0x4E0
-	dc.b	$22, $17, $80, $10, $03, $81, $14, $8C, $80, $BF, $01, $82, $89, $BF, $07, $41, $11, $71, $C8, $1C, $C1, $11, $80, $49, $84, $00, $0B, $D1, $AA, $AA, $2D, $DA ;0x500
-	dc.b	$AA, $11, $2E, $1A, $A1, $11, $80, $BF, $02, $1B, $8C, $80, $BF, $08, $14, $11, $48, $82, $11, $11, $14, $88, $80, $DE, $02, $1C, $AA, $80, $E3, $0C, $AB, $9A ;0x520
-	dc.b	$1D, $11, $BF, $F9, $FE, $ED, $FF, $FF, $EF, $FE, $8D, $BF, $01, $C8, $80, $BF, $01, $1C, $80, $BF, $0C, $11, $18, $C1, $7A, $D1, $11, $81, $AA, $10, $00, $00 ;0x540
-	dc.b	$00, $99, $03, $9D, $02, $13, $01, $7F, $F7, $17, $01, $66, $F6, $17, $01, $76, $66, $71, $01, $77, $66, $77, $00, $17, $67, $80, $03, $01, $77, $80, $0B, $02 ;0x560
-	dc.b	$77, $17, $80, $06, $0A, $77, $67, $11, $77, $76, $71, $77, $17, $71, $71, $80, $0B, $02, $17, $17, $81, $09, $80, $04, $80, $0F, $82, $03, $02, $11, $11, $80 ;0x580
-	dc.b	$25, $08, $78, $88, $77, $15, $88, $88, $17, $71, $87, $03, $01, $21, $82, $03, $07, $58, $85, $12, $17, $18, $88, $81, $80, $41, $06, $81, $77, $77, $14, $88 ;0x5A0
-	dc.b	$17, $80, $25, $1B, $C1, $77, $71, $88, $8C, $11, $77, $88, $81, $1A, $11, $CC, $13, $1A, $AA, $51, $38, $DD, $1B, $41, $76, $A1, $41, $C4, $1A, $71, $44, $80 ;0x5C0
-	dc.b	$4A, $01, $1C, $80, $FF, $5F, $14, $1D, $DD, $1D, $11, $1E, $EE, $EE, $ED, $AB, $EE, $DE, $EE, $BB, $A1, $EF, $FE, $A7, $A1, $A7, $77, $1A, $71, $17, $77, $41 ;0x5E0
-	dc.b	$A1, $41, $77, $81, $11, $C1, $77, $48, $18, $C1, $A7, $11, $CC, $1A, $77, $D4, $81, $77, $66, $E8, $81, $76, $66, $7A, $17, $AA, $66, $7A, $71, $AA, $AA, $76 ;0x600
-	dc.b	$A1, $17, $A1, $76, $71, $41, $1A, $76, $A1, $C8, $41, $6A, $71, $C8, $81, $A7, $11, $18, $81, $A1, $14, $18, $C1, $A1, $AA, $1A, $A1, $1A, $11, $AA, $A1, $AA ;0x620
-	dc.b	$AA, $A6, $71, $AA, $1A, $80, $03, $03, $A1, $A6, $61, $83, $03, $01, $AA, $82, $03, $0D, $17, $F6, $71, $17, $17, $67, $17, $77, $17, $77, $11, $71, $11, $80 ;0x640
-	dc.b	$04, $0B, $10, $01, $77, $71, $10, $00, $11, $77, $10, $00, $01, $82, $03, $80, $7A, $01, $11, $80, $F0, $81, $E9, $10, $71, $01, $77, $77, $77, $10, $17, $77 ;0x660
-	dc.b	$71, $11, $01, $17, $71, $71, $01, $71, $81, $03, $02, $77, $77, $81, $3B, $05, $6F, $71, $77, $17, $66, $80, $3E, $06, $67, $14, $41, $76, $71, $54, $80, $E5 ;0x680
-	dc.b	$10, $4C, $1D, $77, $15, $C1, $DE, $17, $11, $81, $ED, $14, $C8, $82, $22, $71, $48, $80, $03, $21, $4C, $88, $22, $71, $14, $88, $22, $1D, $D1, $58, $22, $EE ;0x6A0
-	dc.b	$EE, $D8, $22, $D1, $11, $EC, $82, $1A, $AB, $A5, $82, $22, $81, $67, $14, $22, $17, $71, $48, $22, $17, $80, $1C, $0A, $81, $1C, $28, $22, $2C, $18, $22, $22 ;0x6C0
-	dc.b	$22, $88, $80, $03, $83, $02, $69, $85, $11, $71, $DD, $51, $DD, $1E, $EE, $5D, $EE, $ED, $11, $8E, $EE, $11, $AA, $2F, $E1, $AA, $AA, $2F, $DA, $AA, $11, $2E ;0x6E0
-	dc.b	$1A, $A1, $11, $2E, $AA, $11, $1B, $D1, $16, $14, $C8, $ED, $11, $D1, $1C, $1D, $DE, $ED, $11, $AA, $1D, $EE, $D1, $BB, $A1, $DF, $ED, $AB, $9B, $1F, $EE, $BF ;0x700
-	dc.b	$F9, $FF, $FE, $FF, $FF, $EF, $FF, $17, $71, $1A, $7A, $81, $A1, $41, $A7, $11, $14, $41, $7A, $1C, $C4, $17, $A1, $15, $88, $1A, $1A, $D1, $88, $51, $A7, $E1 ;0x720
-	dc.b	$18, $C1, $7A, $E1, $11, $81, $AA, $1A, $7A, $11, $6F, $17, $AA, $11, $AF, $1A, $80, $03, $15, $A7, $61, $11, $AF, $76, $1A, $11, $6A, $66, $17, $1A, $11, $F6 ;0x740
-	dc.b	$1A, $11, $44, $FF, $61, $14, $28, $6A, $80, $18, $06, $FA, $1A, $A1, $A1, $6A, $11, $80, $04, $27, $AA, $AA, $A1, $1A, $A1, $A6, $A1, $11, $16, $66, $11, $1A ;0x760
-	dc.b	$AA, $AA, $11, $11, $AA, $A1, $A1, $11, $71, $41, $11, $11, $15, $14, $D1, $11, $14, $1C, $D1, $71, $14, $1C, $C1, $71, $15, $1C, $22, $80, $0B, $03, $22, $17 ;0x780
-	dc.b	$11, $81, $03, $0E, $18, $22, $A1, $1D, $15, $C2, $B1, $1E, $11, $C2, $A1, $11, $5C, $22, $80, $12, $02, $22, $22, $80, $E6, $02, $22, $21, $87, $DF, $9D, $08 ;0x7A0
-	dc.b	$05, $2E, $1A, $11, $1D, $22, $80, $62, $04, $22, $2C, $41, $11, $91, $34, $08, $DE, $EF, $ED, $ED, $DD, $DA, $1D, $D5, $80, $84, $01, $C2, $8C, $54, $0C, $85 ;0x7C0
-	dc.b	$22, $22, $28, $51, $D1, $15, $8C, $1A, $C8, $82, $28, $80, $3B, $16, $88, $11, $22, $28, $C4, $17, $28, $84, $51, $7A, $41, $11, $17, $A7, $11, $7A, $7A, $7A ;0x7E0
-	dc.b	$A7, $A7, $A7, $AA, $FF, $BF, $BB, $BF, $04, $10, $00, $00, $00, $99, $03, $97, $02, $19, $01, $11, $00, $01, $17, $77, $16, $77, $71, $77, $16, $67, $77, $17 ;0x800
-	dc.b	$17, $76, $67, $17, $01, $7F, $66, $71, $00, $1F, $F6, $80, $03, $03, $66, $71, $11, $80, $0F, $0C, $77, $67, $71, $11, $71, $17, $11, $11, $71, $77, $71, $4C ;0x820
-	dc.b	$80, $03, $0E, $41, $77, $17, $77, $11, $77, $71, $17, $71, $77, $77, $17, $71, $76, $81, $03, $80, $22, $2C, $11, $11, $5C, $88, $11, $11, $58, $88, $D1, $1A ;0x840
-	dc.b	$18, $88, $D1, $BA, $AC, $82, $4D, $11, $F2, $52, $C2, $FF, $F1, $52, $18, $11, $55, $12, $18, $22, $82, $8C, $88, $88, $EE, $D1, $88, $88, $8F, $FF, $88, $82 ;0x860
-	dc.b	$28, $EE, $80, $FF, $01, $51, $82, $FF, $03, $28, $51, $11, $80, $02, $08, $EF, $11, $15, $55, $1E, $11, $DE, $FF, $80, $00, $0A, $FE, $E4, $EE, $EE, $DD, $5C ;0x880
-	dc.b	$11, $11, $14, $C8, $80, $FF, $07, $88, $14, $C2, $22, $28, $D1, $1C, $80, $03, $14, $51, $22, $28, $88, $81, $A6, $F6, $88, $81, $7A, $FF, $88, $88, $17, $AF ;0x8A0
-	dc.b	$88, $88, $81, $1A, $88, $80, $04, $88, $03, $1D, $1A, $A1, $14, $18, $11, $61, $41, $CC, $1A, $F7, $14, $41, $AA, $F6, $71, $1A, $1A, $F6, $6A, $1A, $1A, $66 ;0x8C0
-	dc.b	$66, $11, $A1, $66, $66, $A1, $AA, $81, $03, $80, $0E, $05, $61, $6A, $1A, $A1, $A1, $81, $03, $07, $66, $A1, $11, $A1, $A6, $6A, $A1, $80, $18, $04, $6A, $11 ;0x8E0
-	dc.b	$11, $A6, $80, $20, $0F, $1A, $AF, $A1, $10, $01, $16, $67, $10, $17, $76, $71, $11, $77, $67, $11, $80, $06, $0B, $01, $17, $67, $10, $11, $17, $61, $00, $17 ;0x900
-	dc.b	$16, $71, $82, $03, $02, $01, $11, $80, $EE, $02, $17, $77, $80, $F2, $01, $71, $80, $FC, $80, $08, $05, $76, $F6, $67, $17, $66, $82, $2D, $13, $11, $77, $77 ;0x920
-	dc.b	$11, $71, $17, $11, $71, $42, $E1, $11, $15, $18, $F1, $11, $14, $1C, $21, $71, $81, $03, $03, $15, $1C, $24, $80, $0B, $03, $22, $17, $11, $81, $03, $19, $18 ;0x940
-	dc.b	$22, $AA, $1F, $F5, $C2, $91, $1E, $11, $C2, $B1, $11, $5C, $22, $A1, $1C, $22, $22, $11, $14, $88, $22, $28, $C1, $88, $80, $E6, $A3, $02, $10, $2E, $1A, $11 ;0x960
-	dc.b	$1B, $22, $1A, $A1, $11, $22, $C1, $AA, $AB, $22, $28, $51, $11, $8D, $38, $10, $FF, $FF, $FE, $FF, $BF, $EA, $1E, $E2, $BA, $A1, $DD, $44, $11, $11, $54, $C8 ;0x980
-	dc.b	$88, $58, $02, $85, $22, $80, $30, $4A, $E4, $C8, $8C, $1A, $88, $82, $28, $11, $88, $22, $88, $11, $22, $28, $C4, $17, $28, $84, $51, $7A, $41, $11, $17, $A7 ;0x9A0
-	dc.b	$11, $7A, $7A, $7A, $A7, $A7, $A7, $AA, $AF, $F6, $14, $1C, $A7, $F6, $A1, $1C, $1A, $A6, $71, $1C, $11, $A6, $A7, $1C, $71, $1A, $AA, $1C, $A7, $17, $AA, $1C ;0x9C0
-	dc.b	$7A, $1A, $71, $88, $A1, $1A, $18, $84, $81, $11, $1A, $A1, $21, $11, $AA, $A1, $21, $1A, $81, $03, $01, $A1, $82, $03, $32, $41, $1A, $61, $11, $11, $1A, $66 ;0x9E0
-	dc.b	$11, $11, $AA, $A6, $A1, $77, $67, $17, $77, $17, $6F, $71, $77, $17, $66, $71, $11, $17, $67, $14, $41, $76, $71, $54, $C1, $77, $71, $4C, $81, $77, $15, $C8 ;0xA00
-	dc.b	$8C, $17, $11, $C2, $88, $14, $C8, $82, $22, $71, $48, $84, $03, $80, $9D, $01, $1C, $80, $FA, $80, $12, $01, $22, $80, $02, $83, $FF, $12, $81, $67, $14, $22 ;0xA20
-	dc.b	$17, $71, $48, $22, $17, $14, $88, $22, $81, $1C, $28, $22, $2C, $18, $80, $FF, $80, $24, $84, $FF, $0A, $88, $C1, $71, $C2, $22, $8C, $1C, $82, $22, $88, $80 ;0xA40
-	dc.b	$38, $01, $28, $85, $35, $16, $8C, $CC, $28, $C5, $11, $11, $25, $11, $11, $11, $28, $16, $14, $88, $28, $11, $48, $28, $28, $1C, $82, $28, $80, $36, $01, $28 ;0xA60
-	dc.b	$81, $58, $81, $5F, $04, $11, $15, $5C, $88, $80, $1E, $21, $15, $17, $71, $1A, $7A, $81, $A1, $41, $A7, $11, $14, $41, $7A, $8C, $C4, $17, $A1, $22, $88, $1A ;0xA80
-	dc.b	$1A, $22, $28, $51, $A7, $22, $28, $C1, $7A, $C8, $22, $81, $AA, $98, $BF, $05, $11, $17, $11, $C1, $11, $86, $BF, $01, $5C, $80, $C7, $06, $15, $82, $22, $1C ;0xAA0
-	dc.b	$C8, $18, $80, $5B, $05, $88, $22, $11, $11, $5C, $80, $03, $01, $15, $85, $BF, $09, $41, $22, $17, $11, $1C, $22, $81, $14, $8C, $80, $BF, $80, $DD, $87, $BF ;0xAC0
-	dc.b	$0C, $41, $11, $71, $C8, $1C, $CC, $1C, $82, $C8, $85, $11, $11, $80, $02, $02, $11, $21, $80, $B3, $0C, $2D, $11, $A1, $11, $2D, $1A, $11, $1D, $2E, $AA, $11 ;0xAE0
-	dc.b	$1D, $81, $BF, $06, $88, $11, $48, $82, $54, $1C, $80, $C6, $02, $11, $5C, $80, $03, $0E, $11, $5C, $AA, $AA, $11, $15, $DE, $EE, $DD, $11, $EF, $FF, $EE, $DD ;0xB00
-	dc.b	$91, $BF, $01, $C2, $80, $BF, $01, $5C, $80, $BF, $08, $15, $C2, $81, $AA, $10, $00, $00, $00, $99, $03, $1A, $00, $17, $6F, $FF, $01, $76, $FF, $66, $01, $77 ;0xB20
-	dc.b	$77, $11, $01, $77, $11, $00, $01, $71, $00, $01, $00, $17, $10, $17, $00, $01, $80, $03, $80, $1D, $03, $66, $77, $10, $80, $16, $0E, $01, $17, $11, $11, $17 ;0xB40
-	dc.b	$6F, $17, $76, $6F, $FF, $76, $67, $71, $11, $81, $13, $01, $67, $80, $27, $01, $77, $80, $2B, $0A, $6F, $67, $17, $67, $FF, $71, $77, $67, $F7, $11, $80, $19 ;0xB60
-	dc.b	$0F, $17, $66, $67, $17, $7F, $F6, $77, $76, $FF, $67, $11, $76, $F6, $71, $77, $81, $11, $03, $18, $22, $C5, $80, $F8, $18, $11, $FE, $1C, $82, $51, $1E, $11 ;0xB80
-	dc.b	$58, $25, $11, $17, $15, $C2, $51, $77, $71, $15, $C8, $77, $71, $11, $15, $77, $71, $80, $09, $0F, $54, $44, $51, $14, $44, $44, $45, $14, $43, $33, $34, $54 ;0xBA0
-	dc.b	$43, $34, $45, $80, $FE, $02, $11, $22, $80, $00, $0D, $C8, $82, $22, $22, $15, $CC, $88, $CC, $15, $51, $22, $28, $34, $80, $03, $51, $45, $15, $22, $88, $51 ;0xBC0
-	dc.b	$5C, $22, $88, $15, $C2, $22, $C5, $22, $22, $C5, $5C, $2C, $51, $14, $CC, $51, $15, $4C, $C8, $88, $88, $81, $A7, $88, $88, $1A, $76, $88, $85, $17, $A7, $88 ;0xBE0
-	dc.b	$81, $7A, $71, $C8, $81, $A7, $11, $88, $81, $71, $71, $88, $81, $A1, $A1, $88, $85, $1A, $7A, $66, $67, $11, $1A, $67, $71, $7A, $1A, $11, $17, $A7, $1A, $1A ;0xC00
-	dc.b	$7A, $71, $7A, $A7, $A1, $1A, $A1, $7A, $11, $7A, $1A, $A7, $80, $01, $20, $11, $1A, $AA, $1A, $AA, $A1, $AF, $A1, $AA, $A1, $A6, $A1, $AA, $1A, $66, $A1, $11 ;0xC20
-	dc.b	$A6, $76, $A1, $AA, $77, $7A, $A1, $A7, $7A, $A1, $11, $77, $AA, $1A, $A1, $80, $0D, $0A, $A1, $16, $71, $00, $00, $16, $10, $00, $00, $17, $80, $03, $01, $11 ;0xC40
-	dc.b	$80, $02, $0C, $11, $00, $11, $66, $10, $01, $76, $F6, $10, $01, $7F, $67, $81, $03, $08, $17, $71, $71, $71, $17, $77, $11, $17, $80, $03, $04, $77, $67, $77 ;0xC60
-	dc.b	$17, $80, $D1, $0A, $17, $17, $71, $17, $11, $76, $17, $77, $17, $66, $80, $08, $05, $66, $11, $71, $18, $22, $85, $03, $04, $17, $71, $1C, $22, $80, $FB, $05 ;0xC80
-	dc.b	$88, $77, $11, $11, $48, $80, $03, $03, $14, $77, $71, $83, $EB, $02, $22, $85, $80, $F3, $05, $51, $43, $C8, $22, $88, $80, $F4, $80, $FC, $81, $05, $01, $88 ;0xCA0
-	dc.b	$80, $18, $01, $4C, $83, $0E, $07, $22, $14, $C2, $22, $22, $84, $13, $84, $0C, $AE, $05, $06, $85, $17, $22, $28, $81, $7A, $80, $03, $01, $76, $83, $03, $09 ;0xCC0
-	dc.b	$C1, $77, $22, $22, $C5, $17, $22, $22, $8C, $80, $03, $14, $2C, $51, $FF, $F6, $6A, $7A, $F6, $67, $A7, $11, $66, $71, $11, $1A, $67, $11, $11, $11, $67, $1C ;0xCE0
-	dc.b	$80, $07, $18, $14, $11, $A7, $76, $71, $11, $7A, $77, $67, $11, $1A, $11, $71, $54, $11, $11, $1F, $11, $1A, $1C, $19, $1A, $AA, $11, $80, $1B, $03, $11, $19 ;0xD00
-	dc.b	$1A, $80, $25, $07, $AA, $A1, $71, $1A, $7A, $A1, $67, $80, $07, $0B, $11, $11, $A6, $A1, $A1, $1A, $1A, $A1, $AA, $A1, $A1, $80, $03, $83, $01, $81, $0D, $02 ;0xD20
-	dc.b	$1A, $1A, $80, $1B, $1D, $AA, $A6, $A1, $11, $71, $42, $88, $11, $15, $18, $81, $11, $14, $14, $11, $71, $14, $1C, $C2, $71, $15, $1C, $22, $11, $14, $1C, $22 ;0xD40
-	dc.b	$17, $11, $81, $03, $05, $18, $22, $11, $11, $58, $80, $03, $08, $11, $C2, $11, $51, $5C, $22, $22, $1C, $81, $EC, $80, $F9, $01, $21, $81, $FD, $A3, $EE, $01 ;0xD60
-	dc.b	$25, $80, $B3, $99, $FF, $80, $D2, $95, $1F, $09, $85, $22, $22, $28, $51, $11, $5C, $8C, $1A, $80, $07, $80, $43, $3C, $88, $11, $22, $28, $C4, $17, $28, $84 ;0xD80
-	dc.b	$51, $7A, $41, $11, $17, $A7, $11, $7A, $7A, $7A, $A7, $A7, $A7, $AA, $77, $67, $17, $77, $17, $6F, $71, $77, $17, $66, $71, $11, $17, $67, $14, $41, $76, $71 ;0xDA0
-	dc.b	$54, $C1, $77, $71, $4C, $81, $77, $15, $C8, $8C, $17, $11, $C2, $88, $14, $C8, $82, $22, $71, $48, $80, $03, $01, $5C, $80, $07, $0C, $15, $82, $22, $1C, $C8 ;0xDC0
-	dc.b	$18, $22, $C8, $88, $88, $22, $82, $85, $C1, $07, $81, $67, $14, $22, $17, $71, $41, $82, $F0, $06, $81, $14, $8C, $22, $2C, $18, $80, $1A, $87, $DF, $08, $41 ;0xDE0
-	dc.b	$11, $71, $C8, $1C, $CC, $1C, $82, $82, $33, $01, $28, $85, $35, $06, $8C, $CC, $28, $C5, $11, $11, $81, $DB, $10, $28, $16, $14, $88, $28, $11, $48, $82, $28 ;0xE00
-	dc.b	$1C, $88, $28, $22, $88, $82, $28, $81, $58, $80, $72, $05, $22, $11, $15, $5C, $88, $80, $FA, $15, $15, $17, $71, $1A, $7A, $81, $A1, $41, $A7, $11, $14, $41 ;0xE20
-	dc.b	$7A, $8C, $C4, $17, $A1, $22, $88, $1A, $1A, $80, $D6, $0D, $A7, $22, $28, $C1, $7A, $C8, $22, $81, $AA, $10, $00, $00, $00, $90, $03, $01, $01, $80, $17, $01 ;0xE40
-	dc.b	$17, $81, $03, $80, $1E, $01, $01, $86, $03, $17, $11, $11, $17, $11, $76, $66, $77, $76, $FF, $77, $71, $6F, $F7, $11, $10, $6F, $71, $00, $00, $77, $77, $10 ;0xE60
-	dc.b	$01, $80, $03, $81, $07, $17, $00, $77, $71, $11, $10, $71, $10, $1C, $C1, $10, $01, $88, $C1, $00, $18, $2C, $12, $01, $82, $C1, $28, $77, $67, $80, $15, $80 ;0xE80
-	dc.b	$33, $05, $00, $17, $66, $67, $01, $80, $03, $80, $3F, $10, $71, $CC, $16, $77, $14, $81, $C1, $71, $CC, $18, $CC, $11, $CC, $77, $77, $17, $86, $01, $80, $CE ;0xEA0
-	dc.b	$02, $11, $14, $80, $E8, $03, $C8, $2F, $FF, $81, $C6, $01, $22, $80, $F2, $02, $22, $71, $81, $14, $80, $19, $03, $17, $71, $55, $80, $ED, $0F, $54, $11, $C4 ;0xEC0
-	dc.b	$11, $5C, $11, $28, $C4, $11, $C5, $22, $8C, $41, $1C, $22, $80, $04, $07, $11, $54, $CC, $88, $5C, $CC, $88, $82, $03, $80, $06, $02, $88, $5C, $80, $03, $01 ;0xEE0
-	dc.b	$15, $80, $43, $14, $F5, $15, $CC, $CC, $1C, $C1, $11, $11, $88, $8C, $17, $A7, $88, $CC, $C1, $76, $88, $88, $C5, $17, $80, $03, $23, $16, $88, $CC, $51, $AF ;0xF00
-	dc.b	$CC, $51, $1A, $FF, $51, $17, $6F, $66, $1A, $66, $66, $6A, $AA, $17, $AA, $1A, $6A, $17, $AA, $A1, $66, $A1, $A7, $AA, $66, $71, $7A, $7A, $66, $A1, $80, $0B ;0xF20
-	dc.b	$0B, $71, $1A, $A1, $67, $14, $41, $11, $A1, $4C, $CC, $CC, $81, $0F, $21, $A6, $AA, $1A, $A1, $1A, $6A, $A1, $A1, $1A, $66, $AA, $11, $1A, $66, $6A, $11, $AA ;0xF40
-	dc.b	$76, $6A, $A1, $11, $AA, $AA, $A1, $C4, $11, $7A, $A1, $10, $01, $7F, $67, $10, $80, $DC, $08, $10, $00, $11, $76, $10, $00, $01, $11, $80, $03, $05, $77, $10 ;0xF60
-	dc.b	$00, $00, $17, $85, $03, $11, $71, $11, $17, $66, $77, $71, $01, $17, $77, $77, $10, $11, $77, $77, $71, $00, $17, $80, $03, $01, $71, $81, $03, $01, $17, $83 ;0xF80
-	dc.b	$03, $07, $66, $67, $77, $11, $77, $67, $77, $80, $04, $02, $77, $77, $80, $1C, $02, $77, $00, $80, $2A, $80, $3E, $83, $03, $20, $01, $77, $77, $15, $C8, $22 ;0xFA0
-	dc.b	$22, $11, $5C, $82, $22, $71, $15, $C8, $82, $77, $11, $14, $88, $77, $11, $11, $54, $77, $17, $11, $11, $77, $17, $77, $11, $71, $80, $36, $01, $22, $8C, $00 ;0xFC0
-	dc.b	$09, $C8, $82, $22, $22, $15, $55, $55, $55, $11, $83, $00, $01, $55, $8C, $1F, $14, $88, $88, $84, $51, $15, $55, $11, $15, $4C, $11, $55, $4C, $88, $44, $CC ;0xFE0
-	dc.b	$82, $41, $22, $22, $28, $80, $23, $02, $28, $C4, $80, $1A, $12, $C5, $C8, $28, $8C, $41, $82, $8C, $41, $17, $8C, $11, $17, $7A, $11, $77, $A7, $77, $7A, $80 ;0x1000
-	dc.b	$93, $02, $11, $76, $80, $49, $01, $17, $80, $FB, $4C, $11, $61, $7A, $77, $11, $61, $AA, $77, $71, $11, $7A, $77, $A1, $11, $A1, $7A, $71, $1A, $1A, $A7, $11 ;0x1020
-	dc.b	$A1, $A6, $A6, $6A, $1A, $11, $A6, $6A, $A1, $1A, $16, $66, $71, $AA, $16, $FF, $61, $A6, $16, $FF, $A1, $A6, $AF, $F6, $A1, $1A, $FF, $F1, $1A, $1A, $F7, $1A ;0x1040
-	dc.b	$AA, $11, $AA, $A6, $6A, $11, $AF, $FF, $A1, $11, $FF, $6A, $11, $11, $F6, $A1, $A1, $A1, $F6, $1A, $A1, $A1, $FA, $80, $03, $10, $6A, $A1, $AA, $11, $A6, $AA ;0x1060
-	dc.b	$1A, $11, $22, $21, $11, $11, $22, $11, $55, $55, $80, $B4, $0E, $44, $22, $51, $54, $33, $22, $C5, $11, $11, $82, $28, $C3, $3C, $88, $80, $D8, $01, $4C, $81 ;0x1080
-	dc.b	$CB, $80, $CF, $12, $51, $15, $22, $22, $44, $41, $52, $22, $33, $35, $12, $22, $11, $11, $C2, $22, $8F, $C8, $8B, $F5, $02, $2C, $15, $80, $43, $05, $C4, $33 ;0x10A0
-	dc.b	$C2, $22, $22, $80, $FC, $80, $F0, $81, $05, $85, $3F, $09, $22, $8C, $1C, $22, $51, $53, $82, $22, $FC, $80, $1D, $92, $01, $01, $C1, $80, $7F, $01, $51, $80 ;0x10C0
-	dc.b	$7F, $01, $51, $80, $7F, $0B, $84, $15, $44, $22, $28, $41, $11, $82, $22, $8C, $43, $85, $7F, $11, $11, $11, $15, $22, $54, $44, $41, $22, $43, $33, $15, $22 ;0x10E0
-	dc.b	$33, $55, $18, $22, $11, $80, $4B, $01, $32, $81, $9C, $86, $82, $04, $8C, $51, $22, $24, $80, $24, $03, $21, $15, $55, $80, $07, $01, $11, $80, $70, $01, $34 ;0x1100
-	dc.b	$89, $7F, $0D, $11, $11, $11, $5C, $55, $54, $45, $11, $43, $43, $34, $51, $41, $80, $4C, $03, $33, $38, $F3, $83, $A4, $88, $C2, $01, $32, $80, $EB, $01, $52 ;0x1120
-	dc.b	$84, $B7, $8D, $A5, $01, $00, $DC, $00, $04, $10, $00, $00, $17, $80, $03, $01, $01, $80, $07, $81, $0B, $83, $03, $10, $11, $10, $00, $11, $77, $71, $11, $17 ;0x1140
-	dc.b	$66, $66, $66, $6F, $71, $00, $00, $76, $80, $03, $07, $17, $67, $10, $00, $01, $77, $71, $81, $03, $24, $01, $17, $77, $71, $17, $76, $77, $71, $76, $66, $77 ;0x1160
-	dc.b	$17, $66, $01, $22, $12, $81, $01, $C2, $22, $18, $00, $1C, $22, $22, $01, $71, $C2, $22, $17, $67, $18, $22, $66, $67, $14, $80, $03, $1F, $11, $82, $FF, $67 ;0x1180
-	dc.b	$11, $48, $82, $C1, $CC, $11, $2C, $18, $88, $C1, $81, $82, $C1, $C1, $28, $2C, $11, $1D, $22, $88, $8C, $41, $22, $28, $88, $CC, $22, $80, $08, $80, $07, $11 ;0x11A0
-	dc.b	$C4, $11, $15, $5C, $88, $DD, $DD, $11, $11, $EE, $FF, $FE, $ED, $DF, $FF, $FF, $FF, $80, $03, $29, $EF, $1E, $EF, $FF, $EE, $1E, $EE, $EF, $FE, $1E, $FE, $EE ;0x11C0
-	dc.b	$FE, $88, $22, $28, $8C, $D5, $C8, $88, $88, $D1, $1C, $C8, $88, $EE, $DD, $11, $CC, $EF, $FE, $ED, $11, $EE, $EF, $FF, $ED, $DE, $EF, $FF, $FF, $81, $03, $11 ;0x11E0
-	dc.b	$51, $15, $CC, $C1, $8C, $51, $11, $11, $88, $88, $CC, $C1, $88, $88, $88, $C1, $4C, $80, $03, $0D, $11, $11, $44, $41, $FE, $EE, $D1, $11, $FF, $EE, $EF, $EE ;0x1200
-	dc.b	$A6, $80, $88, $20, $7A, $71, $11, $15, $A7, $17, $15, $C8, $71, $71, $5C, $C8, $17, $A1, $5C, $88, $1A, $7A, $14, $41, $17, $A6, $A1, $1D, $D1, $76, $F6, $71 ;0x1220
-	dc.b	$14, $CC, $88, $88, $80, $5E, $01, $8C, $80, $3B, $80, $09, $0D, $C4, $11, $CC, $41, $11, $DD, $11, $1D, $EE, $EE, $EE, $FF, $FF, $80, $03, $02, $FE, $EE, $80 ;0x1240
-	dc.b	$0F, $0D, $71, $C4, $11, $1D, $11, $11, $DD, $DD, $D1, $DD, $DE, $EE, $D1, $80, $19, $07, $D1, $ED, $DE, $ED, $D1, $EE, $DD, $80, $87, $20, $D1, $D1, $D1, $10 ;0x1260
-	dc.b	$01, $11, $77, $10, $17, $77, $77, $11, $77, $76, $77, $17, $77, $66, $11, $17, $6F, $61, $00, $17, $F6, $10, $00, $17, $F7, $10, $00, $11, $80, $00, $09, $71 ;0x1280
-	dc.b	$17, $10, $00, $71, $71, $00, $01, $11, $80, $12, $08, $10, $00, $01, $76, $00, $00, $17, $66, $80, $03, $05, $6F, $00, $00, $01, $7F, $81, $1F, $01, $01, $80 ;0x12A0
-	dc.b	$3B, $0D, $17, $67, $77, $71, $76, $67, $11, $17, $66, $71, $00, $17, $67, $80, $24, $80, $03, $04, $00, $67, $71, $00, $82, $3F, $07, $17, $77, $11, $71, $77 ;0x12C0
-	dc.b	$71, $17, $80, $03, $81, $01, $80, $68, $02, $77, $17, $81, $13, $01, $4C, $80, $17, $01, $99, $81, $5F, $1C, $77, $11, $15, $55, $77, $71, $15, $11, $17, $11 ;0x12E0
-	dc.b	$11, $49, $11, $4C, $9F, $F9, $FF, $99, $9C, $41, $C4, $11, $11, $15, $11, $15, $4C, $CC, $81, $7F, $03, $4C, $C8, $24, $80, $1A, $09, $11, $77, $99, $FF, $17 ;0x1300
-	dc.b	$77, $99, $44, $17, $80, $73, $09, $17, $7F, $44, $41, $11, $7F, $11, $1E, $ED, $81, $17, $0E, $11, $76, $66, $77, $A7, $66, $66, $71, $11, $66, $61, $14, $44 ;0x1320
-	dc.b	$F6, $80, $B0, $01, $67, $81, $03, $07, $1D, $EF, $FF, $67, $71, $DD, $FF, $82, $BF, $19, $11, $71, $7F, $11, $17, $A1, $A6, $C5, $11, $71, $1A, $4C, $C5, $17 ;0x1340
-	dc.b	$1A, $11, $14, $1A, $71, $EE, $D1, $11, $11, $FF, $ED, $80, $04, $80, $E0, $1C, $61, $7A, $AA, $1A, $61, $AA, $A1, $AA, $61, $AA, $71, $AA, $A7, $17, $A1, $AA ;0x1360
-	dc.b	$7A, $A1, $AA, $11, $17, $67, $11, $1A, $1A, $A6, $1A, $A6, $82, $20, $08, $A6, $A1, $A1, $A1, $16, $A1, $A1, $AA, $80, $03, $01, $A1, $80, $0B, $09, $1A, $6A ;0x1380
-	dc.b	$A1, $A1, $66, $AA, $1A, $A1, $AA, $80, $0C, $81, $FF, $18, $AA, $1F, $F5, $C2, $91, $1E, $11, $C2, $B1, $11, $5C, $22, $A1, $1C, $22, $22, $11, $14, $88, $22 ;0x13A0
-	dc.b	$28, $C1, $88, $22, $82, $00, $03, $C1, $11, $11, $83, $08, $93, $05, $02, $15, $C2, $85, $1D, $0A, $28, $51, $22, $85, $15, $43, $22, $22, $CC, $C8, $81, $38 ;0x13C0
-	dc.b	$01, $82, $80, $3D, $81, $41, $01, $4C, $80, $08, $04, $85, $11, $15, $82, $80, $FF, $04, $42, $33, $C2, $C8, $82, $17, $8D, $4F, $05, $A1, $1D, $15, $C2, $B1 ;0x13E0
-	dc.b	$80, $7F, $01, $A1, $80, $7F, $01, $11, $80, $7F, $01, $22, $80, $7F, $02, $22, $21, $84, $7F, $01, $C4, $9B, $7F, $01, $11, $81, $B3, $99, $3F, $03, $22, $22 ;0x1400
-	dc.b	$8C, $9B, $3F, $08, $15, $C2, $2E, $1A, $11, $1D, $22, $41, $80, $E7, $02, $2C, $41, $92, $EB, $01, $00, $DC, $00, $0E, $16, $6F, $F6, $67, $16, $6F, $71, $11 ;0x1420
-	dc.b	$16, $F7, $10, $00, $16, $F1, $80, $0F, $0C, $71, $00, $00, $17, $71, $00, $11, $17, $77, $11, $77, $11, $80, $00, $0B, $77, $11, $17, $6F, $11, $00, $17, $6F ;0x1440
-	dc.b	$00, $00, $01, $81, $03, $01, $76, $82, $03, $06, $01, $17, $67, $10, $17, $77, $82, $1F, $1C, $F6, $71, $4C, $11, $F7, $71, $C9, $94, $67, $14, $C9, $9F, $77 ;0x1460
-	dc.b	$1C, $99, $9F, $71, $4C, $99, $FF, $71, $1C, $99, $FF, $12, $11, $C9, $FF, $81, $3F, $03, $48, $88, $C4, $81, $46, $0A, $44, $FF, $99, $CC, $C4, $FF, $9C, $CC ;0x1480
-	dc.b	$41, $F9, $81, $03, $03, $CC, $C4, $41, $80, $0E, $01, $14, $81, $5F, $0B, $1E, $FE, $DE, $FE, $1E, $EE, $DD, $EE, $1E, $EE, $ED, $80, $05, $0E, $EE, $DE, $11 ;0x14A0
-	dc.b	$DD, $EE, $DD, $41, $1D, $DE, $DD, $C4, $11, $DD, $DD, $81, $7F, $05, $DD, $EF, $FF, $FF, $ED, $84, $03, $01, $EE, $84, $03, $01, $DE, $81, $03, $02, $EE, $FF ;0x14C0
-	dc.b	$82, $5F, $80, $15, $80, $09, $01, $FF, $81, $03, $01, $FE, $84, $03, $80, $19, $01, $FE, $80, $1D, $02, $EE, $EE, $81, $BF, $08, $ED, $11, $6F, $67, $EE, $D1 ;0x14E0
-	dc.b	$66, $6A, $80, $03, $10, $A7, $ED, $1A, $76, $11, $E1, $A7, $A1, $DD, $E1, $7A, $1D, $EE, $ED, $17, $1D, $82, $1F, $01, $1E, $80, $55, $80, $03, $04, $FF, $1E ;0x1500
-	dc.b	$FE, $EF, $81, $53, $01, $FE, $80, $63, $80, $09, $82, $4F, $82, $3F, $07, $EE, $DD, $11, $D1, $EE, $ED, $1D, $80, $03, $01, $D1, $81, $03, $01, $11, $83, $03 ;0x1520
-	dc.b	$02, $11, $C1, $80, $17, $01, $C1, $81, $FF, $01, $00, $FF, $00, $FF, $82, $B8, $FF, $2B, $22, $11, $15, $55, $22, $11, $55, $54, $22, $51, $55, $44, $22, $C1 ;0x1540
-	dc.b	$55, $43, $22, $25, $55, $43, $82, $23, $15, $53, $88, $22, $31, $11, $4C, $82, $28, $33, $51, $1C, $22, $22, $44, $51, $C2, $22, $33, $35, $12, $83, $03, $0F ;0x1560
-	dc.b	$45, $12, $22, $34, $51, $52, $22, $11, $53, $22, $22, $3F, $32, $22, $22, $BE, $7F, $02, $51, $55, $81, $7F, $01, $55, $84, $7F, $05, $33, $22, $21, $55, $33 ;0x1580
-	dc.b	$83, $7F, $01, $41, $80, $7F, $11, $2C, $33, $55, $55, $11, $22, $44, $44, $41, $22, $43, $33, $41, $22, $33, $33, $15, $80, $87, $05, $18, $22, $34, $11, $C2 ;0x15A0
-	dc.b	$80, $7F, $05, $82, $22, $32, $82, $22, $80, $00, $08, $C5, $11, $22, $21, $11, $55, $22, $81, $80, $47, $01, $21, $80, $C7, $03, $21, $55, $44, $80, $BF, $01 ;0x15C0
-	dc.b	$43, $84, $BF, $15, $34, $55, $55, $55, $1C, $54, $44, $44, $51, $44, $43, $33, $45, $43, $33, $33, $34, $33, $33, $33, $44, $80, $06, $09, $51, $11, $11, $11 ;0x15E0
-	dc.b	$14, $33, $33, $FC, $C8, $81, $41, $01, $42, $80, $46, $01, $12, $88, $03, $81, $0F, $85, $02, $BD, $DF, $FF, $3F, $FF, $C1, $D9, $FF, $00 ;0x1600
-loc_000587E2:
-	dc.b	$01, $11, $80, $00, $04, $10, $00, $00, $00, $95, $03, $81, $1F, $0C, $00, $01, $1C, $CC, $00, $14, $55, $11, $01, $11, $11, $4C, $80, $0B, $0D, $8C, $01, $14 ;0x0 (0x000587E2-0x00059DBD, Entry count: 0x15DB)
-	dc.b	$88, $CC, $14, $88, $28, $C1, $18, $2F, $F8, $51, $81, $3F, $1C, $51, $11, $5C, $51, $15, $85, $11, $14, $8C, $11, $48, $22, $C1, $42, $2F, $FF, $14, $22, $FF ;0x20
-	dc.b	$FF, $52, $FF, $FF, $FF, $C2, $2F, $2F, $F2, $81, $5F, $1C, $11, $15, $CC, $CC, $CC, $C5, $11, $C8, $FF, $28, $84, $11, $FF, $FF, $22, $84, $FF, $22, $22, $F2 ;0x40
-	dc.b	$22, $88, $88, $22, $C4, $11, $15, $C8, $81, $7F, $01, $88, $82, $00, $16, $22, $88, $41, $88, $F2, $84, $14, $82, $28, $51, $22, $FF, $24, $14, $28, $28, $41 ;0x60
-	dc.b	$44, $88, $84, $14, $4C, $85, $1F, $15, $45, $11, $54, $C8, $11, $44, $41, $4C, $11, $4C, $C4, $14, $44, $14, $CC, $41, $CC, $41, $88, $C1, $CC, $80, $38, $82 ;0x80
-	dc.b	$3F, $80, $5E, $02, $88, $88, $80, $11, $01, $84, $80, $24, $0B, $41, $44, $CC, $C4, $14, $CC, $CC, $C1, $58, $88, $C1, $80, $57, $01, $CC, $81, $DF, $17, $CC ;0xA0
-	dc.b	$C8, $88, $22, $11, $14, $C8, $82, $44, $41, $14, $C8, $CC, $44, $11, $4C, $11, $C8, $C1, $4C, $C2, $22, $8C, $80, $6A, $02, $82, $81, $81, $FF, $09, $22, $22 ;0xC0
-	dc.b	$22, $28, $2F, $FF, $FF, $F2, $82, $80, $B7, $05, $22, $22, $2F, $FF, $C8, $80, $BF, $08, $CC, $88, $22, $2F, $4C, $C8, $88, $8C, $81, $FF, $18, $45, $51, $00 ;0xE0
-	dc.b	$01, $22, $85, $10, $01, $F2, $22, $51, $11, $FF, $F2, $88, $C1, $F2, $FF, $22, $81, $22, $22, $FF, $21, $80, $57, $2D, $21, $88, $18, $2F, $FF, $88, $18, $8F ;0x100
-	dc.b	$FF, $F8, $41, $82, $FF, $F8, $C1, $48, $2F, $F8, $C1, $1C, $88, $28, $41, $41, $48, $88, $1C, $8C, $11, $81, $C8, $81, $11, $14, $CC, $14, $82, $14, $8C, $41 ;0x120
-	dc.b	$C8, $14, $88, $C4, $1C, $80, $0C, $10, $41, $81, $41, $1C, $8C, $88, $1C, $C1, $C2, $88, $14, $8C, $82, $88, $11, $88, $80, $71, $06, $F2, $1C, $22, $FF, $F2 ;0x140
-	dc.b	$81, $80, $09, $4D, $24, $14, $C8, $2F, $F8, $41, $1C, $82, $F8, $88, $41, $C8, $F8, $28, $C4, $18, $28, $22, $8C, $18, $88, $C1, $18, $22, $F2, $C8, $41, $88 ;0x160
-	dc.b	$22, $1C, $81, $18, $28, $1C, $11, $18, $88, $11, $4C, $18, $81, $14, $88, $18, $81, $1C, $85, $11, $81, $1C, $58, $CC, $11, $81, $41, $CF, $FF, $81, $11, $48 ;0x180
-	dc.b	$FF, $81, $C4, $18, $FF, $14, $88, $41, $8F, $C8, $22, $44, $1F, $C8, $82, $88, $1F, $80, $2A, $80, $3C, $03, $11, $88, $F8, $80, $E5, $08, $FF, $41, $82, $F2 ;0x1A0
-	dc.b	$FF, $81, $82, $FF, $80, $03, $05, $2F, $F8, $81, $88, $2F, $80, $77, $09, $82, $81, $41, $C8, $88, $1C, $C5, $1C, $88, $80, $FB, $91, $02, $01, $85, $80, $17 ;0x1C0
-	dc.b	$01, $15, $81, $1B, $03, $C1, $8C, $82, $8E, $22, $08, $11, $11, $11, $15, $C2, $22, $22, $8C, $94, $3B, $01, $22, $80, $1B, $02, $22, $14, $95, $1C, $03, $22 ;0x1E0
-	dc.b	$81, $C8, $80, $3A, $01, $51, $85, $77, $90, $5F, $01, $2C, $81, $5F, $95, $5B, $01, $51, $80, $8E, $01, $C8, $88, $92, $80, $8B, $05, $11, $10, $00, $00, $00 ;0x200
-	dc.b	$95, $03, $81, $1F, $80, $1E, $96, $02, $83, $1F, $16, $1C, $88, $00, $01, $CC, $31, $00, $01, $C1, $14, $00, $01, $10, $1C, $00, $01, $01, $48, $00, $00, $01 ;0x220
-	dc.b	$C2, $80, $03, $01, $42, $81, $5F, $1C, $35, $4C, $C8, $CC, $5C, $88, $41, $88, $C8, $84, $1C, $88, $88, $C1, $C2, $2C, $28, $14, $FF, $C3, $F8, $1C, $F8, $C1 ;0x240
-	dc.b	$FC, $1C, $2C, $14, $81, $7F, $1C, $CC, $11, $3C, $CC, $C1, $33, $22, $8C, $31, $32, $22, $C3, $31, $CF, $28, $C1, $11, $CF, $28, $14, $41, $3C, $F8, $11, $CC ;0x260
-	dc.b	$13, $C2, $31, $82, $1F, $0F, $35, $5C, $C3, $33, $11, $C2, $28, $11, $41, $8F, $28, $44, $1C, $F2, $8C, $80, $1B, $03, $CC, $C1, $3C, $80, $E6, $02, $3C, $C3 ;0x280
-	dc.b	$82, $3F, $1B, $31, $13, $33, $35, $33, $13, $CC, $C1, $83, $11, $CC, $CC, $C3, $11, $82, $CC, $11, $1C, $8F, $8C, $41, $52, $F2, $83, $C1, $32, $F8, $82, $3F ;0x2A0
-	dc.b	$1C, $C3, $31, $11, $33, $5C, $CC, $33, $13, $1C, $88, $CC, $31, $1C, $22, $8C, $C1, $1C, $82, $88, $C1, $1C, $F2, $88, $CC, $3C, $FF, $28, $4C, $82, $7F, $0D ;0x2C0
-	dc.b	$88, $8C, $C3, $CC, $82, $88, $8C, $3C, $82, $22, $88, $3C, $C8, $80, $03, $80, $0C, $08, $13, $CC, $CC, $CC, $C1, $1C, $CC, $C1, $81, $FF, $80, $E0, $03, $01 ;0x2E0
-	dc.b	$C3, $10, $87, $03, $10, $8C, $C1, $00, $01, $C8, $CC, $11, $11, $C8, $CC, $CC, $11, $10, $00, $00, $00, $80, $03, $11, $01, $10, $00, $11, $18, $10, $01, $4C ;0x300
-	dc.b	$82, $10, $14, $C2, $22, $10, $11, $14, $CC, $80, $2E, $82, $1B, $38, $18, $2F, $28, $15, $82, $FF, $2C, $15, $8F, $28, $8C, $51, $F2, $81, $8C, $81, $88, $18 ;0x320
-	dc.b	$88, $C4, $41, $18, $8F, $8C, $10, $18, $2F, $84, $01, $82, $FC, $41, $22, $28, $2F, $2C, $22, $28, $22, $84, $C2, $88, $82, $81, $48, $28, $82, $81, $18, $28 ;0x340
-	dc.b	$2F, $84, $18, $F2, $FF, $8C, $81, $03, $29, $82, $FF, $F2, $84, $11, $55, $51, $44, $15, $44, $44, $4C, $54, $4C, $CC, $45, $44, $CC, $C4, $18, $14, $CC, $11 ;0x360
-	dc.b	$82, $1C, $C1, $48, $2F, $1C, $14, $2F, $FF, $1C, $1C, $2F, $FF, $84, $41, $4C, $C5, $CC, $80, $17, $0E, $88, $CC, $41, $C8, $88, $C4, $14, $82, $88, $41, $1C ;0x380
-	dc.b	$8F, $28, $11, $80, $75, $34, $14, $18, $2F, $21, $4C, $1C, $22, $58, $88, $88, $8C, $2F, $F8, $2C, $41, $FF, $F2, $81, $14, $FF, $F2, $11, $1C, $FF, $F8, $11 ;0x3A0
-	dc.b	$18, $FF, $F8, $14, $11, $FF, $F2, $14, $41, $FF, $FF, $21, $4C, $55, $48, $82, $84, $5C, $22, $22, $C4, $82, $F2, $22, $14, $8F, $80, $14, $05, $8F, $FF, $FF ;0x3C0
-	dc.b	$41, $82, $80, $18, $02, $48, $2F, $80, $25, $80, $80, $80, $E5, $2C, $F8, $41, $11, $41, $8F, $41, $4C, $11, $8F, $14, $C4, $18, $FF, $41, $C1, $4F, $FF, $4C ;0x3E0
-	dc.b	$41, $CF, $FF, $14, $C1, $FF, $FF, $11, $C1, $8F, $FF, $CC, $C4, $11, $48, $F1, $48, $22, $55, $F8, $1C, $F2, $21, $F8, $1C, $2F, $81, $03, $43, $1C, $81, $48 ;0x400
-	dc.b	$2F, $11, $81, $CC, $2F, $85, $81, $48, $8F, $88, $41, $14, $C8, $81, $CC, $C5, $14, $C1, $C2, $FC, $11, $41, $C8, $FF, $81, $11, $C8, $2F, $F8, $41, $4C, $88 ;0x420
-	dc.b	$2F, $C1, $11, $14, $C2, $21, $8C, $41, $1C, $81, $1C, $C1, $1C, $C1, $C1, $1C, $85, $11, $1C, $C5, $11, $11, $85, $11, $11, $11, $51, $1A, $1A, $11, $88, $51 ;0x440
-	dc.b	$80, $75, $0E, $28, $51, $11, $58, $22, $22, $22, $81, $18, $58, $82, $11, $11, $88, $80, $03, $0E, $18, $82, $11, $A1, $DD, $82, $AA, $11, $1D, $82, $11, $15 ;0x460
-	dc.b	$82, $28, $80, $1B, $01, $28, $80, $1E, $1E, $28, $22, $28, $18, $81, $22, $28, $C1, $1C, $22, $22, $C1, $C8, $22, $22, $8C, $82, $28, $12, $28, $22, $85, $12 ;0x480
-	dc.b	$22, $22, $51, $52, $22, $22, $11, $80, $11, $01, $C8, $80, $54, $81, $4F, $01, $28, $80, $5B, $01, $28, $80, $5C, $01, $22, $80, $57, $80, $3A, $01, $85, $80 ;0x4A0
-	dc.b	$5A, $82, $02, $08, $15, $88, $C1, $81, $11, $11, $58, $1C, $80, $7A, $07, $15, $11, $11, $A1, $11, $1A, $AA, $80, $04, $80, $0B, $85, $1F, $0C, $C8, $88, $51 ;0x4C0
-	dc.b	$C8, $15, $88, $41, $11, $88, $88, $81, $8C, $80, $2B, $11, $C8, $11, $58, $14, $88, $88, $41, $48, $28, $2C, $1C, $88, $F8, $24, $18, $2F, $F8, $85, $47, $81 ;0x4E0
-	dc.b	$4F, $01, $C2, $81, $4F, $04, $82, $22, $22, $41, $80, $04, $07, $C8, $41, $11, $C8, $C8, $8C, $C5, $80, $6B, $97, $01, $04, $5C, $C8, $88, $8C, $90, $1F, $80 ;0x500
-	dc.b	$D7, $0A, $8C, $11, $22, $C5, $11, $14, $51, $11, $14, $48, $DD, $5F, $04, $10, $00, $00, $00, $99, $03, $A0, $02, $01, $1C, $83, $03, $42, $01, $48, $00, $11 ;0x520
-	dc.b	$13, $33, $01, $33, $11, $11, $13, $CC, $22, $88, $11, $1C, $C2, $F2, $00, $01, $CC, $22, $2C, $13, $CC, $14, $2C, $11, $33, $11, $C3, $13, $11, $31, $31, $33 ;0x540
-	dc.b	$31, $11, $1C, $31, $33, $1C, $88, $31, $CC, $31, $8C, $18, $8C, $C1, $11, $8F, $28, $18, $CC, $41, $3C, $31, $1C, $C4, $1C, $31, $C8, $8C, $13, $1C, $80, $12 ;0x560
-	dc.b	$01, $4C, $80, $B2, $06, $CC, $11, $82, $88, $88, $18, $80, $F8, $81, $03, $0C, $C1, $13, $31, $1C, $CC, $C1, $31, $41, $88, $CC, $1C, $CC, $80, $00, $06, $C8 ;0x580
-	dc.b	$C1, $11, $11, $CC, $11, $80, $00, $44, $22, $88, $8C, $51, $22, $22, $88, $88, $C1, $32, $28, $11, $14, $13, $CC, $13, $41, $11, $33, $13, $88, $C4, $13, $13 ;0x5A0
-	dc.b	$88, $8C, $13, $13, $C8, $88, $C1, $41, $1C, $88, $CC, $41, $88, $8C, $C4, $18, $3C, $2F, $28, $58, $13, $82, $22, $14, $15, $3C, $22, $C4, $31, $13, $CC, $CC ;0x5C0
-	dc.b	$33, $51, $11, $3C, $3C, $8C, $C5, $1C, $33, $C8, $8C, $51, $80, $A8, $03, $41, $CC, $C1, $80, $01, $80, $5B, $0B, $11, $CC, $C1, $C8, $41, $11, $C1, $C2, $C1 ;0x5E0
-	dc.b	$33, $11, $80, $03, $08, $13, $C8, $C1, $33, $3C, $C8, $33, $3C, $81, $72, $10, $11, $01, $11, $11, $00, $01, $C3, $31, $00, $01, $8C, $33, $10, $01, $28, $C3 ;0x600
-	dc.b	$80, $03, $0C, $8C, $10, $01, $88, $8C, $31, $01, $CC, $CC, $C3, $11, $10, $80, $F8, $16, $10, $00, $11, $18, $10, $01, $48, $88, $10, $18, $88, $22, $11, $88 ;0x620
-	dc.b	$22, $22, $14, $82, $FF, $F2, $1C, $2F, $82, $03, $16, $22, $18, $C4, $11, $18, $8C, $11, $CC, $82, $C1, $CC, $C8, $2F, $1C, $C8, $2F, $FF, $1C, $82, $22, $25 ;0x640
-	dc.b	$18, $80, $7A, $20, $18, $CC, $14, $41, $C1, $C1, $44, $18, $22, $FF, $22, $81, $FF, $F2, $8C, $14, $FF, $28, $C5, $1C, $F8, $C5, $11, $C2, $11, $11, $4C, $2F ;0x660
-	dc.b	$14, $C8, $22, $FF, $80, $02, $31, $F2, $2F, $FF, $FF, $28, $88, $18, $2F, $FF, $88, $18, $8F, $FF, $F8, $41, $82, $FF, $F8, $C1, $48, $2F, $F8, $C1, $1C, $88 ;0x680
-	dc.b	$28, $41, $41, $48, $88, $11, $11, $11, $81, $15, $C1, $11, $14, $CC, $14, $82, $14, $8C, $41, $C8, $14, $88, $C4, $1C, $80, $0C, $0E, $41, $81, $41, $1C, $8C ;0x6A0
-	dc.b	$88, $1C, $C1, $C2, $88, $14, $8C, $82, $88, $80, $8C, $01, $FF, $80, $8A, $80, $4A, $01, $81, $80, $09, $33, $24, $14, $C8, $2F, $F8, $41, $1C, $82, $F8, $88 ;0x6C0
-	dc.b	$41, $C8, $F8, $28, $C4, $18, $28, $22, $8C, $18, $88, $C1, $18, $22, $F2, $C8, $41, $88, $22, $1C, $81, $18, $28, $1C, $11, $18, $88, $11, $4C, $18, $81, $14 ;0x6E0
-	dc.b	$88, $18, $81, $1C, $28, $11, $81, $1C, $81, $80, $63, $1B, $41, $CF, $FF, $81, $11, $48, $FF, $81, $C4, $18, $FF, $14, $88, $41, $8F, $11, $11, $44, $1F, $4C ;0x700
-	dc.b	$CC, $11, $1F, $11, $11, $C4, $18, $80, $82, $0D, $88, $F8, $14, $82, $28, $FF, $41, $82, $F2, $FF, $81, $82, $FF, $80, $03, $05, $2F, $F8, $81, $88, $2F, $80 ;0x720
-	dc.b	$77, $25, $82, $81, $41, $C8, $88, $11, $C5, $1C, $88, $88, $8C, $41, $C1, $21, $C8, $C1, $41, $21, $4C, $84, $11, $22, $51, $11, $41, $FF, $22, $22, $11, $FF ;0x740
-	dc.b	$FF, $FF, $21, $2F, $F2, $FF, $F1, $80, $35, $01, $21, $96, $DF, $07, $1C, $8C, $11, $81, $C8, $88, $C1, $96, $DF, $01, $18, $80, $DF, $01, $18, $B8, $DF, $02 ;0x760
-	dc.b	$88, $C1, $80, $03, $80, $63, $8C, $DF, $07, $C8, $22, $44, $1F, $88, $22, $88, $81, $03, $04, $18, $C8, $22, $81, $9A, $DF, $01, $1C, $80, $DF, $01, $22, $8F ;0x780
-	dc.b	$00, $01, $25, $80, $13, $01, $51, $80, $17, $01, $15, $81, $03, $03, $C1, $8C, $82, $8A, $22, $10, $11, $11, $11, $5C, $55, $55, $55, $51, $55, $44, $44, $45 ;0x7A0
-	dc.b	$44, $44, $33, $34, $8D, $3F, $81, $2D, $01, $58, $84, $3C, $81, $44, $90, $5E, $05, $11, $22, $22, $21, $55, $80, $66, $82, $22, $90, $5F, $01, $11, $80, $5F ;0x7C0
-	dc.b	$80, $5E, $05, $44, $45, $54, $43, $34, $8E, $42, $85, $57, $81, $9C, $81, $67, $04, $10, $00, $00, $00, $99, $03, $9E, $02, $0B, $01, $88, $81, $00, $00, $18 ;0x7E0
-	dc.b	$18, $00, $01, $81, $18, $82, $07, $02, $00, $18, $80, $0F, $02, $01, $11, $81, $19, $81, $3E, $20, $82, $21, $11, $18, $28, $1C, $81, $88, $81, $C8, $C1, $81 ;0x800
-	dc.b	$1C, $8C, $11, $81, $C2, $C1, $C1, $81, $C2, $8C, $11, $55, $42, $28, $C1, $18, $12, $22, $88, $41, $82, $B3, $10, $1C, $22, $22, $55, $51, $C2, $22, $54, $45 ;0x820
-	dc.b	$12, $22, $53, $33, $12, $22, $13, $80, $03, $01, $15, $80, $07, $02, $81, $11, $81, $DB, $02, $28, $88, $83, $03, $01, $88, $89, $03, $01, $81, $82, $03, $27 ;0x840
-	dc.b	$28, $88, $81, $88, $8C, $41, $81, $8C, $41, $11, $18, $81, $11, $18, $C1, $18, $18, $C1, $8C, $1C, $14, $84, $18, $CF, $31, $28, $18, $8C, $1C, $28, $18, $C1 ;0x860
-	dc.b	$C2, $28, $28, $14, $C1, $3C, $C1, $80, $15, $05, $31, $8C, $18, $13, $13, $80, $1F, $0D, $3C, $18, $18, $81, $3C, $18, $88, $81, $3C, $88, $88, $C1, $3C, $80 ;0x880
-	dc.b	$3B, $0D, $33, $3C, $CC, $C3, $11, $C8, $8C, $31, $10, $82, $8C, $C3, $31, $80, $6A, $81, $6B, $11, $8C, $22, $22, $8C, $33, $82, $2C, $C1, $11, $CC, $C3, $10 ;0x8A0
-	dc.b	$00, $13, $33, $11, $11, $80, $CD, $05, $01, $13, $31, $00, $01, $80, $0E, $02, $01, $33, $80, $03, $80, $DC, $81, $DB, $82, $03, $1C, $1C, $2F, $FF, $FF, $14 ;0x8C0
-	dc.b	$8F, $FF, $F2, $15, $88, $FF, $FF, $11, $48, $8F, $FF, $10, $14, $82, $2F, $10, $01, $48, $22, $10, $00, $14, $88, $80, $03, $20, $CC, $21, $14, $C1, $88, $24 ;0x8E0
-	dc.b	$1C, $41, $88, $28, $8C, $41, $88, $F2, $22, $41, $48, $FF, $22, $C1, $1C, $F2, $22, $84, $11, $22, $2C, $51, $14, $C8, $C5, $14, $80, $35, $02, $22, $C4, $80 ;0x900
-	dc.b	$02, $17, $11, $F2, $85, $11, $14, $28, $51, $51, $4C, $88, $14, $41, $5C, $C8, $14, $C5, $15, $11, $C1, $C4, $51, $81, $14, $80, $D9, $07, $C1, $11, $11, $1C ;0x920
-	dc.b	$11, $11, $B1, $80, $06, $82, $01, $10, $8B, $AB, $1B, $11, $8F, $11, $AB, $BF, $C8, $C1, $1A, $BB, $58, $2C, $11, $11, $80, $F7, $01, $82, $80, $1A, $25, $82 ;0x940
-	dc.b	$BA, $A1, $1B, $82, $11, $BB, $FF, $22, $AB, $FA, $1F, $22, $BA, $A1, $12, $28, $A1, $11, $82, $28, $14, $C8, $22, $28, $22, $28, $18, $81, $22, $28, $C1, $1C ;0x960
-	dc.b	$22, $22, $C1, $C8, $80, $D7, $0E, $82, $28, $12, $28, $22, $85, $12, $22, $22, $51, $52, $22, $22, $11, $80, $11, $01, $C8, $81, $3C, $14, $B1, $11, $A1, $22 ;0x980
-	dc.b	$B1, $1A, $11, $22, $FB, $1A, $1A, $22, $21, $1A, $AA, $22, $2C, $11, $1A, $22, $80, $34, $01, $22, $80, $00, $01, $B1, $81, $62, $82, $7B, $0E, $AA, $A1, $A1 ;0x9A0
-	dc.b	$AA, $BF, $AB, $B9, $BB, $FF, $AF, $AA, $BF, $F1, $1F, $81, $8E, $81, $1F, $47, $14, $18, $51, $C8, $11, $C8, $41, $11, $11, $18, $81, $8C, $11, $11, $C1, $C8 ;0x9C0
-	dc.b	$B1, $FC, $14, $88, $F2, $41, $48, $28, $2C, $1C, $88, $F8, $24, $18, $2F, $F8, $88, $22, $FF, $21, $55, $88, $2F, $21, $41, $1C, $2F, $81, $C4, $51, $C2, $81 ;0x9E0
-	dc.b	$8C, $41, $C8, $C1, $CC, $C1, $C8, $11, $C1, $C1, $11, $41, $C1, $CC, $C4, $11, $1C, $C2, $28, $C1, $C8, $8C, $C5, $80, $C7, $03, $5C, $88, $88, $80, $07, $01 ;0xA00
-	dc.b	$51, $80, $E7, $09, $8C, $51, $11, $15, $C8, $82, $22, $22, $58, $80, $80, $01, $81, $80, $08, $80, $DE, $04, $22, $88, $8C, $18, $80, $07, $01, $C1, $80, $EB ;0xA20
-	dc.b	$02, $18, $82, $80, $C8, $01, $28, $80, $9B, $83, $03, $9C, $DF, $05, $C2, $85, $11, $11, $88, $80, $5A, $05, $28, $85, $11, $15, $28, $80, $5C, $03, $22, $88 ;0xA40
-	dc.b	$85, $82, $B7, $85, $03, $0B, $1C, $88, $C1, $81, $C5, $11, $1C, $1C, $4C, $C8, $C1, $80, $E6, $02, $54, $C8, $85, $D7, $85, $23, $0E, $C8, $88, $51, $C8, $88 ;0xA60
-	dc.b	$88, $41, $11, $54, $88, $81, $8C, $88, $88, $80, $B8, $04, $58, $14, $88, $28, $88, $DF, $80, $A2, $01, $C1, $85, $4F, $01, $C2, $80, $AF, $01, $15, $80, $B7 ;0xA80
-	dc.b	$01, $41, $80, $04, $04, $C8, $41, $11, $C8, $81, $D7, $8D, $4F, $89, $7B, $04, $5C, $C8, $88, $8C, $80, $B8, $8D, $1E, $80, $DB, $0A, $8C, $11, $22, $C5, $11 ;0xAA0
-	dc.b	$14, $51, $11, $14, $48, $80, $E7, $01, $2C, $99, $5F, $80, $D2, $90, $42, $87, $5F, $90, $7B, $8A, $5F, $04, $10, $00, $00, $00, $99, $03, $84, $02, $01, $01 ;0xAC0
-	dc.b	$80, $26, $01, $1C, $80, $06, $01, $C9, $80, $06, $01, $9C, $80, $06, $2E, $CC, $00, $1C, $C1, $49, $00, $1C, $14, $99, $00, $11, $11, $00, $11, $CC, $CC, $10 ;0xAE0
-	dc.b	$C9, $FF, $9C, $C1, $FF, $FF, $F9, $C1, $C4, $44, $9C, $14, $4C, $C4, $41, $1C, $9C, $CC, $41, $C2, $CC, $C4, $1C, $82, $12, $22, $28, $C1, $12, $80, $D0, $80 ;0xB00
-	dc.b	$03, $01, $88, $80, $BF, $01, $88, $80, $FF, $80, $03, $01, $28, $84, $03, $02, $88, $88, $81, $E0, $01, $14, $80, $F1, $18, $41, $4C, $88, $88, $C1, $11, $11 ;0xB20
-	dc.b	$11, $C1, $33, $34, $11, $C1, $11, $34, $14, $41, $22, $15, $1C, $1C, $C5, $11, $C8, $80, $2A, $01, $81, $80, $2E, $11, $84, $88, $88, $88, $81, $15, $C8, $88 ;0xB40
-	dc.b	$C1, $58, $28, $88, $41, $82, $22, $88, $14, $80, $03, $80, $F7, $02, $8C, $1C, $80, $08, $01, $22, $80, $08, $02, $22, $42, $80, $FF, $80, $0A, $01, $28, $85 ;0xB60
-	dc.b	$03, $83, $E7, $81, $39, $13, $13, $31, $88, $C1, $43, $C3, $8C, $41, $3C, $C3, $8C, $13, $3C, $33, $84, $13, $33, $11, $81, $80, $B3, $01, $81, $80, $F7, $01 ;0xB80
-	dc.b	$81, $80, $FC, $20, $33, $31, $00, $00, $11, $10, $01, $11, $31, $00, $14, $C9, $10, $01, $4C, $FF, $00, $14, $CF, $F9, $00, $1C, $9F, $9C, $01, $49, $99, $94 ;0xBA0
-	dc.b	$01, $49, $F9, $C4, $80, $92, $0C, $01, $4C, $99, $C4, $11, $FF, $F9, $99, $41, $99, $C1, $1C, $80, $DF, $12, $41, $C1, $44, $CC, $44, $11, $4C, $CC, $C4, $41 ;0xBC0
-	dc.b	$CC, $CC, $C4, $C1, $10, $00, $01, $11, $80, $03, $05, $14, $10, $00, $14, $82, $81, $3F, $07, $10, $01, $C8, $88, $10, $01, $C1, $80, $13, $81, $01, $80, $5B ;0xBE0
-	dc.b	$15, $C1, $42, $22, $8C, $14, $2F, $2C, $88, $14, $F2, $C1, $F2, $1C, $FC, $11, $22, $14, $8C, $11, $88, $14, $80, $81, $17, $81, $81, $C1, $00, $18, $11, $C8 ;0xC00
-	dc.b	$88, $82, $F8, $C1, $18, $2F, $28, $85, $88, $2F, $22, $84, $82, $FF, $F2, $8C, $80, $03, $0E, $2C, $C2, $FF, $FF, $28, $48, $82, $FF, $F8, $11, $C8, $FF, $F8 ;0xC20
-	dc.b	$58, $80, $DB, $81, $DF, $81, $E7, $05, $15, $C2, $22, $22, $51, $80, $03, $01, $41, $80, $14, $05, $C1, $5C, $22, $22, $81, $81, $F8, $8B, $02, $01, $21, $80 ;0xC40
-	dc.b	$F7, $01, $41, $80, $FB, $01, $15, $85, $03, $02, $C1, $8C, $80, $38, $80, $43, $18, $51, $11, $15, $82, $15, $55, $51, $1C, $55, $54, $44, $51, $54, $44, $44 ;0xC60
-	dc.b	$45, $44, $33, $33, $35, $44, $43, $33, $34, $8E, $41, $80, $6F, $01, $12, $88, $03, $90, $1F, $01, $28, $88, $75, $0E, $2C, $21, $C2, $FF, $F2, $41, $22, $F2 ;0xC80
-	dc.b	$22, $15, $2F, $F2, $22, $14, $81, $03, $01, $8F, $84, $03, $01, $82, $80, $13, $80, $03, $0D, $C8, $1C, $CC, $41, $8C, $18, $88, $81, $8C, $C1, $88, $81, $2C ;0xCA0
-	dc.b	$88, $03, $01, $88, $80, $0F, $0E, $8C, $18, $81, $11, $88, $18, $2F, $FF, $88, $18, $8F, $FF, $F8, $41, $80, $F0, $3B, $C1, $48, $2F, $F8, $C1, $1C, $88, $28 ;0xCC0
-	dc.b	$41, $41, $48, $88, $14, $11, $11, $81, $11, $41, $11, $14, $CC, $14, $82, $14, $8C, $41, $C8, $14, $88, $C4, $1C, $1C, $C5, $15, $41, $81, $15, $CC, $8C, $88 ;0xCE0
-	dc.b	$1C, $88, $82, $88, $14, $8C, $82, $88, $11, $88, $22, $FF, $FF, $F2, $1C, $22, $FF, $F2, $81, $80, $09, $12, $24, $14, $C8, $2F, $F8, $41, $1C, $82, $F8, $88 ;0xD00
-	dc.b	$41, $C8, $F8, $28, $C4, $18, $28, $22, $80, $78, $16, $C1, $18, $22, $F2, $CC, $41, $88, $22, $11, $C5, $18, $28, $1C, $11, $18, $88, $1C, $CC, $18, $81, $1C ;0xD20
-	dc.b	$88, $80, $03, $05, $28, $11, $81, $1C, $81, $80, $63, $2B, $C1, $CF, $FF, $81, $C1, $48, $FF, $81, $C4, $18, $FF, $15, $5C, $41, $8F, $51, $11, $54, $1F, $4C ;0xD40
-	dc.b	$C5, $11, $1F, $11, $11, $C4, $18, $11, $11, $11, $88, $F8, $14, $82, $28, $FF, $41, $82, $F2, $FF, $81, $82, $FF, $80, $03, $05, $2F, $F8, $81, $88, $2F, $80 ;0xD60
-	dc.b	$77, $0A, $82, $81, $41, $C8, $88, $11, $C5, $1C, $88, $00, $DC, $00, $01, $22, $86, $00, $06, $28, $51, $22, $22, $21, $15, $80, $03, $01, $55, $87, $03, $05 ;0xD80
-	dc.b	$2C, $15, $C1, $8C, $82, $82, $22, $80, $AB, $02, $11, $55, $81, $00, $05, $54, $44, $55, $55, $44, $80, $00, $07, $33, $33, $34, $44, $43, $33, $34, $85, $3F ;0xDA0
-	dc.b	$01, $5C, $80, $48, $80, $3C, $01, $22, $80, $44, $86, $03, $01, $11, $80, $5C, $01, $10, $80, $C0, $8C, $03, $01, $01, $88, $03, $36, $00, $01, $CC, $19, $9C ;0xDC0
-	dc.b	$01, $91, $4F, $9C, $19, $91, $CF, $C1, $19, $91, $CC, $14, $9F, $CC, $11, $4C, $99, $C1, $01, $F9, $CC, $10, $01, $9C, $11, $00, $00, $11, $C4, $C1, $48, $22 ;0xDE0
-	dc.b	$19, $41, $C2, $22, $1C, $14, $82, $22, $14, $15, $82, $22, $C1, $15, $88, $88, $41, $80, $03, $0C, $14, $C1, $48, $88, $1C, $C1, $14, $88, $22, $28, $88, $C4 ;0xE00
-	dc.b	$80, $03, $33, $41, $22, $88, $88, $11, $28, $88, $81, $66, $88, $8C, $1F, $F6, $88, $81, $FF, $F6, $88, $C1, $FF, $FF, $88, $1F, $FF, $FF, $11, $11, $CC, $82 ;0xE20
-	dc.b	$15, $88, $82, $28, $C8, $22, $28, $C5, $1C, $88, $C1, $76, $74, $C1, $16, $6F, $61, $16, $FF, $FF, $66, $FF, $83, $00, $10, $22, $88, $C4, $18, $C4, $51, $11 ;0xE40
-	dc.b	$48, $17, $66, $61, $48, $FF, $FF, $61, $C8, $80, $03, $01, $42, $80, $07, $80, $0B, $06, $F7, $18, $FF, $FF, $F6, $14, $80, $FC, $01, $28, $8C, $03, $01, $88 ;0xE60
-	dc.b	$81, $03, $81, $78, $81, $00, $14, $81, $41, $00, $01, $81, $C4, $11, $14, $81, $CC, $14, $C9, $85, $8C, $41, $CC, $88, $88, $C1, $44, $80, $A1, $80, $07, $15 ;0xE80
-	dc.b	$51, $CC, $88, $8C, $1C, $C9, $14, $9F, $9C, $4C, $C9, $F9, $CC, $CC, $99, $CC, $CC, $CC, $C4, $CC, $9C, $80, $08, $32, $9C, $9F, $CC, $9F, $C5, $9F, $5C, $FF ;0xEA0
-	dc.b	$C1, $F9, $19, $FC, $1C, $FC, $CC, $C9, $95, $C1, $CC, $CF, $91, $C1, $95, $CF, $C1, $C1, $91, $CC, $1C, $C1, $95, $11, $CC, $C1, $95, $1C, $9C, $11, $C5, $19 ;0xEC0
-	dc.b	$FC, $11, $51, $CF, $F1, $C1, $10, $00, $00, $00, $99, $03, $0C, $01, $1C, $2F, $F2, $00, $01, $C2, $28, $00, $00, $1C, $CC, $80, $0D, $01, $11, $80, $2E, $8A ;0xEE0
-	dc.b	$02, $14, $8C, $1C, $2F, $28, $CC, $1C, $82, $88, $11, $1C, $88, $81, $11, $11, $CC, $11, $00, $14, $1C, $14, $80, $26, $04, $4C, $00, $00, $11, $82, $2B, $17 ;0xF00
-	dc.b	$51, $15, $C2, $22, $11, $41, $5C, $22, $14, $CC, $41, $58, $4C, $CC, $CC, $41, $C1, $11, $15, $C4, $C3, $13, $C1, $80, $28, $06, $18, $8C, $00, $00, $18, $C1 ;0xF20
-	dc.b	$80, $FF, $01, $15, $80, $FF, $81, $07, $02, $2C, $C2, $81, $0C, $04, $82, $22, $22, $41, $80, $04, $17, $C8, $41, $11, $C8, $C8, $8C, $C5, $11, $43, $33, $33 ;0xF40
-	dc.b	$35, $14, $33, $34, $51, $51, $55, $51, $1C, $2C, $CC, $CC, $80, $2E, $87, $02, $05, $5C, $C8, $88, $8C, $12, $80, $40, $81, $37, $88, $18, $0D, $28, $22, $22 ;0xF60
-	dc.b	$8C, $11, $22, $C5, $11, $14, $51, $11, $14, $48, $80, $56, $02, $51, $22, $80, $0C, $80, $06, $80, $13, $16, $55, $11, $CC, $88, $C5, $11, $C8, $28, $C4, $51 ;0xF80
-	dc.b	$88, $22, $2C, $55, $82, $22, $2C, $C1, $15, $C8, $88, $88, $80, $47, $1E, $81, $CC, $CC, $11, $18, $CC, $11, $5C, $C8, $11, $5C, $88, $41, $11, $41, $11, $14 ;0xFA0
-	dc.b	$11, $16, $14, $C8, $17, $11, $CC, $82, $18, $88, $10, $01, $88, $81, $03, $0E, $81, $00, $01, $41, $11, $11, $11, $15, $CC, $C4, $11, $82, $22, $28, $81, $B7 ;0xFC0
-	dc.b	$01, $21, $81, $03, $08, $11, $C1, $11, $11, $1C, $11, $11, $B1, $80, $06, $82, $01, $14, $8B, $AB, $1B, $11, $8F, $11, $AB, $BF, $C8, $C1, $1A, $BB, $58, $2C ;0xFE0
-	dc.b	$11, $11, $81, $11, $18, $82, $80, $36, $17, $82, $BA, $A1, $1B, $82, $11, $BB, $FF, $22, $AB, $FA, $1F, $22, $BA, $A1, $12, $28, $A1, $11, $82, $28, $14, $C8 ;0x1000
-	dc.b	$80, $AB, $03, $28, $18, $81, $80, $4E, $05, $1C, $22, $22, $C1, $C8, $80, $B7, $06, $82, $28, $12, $28, $22, $85, $80, $D4, $05, $51, $52, $22, $22, $11, $80 ;0x1020
-	dc.b	$11, $01, $C8, $81, $3C, $13, $B1, $11, $A1, $22, $B1, $1A, $11, $22, $FB, $1A, $1A, $22, $21, $1A, $AA, $22, $2C, $11, $1A, $80, $E6, $81, $83, $02, $22, $B1 ;0x1040
-	dc.b	$81, $62, $82, $7B, $0E, $AA, $A1, $A1, $AA, $BF, $AB, $B9, $BB, $FF, $AF, $AA, $BF, $F1, $1F, $81, $8E, $81, $1F, $06, $14, $18, $51, $C8, $11, $C8, $80, $B9 ;0x1060
-	dc.b	$18, $18, $81, $8C, $11, $11, $C1, $C8, $B1, $FC, $14, $88, $F2, $41, $48, $28, $2C, $1C, $88, $F8, $24, $18, $2F, $F8, $00, $DC, $00, $80, $A3, $01, $15, $80 ;0x1080
-	dc.b	$A7, $81, $AB, $02, $2C, $C2, $81, $0C, $04, $82, $22, $22, $41, $80, $04, $80, $92, $14, $C8, $C8, $8C, $C5, $11, $43, $33, $33, $31, $14, $33, $34, $51, $51 ;0x10A0
-	dc.b	$55, $51, $1C, $2C, $CC, $CC, $81, $D2, $86, $03, $05, $5C, $C8, $88, $8C, $12, $80, $E4, $81, $37, $88, $18, $0E, $28, $22, $22, $8C, $11, $22, $C5, $11, $14 ;0x10C0
-	dc.b	$51, $11, $14, $48, $10, $80, $C0, $90, $03, $01, $01, $80, $17, $05, $16, $10, $00, $01, $76, $8B, $DF, $01, $11, $80, $00, $07, $76, $66, $76, $FF, $FF, $FF ;0x10E0
-	dc.b	$6F, $80, $03, $81, $02, $08, $14, $C4, $11, $54, $01, $11, $01, $11, $82, $1C, $80, $FF, $01, $67, $80, $09, $01, $F6, $80, $04, $1C, $FF, $66, $67, $10, $66 ;0x1100
-	dc.b	$F6, $66, $71, $CC, $1F, $FF, $FF, $11, $16, $FF, $6F, $10, $17, $6F, $F6, $00, $17, $66, $F6, $00, $01, $66, $6F, $80, $03, $09, $7F, $00, $11, $66, $16, $11 ;0x1120
-	dc.b	$61, $66, $71, $84, $46, $86, $06, $81, $57, $01, $66, $80, $5F, $01, $F7, $80, $60, $02, $F6, $16, $81, $64, $02, $F6, $61, $80, $09, $01, $67, $80, $0D, $81 ;0x1140
-	dc.b	$16, $0A, $66, $71, $7F, $FF, $F6, $77, $17, $FF, $FF, $77, $80, $39, $09, $67, $77, $7F, $FF, $C8, $88, $88, $88, $14, $80, $04, $05, $71, $54, $CC, $CC, $67 ;0x1160
-	dc.b	$80, $9E, $0D, $66, $67, $11, $77, $66, $66, $71, $76, $F6, $66, $67, $17, $FF, $80, $08, $11, $88, $84, $1C, $9F, $88, $41, $1C, $99, $45, $17, $1C, $94, $11 ;0x1180
-	dc.b	$76, $71, $41, $67, $81, $97, $04, $6F, $F6, $10, $66, $80, $57, $80, $C7, $17, $67, $1C, $C1, $1C, $C5, $41, $1C, $C1, $11, $11, $CC, $FC, $1C, $01, $9F, $F1 ;0x11A0
-	dc.b	$9F, $01, $FF, $11, $FF, $00, $11, $80, $01, $80, $F8, $01, $10, $81, $F1, $17, $CC, $11, $C1, $CC, $11, $1C, $C1, $FC, $1C, $CF, $F1, $F1, $19, $FF, $11, $10 ;0x11C0
-	dc.b	$19, $91, $01, $00, $01, $10, $01, $80, $EF, $82, $03, $81, $23, $95, $03, $80, $8E, $82, $47, $95, $03, $A3, $1F, $01, $18, $80, $86, $81, $6E, $93, $3F, $07 ;0x11E0
-	dc.b	$14, $88, $8C, $51, $11, $44, $41, $80, $B1, $81, $AD, $8E, $5E, $02, $11, $41, $81, $23, $17, $C4, $51, $11, $14, $CC, $C4, $44, $01, $4C, $88, $CC, $01, $5C ;0x1200
-	dc.b	$88, $88, $14, $4C, $82, $22, $5C, $C8, $22, $22, $82, $20, $0F, $11, $44, $88, $11, $44, $C8, $82, $44, $CC, $88, $22, $CC, $88, $82, $22, $80, $02, $86, $00 ;0x1220
-	dc.b	$81, $BF, $08, $22, $22, $28, $C1, $22, $22, $8C, $1F, $80, $06, $11, $66, $22, $28, $17, $F7, $22, $8C, $16, $F1, $22, $C1, $7F, $F1, $28, $C1, $6F, $F1, $81 ;0x1240
-	dc.b	$DF, $05, $F1, $1C, $82, $22, $11, $80, $4B, $01, $14, $80, $37, $01, $1C, $80, $3A, $01, $58, $80, $3E, $01, $48, $80, $42, $01, $C2, $86, $3F, $02, $22, $21 ;0x1260
-	dc.b	$95, $03, $81, $FF, $1D, $88, $18, $2F, $FF, $88, $18, $8F, $FF, $F8, $41, $82, $FF, $F8, $C1, $48, $2F, $F8, $C1, $1C, $88, $28, $41, $41, $48, $88, $14, $11 ;0x1280
-	dc.b	$11, $81, $80, $BD, $28, $14, $CC, $14, $82, $14, $8C, $41, $C8, $14, $88, $C4, $1C, $1C, $C5, $15, $41, $81, $15, $CC, $8C, $88, $1C, $88, $82, $88, $14, $8C ;0x12A0
-	dc.b	$82, $88, $11, $88, $22, $FF, $FF, $F2, $1C, $22, $FF, $F2, $81, $80, $09, $2B, $24, $14, $C8, $2F, $F8, $41, $1C, $82, $F8, $88, $41, $C8, $F8, $28, $C4, $18 ;0x12C0
-	dc.b	$28, $22, $8C, $18, $88, $C1, $18, $22, $F2, $CC, $41, $88, $22, $11, $C5, $18, $28, $1C, $11, $18, $88, $1C, $CC, $18, $81, $1C, $88, $80, $03, $1F, $85, $11 ;0x12E0
-	dc.b	$81, $1C, $58, $CC, $11, $81, $C1, $CF, $FF, $81, $C1, $48, $FF, $81, $C4, $18, $FF, $15, $5C, $41, $8F, $51, $11, $5C, $1F, $8C, $C1, $11, $1F, $80, $2A, $80 ;0x1300
-	dc.b	$3C, $0E, $11, $88, $F8, $14, $82, $28, $FF, $41, $82, $F2, $FF, $81, $82, $FF, $80, $03, $05, $2F, $F8, $81, $88, $2F, $80, $77, $0A, $82, $81, $41, $C8, $88 ;0x1320
-	dc.b	$1C, $C5, $1C, $88, $00, $8A, $00, $02, $01, $11, $84, $03, $01, $10, $80, $17, $85, $03, $01, $01, $83, $03, $0C, $11, $11, $00, $01, $7F, $67, $00, $17, $F1 ;0x1340
-	dc.b	$11, $00, $16, $80, $0B, $80, $FC, $80, $2E, $80, $2F, $01, $00, $82, $07, $83, $01, $01, $10, $82, $34, $8C, $02, $81, $4C, $01, $1F, $80, $3C, $01, $6F, $80 ;0x1360
-	dc.b	$40, $01, $77, $84, $34, $80, $29, $83, $79, $85, $68, $81, $48, $84, $68, $86, $79, $81, $5D, $05, $76, $71, $10, $00, $67, $80, $57, $81, $5B, $83, $03, $88 ;0x1380
-	dc.b	$3C, $82, $A4, $0B, $01, $6F, $10, $00, $17, $F6, $10, $00, $16, $61, $10, $80, $9F, $0C, $10, $01, $66, $77, $10, $17, $F6, $17, $10, $16, $F6, $17, $81, $95 ;0x13A0
-	dc.b	$05, $FF, $FF, $FF, $F6, $76, $80, $03, $02, $16, $6F, $82, $03, $01, $FF, $86, $03, $03, $66, $FF, $FF, $81, $B5, $09, $71, $6F, $66, $67, $17, $16, $F6, $66 ;0x13C0
-	dc.b	$77, $80, $08, $02, $66, $77, $80, $08, $03, $67, $71, $6F, $80, $0D, $81, $08, $01, $76, $81, $D5, $04, $16, $66, $66, $61, $81, $23, $06, $67, $1F, $66, $F6 ;0x13E0
-	dc.b	$66, $16, $80, $28, $05, $61, $11, $66, $66, $66, $81, $03, $01, $61, $82, $F4, $18, $66, $61, $6F, $FF, $16, $67, $16, $FF, $17, $66, $71, $6F, $71, $66, $67 ;0x1400
-	dc.b	$16, $61, $76, $67, $71, $67, $16, $66, $77, $80, $19, $01, $71, $82, $1F, $06, $77, $16, $FF, $F6, $67, $17, $80, $03, $81, $69, $0C, $71, $7F, $11, $11, $76 ;0x1420
-	dc.b	$6F, $17, $71, $11, $76, $77, $77, $80, $22, $81, $9F, $80, $75, $01, $FF, $80, $75, $84, $03, $0C, $11, $FF, $F6, $71, $71, $66, $71, $17, $77, $11, $17, $16 ;0x1440
-	dc.b	$82, $20, $0E, $16, $6F, $66, $11, $17, $6F, $61, $00, $71, $66, $61, $00, $11, $76, $80, $ED, $80, $FF, $81, $FE, $01, $71, $80, $FF, $81, $DF, $81, $0B, $95 ;0x1460
-	dc.b	$02, $81, $FF, $80, $2A, $01, $01, $95, $03, $84, $1F, $FF, $02, $FF, $84, $B6, $FF, $3A, $88, $18, $2F, $FF, $88, $18, $8F, $FF, $F8, $41, $82, $FF, $F8, $C1 ;0x1480
-	dc.b	$48, $2F, $F8, $C1, $1C, $88, $28, $41, $41, $48, $88, $14, $11, $11, $81, $11, $48, $C1, $14, $CC, $14, $82, $14, $8C, $41, $C8, $14, $88, $C4, $1C, $1C, $C5 ;0x14A0
-	dc.b	$15, $41, $81, $15, $CC, $8C, $88, $1C, $88, $82, $88, $18, $82, $03, $09, $22, $FF, $FF, $F2, $1C, $22, $FF, $F2, $81, $80, $09, $2B, $24, $14, $C8, $2F, $F8 ;0x14C0
-	dc.b	$41, $1C, $82, $F8, $88, $41, $C8, $F8, $28, $C4, $18, $28, $22, $8C, $18, $88, $C1, $18, $22, $F2, $CC, $41, $88, $22, $11, $C5, $18, $28, $1C, $11, $18, $88 ;0x14E0
-	dc.b	$1C, $CC, $18, $81, $1C, $88, $81, $03, $01, $C1, $80, $07, $2E, $8C, $11, $81, $C1, $CF, $FF, $81, $C1, $48, $FF, $81, $C4, $18, $FF, $15, $5C, $41, $8F, $51 ;0x1500
-	dc.b	$11, $5C, $1F, $8C, $C1, $11, $1F, $88, $88, $8C, $18, $C8, $22, $81, $88, $F8, $14, $82, $28, $FF, $41, $82, $F2, $FF, $81, $82, $FF, $80, $03, $11, $2F, $F8 ;0x1520
-	dc.b	$81, $88, $2F, $88, $11, $88, $82, $81, $41, $C8, $88, $1C, $C5, $1C, $88, $84, $FF, $05, $11, $00, $00, $01, $1F, $80, $06, $01, $67, $80, $0A, $04, $11, $00 ;0x1540
-	dc.b	$01, $01, $80, $03, $80, $01, $01, $10, $80, $FF, $80, $03, $01, $01, $83, $06, $82, $0E, $91, $02, $01, $11, $80, $27, $07, $F6, $61, $10, $00, $11, $17, $11 ;0x1560
-	dc.b	$80, $3D, $85, $03, $95, $2D, $AD, $16, $81, $8F, $88, $80, $80, $A9, $01, $00, $80, $9E, $84, $04, $87, $91, $01, $01, $81, $A8, $89, $03, $81, $27, $80, $D8 ;0x1580
-	dc.b	$81, $BC, $82, $33, $88, $03, $80, $D7, $8B, $3C, $83, $C6, $90, $29, $83, $6C, $0D, $01, $16, $61, $00, $17, $F1, $11, $01, $7F, $11, $11, $01, $76, $80, $03 ;0x15A0
-	dc.b	$01, $17, $84, $E4, $8B, $A5, $86, $FB, $81, $A4, $01, $10, $80, $B4, $83, $03, $87, $58, $85, $60, $81, $CA, $FF, $02, $83, $FF, $00 ;0x15C0
-	dc.b	$00 ;0x0 (0x00059DBD-0x00059DBE, Entry count: 0x1) [Unknown data]
+	include "art/compressed/portrait/puyo_unkChar7.asm" ; Unknown Character Portrait
+loc_000587E2: ; Harpy?  Can't tell as I don't have the correct pallete
+	include "art/compressed/portrait/puyo_harpy.asm"
 loc_00059DBE:
-	dc.b	$01, $11, $80, $00, $07, $1F, $FF, $FF, $EE, $1F, $FF, $FE, $80, $03, $12, $EE, $EE, $1F, $EE, $EE, $DD, $1E, $EE, $EE, $FF, $1E, $D1, $1D, $EF, $1D, $1D, $EE ;0x0 (0x00059DBE-0x0005B328, Entry count: 0x156A) [Unknown data]
-	dc.b	$FE, $81, $1F, $0C, $EE, $DD, $DD, $DD, $ED, $DD, $EE, $EE, $ED, $DE, $EE, $EF, $80, $06, $0C, $EE, $FE, $ED, $DD, $DD, $FE, $DD, $11, $11, $ED, $D1, $DD, $80 ;0x20
-	dc.b	$05, $80, $1F, $05, $EE, $FF, $FF, $EF, $FF, $82, $00, $05, $EE, $EF, $EE, $FF, $EE, $80, $26, $80, $32, $06, $DE, $EE, $1D, $DE, $1E, $EE, $81, $5F, $80, $5A ;0x40
-	dc.b	$01, $EE, $80, $02, $01, $ED, $80, $3A, $05, $DD, $ED, $D1, $1D, $DD, $81, $02, $01, $11, $80, $09, $04, $11, $DD, $EF, $D1, $81, $7F, $04, $DD, $DD, $EF, $FE ;0x60
-	dc.b	$81, $57, $04, $DE, $ED, $11, $1E, $80, $53, $05, $11, $DD, $1D, $D1, $11, $80, $02, $04, $11, $11, $17, $67, $81, $9E, $01, $11, $80, $32, $0D, $DD, $EE, $D1 ;0x80
-	dc.b	$D1, $DD, $EE, $ED, $1D, $1D, $EF, $ED, $11, $11, $82, $03, $07, $DD, $17, $71, $DE, $DD, $11, $77, $82, $9F, $01, $EF, $80, $89, $02, $DE, $EE, $80, $54, $01 ;0xA0
-	dc.b	$1E, $80, $43, $0E, $D1, $EE, $DE, $FE, $ED, $1E, $1E, $EF, $EE, $1D, $1D, $FE, $FE, $1D, $82, $40, $0B, $DD, $DD, $D1, $DD, $EF, $FF, $ED, $EF, $FF, $EE, $DD ;0xC0
-	dc.b	$80, $A0, $80, $2E, $81, $BB, $02, $00, $00, $80, $C2, $01, $00, $81, $FF, $01, $00, $80, $00, $81, $04, $02, $DD, $10, $80, $13, $81, $17, $80, $1B, $01, $11 ;0xE0
-	dc.b	$80, $1F, $81, $14, $84, $1F, $01, $01, $95, $03, $09, $DD, $11, $DF, $EE, $E1, $1D, $EF, $EE, $D1, $81, $99, $80, $07, $10, $11, $11, $DE, $FE, $11, $17, $1D ;0x100
-	dc.b	$FE, $D1, $77, $71, $EE, $E1, $77, $71, $EF, $80, $13, $80, $CC, $07, $DF, $E1, $D1, $7D, $DF, $ED, $DD, $80, $1B, $81, $03, $01, $ED, $83, $03, $15, $ED, $F1 ;0x120
-	dc.b	$71, $EF, $D1, $17, $77, $67, $11, $77, $6F, $F6, $61, $17, $7F, $FF, $67, $D1, $76, $FF, $F6, $80, $03, $05, $FF, $D1, $76, $F6, $71, $80, $D9, $05, $14, $71 ;0x140
-	dc.b	$11, $44, $CC, $81, $E3, $0A, $DD, $ED, $D1, $77, $11, $DE, $DD, $17, $67, $11, $81, $03, $80, $D2, $0B, $14, $1D, $11, $4C, $2C, $41, $1D, $88, $22, $C1, $11 ;0x160
-	dc.b	$81, $E3, $11, $1D, $DE, $FF, $E1, $11, $DE, $EF, $FF, $11, $1D, $DE, $EE, $1D, $DD, $11, $DD, $D1, $80, $F4, $07, $14, $CC, $41, $1D, $CC, $88, $8C, $80, $0E ;0x180
-	dc.b	$F6, $9F, $01, $11, $80, $9F, $01, $1D, $8E, $9F, $0A, $D1, $11, $DD, $DD, $15, $51, $11, $D1, $55, $41, $80, $C8, $03, $1C, $1D, $22, $83, $00, $01, $28, $84 ;0x1A0
-	dc.b	$07, $8B, $06, $09, $28, $88, $41, $C8, $18, $22, $22, $8C, $42, $89, $13, $0E, $C5, $82, $28, $84, $14, $22, $84, $11, $C2, $22, $11, $48, $22, $22, $80, $EA ;0x1C0
-	dc.b	$05, $11, $10, $00, $00, $00, $95, $03, $81, $1F, $80, $1E, $96, $02, $88, $1F, $01, $01, $80, $46, $01, $1E, $80, $4A, $01, $1D, $84, $0B, $82, $13, $82, $3F ;0x1E0
-	dc.b	$05, $01, $1D, $EE, $00, $1D, $80, $BF, $13, $DF, $FF, $EE, $EF, $FE, $FE, $ED, $DE, $EF, $FE, $11, $11, $1D, $E1, $1E, $DE, $FF, $F1, $EF, $81, $7F, $1B, $ED ;0x200
-	dc.b	$D1, $DD, $DD, $EE, $DD, $1D, $DD, $ED, $DD, $DD, $D1, $11, $1D, $DD, $1D, $DE, $DD, $DD, $1E, $FE, $D1, $E1, $EF, $F1, $1E, $E1, $82, $1F, $80, $16, $01, $DD ;0x220
-	dc.b	$80, $17, $01, $1E, $80, $17, $11, $1D, $EE, $DE, $ED, $DD, $EE, $ED, $11, $1D, $EF, $E1, $11, $77, $EF, $E1, $77, $76, $82, $1F, $04, $DE, $EE, $EF, $ED, $80 ;0x240
-	dc.b	$04, $11, $ED, $EE, $DD, $EE, $D1, $DE, $ED, $1D, $11, $1D, $EE, $D1, $77, $1F, $FF, $E1, $66, $80, $03, $81, $DF, $01, $FF, $80, $00, $05, $FE, $EE, $FF, $FF ;0x260
-	dc.b	$FD, $80, $83, $10, $FF, $FD, $1F, $FF, $FE, $FE, $1F, $FE, $FE, $FE, $11, $FE, $FD, $FE, $11, $F1, $82, $1F, $14, $E1, $10, $00, $EE, $FF, $E1, $00, $FE, $ED ;0x280
-	dc.b	$FE, $10, $EF, $EE, $DE, $E1, $ED, $DE, $DD, $E1, $FE, $80, $92, $01, $1E, $80, $54, $84, $FF, $81, $DB, $86, $03, $01, $10, $80, $EB, $01, $D1, $84, $03, $0B ;0x2A0
-	dc.b	$11, $DE, $FF, $EE, $11, $EF, $FE, $ED, $1D, $FF, $FE, $80, $B4, $15, $ED, $D1, $1E, $EE, $DD, $E1, $1E, $ED, $1E, $F1, $1E, $D1, $DF, $D1, $1E, $1D, $FD, $E1 ;0x2C0
-	dc.b	$ED, $D1, $EE, $80, $CD, $0E, $ED, $DE, $D1, $EF, $ED, $FE, $1E, $FF, $ED, $EE, $1F, $FF, $EE, $EF, $80, $81, $02, $EF, $1E, $80, $85, $01, $1E, $80, $96, $0B ;0x2E0
-	dc.b	$DD, $11, $DF, $EE, $E1, $1D, $EF, $EE, $D1, $1D, $EF, $81, $D5, $11, $EE, $11, $11, $DE, $FE, $11, $17, $1D, $FE, $D1, $77, $71, $EE, $E1, $77, $71, $EF, $80 ;0x300
-	dc.b	$E9, $0A, $D1, $11, $1D, $DF, $E1, $D1, $7D, $DF, $ED, $DD, $80, $1B, $81, $03, $01, $ED, $83, $03, $15, $ED, $F1, $71, $EF, $D1, $17, $77, $67, $11, $77, $6F ;0x320
-	dc.b	$F6, $61, $17, $7F, $FF, $67, $D1, $76, $FF, $F6, $80, $03, $1B, $FF, $D1, $76, $F6, $71, $11, $77, $11, $14, $71, $11, $44, $CC, $DE, $DD, $11, $77, $DD, $ED ;0x340
-	dc.b	$D1, $77, $11, $DE, $DD, $17, $67, $11, $81, $03, $23, $1D, $11, $11, $14, $1D, $11, $4C, $2C, $41, $1D, $88, $22, $C1, $11, $1D, $FE, $FE, $1D, $1D, $DE, $FF ;0x360
-	dc.b	$E1, $11, $DE, $EF, $FF, $11, $1D, $DE, $EE, $1D, $DD, $11, $DD, $D1, $81, $F4, $02, $15, $41, $80, $28, $0E, $1C, $1D, $11, $DD, $DD, $10, $EE, $EE, $DD, $D1 ;0x380
-	dc.b	$ED, $DD, $DE, $ED, $80, $17, $09, $DD, $DD, $D1, $00, $11, $DD, $10, $00, $10, $80, $FF, $01, $00, $81, $03, $02, $00, $10, $81, $04, $83, $06, $84, $0A, $8D ;0x3A0
-	dc.b	$05, $01, $01, $99, $03, $80, $E3, $24, $EE, $ED, $17, $71, $DE, $ED, $11, $11, $1D, $ED, $11, $EE, $D1, $E1, $DE, $D1, $11, $D1, $D1, $14, $C8, $1D, $14, $C8 ;0x3C0
-	dc.b	$28, $11, $4C, $82, $22, $D1, $1D, $FE, $D1, $D1, $1D, $EE, $80, $13, $81, $9A, $0F, $DE, $11, $1D, $1C, $1D, $D1, $C1, $C8, $C1, $1C, $8C, $84, $51, $11, $84 ;0x3E0
-	dc.b	$80, $A7, $1A, $14, $4C, $C8, $82, $14, $C8, $22, $22, $E1, $1C, $82, $22, $11, $11, $C8, $22, $4C, $CC, $C2, $22, $88, $88, $88, $22, $4C, $88, $80, $0F, $02 ;0x400
-	dc.b	$C2, $22, $80, $00, $02, $24, $14, $80, $03, $05, $1C, $22, $22, $2C, $11, $83, $03, $02, $22, $51, $80, $15, $01, $8C, $80, $19, $01, $28, $81, $1D, $03, $C8 ;0x420
-	dc.b	$CC, $CC, $81, $E7, $80, $F1, $16, $1C, $11, $71, $11, $71, $41, $11, $17, $11, $C1, $11, $15, $C8, $85, $C4, $18, $22, $28, $2C, $12, $22, $28, $87, $9F, $0E ;0x440
-	dc.b	$1E, $1D, $ED, $1E, $ED, $11, $E1, $DD, $11, $54, $D1, $11, $44, $11, $81, $02, $04, $14, $45, $11, $61, $84, $9F, $05, $14, $D1, $E1, $EE, $11, $82, $9F, $03 ;0x460
-	dc.b	$11, $1D, $D1, $80, $96, $85, $02, $01, $17, $81, $9F, $01, $4C, $80, $9F, $0D, $11, $5C, $22, $22, $EE, $D1, $18, $22, $11, $15, $C2, $22, $14, $80, $9F, $01 ;0x480
-	dc.b	$11, $80, $9F, $01, $78, $81, $9E, $02, $22, $24, $80, $97, $02, $24, $17, $80, $9F, $01, $16, $91, $9F, $03, $71, $17, $1C, $80, $9F, $01, $7C, $80, $96, $01 ;0x4A0
-	dc.b	$78, $80, $4D, $03, $1D, $41, $71, $81, $9F, $04, $11, $12, $85, $C4, $80, $9B, $81, $9F, $04, $28, $51, $11, $54, $82, $46, $94, $04, $80, $7A, $95, $1E, $01 ;0x4C0
-	dc.b	$2C, $80, $FF, $05, $C5, $10, $00, $00, $00, $99, $03, $A0, $02, $05, $1F, $00, $00, $01, $FF, $80, $03, $01, $ED, $80, $07, $01, $E1, $80, $4E, $01, $11, $80 ;0x4E0
-	dc.b	$52, $01, $01, $84, $03, $2D, $1E, $FF, $FF, $1D, $FF, $ED, $DF, $1E, $FF, $11, $DD, $1E, $EF, $1D, $EE, $1E, $DF, $DE, $EE, $1D, $DD, $DF, $EE, $11, $1D, $EE ;0x500
-	dc.b	$DD, $1D, $11, $FD, $11, $DD, $D1, $F1, $EF, $F1, $EF, $D1, $EE, $F1, $1F, $11, $EE, $DE, $1D, $80, $03, $41, $11, $D1, $DF, $ED, $17, $DD, $1D, $ED, $11, $ED ;0x520
-	dc.b	$D1, $DD, $D1, $DD, $14, $1D, $DD, $FF, $E1, $77, $76, $FD, $ED, $17, $76, $FD, $DE, $17, $76, $DE, $DD, $D1, $77, $1D, $DD, $D1, $11, $11, $DD, $DD, $14, $54 ;0x540
-	dc.b	$1D, $DD, $1C, $15, $41, $DD, $18, $67, $1F, $FE, $D1, $61, $FE, $ED, $D1, $71, $FE, $DD, $1D, $71, $FD, $D1, $1E, $80, $52, $24, $1D, $C1, $1D, $D1, $11, $8C ;0x560
-	dc.b	$11, $D1, $CC, $28, $C1, $D1, $CC, $ED, $ED, $11, $FE, $ED, $E1, $11, $FE, $DE, $D1, $1D, $FE, $EE, $17, $1E, $FE, $ED, $17, $1E, $ED, $DD, $17, $1E, $80, $7D ;0x580
-	dc.b	$1B, $1D, $DD, $C1, $D1, $11, $ED, $11, $EE, $ED, $DE, $D1, $FE, $DD, $DE, $E1, $FE, $11, $1D, $D1, $FE, $D1, $71, $1D, $FE, $D1, $77, $1E, $82, $03, $07, $17 ;0x5A0
-	dc.b	$77, $1D, $FD, $17, $77, $D1, $80, $DC, $85, $03, $01, $10, $84, $03, $01, $71, $88, $03, $04, $1D, $1E, $ED, $E1, $80, $03, $04, $ED, $11, $1E, $EE, $80, $D5 ;0x5C0
-	dc.b	$01, $FE, $80, $D9, $0A, $EF, $EE, $17, $71, $DF, $FE, $16, $77, $1F, $EE, $80, $03, $11, $FE, $1D, $EF, $FF, $FE, $D1, $DE, $FF, $FF, $DD, $1E, $FE, $FF, $DD ;0x5E0
-	dc.b	$1D, $EE, $EF, $80, $D9, $80, $03, $01, $DD, $80, $FE, $01, $DD, $80, $E2, $0D, $DD, $D1, $E1, $77, $71, $EE, $ED, $17, $71, $DE, $ED, $11, $11, $80, $F5, $12 ;0x600
-	dc.b	$EE, $D1, $E1, $DE, $D1, $11, $D1, $D1, $14, $11, $1D, $14, $11, $11, $11, $45, $11, $61, $80, $B6, $04, $D1, $D1, $1D, $EE, $80, $13, $06, $EE, $1D, $DD, $11 ;0x620
-	dc.b	$DE, $11, $80, $B7, $01, $D1, $80, $19, $85, $02, $1F, $17, $14, $4C, $C8, $82, $14, $C8, $22, $22, $E1, $1C, $82, $22, $11, $11, $C8, $22, $4C, $CC, $C2, $22 ;0x640
-	dc.b	$1C, $88, $88, $22, $11, $88, $82, $22, $72, $22, $81, $00, $02, $24, $11, $80, $03, $05, $17, $22, $22, $2C, $16, $80, $03, $80, $0B, $02, $22, $51, $80, $16 ;0x660
-	dc.b	$01, $8C, $80, $1A, $01, $28, $81, $1E, $0B, $71, $17, $1C, $1D, $11, $11, $7C, $11, $17, $11, $78, $80, $4D, $06, $1E, $41, $71, $1F, $1D, $C1, $80, $0C, $0A ;0x680
-	dc.b	$85, $C4, $11, $15, $28, $2C, $11, $42, $28, $DD, $80, $F4, $01, $EE, $80, $FC, $05, $DE, $E1, $00, $00, $DD, $80, $03, $01, $1D, $80, $07, $01, $11, $80, $0B ;0x6A0
-	dc.b	$01, $51, $80, $13, $03, $C1, $11, $00, $A1, $00, $01, $01, $99, $03, $07, $5C, $C8, $22, $8C, $4C, $82, $2C, $80, $B9, $08, $C1, $11, $C8, $28, $51, $17, $48 ;0x6C0
-	dc.b	$85, $80, $D3, $0B, $41, $11, $11, $D1, $11, $54, $4C, $EE, $EE, $D1, $14, $84, $E6, $01, $71, $80, $F3, $81, $03, $05, $1C, $17, $11, $5C, $82, $80, $02, $02 ;0x6E0
-	dc.b	$22, $88, $80, $DB, $81, $03, $05, $11, $52, $22, $22, $DC, $80, $E7, $01, $18, $80, $EB, $01, $82, $82, $EF, $8B, $04, $A2, $A1, $98, $C6, $01, $5C, $80, $8B ;0x700
-	dc.b	$01, $4C, $80, $84, $01, $C8, $82, $03, $09, $71, $11, $48, $84, $C1, $11, $14, $4C, $C8, $8C, $9F, $01, $77, $83, $A6, $03, $11, $11, $5C, $80, $02, $06, $82 ;0x720
-	dc.b	$15, $CC, $82, $22, $C8, $84, $9F, $01, $E8, $80, $A7, $01, $D8, $84, $9F, $91, $02, $BD, $9F, $84, $F2, $01, $28, $8C, $FA, $0A, $8C, $22, $8C, $51, $11, $25 ;0x740
-	dc.b	$11, $15, $44, $C8, $80, $78, $02, $8C, $42, $85, $25, $01, $C5, $80, $02, $0F, $11, $22, $51, $11, $51, $22, $15, $55, $51, $22, $44, $45, $51, $22, $10, $80 ;0x760
-	dc.b	$FF, $99, $03, $9F, $9F, $02, $01, $DE, $80, $C3, $01, $11, $95, $C7, $1B, $FF, $ED, $ED, $D1, $DD, $EE, $DD, $11, $11, $1D, $F1, $11, $1D, $EF, $F1, $DD, $01 ;0x780
-	dc.b	$DE, $E1, $DD, $00, $11, $EE, $1D, $00, $00, $1E, $81, $03, $0D, $ED, $DD, $11, $41, $DD, $D1, $11, $11, $D1, $14, $11, $11, $11, $81, $03, $81, $02, $0A, $D1 ;0x7A0
-	dc.b	$8D, $11, $17, $D1, $8E, $11, $6F, $D1, $81, $80, $13, $15, $81, $D1, $C2, $48, $81, $1C, $22, $14, $8C, $22, $22, $11, $88, $22, $21, $71, $48, $22, $22, $61 ;0x7C0
-	dc.b	$12, $80, $0B, $80, $D7, $02, $11, $22, $80, $08, $0C, $28, $11, $C8, $22, $28, $81, $11, $28, $28, $11, $11, $22, $81, $3F, $01, $21, $80, $07, $01, $2E, $80 ;0x7E0
-	dc.b	$0B, $04, $22, $D1, $16, $22, $81, $08, $03, $11, $1C, $1D, $80, $5A, $03, $C1, $11, $71, $82, $5C, $26, $15, $11, $17, $17, $18, $17, $77, $16, $88, $6F, $71 ;0x800
-	dc.b	$DF, $8C, $11, $1D, $E2, $84, $ED, $1E, $D1, $77, $ED, $1E, $DD, $11, $D1, $DD, $DE, $D1, $11, $D1, $DE, $E1, $C1, $DD, $1E, $E1, $41, $80, $14, $09, $1D, $ED ;0x820
-	dc.b	$1D, $1D, $1E, $D1, $D1, $11, $71, $80, $E0, $81, $03, $80, $E0, $02, $01, $D1, $80, $EC, $01, $E1, $80, $F0, $02, $ED, $10, $87, $03, $10, $17, $71, $DF, $EE ;0x840
-	dc.b	$17, $1D, $EE, $D1, $11, $DD, $ED, $11, $11, $DD, $D1, $1D, $80, $03, $02, $DD, $1D, $80, $05, $05, $1D, $1D, $1D, $DD, $1E, $80, $10, $01, $D1, $80, $56, $0B ;0x860
-	dc.b	$1D, $ED, $11, $15, $1D, $E1, $1D, $14, $1D, $D1, $DD, $81, $03, $80, $ED, $0F, $DD, $D1, $15, $11, $DE, $DD, $4C, $41, $DE, $ED, $5C, $41, $11, $11, $4C, $80 ;0x880
-	dc.b	$FB, $01, $C8, $82, $03, $12, $71, $11, $48, $84, $C1, $11, $14, $4C, $C8, $17, $D1, $11, $54, $41, $EE, $EE, $D1, $14, $82, $B5, $02, $11, $77, $80, $D9, $07 ;0x8A0
-	dc.b	$16, $6E, $11, $11, $7F, $1D, $66, $81, $0B, $0C, $17, $11, $5C, $11, $11, $CC, $22, $88, $22, $22, $22, $F2, $80, $03, $01, $E2, $80, $07, $01, $E1, $80, $0B ;0x8C0
-	dc.b	$01, $1C, $80, $0F, $01, $42, $80, $13, $90, $02, $01, $28, $87, $07, $13, $28, $41, $22, $22, $C1, $15, $22, $28, $15, $55, $22, $81, $55, $44, $C8, $18, $22 ;0x8E0
-	dc.b	$22, $8C, $84, $34, $0F, $11, $15, $82, $22, $11, $11, $18, $22, $55, $51, $15, $22, $44, $45, $11, $80, $03, $07, $51, $22, $85, $10, $00, $00, $24, $80, $03 ;0x900
-	dc.b	$02, $2C, $11, $80, $03, $06, $1D, $10, $00, $2C, $1E, $D1, $80, $03, $01, $E1, $84, $07, $80, $1C, $9F, $01, $01, $01, $80, $24, $80, $3D, $3D, $01, $E1, $00 ;0x920
-	dc.b	$00, $1F, $F1, $00, $01, $EF, $F1, $00, $1E, $FF, $F1, $01, $EF, $FF, $F1, $1E, $FF, $FF, $F1, $E1, $77, $71, $EE, $ED, $17, $71, $DE, $ED, $11, $11, $1D, $ED ;0x940
-	dc.b	$11, $EE, $D1, $E1, $DE, $D1, $11, $D1, $D1, $14, $C8, $1D, $14, $C8, $28, $11, $4C, $82, $22, $D1, $1D, $FE, $D1, $D1, $1D, $EE, $80, $13, $1C, $EE, $1D, $DD ;0x960
-	dc.b	$11, $DE, $11, $1D, $1C, $1D, $D1, $C1, $C8, $C1, $1C, $8C, $82, $88, $88, $88, $22, $8C, $51, $14, $4C, $C8, $82, $14, $C8, $80, $FF, $01, $1C, $81, $BB, $06 ;0x980
-	dc.b	$C8, $22, $4C, $CC, $C2, $22, $81, $19, $81, $FF, $02, $14, $82, $81, $FF, $02, $24, $14, $80, $03, $04, $1C, $22, $22, $2C, $84, $03, $02, $22, $51, $80, $ED ;0x9A0
-	dc.b	$01, $8C, $80, $F1, $01, $28, $81, $F5, $0C, $C8, $CC, $CC, $1D, $88, $88, $8C, $11, $C1, $11, $4C, $11, $80, $00, $01, $41, $80, $43, $1A, $C1, $11, $C8, $88 ;0x9C0
-	dc.b	$85, $C4, $18, $22, $28, $2C, $12, $22, $28, $DD, $11, $DF, $EE, $E1, $1D, $EF, $EE, $D1, $1D, $EF, $ED, $11, $80, $07, $06, $11, $11, $DE, $FE, $11, $17, $80 ;0x9E0
-	dc.b	$94, $80, $B7, $80, $BB, $01, $EF, $80, $13, $09, $D1, $11, $1D, $DF, $E1, $D1, $7D, $DF, $ED, $80, $9F, $01, $FE, $81, $03, $01, $ED, $83, $03, $15, $ED, $F1 ;0xA00
-	dc.b	$71, $EF, $D1, $17, $77, $67, $11, $77, $6F, $F6, $61, $17, $7F, $FF, $67, $D1, $76, $FF, $F6, $80, $03, $1B, $FF, $D1, $76, $F6, $71, $11, $77, $11, $14, $71 ;0xA20
-	dc.b	$11, $44, $CC, $DE, $DD, $11, $77, $DD, $ED, $D1, $77, $11, $DE, $DD, $17, $67, $11, $81, $03, $36, $1D, $11, $11, $14, $1D, $11, $4C, $2C, $41, $11, $88, $22 ;0xA40
-	dc.b	$C1, $1D, $1D, $FE, $FE, $1D, $1D, $DE, $FF, $E1, $11, $DE, $EF, $FF, $11, $1D, $DE, $EE, $1D, $D1, $11, $DD, $DD, $15, $51, $11, $D1, $55, $41, $1D, $14, $CC ;0xA60
-	dc.b	$8C, $1D, $28, $51, $54, $43, $22, $8C, $51, $11, $82, $F0, $90, $04, $07, $33, $51, $1C, $22, $11, $5C, $82, $91, $1E, $01, $2C, $80, $FF, $05, $C5, $10, $00 ;0xA80
-	dc.b	$00, $00, $99, $03, $B3, $02, $0E, $01, $11, $00, $11, $17, $77, $11, $77, $76, $66, $00, $00, $1E, $ED, $80, $0F, $01, $DD, $80, $13, $01, $D1, $80, $6A, $01 ;0xAA0
-	dc.b	$1D, $82, $1C, $09, $11, $11, $00, $77, $77, $77, $11, $FF, $67, $80, $04, $80, $B8, $01, $11, $80, $9E, $80, $03, $12, $25, $D1, $88, $22, $21, $DD, $1C, $22 ;0xAC0
-	dc.b	$21, $1D, $11, $52, $22, $1D, $10, $11, $22, $71, $80, $45, $02, $22, $21, $80, $BB, $03, $21, $C8, $22, $81, $E0, $13, $55, $51, $11, $11, $53, $33, $55, $55 ;0xAE0
-	dc.b	$15, $33, $33, $33, $21, $14, $33, $33, $22, $21, $11, $87, $F7, $1E, $21, $11, $C2, $11, $13, $53, $12, $55, $55, $45, $12, $33, $34, $51, $22, $34, $51, $12 ;0xB00
-	dc.b	$22, $11, $1C, $28, $8C, $22, $22, $82, $81, $22, $22, $88, $81, $03, $01, $C1, $83, $03, $02, $8C, $41, $80, $0A, $01, $1D, $80, $02, $18, $DD, $51, $11, $DE ;0xB20
-	dc.b	$ED, $DE, $11, $1D, $D1, $EE, $11, $DE, $1D, $EE, $D1, $1D, $1D, $EF, $FD, $11, $01, $DE, $ED, $10, $80, $B1, $80, $03, $80, $AD, $02, $1D, $10, $82, $B4, $02 ;0xB40
-	dc.b	$01, $10, $84, $03, $81, $D8, $82, $DB, $11, $01, $1D, $E1, $01, $1D, $EF, $F1, $1D, $EF, $FF, $F1, $1E, $1D, $DD, $D1, $1E, $DD, $80, $03, $05, $DE, $DD, $D1 ;0xB60
-	dc.b	$1F, $EE, $80, $03, $44, $EF, $DD, $DD, $1D, $FF, $ED, $DD, $1D, $EF, $ED, $D1, $11, $DE, $FD, $DD, $22, $11, $1D, $EE, $22, $14, $41, $DE, $2C, $15, $15, $11 ;0xB80
-	dc.b	$52, $81, $15, $55, $15, $88, $41, $11, $D1, $5C, $88, $88, $DD, $11, $54, $CC, $1D, $DD, $11, $11, $FF, $FF, $FF, $D1, $FF, $FE, $EF, $FD, $DD, $FF, $EE, $FE ;0xBA0
-	dc.b	$11, $DF, $EE, $DE, $11, $1E, $EE, $DD, $41, $80, $8D, $09, $41, $11, $EE, $D1, $11, $11, $EE, $E1, $4C, $80, $FE, $01, $1C, $85, $03, $80, $EC, $01, $18, $80 ;0xBC0
-	dc.b	$F0, $01, $48, $80, $F4, $01, $C8, $84, $07, $9E, $02, $03, $15, $44, $43, $80, $03, $0D, $33, $22, $15, $54, $43, $22, $81, $55, $34, $22, $28, $11, $11, $89 ;0xBE0
-	dc.b	$36, $03, $33, $34, $51, $83, $03, $05, $44, $18, $22, $44, $55, $80, $2E, $80, $6F, $84, $56, $01, $2C, $80, $6E, $05, $C5, $24, $1D, $10, $00, $81, $03, $11 ;0xC00
-	dc.b	$25, $11, $10, $00, $85, $10, $10, $00, $C1, $00, $10, $00, $41, $00, $00, $00, $51, $80, $03, $01, $10, $80, $07, $80, $0A, $01, $01, $80, $0E, $01, $1E, $80 ;0xC20
-	dc.b	$06, $01, $EF, $80, $06, $01, $FF, $80, $06, $01, $FF, $80, $06, $01, $FF, $80, $06, $01, $FF, $80, $06, $01, $FE, $80, $06, $01, $E1, $80, $06, $80, $E7, $01 ;0xC40
-	dc.b	$E1, $80, $E7, $13, $1D, $D1, $FF, $E1, $DD, $D1, $FE, $1D, $DD, $E1, $E1, $DD, $DE, $E1, $1D, $DE, $EE, $E1, $5C, $80, $C8, $81, $E3, $80, $CF, $1D, $28, $C8 ;0xC60
-	dc.b	$22, $28, $C5, $48, $88, $C5, $11, $14, $4C, $51, $5C, $D1, $11, $54, $4C, $EE, $EE, $D1, $14, $22, $28, $51, $11, $28, $C5, $11, $11, $80, $02, $06, $5C, $11 ;0xC80
-	dc.b	$11, $1C, $82, $15, $80, $F8, $81, $FB, $01, $88, $84, $03, $05, $11, $58, $22, $22, $58, $80, $B3, $87, $B6, $8B, $FF, $83, $A2, $B7, $05, $1D, $E1, $77, $71 ;0xCA0
-	dc.b	$EE, $ED, $17, $71, $DE, $ED, $11, $1E, $1D, $ED, $1E, $ED, $11, $E1, $DD, $11, $54, $D1, $11, $44, $CC, $11, $44, $C8, $28, $14, $80, $B8, $1F, $D1, $1D, $FE ;0xCC0
-	dc.b	$D1, $D1, $1D, $EE, $14, $D1, $E1, $EE, $11, $DD, $11, $DE, $11, $1D, $1C, $1D, $D1, $C1, $C8, $C1, $1C, $8C, $84, $51, $11, $84, $11, $11, $80, $CB, $03, $C8 ;0xCE0
-	dc.b	$82, $4C, $80, $E3, $16, $11, $5C, $22, $22, $EE, $D1, $18, $22, $11, $15, $C2, $22, $88, $88, $88, $22, $4C, $88, $82, $22, $11, $C2, $81, $B4, $02, $24, $11 ;0xD00
-	dc.b	$80, $03, $04, $1C, $22, $22, $2C, $80, $07, $81, $03, $02, $22, $51, $80, $DE, $01, $8C, $80, $E2, $01, $28, $81, $D2, $04, $C8, $CC, $CC, $1D, $80, $F7, $80 ;0xD20
-	dc.b	$49, $14, $1C, $11, $71, $11, $71, $41, $11, $17, $11, $C1, $11, $15, $C8, $85, $C4, $18, $22, $28, $2C, $12, $83, $23, $85, $2B, $84, $0A, $0F, $11, $22, $81 ;0xD40
-	dc.b	$11, $55, $21, $11, $55, $55, $25, $15, $55, $44, $C8, $18, $80, $4C, $01, $42, $83, $25, $05, $85, $11, $15, $22, $11, $80, $03, $0D, $55, $55, $11, $22, $45 ;0xD60
-	dc.b	$55, $51, $22, $44, $45, $51, $22, $10, $80, $FF, $98, $03, $01, $01, $80, $1E, $81, $03, $01, $17, $80, $0A, $01, $77, $80, $0E, $19, $11, $00, $00, $11, $11 ;0xD80
-	dc.b	$00, $11, $77, $1D, $01, $77, $11, $FF, $17, $71, $1F, $FF, $77, $66, $67, $66, $77, $11, $17, $76, $80, $EA, $01, $77, $82, $03, $0B, $EE, $D1, $17, $FF, $FF ;0xDA0
-	dc.b	$FE, $D1, $FF, $FF, $FF, $ED, $80, $03, $01, $FE, $80, $07, $0B, $67, $6F, $FF, $66, $66, $66, $FF, $66, $77, $77, $66, $80, $03, $03, $76, $66, $67, $80, $04 ;0xDC0
-	dc.b	$0D, $67, $17, $77, $76, $F6, $D1, $77, $77, $FF, $77, $77, $11, $01, $80, $10, $05, $14, $77, $67, $77, $15, $80, $03, $04, $71, $77, $77, $67, $80, $03, $83 ;0xDE0
-	dc.b	$01, $80, $28, $1F, $77, $1C, $82, $22, $22, $45, $15, $88, $88, $CC, $35, $11, $11, $C8, $8C, $34, $45, $58, $88, $88, $8C, $1C, $88, $82, $88, $13, $C8, $82 ;0xE00
-	dc.b	$22, $14, $38, $80, $1C, $13, $88, $C5, $11, $CC, $51, $11, $55, $11, $15, $55, $33, $55, $54, $3C, $C3, $CC, $CC, $CC, $C5, $80, $22, $13, $31, $22, $28, $8C ;0xE20
-	dc.b	$11, $22, $28, $83, $11, $15, $1D, $DE, $11, $55, $1D, $ED, $10, $51, $DD, $80, $B6, $82, $BD, $16, $01, $1D, $17, $67, $1D, $EF, $17, $1D, $EE, $FF, $11, $EE ;0xE40
-	dc.b	$EE, $FE, $D1, $00, $01, $1D, $10, $01, $1D, $EF, $80, $02, $01, $FF, $80, $02, $01, $FE, $80, $02, $01, $E1, $80, $02, $01, $1D, $80, $02, $01, $EE, $80, $02 ;0xE60
-	dc.b	$01, $EE, $84, $0F, $01, $11, $80, $12, $01, $E1, $84, $12, $05, $E1, $EE, $EE, $ED, $11, $80, $02, $0C, $11, $ED, $11, $10, $01, $10, $1D, $FF, $ED, $10, $01 ;0xE80
-	dc.b	$EE, $81, $03, $04, $D1, $10, $01, $DE, $80, $03, $01, $DD, $80, $15, $12, $D1, $01, $10, $00, $11, $00, $10, $00, $01, $00, $1D, $DE, $DD, $DD, $1D, $DE, $DE ;0xEA0
-	dc.b	$D1, $80, $4A, $02, $D1, $DD, $80, $6E, $1A, $DF, $FF, $ED, $11, $DF, $EF, $D1, $01, $1E, $DE, $11, $00, $1D, $DD, $10, $00, $DD, $D1, $DE, $ED, $DE, $D1, $DE ;0xEC0
-	dc.b	$EE, $EE, $DD, $80, $6C, $14, $DD, $D1, $11, $DE, $E1, $EE, $DD, $DE, $E1, $DE, $ED, $1D, $EE, $1D, $DE, $01, $DE, $11, $DD, $14, $80, $FF, $0D, $D1, $42, $22 ;0xEE0
-	dc.b	$22, $ED, $1C, $22, $22, $DD, $12, $22, $22, $11, $80, $03, $02, $15, $C2, $80, $13, $84, $03, $8C, $01, $05, $28, $22, $28, $CC, $51, $82, $07, $8E, $19, $04 ;0xF00
-	dc.b	$88, $44, $C4, $11, $81, $00, $15, $15, $11, $8C, $55, $15, $11, $28, $CC, $55, $11, $22, $28, $C4, $11, $22, $22, $8C, $51, $28, $C4, $51, $80, $19, $06, $17 ;0xF20
-	dc.b	$77, $11, $77, $77, $76, $80, $02, $04, $6F, $11, $11, $71, $80, $0E, $01, $76, $81, $2D, $09, $77, $10, $00, $00, $01, $11, $10, $00, $1E, $80, $11, $1D, $EE ;0xF40
-	dc.b	$FF, $67, $1E, $EE, $F6, $71, $EE, $EE, $77, $1E, $FE, $EE, $11, $EF, $FE, $EE, $1E, $FF, $FE, $EE, $EF, $FF, $FF, $E1, $FF, $FF, $FE, $1D, $80, $06, $01, $DD ;0xF60
-	dc.b	$80, $06, $01, $DE, $80, $06, $08, $DE, $FE, $1D, $DD, $EE, $E1, $DD, $DD, $80, $C1, $06, $DD, $EE, $DD, $EE, $EE, $E1, $80, $DD, $04, $D1, $EE, $EE, $ED, $80 ;0xF80
-	dc.b	$03, $02, $DD, $11, $80, $06, $01, $11, $80, $06, $01, $01, $80, $06, $02, $11, $DD, $80, $01, $86, $B7, $8F, $00, $81, $C3, $03, $81, $C8, $18, $80, $A1, $80 ;0xFA0
-	dc.b	$FF, $89, $E9, $08, $2C, $51, $11, $C2, $51, $1C, $82, $22, $80, $02, $89, $2B, $8D, $F2, $80, $DB, $02, $21, $55, $8D, $3F, $09, $25, $11, $15, $22, $15, $44 ;0xFC0
-	dc.b	$41, $22, $34, $80, $03, $05, $44, $33, $1C, $22, $00, $9C, $00, $1C, $5C, $C8, $22, $8C, $4C, $82, $2C, $11, $C8, $22, $C1, $11, $C8, $28, $51, $17, $48, $85 ;0xFE0
-	dc.b	$11, $17, $14, $41, $11, $11, $D1, $11, $54, $4C, $80, $D6, $02, $14, $11, $82, $00, $02, $17, $71, $80, $07, $81, $03, $05, $1C, $17, $11, $5C, $82, $80, $02 ;0x1000
-	dc.b	$02, $22, $88, $80, $D8, $81, $03, $05, $11, $52, $22, $22, $DC, $80, $E4, $80, $C6, $01, $22, $87, $AE, $87, $ED, $9D, $7F, $9D, $9F, $0C, $28, $15, $54, $43 ;0x1020
-	dc.b	$22, $81, $54, $33, $22, $28, $11, $54, $80, $E9, $80, $F3, $8B, $64, $03, $33, $34, $51, $83, $03, $05, $45, $18, $22, $11, $15, $8A, $81, $01, $2C, $80, $A2 ;0x1040
-	dc.b	$12, $C5, $10, $00, $01, $17, $10, $00, $17, $76, $10, $11, $76, $67, $11, $77, $66, $71, $17, $80, $06, $2D, $17, $66, $11, $11, $16, $71, $77, $1E, $17, $17 ;0x1060
-	dc.b	$71, $DE, $77, $11, $FF, $EE, $71, $1F, $EE, $D1, $71, $FF, $EE, $1D, $1D, $FF, $FE, $ED, $1F, $FF, $FF, $FF, $EF, $FF, $FE, $D1, $EF, $FE, $E1, $1C, $EE, $FE ;0x1080
-	dc.b	$1C, $82, $EE, $80, $0F, $05, $11, $DE, $FF, $FF, $DD, $80, $04, $09, $11, $11, $1D, $EF, $EE, $DD, $D1, $DE, $11, $80, $00, $11, $CC, $CC, $41, $11, $88, $C1 ;0x10A0
-	dc.b	$11, $77, $ED, $17, $77, $6F, $FE, $D1, $77, $76, $FF, $80, $08, $1A, $FF, $EE, $D1, $17, $FF, $FE, $DD, $11, $EE, $ED, $DD, $D1, $11, $DD, $1D, $DD, $77, $11 ;0x10C0
-	dc.b	$DD, $EE, $F6, $77, $77, $77, $66, $66, $80, $04, $03, $77, $77, $11, $80, $02, $05, $4C, $17, $77, $14, $C9, $80, $3F, $08, $4C, $DD, $DD, $D1, $14, $EE, $DD ;0x10E0
-	dc.b	$DD, $80, $4A, $26, $58, $22, $11, $CC, $18, $82, $C9, $C4, $11, $8C, $FF, $41, $1D, $11, $FC, $11, $DD, $11, $FF, $C1, $11, $EF, $C9, $9C, $1D, $EF, $14, $C9 ;0x1100
-	dc.b	$C1, $DE, $88, $88, $CC, $11, $88, $C4, $11, $EE, $80, $02, $0D, $EE, $11, $EF, $EE, $EE, $EE, $FF, $EE, $E1, $FE, $FE, $E1, $1D, $80, $02, $05, $FF, $E1, $1D ;0x1120
-	dc.b	$DE, $FF, $80, $12, $01, $E1, $80, $12, $81, $0F, $19, $DE, $F1, $1D, $ED, $DE, $1D, $DE, $ED, $DD, $ED, $DE, $ED, $11, $ED, $DD, $11, $17, $ED, $11, $17, $77 ;0x1140
-	dc.b	$1D, $EE, $EE, $ED, $80, $02, $80, $93, $0F, $11, $10, $ED, $11, $71, $00, $11, $77, $71, $10, $17, $66, $77, $10, $77, $80, $03, $80, $97, $0A, $71, $11, $10 ;0x1160
-	dc.b	$00, $01, $10, $00, $00, $01, $00, $94, $03, $80, $1B, $01, $00, $95, $03, $80, $C7, $03, $11, $01, $DD, $80, $3D, $02, $11, $10, $80, $3F, $01, $11, $81, $43 ;0x1180
-	dc.b	$01, $11, $80, $4A, $01, $17, $80, $02, $01, $77, $80, $02, $01, $76, $81, $1F, $03, $17, $1D, $17, $80, $72, $80, $FF, $13, $61, $76, $66, $77, $66, $6F, $FF ;0x11A0
-	dc.b	$77, $76, $66, $FF, $76, $F6, $FF, $FF, $66, $FF, $FF, $FF, $81, $3F, $17, $D1, $42, $22, $22, $11, $1C, $88, $22, $16, $61, $11, $15, $F6, $67, $77, $71, $FF ;0x11C0
-	dc.b	$F6, $66, $77, $F6, $66, $67, $80, $1E, $02, $66, $66, $81, $5F, $01, $22, $84, $00, $02, $4C, $C8, $80, $27, $04, $54, $C8, $22, $77, $80, $04, $01, $77, $80 ;0x11E0
-	dc.b	$04, $01, $77, $80, $BA, $82, $1F, $05, $28, $8C, $15, $22, $22, $82, $03, $05, $51, $22, $22, $88, $C5, $80, $2F, $01, $88, $80, $2A, $05, $22, $54, $C8, $88 ;0x1200
-	dc.b	$88, $81, $9F, $01, $51, $80, $A4, $18, $55, $51, $11, $1E, $55, $55, $11, $EE, $5C, $55, $1E, $FE, $88, $51, $EF, $FE, $85, $1E, $FF, $FE, $51, $EF, $FF, $FE ;0x1220
-	dc.b	$81, $BF, $04, $EE, $FF, $FE, $E1, $80, $03, $11, $1D, $EE, $FF, $E1, $DD, $EE, $FE, $1D, $DD, $EE, $E1, $DD, $DD, $EE, $1D, $DD, $DD, $80, $0D, $01, $DD, $81 ;0x1240
-	dc.b	$DF, $04, $DD, $EE, $DE, $ED, $80, $01, $09, $DD, $EE, $ED, $DD, $D1, $EE, $DD, $DD, $11, $80, $06, $01, $17, $80, $06, $03, $11, $DD, $D1, $82, $7E, $15, $11 ;0x1260
-	dc.b	$D1, $1D, $EE, $E1, $11, $71, $DF, $F1, $16, $71, $1D, $F1, $66, $67, $1E, $D1, $66, $67, $71, $E1, $82, $9B, $85, $9F, $09, $22, $25, $1C, $22, $22, $51, $82 ;0x1280
-	dc.b	$22, $22, $80, $02, $90, $01, $93, $15, $82, $F5, $01, $2C, $80, $FB, $80, $CF, $0A, $15, $54, $22, $28, $15, $43, $22, $28, $51, $14, $91, $40, $08, $33, $11 ;0x12A0
-	dc.b	$C2, $22, $11, $48, $22, $22, $81, $F3, $91, $3F, $01, $00, $9C, $00, $24, $E1, $77, $71, $EE, $ED, $17, $71, $DE, $ED, $11, $1E, $1D, $ED, $1E, $ED, $11, $E1 ;0x12C0
-	dc.b	$DD, $11, $54, $D1, $11, $44, $CC, $11, $44, $C8, $28, $14, $4C, $82, $22, $D1, $1D, $FE, $D1, $80, $E3, $1E, $14, $D1, $E1, $EE, $11, $DD, $11, $DE, $11, $1D ;0x12E0
-	dc.b	$1C, $1D, $D1, $C1, $C8, $C1, $1C, $8C, $82, $88, $88, $88, $22, $8C, $51, $14, $4C, $C8, $82, $4C, $80, $7C, $0C, $11, $5C, $22, $22, $EE, $D1, $18, $22, $11 ;0x1300
-	dc.b	$15, $C2, $22, $81, $19, $81, $EC, $01, $14, $82, $F2, $02, $24, $11, $80, $03, $01, $1C, $80, $CE, $84, $03, $02, $22, $51, $80, $FF, $01, $8C, $80, $FF, $01 ;0x1320
-	dc.b	$28, $81, $FF, $0C, $C8, $CC, $CC, $1D, $88, $88, $8C, $11, $C1, $11, $4C, $11, $80, $00, $0F, $41, $11, $11, $C8, $C1, $11, $C8, $88, $85, $C4, $18, $22, $28 ;0x1340
-	dc.b	$2C, $12, $83, $23, $85, $2B, $8B, $FF, $08, $85, $11, $22, $25, $11, $DE, $C8, $18, $80, $4C, $01, $42, $8B, $FC, $08, $8C, $51, $11, $C2, $11, $1C, $82, $22 ;0x1360
-	dc.b	$80, $02, $12, $22, $11, $77, $71, $DE, $17, $76, $71, $DD, $17, $67, $11, $1D, $16, $71, $11, $1D, $17, $80, $C5, $06, $17, $1D, $DD, $11, $11, $DD, $80, $03 ;0x1380
-	dc.b	$80, $71, $13, $EE, $E1, $C8, $28, $EE, $14, $88, $8C, $ED, $1C, $88, $81, $D1, $1C, $C8, $17, $D1, $1C, $CC, $80, $03, $06, $C1, $77, $DD, $14, $C1, $77, $81 ;0x13A0
-	dc.b	$90, $08, $C1, $17, $77, $66, $17, $76, $6F, $FF, $80, $02, $11, $FF, $76, $FF, $FF, $F6, $6F, $F6, $66, $67, $66, $67, $76, $71, $66, $77, $67, $71, $81, $B0 ;0x13C0
-	dc.b	$01, $66, $80, $25, $04, $FF, $66, $77, $77, $81, $07, $01, $67, $80, $6C, $81, $02, $08, $17, $66, $71, $48, $17, $67, $14, $C8, $81, $D0, $08, $1D, $ED, $11 ;0x13E0
-	dc.b	$CC, $71, $D1, $1C, $88, $80, $8F, $01, $28, $80, $02, $0D, $88, $C8, $28, $28, $18, $88, $C1, $82, $C1, $C8, $8C, $18, $2C, $82, $5F, $09, $1C, $9C, $11, $8C ;0x1400
-	dc.b	$C1, $C9, $C1, $4C, $8C, $82, $08, $0B, $CC, $8C, $1C, $C4, $1C, $48, $C1, $51, $1C, $14, $C1, $82, $9E, $08, $11, $1D, $DD, $EE, $FD, $DD, $DD, $ED, $80, $07 ;0x1420
-	dc.b	$12, $11, $1D, $C1, $11, $1D, $11, $9C, $11, $11, $CC, $9F, $FF, $FC, $C4, $C9, $FF, $CC, $41, $83, $20, $02, $11, $77, $80, $63, $15, $17, $DE, $ED, $17, $17 ;0x1440
-	dc.b	$EE, $ED, $17, $11, $1E, $DD, $17, $71, $1D, $D1, $77, $77, $DD, $11, $77, $17, $82, $9F, $08, $66, $67, $71, $76, $66, $77, $71, $77, $83, $9A, $0D, $00, $11 ;0x1460
-	dc.b	$11, $71, $00, $17, $61, $77, $10, $17, $67, $17, $10, $81, $FF, $04, $00, $00, $00, $01, $95, $03, $82, $81, $05, $22, $22, $22, $11, $82, $83, $03, $10, $D1 ;0x1480
-	dc.b	$88, $22, $22, $DD, $1C, $22, $21, $1D, $11, $52, $22, $1D, $10, $11, $22, $81, $4E, $02, $22, $21, $80, $1C, $02, $21, $C8, $80, $25, $83, $02, $01, $5C, $80 ;0x14A0
-	dc.b	$2F, $81, $BA, $86, $10, $8E, $08, $05, $51, $52, $11, $11, $4C, $84, $2F, $02, $28, $8C, $8C, $5F, $01, $25, $84, $5F, $01, $28, $91, $5F, $01, $11, $80, $5C ;0x14C0
-	dc.b	$02, $13, $51, $80, $F5, $04, $53, $33, $33, $8C, $90, $63, $0A, $8C, $51, $11, $C2, $11, $53, $43, $12, $33, $35, $80, $07, $02, $11, $CC, $82, $5F, $80, $DF ;0x14E0
-	dc.b	$FF, $02, $FF, $84, $96, $FF, $08, $5C, $C8, $22, $22, $4C, $82, $22, $22, $80, $06, $1D, $28, $C8, $22, $28, $C5, $48, $88, $C5, $11, $14, $4C, $51, $5C, $D1 ;0x1500
-	dc.b	$11, $54, $4C, $EE, $EE, $D1, $14, $22, $28, $51, $11, $28, $C5, $11, $11, $80, $02, $06, $5C, $11, $11, $1C, $82, $15, $80, $2F, $80, $32, $02, $22, $88, $84 ;0x1520
-	dc.b	$03, $05, $11, $58, $22, $22, $58, $80, $3F, $80, $42, $92, $01, $BD, $FF, $07, $22, $21, $DE, $1C, $22, $25, $11, $96, $61, $95, $77, $80, $A2, $01, $2C, $80 ;0x1540
-	dc.b	$A6, $01, $C5, $BD, $7F, $FF, $3F, $FB, $C1, $00 ;0x1560
+	include "art/compressed/portrait/puyo_unkChar6.asm" ; Unknown Character Portrait
 loc_0005B328:
-	dc.b	$01, $11, $80, $00, $1C, $14, $CF, $99, $CC, $14, $C9, $99, $C4, $1C, $45, $CC, $41, $1C, $C5, $41, $1A, $1C, $C5, $1A, $BF, $1C, $41, $AB, $BF, $15, $41, $AB ;0x0 (0x0005B328-0x0005C996, Entry count: 0x166E) [Unknown data]
-	dc.b	$FF, $81, $1F, $1C, $44, $11, $1F, $BB, $11, $AB, $FB, $AB, $AB, $FF, $B1, $11, $FF, $FB, $11, $11, $FF, $BA, $1A, $AB, $FB, $11, $AA, $BB, $BB, $1A, $A1, $BF ;0x20
-	dc.b	$81, $3F, $01, $AA, $82, $00, $07, $1A, $AA, $11, $1A, $AA, $AB, $AA, $80, $16, $80, $01, $04, $71, $FF, $FB, $AA, $80, $27, $01, $A1, $81, $5E, $07, $11, $7A ;0x40
-	dc.b	$AA, $AA, $11, $AA, $AB, $81, $0E, $08, $AF, $BB, $A7, $1B, $FF, $BA, $11, $BF, $80, $19, $80, $03, $81, $07, $81, $7F, $01, $1A, $80, $3C, $03, $BB, $BA, $A1 ;0x60
-	dc.b	$80, $25, $03, $1A, $AA, $A1, $80, $57, $0B, $11, $11, $AB, $BB, $15, $51, $AF, $FB, $15, $41, $BF, $80, $6D, $81, $5F, $01, $A7, $82, $62, $02, $BB, $BA, $80 ;0x80
-	dc.b	$5D, $0F, $A1, $1A, $AA, $BA, $11, $51, $AA, $AA, $14, $55, $15, $A1, $54, $C8, $CC, $82, $60, $0C, $AA, $AB, $BA, $A1, $AB, $AB, $BB, $AA, $A1, $AB, $FB, $A1 ;0xA0
-	dc.b	$80, $A8, $0A, $11, $A1, $BB, $FB, $1A, $1A, $BF, $FB, $45, $1B, $81, $AD, $81, $1E, $80, $AA, $80, $03, $01, $A1, $81, $03, $03, $A1, $11, $1B, $80, $69, $01 ;0xC0
-	dc.b	$A1, $80, $46, $01, $AA, $80, $13, $01, $AA, $84, $5F, $03, $77, $BB, $BA, $80, $63, $06, $BB, $AA, $AA, $BA, $AA, $BA, $80, $61, $0A, $A1, $14, $A1, $11, $15 ;0xE0
-	dc.b	$48, $AA, $A1, $5C, $89, $81, $FF, $1C, $77, $A1, $54, $C1, $AA, $15, $48, $81, $11, $5C, $88, $91, $54, $48, $8F, $F1, $44, $88, $9F, $F1, $48, $89, $FF, $91 ;0x100
-	dc.b	$89, $4F, $F9, $41, $80, $E2, $10, $1A, $FA, $15, $44, $41, $B1, $54, $C8, $88, $A1, $4C, $82, $22, $A1, $C8, $88, $80, $07, $07, $C4, $45, $AA, $14, $51, $11 ;0x120
-	dc.b	$1A, $81, $FD, $07, $BA, $A1, $4C, $11, $AA, $14, $C8, $80, $40, $03, $C8, $8C, $1A, $80, $41, $0B, $C1, $C1, $15, $54, $C8, $8C, $11, $11, $15, $58, $C1, $80 ;0x140
-	dc.b	$04, $0D, $82, $88, $88, $51, $AB, $88, $88, $C1, $AB, $22, $28, $C1, $AA, $86, $03, $07, $22, $C1, $A1, $22, $22, $81, $15, $80, $03, $03, $CC, $A1, $48, $81 ;0x160
-	dc.b	$53, $0C, $22, $28, $A1, $C8, $28, $C1, $14, $C8, $11, $1B, $14, $11, $80, $B2, $28, $A1, $11, $4C, $51, $14, $C8, $22, $CC, $C8, $22, $8C, $88, $81, $AB, $BA ;0x180
-	dc.b	$C1, $1A, $1A, $BA, $1B, $11, $11, $AB, $A1, $14, $C1, $1A, $1C, $82, $28, $41, $82, $22, $8C, $C4, $28, $C4, $51, $11, $51, $81, $FC, $03, $11, $11, $C1, $80 ;0x1A0
-	dc.b	$EB, $80, $32, $06, $11, $AA, $A1, $4C, $8C, $11, $80, $9F, $09, $C5, $14, $88, $22, $88, $11, $11, $58, $28, $80, $84, $02, $C8, $22, $8E, $00, $06, $21, $C2 ;0x1C0
-	dc.b	$22, $22, $2C, $11, $8F, $17, $86, $29, $80, $37, $01, $11, $93, $1F, $09, $8C, $12, $22, $C5, $11, $C2, $22, $14, $82, $98, $3D, $02, $22, $C5, $80, $D7, $02 ;0x1E0
-	dc.b	$51, $DD, $80, $07, $92, $63, $80, $7C, $01, $C1, $80, $B6, $01, $1D, $91, $63, $01, $C4, $80, $B4, $10, $11, $DE, $ED, $11, $EE, $DD, $FE, $D1, $11, $11, $FD ;0x200
-	dc.b	$18, $22, $2C, $15, $82, $81, $E2, $04, $10, $00, $00, $00, $95, $03, $81, $AB, $0C, $11, $1C, $9F, $CC, $00, $01, $C9, $FC, $00, $00, $14, $11, $80, $11, $05 ;0x220
-	dc.b	$C9, $00, $00, $01, $CC, $80, $03, $01, $41, $80, $07, $01, $14, $81, $CB, $08, $41, $42, $8C, $41, $C1, $42, $81, $12, $80, $03, $06, $48, $C1, $C2, $28, $28 ;0x240
-	dc.b	$41, $80, $84, $81, $C3, $01, $1C, $80, $C7, $81, $EB, $18, $2C, $41, $22, $C8, $84, $12, $8C, $4C, $81, $28, $C4, $11, $88, $28, $41, $82, $82, $22, $12, $88 ;0x260
-	dc.b	$22, $22, $88, $C4, $80, $03, $82, $5E, $1B, $41, $11, $AA, $A1, $CC, $1A, $BB, $BA, $11, $AB, $BA, $AA, $88, $1A, $A1, $1A, $C8, $81, $1A, $A1, $14, $81, $AA ;0x280
-	dc.b	$A1, $A1, $11, $A4, $81, $CB, $80, $1D, $80, $03, $17, $1B, $FB, $AA, $11, $FF, $BB, $BA, $1F, $FB, $B1, $11, $1F, $BA, $11, $A1, $BF, $B1, $A1, $AA, $BB, $A1 ;0x2A0
-	dc.b	$44, $CC, $82, $1F, $1B, $AA, $AA, $BB, $1A, $AA, $BB, $BA, $AA, $A1, $1A, $BB, $AA, $1A, $A1, $AB, $1A, $1A, $A1, $1F, $1A, $AA, $AA, $1F, $CC, $C4, $AA, $1F ;0x2C0
-	dc.b	$81, $DF, $1C, $BB, $FF, $BB, $AA, $11, $AF, $FB, $BA, $BA, $1B, $FB, $A1, $BB, $1A, $BA, $11, $BB, $1A, $A1, $22, $FB, $1A, $12, $88, $FB, $11, $88, $84, $81 ;0x2E0
-	dc.b	$FF, $1C, $A1, $1C, $8C, $11, $18, $81, $88, $C1, $22, $88, $18, $8C, $11, $28, $C1, $88, $C1, $12, $8C, $12, $2C, $11, $28, $42, $88, $8C, $12, $82, $81, $FF ;0x300
-	dc.b	$08, $8C, $41, $10, $01, $18, $C4, $11, $01, $80, $08, $06, $11, $C1, $88, $C4, $11, $84, $80, $03, $11, $88, $28, $81, $41, $28, $88, $C1, $C1, $11, $41, $AB ;0x320
-	dc.b	$FF, $11, $1A, $AB, $FB, $10, $83, $03, $09, $BB, $10, $01, $AA, $BB, $10, $00, $1A, $AB, $85, $03, $04, $B1, $1A, $1B, $FF, $84, $03, $05, $BF, $BA, $1A, $B1 ;0x340
-	dc.b	$AB, $80, $E4, $80, $81, $06, $AB, $B1, $BA, $1A, $AA, $A1, $80, $0D, $0D, $A1, $FB, $AB, $A1, $11, $BB, $AB, $A1, $15, $BB, $AB, $AA, $14, $80, $03, $02, $1C ;0x360
-	dc.b	$AB, $81, $03, $01, $AA, $81, $03, $0F, $A1, $15, $BA, $AA, $1A, $B1, $11, $AB, $FF, $BA, $45, $1B, $FB, $BA, $88, $80, $FF, $05, $88, $1B, $BB, $AA, $88, $80 ;0x380
-	dc.b	$E2, $07, $88, $1A, $BA, $A1, $4C, $1B, $BA, $80, $38, $06, $AA, $14, $14, $41, $BF, $BA, $82, $03, $01, $C1, $81, $03, $02, $BB, $FA, $81, $03, $17, $44, $C1 ;0x3A0
-	dc.b	$AB, $BB, $4C, $C5, $1A, $BB, $CC, $84, $1A, $BB, $A1, $4C, $88, $88, $15, $48, $88, $22, $15, $C8, $82, $80, $03, $01, $22, $82, $03, $01, $A1, $80, $0B, $02 ;0x3C0
-	dc.b	$A1, $48, $83, $03, $0C, $84, $1B, $FF, $BA, $8C, $1B, $FB, $B1, $28, $1B, $FB, $A1, $86, $03, $01, $1A, $81, $03, $37, $B6, $A1, $28, $51, $B6, $A1, $1A, $A1 ;0x3E0
-	dc.b	$1F, $FB, $AA, $11, $11, $1F, $1A, $1A, $AA, $11, $14, $11, $1A, $A1, $48, $C4, $51, $A1, $C8, $8C, $41, $AA, $48, $88, $C5, $1A, $54, $CC, $8C, $51, $BA, $AA ;0x400
-	dc.b	$A1, $49, $BB, $7A, $AA, $14, $FB, $AA, $AA, $A1, $BB, $BB, $7A, $A1, $A6, $80, $0C, $02, $1A, $BB, $80, $15, $02, $AB, $BB, $80, $03, $13, $AB, $AA, $99, $4F ;0x420
-	dc.b	$4F, $41, $FF, $1F, $9F, $91, $4F, $14, $84, $81, $19, $C1, $41, $41, $14, $80, $03, $28, $15, $45, $15, $11, $A1, $44, $C1, $C1, $A1, $58, $C5, $11, $55, $11 ;0x440
-	dc.b	$11, $15, $15, $C1, $DD, $54, $15, $C8, $EE, $13, $11, $42, $8D, $13, $A1, $52, $21, $15, $A1, $18, $28, $51, $A7, $1C, $22, $22, $81, $03, $14, $55, $55, $11 ;0x460
-	dc.b	$58, $51, $14, $DD, $15, $11, $1D, $EE, $D1, $11, $14, $DD, $DD, $51, $15, $51, $1C, $80, $32, $02, $82, $22, $86, $00, $01, $2C, $80, $D5, $02, $28, $88, $81 ;0x480
-	dc.b	$0F, $09, $25, $18, $22, $22, $85, $12, $22, $22, $11, $80, $1C, $0F, $11, $C2, $22, $22, $51, $CC, $22, $22, $88, $88, $CC, $11, $22, $28, $51, $80, $03, $0A ;0x4A0
-	dc.b	$1D, $15, $22, $28, $8D, $13, $22, $22, $8D, $15, $80, $2F, $01, $51, $80, $3F, $01, $28, $81, $43, $09, $11, $11, $55, $55, $15, $11, $15, $DD, $C1, $80, $60 ;0x4C0
-	dc.b	$80, $03, $0C, $EF, $33, $11, $15, $DE, $15, $43, $44, $55, $C1, $11, $11, $81, $46, $1D, $22, $1D, $11, $11, $5C, $DD, $DD, $D1, $15, $ED, $DE, $ED, $11, $EF ;0x4E0
-	dc.b	$FF, $EE, $C8, $C1, $EE, $EC, $8C, $1D, $D1, $48, $8C, $11, $5C, $88, $85, $80, $77, $01, $81, $81, $88, $01, $58, $80, $8C, $01, $15, $80, $85, $0A, $11, $15 ;0x500
-	dc.b	$C2, $22, $DD, $D1, $14, $82, $DD, $EE, $80, $2F, $07, $ED, $DD, $11, $EF, $DD, $1D, $17, $87, $A7, $87, $B1, $80, $B0, $05, $22, $15, $4C, $C8, $8C, $80, $62 ;0x520
-	dc.b	$82, $63, $8F, $23, $04, $88, $C5, $CC, $45, $81, $1D, $83, $E8, $BB, $5F, $81, $A1, $97, $5F, $04, $10, $00, $00, $00, $88, $03, $01, $01, $84, $03, $01, $1A ;0x540
-	dc.b	$84, $03, $11, $11, $00, $11, $11, $4C, $01, $1A, $A1, $44, $1B, $BB, $A1, $11, $FF, $BA, $AA, $11, $80, $06, $0E, $11, $A1, $10, $1D, $DD, $10, $01, $DD, $EE ;0x560
-	dc.b	$00, $1D, $DE, $EE, $1C, $80, $A0, $01, $1C, $80, $FF, $02, $4C, $88, $80, $FF, $17, $11, $54, $82, $DD, $DD, $11, $14, $EE, $EE, $DD, $D1, $EE, $EF, $FE, $DD ;0x580
-	dc.b	$EE, $FF, $FE, $DD, $22, $22, $8C, $1A, $83, $03, $27, $84, $1A, $22, $28, $C4, $1A, $88, $88, $C1, $41, $48, $8C, $41, $11, $14, $C4, $11, $DD, $14, $41, $A1 ;0x5A0
-	dc.b	$EE, $BB, $A1, $4C, $81, $FB, $14, $C8, $81, $FB, $1C, $88, $81, $BA, $1C, $82, $21, $AA, $81, $03, $1A, $11, $C8, $28, $11, $11, $1C, $82, $D1, $DD, $11, $82 ;0x5C0
-	dc.b	$BA, $14, $4C, $88, $AA, $14, $C8, $82, $A1, $48, $88, $22, $A1, $C8, $82, $82, $03, $01, $11, $80, $6B, $10, $81, $81, $82, $22, $28, $81, $81, $88, $88, $88 ;0x5E0
-	dc.b	$C4, $1F, $22, $28, $84, $1F, $80, $11, $09, $AF, $22, $22, $C1, $AB, $22, $2C, $41, $BB, $80, $6A, $2E, $BA, $88, $C1, $1A, $A1, $C1, $11, $1A, $1D, $FB, $11 ;0x600
-	dc.b	$88, $11, $BA, $11, $11, $AA, $BA, $14, $1A, $AA, $A1, $11, $1B, $B1, $A1, $1C, $1F, $F1, $11, $11, $AF, $F1, $DD, $D1, $BB, $A1, $EE, $D1, $BA, $11, $48, $88 ;0x620
-	dc.b	$82, $22, $18, $80, $BF, $81, $03, $80, $CA, $84, $03, $0E, $28, $88, $82, $28, $8C, $11, $88, $8C, $11, $DD, $28, $88, $C1, $C1, $82, $03, $02, $8C, $41, $80 ;0x640
-	dc.b	$03, $19, $14, $C1, $88, $CC, $1C, $C1, $8C, $C1, $14, $C1, $11, $11, $11, $41, $DD, $DD, $D1, $11, $10, $00, $1A, $AA, $10, $01, $AA, $81, $03, $04, $A1, $10 ;0x660
-	dc.b	$1A, $AB, $80, $03, $0A, $BB, $A1, $10, $1B, $BB, $10, $10, $1B, $AB, $10, $80, $0F, $0C, $10, $1A, $BF, $AA, $1B, $1A, $FF, $A1, $BF, $AB, $FB, $1A, $83, $03 ;0x680
-	dc.b	$07, $BB, $1A, $BB, $1A, $AB, $11, $AA, $80, $2E, $3C, $1A, $01, $1A, $77, $71, $BA, $A1, $11, $1A, $FA, $15, $54, $41, $B1, $55, $51, $11, $A1, $54, $11, $DD ;0x6A0
-	dc.b	$A1, $11, $1D, $EE, $A1, $11, $DE, $EF, $AA, $11, $DE, $ED, $1A, $1C, $DE, $D1, $11, $BA, $A1, $4C, $11, $AA, $14, $C8, $11, $AA, $15, $C8, $DD, $1A, $11, $5C ;0x6C0
-	dc.b	$EE, $D1, $D1, $15, $EE, $EE, $DD, $80, $7E, $0C, $1D, $D1, $53, $C4, $41, $DE, $88, $88, $51, $AB, $88, $88, $80, $F7, $03, $28, $C1, $AA, $86, $03, $07, $22 ;0x6E0
-	dc.b	$C1, $A1, $22, $22, $81, $15, $80, $03, $0D, $CC, $A1, $48, $82, $22, $A1, $C8, $22, $28, $A1, $C8, $28, $C1, $80, $45, $06, $1B, $14, $11, $AA, $11, $11, $80 ;0x700
-	dc.b	$64, $27, $51, $11, $11, $DE, $CC, $C1, $1D, $ED, $88, $81, $AB, $BA, $C1, $1A, $1A, $BA, $1B, $11, $11, $AB, $A1, $11, $11, $1A, $1D, $DE, $EE, $E1, $DE, $EF ;0x720
-	dc.b	$FF, $FE, $ED, $11, $11, $DD, $14, $44, $44, $80, $E6, $05, $11, $C1, $A1, $1A, $AA, $80, $32, $05, $11, $AA, $A1, $11, $4C, $80, $3A, $14, $15, $C5, $11, $DD ;0x740
-	dc.b	$11, $58, $1D, $EE, $ED, $15, $DE, $EF, $EE, $D1, $1A, $1A, $AB, $BA, $11, $71, $80, $D3, $14, $1A, $A1, $A7, $A1, $A1, $A7, $1A, $11, $AA, $1A, $11, $51, $AA ;0x760
-	dc.b	$1A, $71, $85, $1B, $A1, $A1, $84, $80, $03, $0D, $BA, $15, $51, $A1, $BB, $A1, $1A, $A1, $7B, $AA, $1A, $A1, $AB, $80, $7A, $0F, $AA, $AA, $11, $C1, $AA, $11 ;0x780
-	dc.b	$C8, $81, $A1, $48, $8C, $C1, $1C, $88, $C4, $80, $DE, $81, $FF, $08, $44, $41, $B1, $54, $C8, $88, $A1, $4C, $81, $AB, $80, $AF, $08, $48, $22, $22, $AA, $18 ;0x7A0
-	dc.b	$22, $22, $1A, $80, $03, $85, $FF, $01, $C1, $80, $FF, $01, $8C, $80, $FF, $09, $28, $C1, $C1, $15, $22, $28, $8C, $11, $22, $80, $F0, $04, $22, $22, $22, $82 ;0x7C0
-	dc.b	$B4, $FF, $09, $4C, $51, $14, $C8, $22, $CC, $C8, $22, $22, $8A, $FF, $0B, $14, $C1, $1A, $1C, $82, $28, $41, $82, $22, $22, $C4, $80, $5B, $82, $02, $8A, $FF ;0x7E0
-	dc.b	$0B, $4C, $8C, $11, $A1, $C8, $88, $C5, $14, $88, $22, $88, $80, $7B, $01, $28, $84, $03, $88, $02, $01, $25, $80, $97, $02, $21, $DE, $80, $03, $01, $1E, $80 ;0x800
-	dc.b	$9B, $01, $1D, $80, $9F, $01, $21, $89, $1F, $80, $4B, $0A, $11, $FE, $DD, $DD, $FE, $FD, $11, $11, $1F, $E1, $80, $03, $03, $14, $33, $CC, $81, $C3, $82, $6A ;0x820
-	dc.b	$03, $28, $C5, $12, $80, $6B, $08, $12, $22, $ED, $11, $52, $22, $ED, $D1, $80, $F7, $03, $12, $22, $22, $80, $C0, $8D, $01, $04, $C5, $22, $22, $2C, $81, $63 ;0x840
-	dc.b	$80, $5F, $82, $67, $81, $63, $8A, $5F, $09, $DE, $EF, $FF, $FE, $ED, $DD, $DD, $DD, $D1, $80, $B8, $04, $15, $55, $55, $55, $8A, $7F, $17, $14, $22, $22, $EE ;0x860
-	dc.b	$D1, $12, $22, $DD, $EE, $D1, $22, $11, $DD, $ED, $12, $55, $1D, $E1, $12, $10, $00, $00, $10, $80, $03, $01, $00, $88, $03, $01, $01, $80, $13, $25, $17, $10 ;0x880
-	dc.b	$00, $01, $77, $10, $00, $17, $76, $01, $DD, $EE, $EE, $1D, $D1, $11, $DD, $11, $17, $77, $71, $17, $77, $77, $77, $76, $FF, $66, $77, $6F, $F6, $66, $66, $F6 ;0x8A0
-	dc.b	$67, $71, $11, $80, $06, $2F, $77, $EE, $FF, $ED, $DD, $EF, $FE, $D1, $1D, $DE, $EE, $D1, $DD, $71, $DE, $D1, $DD, $77, $1D, $DD, $DD, $77, $71, $DD, $D1, $17 ;0x8C0
-	dc.b	$77, $1D, $D1, $71, $17, $1D, $1A, $D1, $11, $1E, $EF, $D1, $41, $EE, $FF, $D1, $CC, $FF, $FF, $11, $18, $81, $03, $07, $8E, $EF, $AA, $18, $21, $EE, $AA, $80 ;0x8E0
-	dc.b	$EE, $02, $A1, $52, $80, $8F, $80, $8B, $03, $FF, $FF, $ED, $80, $03, $01, $EE, $80, $07, $0E, $FF, $26, $11, $FF, $F2, $66, $11, $EE, $E2, $62, $11, $11, $C2 ;0x900
-	dc.b	$21, $80, $FE, $04, $21, $22, $28, $18, $80, $EF, $02, $88, $8C, $81, $FF, $02, $66, $66, $81, $03, $0A, $66, $22, $12, $22, $26, $66, $12, $22, $22, $26, $82 ;0x920
-	dc.b	$F3, $08, $DD, $11, $DE, $1D, $EE, $FF, $FF, $DE, $80, $3C, $85, $02, $18, $2E, $EE, $11, $FF, $61, $1E, $11, $EE, $22, $C1, $11, $11, $EE, $1A, $A1, $11, $E1 ;0x940
-	dc.b	$11, $1D, $14, $FF, $FE, $EE, $14, $80, $63, $05, $1C, $FF, $FF, $FE, $2C, $80, $67, $0E, $8C, $EE, $EE, $F2, $8C, $11, $11, $88, $8C, $88, $81, $DD, $EE, $18 ;0x960
-	dc.b	$80, $40, $02, $11, $DE, $83, $03, $80, $C8, $80, $03, $01, $EF, $82, $07, $0C, $41, $DD, $EF, $FD, $DD, $DD, $DD, $11, $ED, $1D, $DD, $D1, $81, $03, $09, $FD ;0x980
-	dc.b	$11, $DD, $D1, $FE, $D1, $DD, $D1, $FF, $81, $03, $03, $11, $11, $11, $80, $E4, $08, $11, $10, $01, $AB, $10, $10, $00, $1A, $80, $03, $06, $01, $A1, $10, $00 ;0x9A0
-	dc.b	$00, $11, $80, $03, $01, $00, $89, $03, $0C, $01, $41, $17, $71, $00, $1C, $41, $71, $00, $14, $C1, $71, $80, $0C, $80, $03, $02, $14, $11, $80, $2A, $11, $41 ;0x9C0
-	dc.b	$00, $1A, $A1, $51, $00, $1A, $AA, $11, $55, $1C, $DE, $15, $15, $C2, $EE, $5C, $80, $03, $10, $19, $11, $42, $2E, $1C, $A1, $52, $2E, $15, $A1, $18, $CD, $51 ;0x9E0
-	dc.b	$A7, $1C, $2C, $80, $03, $1C, $22, $22, $C3, $55, $DD, $1E, $51, $14, $FF, $EE, $11, $1F, $EF, $EE, $11, $14, $FF, $DF, $C1, $15, $35, $1C, $5C, $9C, $51, $58 ;0xA00
-	dc.b	$11, $11, $80, $1C, $82, $01, $06, $2C, $C8, $22, $22, $28, $88, $81, $0C, $02, $25, $18, $80, $03, $04, $12, $22, $22, $11, $80, $19, $13, $11, $C2, $22, $22 ;0xA20
-	dc.b	$51, $CC, $22, $22, $88, $88, $EE, $D1, $22, $22, $EE, $13, $22, $22, $2E, $80, $1D, $01, $2D, $81, $03, $01, $15, $80, $2F, $81, $22, $01, $41, $80, $40, $1E ;0xA40
-	dc.b	$28, $33, $CC, $34, $49, $CC, $11, $15, $FF, $C3, $11, $1F, $FF, $94, $11, $19, $FF, $9C, $11, $15, $9F, $C8, $F9, $8C, $C3, $15, $C9, $9C, $51, $41, $80, $E3 ;0xA60
-	dc.b	$0D, $1D, $FF, $FE, $D1, $94, $FF, $FF, $18, $FC, $FF, $F2, $88, $EF, $80, $03, $51, $C1, $FF, $E8, $8C, $1D, $ED, $48, $8C, $1D, $D1, $88, $85, $11, $C8, $88 ;0xA80
-	dc.b	$81, $C4, $1B, $BA, $A1, $C4, $1F, $BA, $1C, $C1, $AF, $F1, $14, $51, $BF, $BA, $14, $1B, $FA, $AA, $11, $1F, $BA, $A1, $14, $1F, $BB, $15, $4C, $AF, $BA, $14 ;0xAA0
-	dc.b	$C5, $1C, $CC, $11, $51, $C4, $11, $15, $C1, $41, $11, $4C, $C1, $11, $11, $CC, $C1, $55, $14, $CC, $41, $41, $5C, $85, $11, $15, $4C, $41, $11, $14, $CC, $1A ;0xAC0
-	dc.b	$11, $55, $80, $B3, $01, $15, $80, $AB, $10, $15, $C1, $11, $55, $11, $4C, $51, $11, $A1, $52, $8C, $51, $A1, $18, $22, $28, $81, $FB, $81, $FF, $85, $01, $80 ;0xAE0
-	dc.b	$E4, $01, $22, $80, $8E, $01, $15, $80, $02, $01, $8C, $80, $EC, $01, $82, $87, $19, $8B, $FF, $01, $85, $8D, $FF, $88, $29, $03, $22, $28, $41, $80, $F7, $02 ;0xB00
-	dc.b	$8C, $51, $88, $11, $87, $60, $03, $88, $8C, $45, $80, $EE, $82, $02, $8C, $1F, $02, $28, $88, $80, $00, $04, $51, $11, $11, $58, $80, $7E, $05, $C8, $55, $C8 ;0xB20
-	dc.b	$88, $8C, $80, $6F, $81, $03, $01, $85, $80, $77, $01, $81, $81, $88, $01, $58, $80, $A6, $01, $15, $80, $A0, $01, $11, $80, $C8, $10, $DD, $D1, $14, $82, $DD ;0xB40
-	dc.b	$EE, $D1, $15, $ED, $ED, $DD, $11, $EF, $DD, $1D, $17, $80, $F4, $88, $C5, $87, $CB, $04, $15, $4C, $C8, $8C, $90, $6B, $85, $8C, $02, $C5, $CC, $83, $8D, $09 ;0xB60
-	dc.b	$15, $82, $22, $25, $11, $58, $22, $28, $51, $95, $5F, $04, $55, $44, $43, $33, $8D, $B3, $89, $5F, $04, $35, $1D, $15, $12, $80, $D7, $01, $C2, $95, $5F, $06 ;0xB80
-	dc.b	$10, $00, $17, $6F, $10, $01, $80, $03, $1F, $1B, $17, $66, $11, $BB, $17, $66, $1B, $BB, $17, $76, $1B, $FB, $A1, $76, $1F, $BA, $11, $77, $1F, $A1, $00, $17 ;0xBA0
-	dc.b	$FF, $FF, $66, $66, $FF, $66, $67, $77, $82, $03, $02, $F6, $66, $81, $03, $02, $66, $6F, $81, $03, $80, $14, $0A, $66, $FF, $F6, $67, $67, $71, $11, $AB, $77 ;0xBC0
-	dc.b	$77, $81, $03, $02, $1A, $BB, $86, $03, $02, $71, $AB, $81, $03, $01, $FB, $80, $07, $17, $FA, $A1, $42, $22, $22, $A1, $C8, $28, $51, $A1, $C8, $25, $15, $A1 ;0xBE0
-	dc.b	$5C, $C1, $55, $A1, $15, $11, $55, $A1, $11, $84, $03, $03, $DD, $11, $15, $81, $FF, $01, $11, $80, $DC, $0A, $1E, $D1, $11, $11, $1F, $15, $55, $55, $51, $55 ;0xC00
-	dc.b	$80, $00, $02, $54, $44, $81, $00, $05, $43, $54, $44, $33, $33, $82, $D7, $02, $8C, $51, $81, $AA, $81, $19, $82, $03, $81, $1D, $01, $33, $84, $00, $82, $3F ;0xC20
-	dc.b	$80, $FF, $80, $39, $01, $ED, $80, $3D, $01, $F1, $80, $3E, $07, $15, $44, $44, $45, $55, $33, $34, $82, $23, $06, $34, $28, $88, $88, $8C, $54, $80, $03, $0F ;0xC40
-	dc.b	$11, $18, $88, $8C, $55, $51, $88, $C5, $55, $51, $58, $C1, $55, $55, $18, $80, $66, $21, $18, $1A, $44, $55, $18, $1B, $41, $DD, $EE, $D1, $11, $1D, $DD, $17 ;0xC60
-	dc.b	$1A, $11, $D1, $77, $1A, $A1, $17, $66, $AB, $A1, $71, $16, $AB, $11, $17, $66, $BB, $17, $76, $80, $03, $07, $66, $FF, $17, $77, $77, $71, $77, $80, $03, $80 ;0xC80
-	dc.b	$FE, $09, $71, $66, $66, $77, $71, $6F, $F6, $77, $71, $80, $F6, $83, $03, $15, $66, $67, $71, $10, $00, $00, $01, $10, $11, $11, $1A, $11, $AA, $AA, $AB, $1A ;0xCA0
-	dc.b	$BB, $BB, $A1, $1B, $AA, $81, $0C, $10, $00, $1B, $11, $00, $11, $BA, $11, $01, $BB, $A1, $11, $AA, $A1, $1A, $AA, $AA, $80, $1D, $11, $A1, $1A, $BA, $11, $1A ;0xCC0
-	dc.b	$BF, $AA, $A1, $BF, $FA, $AA, $1B, $FF, $AA, $AA, $1F, $FA, $80, $0A, $07, $BA, $A1, $17, $AA, $1C, $22, $22, $81, $03, $01, $A1, $84, $03, $10, $11, $14, $82 ;0xCE0
-	dc.b	$22, $11, $15, $C8, $22, $17, $11, $4C, $82, $A7, $11, $54, $C8, $82, $FF, $0F, $22, $22, $85, $22, $22, $28, $11, $22, $22, $25, $DE, $22, $22, $21, $1E, $80 ;0xD00
-	dc.b	$03, $01, $1D, $80, $07, $81, $0F, $01, $15, $85, $FF, $0D, $EE, $FF, $FE, $EE, $FE, $DD, $DD, $FE, $FD, $11, $11, $1F, $E1, $80, $03, $08, $15, $55, $45, $51 ;0xD20
-	dc.b	$55, $44, $34, $45, $81, $3F, $81, $44, $05, $11, $C2, $22, $22, $ED, $80, $6B, $02, $ED, $D1, $80, $5F, $04, $D1, $C2, $22, $15, $80, $10, $02, $33, $41, $80 ;0xD40
-	dc.b	$14, $9E, $01, $02, $28, $81, $80, $7B, $05, $C1, $22, $22, $2C, $1A, $83, $03, $02, $8C, $1A, $80, $0E, $15, $AA, $22, $28, $41, $AA, $22, $84, $11, $AA, $BF ;0xD60
-	dc.b	$BA, $11, $11, $BF, $BA, $15, $1C, $B9, $BA, $14, $CC, $80, $03, $0E, $41, $BB, $BA, $11, $17, $9B, $AA, $11, $77, $9B, $AA, $17, $A7, $9B, $80, $DE, $10, $4C ;0xD80
-	dc.b	$C4, $1A, $A1, $CC, $41, $AA, $A1, $41, $1A, $AB, $A1, $11, $1A, $AB, $B1, $80, $03, $04, $61, $11, $71, $AA, $81, $03, $05, $B1, $71, $77, $1A, $A1, $93, $80 ;0xDA0
-	dc.b	$01, $81, $80, $EB, $97, $9A, $81, $EF, $9B, $1F, $80, $F1, $01, $28, $92, $42, $01, $85, $83, $18, $02, $21, $DE, $80, $03, $01, $1E, $80, $07, $01, $1D, $8D ;0xDC0
-	dc.b	$57, $10, $EE, $FF, $FE, $EE, $FE, $DD, $DD, $FE, $FD, $11, $11, $1F, $E1, $55, $55, $1F, $89, $9F, $01, $C2, $81, $7B, $80, $04, $02, $ED, $1C, $80, $03, $05 ;0xDE0
-	dc.b	$D1, $82, $22, $11, $D1, $81, $11, $85, $C1, $01, $25, $8C, $57, $81, $0F, $02, $28, $15, $89, $B3, $86, $57, $80, $5B, $08, $15, $55, $45, $51, $55, $44, $34 ;0xE00
-	dc.b	$45, $81, $FF, $03, $28, $C5, $12, $80, $D3, $03, $12, $22, $ED, $81, $03, $01, $D1, $80, $0B, $09, $D1, $52, $22, $15, $11, $42, $22, $35, $51, $89, $5F, $02 ;0xE20
-	dc.b	$22, $81, $80, $D4, $81, $57, $80, $B3, $02, $21, $DD, $80, $C3, $01, $D1, $80, $73, $82, $5F, $01, $C1, $80, $B8, $09, $1D, $DE, $EE, $EE, $DE, $FE, $EE, $EF ;0xE40
-	dc.b	$ED, $80, $C4, $80, $5F, $09, $11, $D1, $55, $55, $55, $11, $54, $34, $33, $82, $D7, $01, $48, $80, $B3, $80, $B8, $01, $FE, $80, $B8, $14, $1D, $FE, $D1, $C2 ;0xE60
-	dc.b	$11, $DE, $11, $12, $55, $1D, $15, $12, $35, $51, $55, $12, $1A, $10, $01, $17, $80, $03, $1D, $A1, $11, $00, $1A, $A1, $11, $01, $AA, $AA, $10, $01, $BA, $AA ;0xE80
-	dc.b	$10, $1A, $BB, $A1, $10, $1B, $BA, $A1, $11, $AF, $BA, $10, $76, $6F, $F6, $66, $81, $03, $1C, $77, $66, $F6, $66, $17, $76, $66, $66, $11, $77, $66, $66, $01 ;0xEA0
-	dc.b	$17, $66, $F6, $00, $17, $76, $FF, $00, $11, $76, $6F, $77, $71, $AB, $FA, $80, $03, $09, $BA, $77, $77, $1B, $A1, $67, $77, $1A, $11, $80, $03, $08, $17, $67 ;0xEC0
-	dc.b	$67, $71, $77, $66, $67, $77, $82, $03, $0A, $1D, $DD, $D1, $11, $1D, $DD, $DD, $D1, $1D, $DE, $80, $08, $0A, $DE, $FD, $DD, $71, $DD, $FD, $DD, $77, $1D, $ED ;0xEE0
-	dc.b	$80, $03, $0E, $DD, $D1, $17, $71, $DD, $17, $15, $54, $43, $33, $11, $15, $54, $44, $80, $C2, $16, $55, $11, $11, $44, $51, $11, $17, $14, $C8, $11, $17, $71 ;0xF00
-	dc.b	$1C, $77, $77, $67, $1C, $77, $76, $F6, $1C, $33, $84, $00, $03, $34, $44, $44, $81, $23, $0A, $11, $88, $8C, $CC, $CC, $8C, $41, $11, $11, $C4, $80, $8C, $04 ;0xF20
-	dc.b	$41, $77, $6F, $F6, $80, $1F, $01, $44, $80, $1C, $04, $55, $45, $55, $51, $81, $1E, $03, $1D, $C4, $41, $80, $DD, $03, $17, $1D, $DF, $80, $79, $09, $EE, $77 ;0xF40
-	dc.b	$77, $11, $DE, $44, $51, $C1, $AF, $80, $19, $01, $BF, $80, $87, $0A, $BB, $DE, $DD, $11, $BA, $EE, $D1, $71, $A1, $ED, $80, $03, $04, $DD, $17, $77, $11, $80 ;0xF60
-	dc.b	$03, $0D, $71, $BA, $17, $66, $FF, $BA, $16, $6F, $FF, $A1, $76, $6F, $FF, $80, $0A, $04, $FF, $77, $66, $FF, $82, $EB, $01, $76, $81, $03, $0B, $6F, $66, $77 ;0xF80
-	dc.b	$FF, $66, $67, $71, $66, $66, $77, $71, $80, $CF, $03, $71, $66, $77, $83, $03, $80, $DA, $86, $03, $0E, $10, $1B, $FB, $A1, $11, $BF, $BA, $1B, $1A, $FB, $AA ;0xFA0
-	dc.b	$1A, $1B, $BA, $80, $03, $02, $AA, $A1, $80, $03, $13, $11, $11, $1B, $A1, $11, $11, $1A, $A1, $11, $AA, $FB, $AA, $11, $A7, $FA, $A1, $A7, $71, $BA, $80, $E0 ;0xFC0
-	dc.b	$03, $AA, $11, $1A, $80, $1D, $22, $AA, $AB, $A1, $AA, $BB, $BB, $A1, $AB, $BB, $A1, $11, $AB, $A1, $11, $71, $11, $11, $4C, $11, $1A, $A7, $15, $1A, $AB, $A7 ;0xFE0
-	dc.b	$11, $AA, $BB, $A7, $11, $BB, $BA, $A1, $1D, $80, $02, $2E, $DD, $11, $1D, $DF, $FF, $DD, $DD, $DD, $EE, $82, $22, $24, $15, $58, $22, $2C, $15, $15, $C8, $22 ;0x1000
-	dc.b	$41, $11, $15, $C2, $24, $DD, $D1, $14, $82, $DD, $EE, $D1, $15, $ED, $ED, $DD, $11, $EF, $DD, $1D, $17, $44, $33, $CC, $CC, $43, $80, $03, $09, $54, $3C, $CC ;0x1020
-	dc.b	$CC, $11, $44, $44, $44, $84, $80, $67, $08, $C8, $22, $22, $22, $15, $4C, $C8, $8C, $80, $72, $12, $11, $C3, $51, $C2, $22, $CC, $41, $82, $22, $C4, $14, $22 ;0x1040
-	dc.b	$22, $51, $48, $22, $22, $5C, $80, $1B, $06, $22, $22, $88, $C5, $CC, $45, $81, $1D, $02, $11, $15, $82, $0E, $83, $04, $01, $28, $80, $17, $1D, $CC, $28, $C5 ;0x1060
-	dc.b	$15, $C8, $11, $11, $48, $8C, $11, $5C, $88, $41, $5C, $8C, $41, $17, $28, $51, $51, $AB, $85, $55, $1A, $A9, $8C, $C4, $1A, $AA, $80, $0E, $15, $77, $84, $17 ;0x1080
-	dc.b	$7A, $11, $41, $77, $11, $77, $11, $A1, $77, $77, $11, $17, $77, $77, $BA, $A1, $17, $BB, $80, $D7, $01, $A6, $80, $EE, $01, $A6, $81, $E2, $01, $77, $80, $F6 ;0x10A0
-	dc.b	$82, $03, $80, $D8, $1A, $66, $77, $71, $1A, $A1, $7A, $A1, $A1, $BA, $1A, $AA, $11, $6B, $A1, $AA, $A1, $BB, $AA, $1A, $A1, $BB, $FA, $A1, $D1, $BF, $FB, $81 ;0x10C0
-	dc.b	$03, $07, $AA, $11, $FF, $FA, $AB, $11, $82, $80, $AB, $01, $58, $81, $AF, $80, $B4, $80, $DF, $01, $22, $8D, $DF, $88, $9F, $86, $AA, $89, $DF, $91, $1F, $89 ;0x10E0
-	dc.b	$DF, $04, $82, $22, $24, $11, $80, $5F, $01, $51, $95, $5F, $04, $15, $44, $33, $31, $8D, $47, $89, $5F, $06, $33, $11, $C2, $22, $11, $18, $99, $5F, $02, $22 ;0x1100
-	dc.b	$55, $80, $BF, $01, $81, $80, $BF, $01, $28, $91, $BF, $05, $54, $33, $CC, $CC, $43, $80, $03, $0C, $14, $3C, $CC, $CC, $81, $14, $44, $11, $28, $11, $11, $18 ;0x1120
-	dc.b	$89, $BF, $06, $C3, $14, $22, $22, $C1, $1C, $80, $FB, $80, $E8, $01, $12, $92, $BF, $02, $2C, $15, $80, $BF, $01, $15, $80, $BF, $01, $C1, $80, $BF, $01, $2C ;0x1140
-	dc.b	$8D, $BF, $05, $44, $33, $33, $33, $43, $80, $03, $04, $54, $44, $44, $44, $85, $C7, $8A, $BF, $0D, $55, $55, $12, $34, $44, $55, $12, $44, $45, $51, $52, $11 ;0x1160
-	dc.b	$11, $80, $68, $8C, $BF, $06, $11, $BF, $BA, $10, $1A, $FB, $81, $03, $23, $A1, $01, $1B, $BB, $A1, $17, $1F, $BA, $A1, $76, $1F, $BA, $11, $66, $1B, $AA, $17 ;0x1180
-	dc.b	$6F, $1A, $A1, $76, $6F, $01, $71, $77, $66, $17, $77, $17, $66, $76, $67, $17, $77, $66, $80, $03, $14, $6F, $67, $71, $77, $FF, $67, $77, $11, $FF, $77, $77 ;0x11A0
-	dc.b	$15, $F7, $77, $71, $55, $66, $67, $77, $71, $84, $03, $02, $17, $76, $81, $03, $0C, $77, $71, $77, $77, $77, $71, $76, $17, $77, $11, $76, $51, $80, $12, $03 ;0x11C0
-	dc.b	$17, $71, $11, $80, $17, $01, $1C, $80, $1B, $15, $11, $C1, $76, $66, $1C, $C1, $66, $66, $1C, $1C, $6F, $66, $11, $F9, $6F, $66, $71, $FC, $6F, $F6, $71, $80 ;0x11E0
-	dc.b	$0F, $02, $F6, $14, $80, $03, $04, $11, $76, $66, $66, $80, $65, $04, $66, $66, $C1, $77, $80, $03, $0A, $11, $77, $66, $1C, $44, $11, $71, $F9, $C1, $44, $80 ;0x1200
-	dc.b	$38, $0C, $6F, $67, $77, $6F, $F6, $77, $66, $FF, $66, $76, $6F, $F6, $80, $20, $80, $70, $0C, $66, $77, $77, $11, $11, $71, $11, $4C, $C4, $14, $C1, $C9, $80 ;0x1220
-	dc.b	$6B, $1E, $1D, $77, $77, $14, $11, $67, $71, $14, $41, $77, $14, $41, $17, $71, $14, $C4, $17, $14, $C1, $41, $77, $1C, $CC, $17, $77, $C1, $C1, $77, $77, $D1 ;0x1240
-	dc.b	$80, $8D, $01, $17, $80, $91, $84, $06, $8E, $03, $01, $76, $81, $4F, $80, $54, $07, $66, $71, $16, $67, $67, $17, $17, $81, $03, $81, $C1, $01, $71, $80, $C5 ;0x1260
-	dc.b	$01, $11, $80, $09, $01, $11, $80, $CC, $80, $03, $80, $07, $03, $71, $17, $71, $80, $09, $01, $71, $81, $09, $07, $15, $51, $17, $71, $55, $55, $11, $80, $03 ;0x1280
-	dc.b	$10, $51, $71, $1A, $11, $1A, $AA, $1A, $11, $AA, $BB, $11, $11, $AB, $FA, $11, $D1, $81, $03, $05, $AA, $BA, $11, $ED, $17, $81, $03, $02, $AA, $11, $80, $00 ;0x12A0
-	dc.b	$0F, $A1, $A1, $11, $DD, $AA, $17, $1D, $DD, $A1, $77, $1D, $DD, $17, $71, $DD, $81, $03, $09, $FD, $17, $A1, $DD, $DD, $11, $AA, $1D, $DD, $81, $1F, $04, $DD ;0x12C0
-	dc.b	$DE, $EF, $FF, $80, $02, $06, $1E, $EE, $FD, $DF, $DE, $EE, $80, $16, $0A, $DE, $ED, $D1, $D1, $1D, $ED, $11, $DD, $DD, $DD, $80, $05, $80, $40, $0D, $FD, $D1 ;0x12E0
-	dc.b	$DD, $D1, $D1, $11, $DD, $11, $D1, $1D, $D1, $11, $11, $81, $03, $81, $35, $81, $39, $03, $FD, $11, $17, $81, $5F, $01, $FF, $80, $A3, $01, $FF, $80, $AB, $07 ;0x1300
-	dc.b	$1F, $F6, $17, $11, $17, $1F, $71, $80, $A5, $01, $F7, $80, $B3, $80, $15, $03, $77, $7F, $67, $81, $7F, $1C, $11, $11, $15, $5C, $11, $15, $55, $C4, $55, $54 ;0x1320
-	dc.b	$C1, $11, $54, $C1, $17, $77, $14, $C1, $77, $66, $11, $C1, $76, $66, $71, $C4, $17, $6F, $81, $9F, $14, $CC, $41, $11, $76, $11, $17, $76, $66, $77, $66, $6F ;0x1340
-	dc.b	$67, $76, $FF, $F6, $77, $6F, $FF, $F7, $11, $80, $06, $04, $77, $FF, $66, $66, $82, $1F, $08, $11, $77, $17, $76, $17, $71, $17, $76, $80, $FB, $80, $6F, $81 ;0x1360
-	dc.b	$5F, $0A, $17, $1A, $66, $71, $11, $AA, $F6, $71, $71, $AB, $81, $DF, $19, $67, $71, $11, $AB, $61, $1A, $BF, $FF, $1A, $B9, $FF, $FF, $AB, $99, $BB, $AA, $B9 ;0x1380
-	dc.b	$9B, $AA, $AB, $9B, $BA, $AA, $AA, $9A, $82, $FD, $80, $9F, $11, $FA, $AA, $11, $FF, $AA, $6A, $11, $AA, $A6, $AA, $11, $AB, $BA, $A1, $D1, $BA, $A1, $80, $C8 ;0x13A0
-	dc.b	$07, $1D, $DE, $E1, $11, $DE, $EF, $E1, $81, $FF, $06, $A1, $42, $22, $22, $A1, $C8, $81, $03, $0F, $24, $11, $A1, $52, $21, $55, $A1, $15, $81, $55, $A1, $11 ;0x13C0
-	dc.b	$18, $11, $A1, $80, $9A, $01, $A1, $80, $EB, $01, $22, $84, $00, $02, $11, $C2, $80, $03, $13, $11, $4C, $22, $1D, $15, $51, $11, $1E, $15, $55, $55, $11, $55 ;0x13E0
-	dc.b	$44, $44, $8C, $11, $15, $54, $85, $1F, $84, $27, $01, $2C, $81, $F3, $01, $55, $80, $00, $01, $44, $84, $00, $89, $1F, $01, $51, $82, $1B, $02, $51, $D1, $80 ;0x1400
-	dc.b	$03, $0E, $E1, $44, $44, $55, $15, $44, $44, $11, $11, $28, $88, $88, $8C, $22, $81, $03, $17, $28, $88, $8C, $11, $5C, $88, $C5, $55, $51, $58, $C1, $55, $55 ;0x1420
-	dc.b	$18, $51, $51, $11, $58, $1A, $15, $C8, $88, $1B, $87, $9F, $80, $A7, $07, $52, $21, $11, $A1, $15, $82, $28, $80, $9F, $01, $22, $80, $9F, $01, $C2, $89, $9F ;0x1440
-	dc.b	$81, $A7, $0B, $5C, $88, $22, $22, $C5, $11, $5C, $22, $22, $28, $85, $82, $B7, $01, $82, $8C, $9C, $84, $CB, $01, $8C, $81, $F7, $93, $1A, $03, $22, $22, $C1 ;0x1460
-	dc.b	$80, $C0, $01, $4C, $88, $38, $89, $9F, $80, $A3, $05, $C5, $11, $18, $88, $C1, $80, $01, $01, $51, $80, $AF, $01, $1A, $80, $B7, $02, $1B, $00, $BC, $00, $04 ;0x1480
-	dc.b	$1A, $17, $66, $FF, $81, $03, $03, $11, $76, $6F, $80, $03, $02, $FF, $F6, $80, $0E, $81, $03, $05, $67, $16, $6F, $FF, $67, $81, $A7, $0C, $F7, $77, $71, $55 ;0x14A0
-	dc.b	$66, $77, $15, $55, $76, $77, $15, $54, $80, $0A, $81, $03, $01, $14, $80, $0E, $81, $03, $01, $13, $81, $C7, $0D, $55, $17, $17, $76, $55, $11, $17, $7F, $45 ;0x14C0
-	dc.b	$51, $77, $6F, $44, $81, $03, $0B, $41, $77, $6F, $34, $41, $77, $66, $33, $41, $77, $76, $81, $E7, $80, $4A, $80, $03, $0C, $66, $71, $67, $FF, $F6, $67, $67 ;0x14E0
-	dc.b	$6F, $FF, $66, $67, $7F, $80, $03, $80, $67, $04, $67, $77, $F6, $FF, $81, $5F, $09, $FC, $C1, $9C, $19, $1C, $1F, $9C, $1F, $71, $80, $03, $0C, $77, $71, $11 ;0x1500
-	dc.b	$1F, $66, $77, $77, $11, $66, $66, $66, $77, $80, $03, $01, $66, $81, $7F, $03, $9C, $19, $9C, $80, $1D, $01, $FC, $81, $03, $07, $11, $CC, $11, $11, $77, $11 ;0x1520
-	dc.b	$77, $83, $00, $02, $66, $67, $80, $28, $80, $A0, $04, $91, $17, $77, $77, $80, $02, $92, $01, $81, $BF, $03, $77, $77, $71, $80, $31, $04, $71, $71, $77, $67 ;0x1540
-	dc.b	$80, $07, $83, $03, $09, $71, $76, $67, $71, $15, $76, $77, $11, $55, $81, $DF, $08, $17, $77, $71, $51, $77, $77, $15, $51, $80, $0E, $11, $55, $71, $55, $55 ;0x1560
-	dc.b	$55, $15, $55, $54, $55, $15, $44, $44, $45, $13, $43, $33, $45, $81, $FF, $12, $54, $45, $51, $11, $53, $44, $55, $11, $13, $34, $45, $51, $1C, $33, $34, $51 ;0x1580
-	dc.b	$1C, $C3, $80, $03, $07, $CC, $34, $41, $1C, $CC, $33, $41, $81, $FF, $01, $00, $FF, $00, $FF, $82, $B8, $FF, $0A, $1D, $DD, $D1, $11, $1D, $DD, $DD, $D1, $1D ;0x15A0
-	dc.b	$DE, $80, $08, $0A, $DE, $FD, $DD, $71, $DD, $FD, $DD, $77, $1D, $ED, $80, $03, $26, $DD, $D1, $17, $71, $DD, $17, $1C, $82, $C5, $11, $11, $1C, $22, $22, $11 ;0x15C0
-	dc.b	$11, $11, $88, $11, $11, $44, $51, $11, $17, $14, $C8, $11, $17, $71, $1C, $77, $77, $67, $1C, $77, $76, $F6, $1C, $80, $17, $02, $11, $22, $80, $00, $01, $82 ;0x15E0
-	dc.b	$80, $04, $81, $0B, $1B, $88, $8C, $CC, $CC, $8C, $41, $11, $11, $C4, $17, $76, $66, $41, $77, $6F, $F6, $11, $11, $5C, $88, $22, $22, $28, $88, $22, $28, $81 ;0x1600
-	dc.b	$81, $2A, $19, $1D, $C4, $41, $11, $DE, $11, $17, $1D, $DF, $77, $77, $1D, $EE, $77, $77, $11, $DE, $88, $8C, $C1, $AF, $C1, $11, $11, $BF, $80, $87, $0A, $BB ;0x1620
-	dc.b	$DE, $DD, $11, $BA, $EE, $D1, $71, $A1, $ED, $80, $03, $04, $DD, $17, $77, $11, $80, $03, $01, $71, $9F, $9F, $80, $9B, $98, $9F, $81, $9B, $99, $9F, $80, $BB ;0x1640
-	dc.b	$01, $28, $B9, $9F, $01, $00, $FF, $00, $FF, $82, $F8, $FF, $00, $00 ;0x1660
+	include "art/compressed/portrait/puyo_unkChar5.asm" ; Unknown Character Portrait
 loc_0005C996:
-	dc.b	$01, $11, $80, $00, $04, $10, $00, $00, $00, $95, $03, $81, $1F, $80, $1E, $96, $02, $DC, $1F, $81, $9E, $85, $7F, $80, $87, $0A, $01, $A1, $00, $00, $1A, $B1 ;0x0 (0x0005C996-0x0005D736, Entry count: 0xDA0) [Unknown data]
-	dc.b	$00, $00, $1B, $9A, $80, $03, $01, $9F, $80, $BB, $01, $B9, $8A, $9F, $01, $01, $83, $25, $0C, $10, $1B, $10, $01, $A1, $1B, $A1, $1A, $FB, $A1, $B1, $F9, $85 ;0x20
-	dc.b	$BF, $01, $01, $80, $E4, $01, $1A, $80, $3D, $01, $1B, $80, $41, $01, $A9, $80, $45, $01, $FA, $80, $49, $01, $AA, $80, $F8, $A4, $DF, $81, $59, $94, $03, $06 ;0x40
-	dc.b	$01, $76, $00, $00, $17, $6F, $80, $06, $01, $FF, $80, $06, $01, $F1, $80, $06, $05, $1D, $01, $76, $F1, $DE, $80, $0A, $09, $EE, $17, $6F, $61, $EF, $66, $FF ;0x60
-	dc.b	$FF, $66, $80, $00, $0C, $71, $61, $11, $11, $1D, $1D, $EE, $EF, $FF, $EF, $FF, $FF, $80, $03, $02, $FE, $EE, $82, $00, $80, $0C, $08, $71, $11, $11, $77, $1D ;0x80
-	dc.b	$EE, $ED, $11, $80, $10, $01, $ED, $85, $15, $02, $EE, $EE, $81, $23, $02, $FF, $FE, $80, $2A, $01, $FD, $81, $3C, $01, $76, $80, $41, $01, $17, $80, $45, $01 ;0xA0
-	dc.b	$D1, $80, $08, $80, $03, $10, $67, $D1, $76, $67, $11, $17, $76, $71, $DE, $17, $67, $1D, $EE, $66, $66, $67, $81, $1E, $86, $02, $80, $EF, $05, $76, $DE, $EE ;0xC0
-	dc.b	$DD, $17, $80, $4E, $01, $D1, $80, $64, $09, $D1, $77, $77, $77, $10, $67, $77, $77, $71, $81, $03, $01, $66, $80, $0C, $89, $03, $01, $76, $80, $1C, $99, $FB ;0xE0
-	dc.b	$96, $1B, $03, $01, $11, $11, $80, $F2, $01, $FF, $80, $F2, $01, $FF, $85, $11, $80, $14, $01, $17, $80, $02, $08, $66, $00, $17, $66, $FF, $11, $66, $6F, $80 ;0x100
-	dc.b	$F4, $05, $11, $11, $F6, $61, $1E, $80, $C5, $02, $11, $17, $80, $C6, $80, $03, $02, $FF, $11, $81, $0C, $80, $E6, $80, $9B, $03, $E1, $17, $FF, $80, $9A, $80 ;0x120
-	dc.b	$1B, $80, $9D, $02, $00, $00, $8E, $03, $09, $71, $00, $00, $76, $67, $10, $00, $76, $66, $80, $08, $82, $5B, $97, $03, $80, $EF, $01, $11, $80, $42, $01, $00 ;0x140
-	dc.b	$95, $03, $81, $1F, $99, $E3, $FF, $1F, $E2, $9F, $01, $01, $95, $03, $01, $10, $80, $FC, $99, $03, $A4, $02, $80, $E3, $02, $01, $17, $80, $66, $01, $77, $8C ;0x160
-	dc.b	$03, $80, $13, $83, $1C, $18, $67, $10, $01, $17, $6F, $71, $17, $66, $6F, $67, $66, $FF, $6F, $66, $6F, $FF, $76, $66, $11, $11, $66, $61, $1E, $FF, $80, $E0 ;0x180
-	dc.b	$04, $76, $11, $76, $66, $80, $00, $04, $FF, $FF, $6F, $FF, $82, $00, $80, $09, $07, $66, $66, $11, $17, $66, $66, $ED, $80, $1B, $0D, $66, $71, $11, $1A, $67 ;0x1A0
-	dc.b	$1A, $B9, $9F, $F6, $71, $1A, $BB, $F6, $80, $0C, $80, $29, $01, $67, $81, $2D, $85, $03, $13, $B9, $9F, $FF, $9B, $99, $BB, $9B, $A1, $BA, $1A, $9B, $BB, $11 ;0x1C0
-	dc.b	$AB, $FB, $B9, $71, $AB, $9A, $80, $2F, $29, $B1, $11, $66, $71, $A1, $77, $66, $67, $11, $77, $A1, $10, $00, $10, $1A, $A1, $11, $10, $BB, $BB, $A1, $00, $9A ;0x1E0
-	dc.b	$11, $10, $00, $BF, $9A, $11, $00, $1A, $BB, $BA, $11, $71, $11, $11, $00, $77, $77, $71, $A1, $E1, $01, $01, $99, $03, $04, $76, $FF, $61, $EF, $80, $03, $05 ;0x200
-	dc.b	$DE, $66, $FF, $F7, $1E, $80, $BF, $01, $71, $80, $C3, $04, $67, $6F, $FF, $F6, $80, $E1, $01, $F6, $80, $D2, $01, $F6, $80, $D5, $83, $D4, $01, $EE, $80, $00 ;0x220
-	dc.b	$01, $DE, $80, $04, $01, $11, $80, $04, $02, $67, $11, $80, $FB, $84, $C4, $80, $F2, $01, $E1, $80, $F6, $0D, $D1, $EE, $EE, $ED, $17, $EE, $ED, $11, $77, $DD ;0x240
-	dc.b	$11, $77, $66, $80, $02, $86, $E2, $01, $11, $80, $30, $0D, $11, $11, $EE, $FF, $77, $1D, $EF, $FF, $67, $1E, $EF, $FF, $66, $82, $03, $09, $EE, $EF, $66, $1D ;0x260
-	dc.b	$EE, $FE, $66, $71, $EE, $80, $5E, $02, $FE, $D1, $80, $63, $01, $ED, $81, $08, $85, $6B, $81, $14, $80, $6F, $01, $EF, $81, $7B, $05, $76, $77, $77, $77, $17 ;0x280
-	dc.b	$80, $03, $01, $11, $80, $07, $80, $5E, $01, $77, $81, $63, $81, $6B, $80, $90, $01, $17, $80, $24, $01, $17, $9E, $FC, $80, $8B, $04, $00, $17, $77, $6F, $81 ;0x2A0
-	dc.b	$E9, $04, $00, $17, $6F, $F6, $81, $F0, $80, $F4, $05, $71, $17, $6F, $FF, $1D, $80, $03, $0A, $1E, $66, $11, $EE, $EE, $61, $1E, $EE, $EE, $71, $80, $6D, $01 ;0x2C0
-	dc.b	$1E, $80, $EC, $01, $DF, $84, $EB, $86, $F7, $0C, $FD, $17, $77, $EE, $E1, $17, $77, $FF, $D1, $77, $77, $FE, $80, $88, $81, $87, $89, $02, $05, $76, $66, $67 ;0x2E0
-	dc.b	$10, $77, $81, $03, $02, $77, $77, $80, $03, $07, $71, $00, $71, $11, $10, $00, $71, $80, $94, $01, $10, $84, $03, $81, $82, $99, $03, $85, $27, $95, $07, $FF ;0x300
-	dc.b	$02, $FE, $84, $01, $01, $99, $03, $01, $10, $80, $FF, $99, $03, $A0, $5E, $05, $76, $00, $00, $17, $6F, $80, $06, $01, $FF, $80, $06, $01, $F6, $80, $06, $01 ;0x320
-	dc.b	$61, $80, $0A, $05, $71, $17, $6F, $FF, $1D, $80, $03, $12, $1E, $66, $11, $EE, $EE, $61, $1E, $EE, $EE, $71, $EF, $FF, $FF, $1E, $FF, $FF, $FF, $DF, $80, $03 ;0x340
-	dc.b	$01, $EE, $80, $00, $80, $0A, $82, $02, $03, $EE, $EE, $D1, $80, $21, $02, $EE, $ED, $85, $0F, $01, $FE, $81, $1C, $88, $1F, $05, $76, $66, $66, $66, $11, $80 ;0x360
-	dc.b	$04, $05, $FD, $17, $66, $66, $FE, $80, $08, $13, $EE, $11, $76, $67, $FD, $17, $76, $71, $F1, $17, $66, $1D, $E1, $17, $61, $DE, $66, $66, $67, $81, $22, $86 ;0x380
-	dc.b	$02, $06, $11, $11, $17, $76, $DE, $FE, $83, $53, $81, $67, $08, $77, $77, $77, $10, $67, $77, $77, $71, $81, $03, $01, $66, $80, $0C, $81, $03, $01, $76, $80 ;0x3A0
-	dc.b	$14, $08, $11, $17, $77, $77, $FE, $D1, $17, $77, $89, $E2, $85, $FF, $01, $71, $88, $03, $81, $E0, $9C, $03, $81, $42, $01, $11, $80, $26, $01, $17, $80, $2A ;0x3C0
-	dc.b	$80, $4F, $8A, $03, $80, $13, $83, $1C, $0F, $67, $10, $01, $17, $6F, $71, $17, $66, $6F, $67, $66, $FF, $6F, $66, $6F, $80, $D7, $0A, $FF, $FF, $66, $61, $11 ;0x3E0
-	dc.b	$11, $00, $11, $11, $76, $81, $DF, $01, $66, $80, $0F, $01, $6F, $83, $F4, $81, $19, $03, $66, $FF, $F6, $81, $CB, $80, $FD, $0A, $61, $DE, $EE, $66, $67, $1D ;0x400
-	dc.b	$EE, $66, $66, $71, $81, $EB, $01, $11, $80, $EB, $01, $67, $89, $EF, $04, $EF, $FF, $FF, $FE, $81, $E7, $80, $EF, $02, $EF, $DE, $80, $3F, $07, $11, $1D, $EF ;0x420
-	dc.b	$FF, $67, $71, $11, $80, $27, $80, $EB, $13, $66, $67, $77, $EE, $EF, $EE, $17, $EF, $FF, $ED, $17, $FF, $FE, $E1, $77, $FF, $ED, $11, $77, $80, $02, $01, $77 ;0x440
-	dc.b	$80, $02, $86, $01, $82, $DF, $01, $01, $80, $87, $07, $17, $67, $17, $01, $77, $6F, $67, $80, $03, $04, $F6, $00, $17, $7F, $80, $03, $02, $76, $66, $80, $CE ;0x460
-	dc.b	$05, $66, $76, $FF, $FF, $1D, $80, $03, $01, $71, $80, $AE, $01, $F6, $80, $9F, $81, $03, $80, $BD, $01, $F6, $82, $03, $82, $A4, $81, $67, $01, $67, $80, $6B ;0x480
-	dc.b	$88, $53, $90, $0A, $01, $71, $84, $03, $01, $10, $87, $03, $07, $66, $71, $77, $76, $66, $67, $10, $80, $80, $95, $02, $84, $1B, $01, $01, $99, $03, $81, $3F ;0x4A0
-	dc.b	$99, $03, $88, $5E, $88, $47, $80, $EF, $03, $00, $01, $BA, $80, $FB, $80, $07, $83, $62, $0E, $10, $00, $1F, $10, $F1, $01, $BB, $B1, $BB, $11, $AA, $AA, $AA ;0x4C0
-	dc.b	$11, $80, $00, $07, $76, $66, $66, $76, $6F, $F6, $66, $85, $88, $80, $68, $11, $11, $1B, $B1, $01, $F1, $AA, $A1, $1B, $B1, $11, $11, $AA, $A1, $77, $77, $11 ;0x4E0
-	dc.b	$1A, $80, $FA, $01, $71, $91, $BE, $81, $5D, $01, $AB, $80, $D8, $84, $5C, $92, $22, $84, $D7, $86, $9B, $80, $C8, $02, $1F, $01, $80, $80, $01, $01, $80, $80 ;0x500
-	dc.b	$08, $11, $BA, $11, $11, $BB, $11, $66, $66, $80, $02, $83, $7F, $80, $E1, $01, $10, $80, $E9, $01, $B1, $80, $80, $04, $AA, $BA, $A1, $1B, $80, $9E, $01, $AA ;0x520
-	dc.b	$80, $7B, $80, $21, $02, $77, $77, $89, $50, $01, $F1, $80, $FF, $01, $B1, $81, $03, $80, $DE, $05, $1A, $BB, $10, $00, $71, $83, $DD, $88, $F7, $8F, $0B, $80 ;0x540
-	dc.b	$DA, $81, $DE, $96, $03, $88, $3F, $01, $17, $83, $03, $12, $01, $76, $01, $11, $17, $76, $17, $76, $66, $66, $17, $66, $FF, $66, $76, $FF, $FF, $1D, $80, $03 ;0x560
-	dc.b	$06, $71, $66, $FF, $FF, $F6, $6F, $83, $03, $04, $66, $6F, $FF, $F6, $82, $03, $01, $66, $80, $07, $02, $EF, $FF, $80, $20, $80, $04, $0C, $71, $11, $DE, $EE ;0x580
-	dc.b	$66, $77, $11, $1D, $66, $66, $67, $71, $80, $D6, $86, $02, $80, $1E, $01, $FE, $80, $22, $05, $FD, $EE, $EE, $EE, $E1, $80, $03, $09, $11, $11, $DE, $ED, $17 ;0x5A0
-	dc.b	$77, $11, $11, $77, $85, $23, $80, $EB, $80, $14, $0F, $1D, $EF, $17, $11, $1E, $EF, $77, $71, $DE, $FF, $77, $71, $EE, $EE, $66, $80, $50, $02, $66, $1E, $80 ;0x5C0
-	dc.b	$03, $02, $11, $DE, $80, $5D, $8B, $02, $01, $EF, $80, $48, $80, $72, $81, $03, $83, $1B, $03, $FE, $11, $17, $80, $5E, $80, $03, $02, $FF, $11, $81, $0C, $04 ;0x5E0
-	dc.b	$EE, $EE, $ED, $17, $80, $6A, $05, $17, $FF, $EE, $D1, $77, $80, $1B, $02, $77, $77, $80, $FC, $8A, $03, $01, $71, $80, $7C, $03, $76, $66, $77, $80, $80, $01 ;0x600
-	dc.b	$67, $80, $E2, $01, $77, $88, $FF, $86, $07, $80, $32, $86, $03, $80, $1E, $05, $76, $00, $00, $17, $67, $80, $06, $01, $71, $80, $06, $05, $1E, $01, $76, $F1 ;0x620
-	dc.b	$DE, $80, $03, $03, $EE, $17, $6F, $82, $03, $06, $DE, $61, $1D, $EE, $EE, $1D, $80, $91, $81, $94, $04, $EF, $FE, $EE, $EE, $80, $02, $82, $A0, $82, $9A, $80 ;0x640
-	dc.b	$AA, $04, $EE, $ED, $11, $76, $80, $08, $80, $9B, $04, $FF, $ED, $EE, $EE, $81, $21, $81, $BF, $01, $FE, $86, $BF, $01, $66, $84, $00, $01, $16, $80, $08, $01 ;0x660
-	dc.b	$11, $80, $0C, $01, $E1, $80, $10, $0C, $FD, $16, $66, $61, $FD, $16, $61, $1D, $ED, $17, $1D, $EE, $83, $A6, $8B, $01, $09, $11, $11, $11, $17, $DE, $EE, $ED ;0x680
-	dc.b	$D1, $EF, $80, $76, $01, $77, $80, $E1, $04, $67, $77, $77, $71, $81, $03, $80, $D5, $01, $77, $85, $03, $80, $F9, $09, $77, $DD, $17, $77, $77, $00, $01, $77 ;0x6A0
-	dc.b	$66, $80, $03, $81, $C3, $80, $EB, $81, $03, $01, $01, $81, $F3, $01, $17, $84, $03, $04, $01, $66, $6F, $F6, $84, $82, $06, $6F, $F6, $76, $66, $6F, $FF, $81 ;0x6C0
-	dc.b	$03, $05, $77, $66, $66, $F6, $77, $80, $75, $82, $03, $83, $00, $03, $17, $77, $71, $80, $75, $01, $10, $80, $39, $88, $02, $80, $87, $80, $66, $01, $66, $80 ;0x6E0
-	dc.b	$7E, $01, $77, $81, $0A, $8B, $1C, $84, $1F, $8C, $32, $8E, $3F, $81, $83, $95, $03, $85, $3F, $99, $03, $81, $85, $15, $00, $01, $DE, $EF, $00, $1D, $EE, $FF ;0x700
-	dc.b	$00, $1E, $EF, $FE, $01, $FF, $FF, $EE, $01, $FF, $EE, $ED, $17, $80, $AE, $01, $16, $80, $99, $09, $11, $16, $66, $66, $FF, $17, $66, $66, $FE, $80, $03, $09 ;0x720
-	dc.b	$E1, $17, $66, $61, $D1, $76, $66, $17, $11, $80, $DB, $01, $17, $81, $DF, $03, $66, $66, $67, $81, $BD, $81, $E5, $02, $61, $16, $80, $E4, $08, $71, $67, $77 ;0x740
-	dc.b	$F6, $71, $77, $77, $67, $80, $03, $80, $F1, $01, $77, $81, $06, $01, $71, $80, $F2, $01, $77, $80, $F7, $81, $08, $82, $03, $80, $0C, $83, $03, $01, $71, $82 ;0x760
-	dc.b	$03, $81, $E6, $80, $C2, $09, $66, $00, $00, $16, $66, $00, $01, $76, $6F, $80, $0A, $07, $6F, $00, $17, $6F, $FF, $00, $16, $83, $03, $02, $66, $FF, $82, $02 ;0x780
-	dc.b	$05, $66, $FF, $F6, $66, $71, $80, $06, $08, $17, $F6, $66, $67, $1F, $F6, $66, $61, $80, $81, $02, $61, $66, $83, $00, $01, $67, $80, $86, $02, $66, $77, $80 ;0x7A0
-	dc.b	$93, $80, $6F, $80, $8D, $80, $A3, $01, $67, $81, $03, $01, $77, $82, $20, $01, $61, $85, $73, $80, $CE, $80, $E2, $12, $D1, $10, $DE, $EE, $FE, $D1, $EE, $EF ;0x7C0
-	dc.b	$FF, $E1, $EE, $FF, $FE, $E1, $EF, $FF, $EE, $D1, $80, $9E, $01, $01, $99, $03, $80, $BA, $01, $00, $99, $03, $01, $17, $80, $89, $05, $01, $77, $77, $76, $00 ;0x7E0
-	dc.b	$80, $EF, $01, $00, $80, $08, $80, $11, $80, $03, $01, $01, $80, $07, $02, $00, $17, $81, $5B, $03, $66, $6F, $F6, $84, $A7, $06, $6F, $F6, $76, $66, $6F, $FF ;0x800
-	dc.b	$81, $03, $80, $B0, $02, $F6, $77, $80, $C1, $81, $03, $BE, $01, $03, $67, $11, $DF, $81, $04, $81, $09, $91, $4D, $01, $EE, $80, $00, $01, $DE, $80, $04, $08 ;0x820
-	dc.b	$11, $1D, $EF, $FF, $66, $71, $11, $DE, $80, $75, $81, $2B, $80, $82, $81, $03, $0F, $67, $77, $EE, $FD, $17, $77, $EE, $E1, $17, $77, $FF, $D1, $77, $77, $FE ;0x840
-	dc.b	$80, $C3, $02, $11, $77, $8B, $00, $08, $76, $67, $77, $71, $77, $77, $71, $10, $80, $02, $01, $00, $80, $02, $02, $00, $71, $80, $FF, $81, $03, $85, $FF, $81 ;0x860
-	dc.b	$E3, $99, $03, $0D, $76, $FF, $F6, $1D, $76, $FF, $FF, $61, $66, $FF, $FF, $F6, $6F, $83, $03, $04, $66, $6F, $FF, $F6, $81, $03, $02, $68, $66, $80, $07, $04 ;0x880
-	dc.b	$DD, $11, $11, $1D, $80, $73, $01, $71, $84, $93, $1A, $66, $66, $8C, $33, $3C, $C3, $33, $CC, $CC, $C3, $88, $88, $CC, $66, $66, $88, $C3, $EE, $FF, $FF, $FE ;0x8A0
-	dc.b	$1E, $EF, $FF, $FE, $71, $80, $C4, $0D, $71, $DD, $EE, $ED, $87, $1D, $DD, $D1, $86, $71, $11, $17, $C8, $80, $FF, $09, $33, $33, $CC, $88, $ED, $11, $DE, $EF ;0x8C0
-	dc.b	$D1, $80, $DB, $06, $D1, $1E, $FF, $FF, $11, $DE, $80, $27, $80, $F0, $01, $61, $80, $34, $02, $61, $DE, $80, $74, $04, $1D, $EE, $D1, $FF, $88, $00, $80, $1A ;0x8E0
-	dc.b	$80, $4E, $01, $FF, $81, $03, $82, $16, $01, $11, $80, $37, $01, $FE, $80, $F7, $02, $FF, $ED, $80, $FF, $80, $08, $81, $0C, $09, $EE, $EF, $ED, $17, $EE, $EE ;0x900
-	dc.b	$ED, $17, $FF, $81, $03, $03, $FE, $ED, $17, $83, $E2, $91, $05, $01, $01, $80, $FE, $02, $16, $71, $83, $1F, $01, $11, $80, $FE, $16, $1F, $10, $01, $10, $1B ;0x920
-	dc.b	$B1, $01, $B1, $1A, $AA, $00, $1A, $11, $11, $01, $11, $76, $66, $17, $66, $FF, $66, $84, $1D, $01, $11, $80, $1D, $15, $F1, $1B, $B1, $1B, $B1, $1A, $A1, $AA ;0x940
-	dc.b	$B1, $11, $11, $1A, $AA, $66, $77, $71, $11, $66, $66, $67, $77, $8D, $5F, $01, $11, $80, $4A, $05, $BB, $F1, $00, $00, $AB, $80, $5D, $01, $11, $81, $0C, $BC ;0x960
-	dc.b	$01, $80, $A4, $9A, $03, $06, $16, $66, $66, $66, $16, $6F, $81, $03, $01, $F6, $80, $07, $01, $FF, $82, $03, $80, $B7, $07, $F6, $01, $66, $6F, $FF, $01, $76 ;0x980
-	dc.b	$80, $C0, $98, $00, $01, $F6, $80, $3B, $04, $77, $76, $66, $77, $81, $06, $81, $CB, $8B, $03, $02, $77, $77, $80, $DE, $80, $00, $02, $71, $00, $87, $03, $01 ;0x9A0
-	dc.b	$10, $87, $03, $02, $71, $00, $82, $03, $80, $80, $01, $FF, $88, $03, $01, $6F, $82, $03, $05, $17, $66, $66, $00, $01, $81, $03, $01, $76, $96, $7E, $80, $B2 ;0x9C0
-	dc.b	$85, $9C, $01, $61, $80, $C2, $01, $67, $90, $A7, $81, $13, $09, $67, $11, $DE, $ED, $D1, $77, $11, $11, $11, $80, $89, $81, $03, $01, $10, $87, $03, $83, $97 ;0x9E0
-	dc.b	$80, $81, $01, $01, $99, $03, $01, $10, $80, $A2, $99, $03, $84, $3F, $96, $02, $05, $77, $77, $66, $66, $17, $80, $04, $01, $01, $80, $80, $01, $00, $80, $08 ;0xA00
-	dc.b	$01, $00, $80, $08, $03, $00, $00, $11, $80, $03, $02, $00, $11, $81, $7C, $89, $E0, $80, $2A, $01, $66, $81, $2F, $80, $AB, $01, $76, $80, $AF, $82, $B0, $95 ;0xA20
-	dc.b	$FF, $81, $1F, $81, $23, $8F, $F3, $03, $67, $77, $67, $85, $1C, $82, $3F, $80, $81, $80, $10, $86, $30, $93, $07, $01, $71, $84, $03, $01, $10, $83, $03, $01 ;0xA40
-	dc.b	$71, $80, $B7, $01, $10, $82, $03, $84, $E3, $99, $E2, $81, $FF, $96, $03, $03, $66, $6F, $F6, $84, $E2, $06, $6F, $F6, $76, $66, $6F, $FF, $81, $03, $80, $E7 ;0xA60
-	dc.b	$03, $F6, $77, $76, $80, $EF, $80, $03, $04, $66, $68, $C3, $3C, $95, $E3, $81, $FB, $0C, $88, $88, $CC, $C8, $66, $88, $C3, $C3, $CC, $33, $CC, $88, $81, $2D ;0xA80
-	dc.b	$80, $FF, $01, $C8, $8A, $F3, $04, $71, $11, $17, $38, $80, $19, $0A, $33, $88, $68, $88, $88, $33, $33, $3C, $88, $CC, $80, $2F, $02, $66, $68, $81, $2B, $82 ;0xAA0
-	dc.b	$77, $04, $77, $71, $1E, $EE, $80, $04, $0D, $FF, $88, $66, $71, $EF, $CC, $86, $61, $DE, $88, $66, $67, $1D, $81, $35, $81, $1A, $18, $66, $66, $67, $77, $EE ;0xAC0
-	dc.b	$FE, $ED, $17, $EE, $EE, $E1, $77, $FE, $EE, $D1, $77, $EE, $ED, $17, $77, $DD, $11, $77, $77, $80, $02, $86, $01, $13, $00, $00, $11, $11, $00, $01, $1D, $EF ;0xAE0
-	dc.b	$00, $01, $DE, $FF, $00, $01, $EF, $FF, $00, $11, $FF, $80, $03, $09, $EF, $FE, $01, $77, $11, $11, $01, $76, $67, $80, $05, $0E, $76, $66, $FF, $FE, $17, $61 ;0xB00
-	dc.b	$FF, $EE, $17, $71, $FE, $EE, $11, $1E, $80, $43, $01, $1E, $80, $4A, $07, $1E, $11, $11, $77, $1E, $77, $77, $83, $67, $01, $11, $80, $0C, $0B, $EE, $EE, $ED ;0xB20
-	dc.b	$11, $EE, $EF, $FF, $FE, $EE, $FF, $FF, $86, $06, $0B, $11, $1D, $EE, $FE, $77, $1A, $A1, $00, $77, $77, $10, $82, $03, $11, $17, $77, $71, $00, $E1, $77, $71 ;0xB40
-	dc.b	$10, $D1, $77, $17, $71, $17, $71, $76, $71, $17, $80, $3F, $01, $00, $BC, $00, $01, $10, $9C, $03, $08, $00, $17, $66, $66, $00, $01, $76, $66, $81, $08, $04 ;0xB60
-	dc.b	$00, $00, $01, $17, $80, $6F, $01, $01, $89, $73, $80, $BF, $89, $02, $0C, $77, $17, $66, $67, $77, $01, $77, $77, $11, $00, $11, $11, $83, $1F, $01, $67, $80 ;0xB80
-	dc.b	$E5, $03, $77, $77, $77, $80, $06, $01, $71, $80, $02, $04, $10, $71, $11, $10, $83, $57, $84, $B8, $80, $DA, $01, $00, $81, $C4, $89, $13, $8B, $D3, $82, $77 ;0xBA0
-	dc.b	$01, $76, $81, $89, $8D, $7B, $81, $FB, $02, $6F, $F6, $80, $81, $81, $03, $80, $88, $80, $AA, $02, $66, $01, $80, $80, $01, $00, $80, $80, $01, $00, $84, $80 ;0xBC0
-	dc.b	$81, $93, $01, $66, $80, $93, $80, $9A, $81, $87, $02, $71, $77, $80, $80, $80, $82, $87, $7F, $80, $80, $01, $77, $80, $80, $01, $71, $80, $FC, $94, $83, $81 ;0xBE0
-	dc.b	$EF, $96, $03, $81, $CB, $95, $03, $01, $11, $80, $00, $96, $D6, $A5, $1F, $02, $11, $17, $80, $CB, $01, $01, $92, $47, $81, $5F, $01, $77, $84, $00, $81, $09 ;0xC00
-	dc.b	$85, $F3, $91, $1F, $83, $23, $98, $1F, $02, $71, $17, $92, $1F, $09, $76, $66, $71, $00, $76, $66, $67, $10, $77, $81, $03, $02, $77, $71, $80, $D3, $81, $F1 ;0xC20
-	dc.b	$A8, $BF, $80, $BC, $95, $03, $83, $FF, $06, $16, $17, $00, $01, $66, $66, $80, $03, $01, $6F, $80, $07, $03, $FF, $00, $16, $81, $03, $02, $6F, $FF, $80, $0E ;0xC40
-	dc.b	$82, $03, $80, $06, $08, $F6, $6F, $FF, $FF, $66, $FF, $FF, $F6, $80, $03, $02, $66, $66, $80, $02, $02, $66, $F6, $80, $03, $88, $02, $01, $77, $80, $12, $01 ;0xC60
-	dc.b	$67, $84, $03, $8E, $02, $0A, $77, $1A, $A1, $00, $77, $71, $10, $00, $77, $77, $81, $03, $01, $71, $81, $03, $81, $C7, $01, $71, $83, $03, $80, $D0, $BC, $00 ;0xC80
-	dc.b	$07, $01, $76, $F6, $66, $01, $76, $FF, $89, $03, $07, $F6, $01, $76, $6F, $FF, $00, $17, $81, $03, $82, $AE, $9A, $02, $04, $67, $71, $11, $11, $80, $BE, $89 ;0xCA0
-	dc.b	$C3, $85, $CB, $81, $D7, $80, $A2, $01, $77, $80, $AF, $85, $03, $82, $BF, $84, $C7, $83, $D3, $BD, $BF, $81, $41, $95, $03, $01, $11, $80, $00, $99, $FF, $FF ;0xCC0
-	dc.b	$1F, $E2, $9F, $01, $01, $95, $03, $85, $FF, $80, $E4, $15, $01, $67, $10, $01, $17, $6F, $71, $17, $66, $6F, $67, $66, $FF, $6F, $66, $6F, $FF, $76, $66, $FF ;0xCE0
-	dc.b	$FF, $80, $06, $01, $FF, $80, $E4, $04, $76, $11, $76, $66, $80, $00, $02, $FF, $FF, $80, $0E, $81, $01, $81, $19, $01, $66, $80, $02, $82, $01, $99, $FF, $FF ;0xD00
-	dc.b	$1B, $DF, $9D, $04, $01, $66, $6F, $F6, $83, $03, $01, $66, $85, $03, $01, $66, $81, $13, $08, $00, $16, $6F, $FF, $00, $16, $66, $FF, $80, $0E, $AD, $02, $01 ;0xD20
-	dc.b	$67, $84, $03, $01, $77, $81, $03, $80, $00, $01, $10, $87, $03, $02, $71, $00, $87, $03, $01, $10, $82, $03, $C1, $C0, $01, $00, $80, $A8, $81, $C9, $80, $FF ;0xD40
-	dc.b	$01, $11, $81, $D2, $89, $FF, $8D, $BF, $08, $17, $66, $77, $76, $01, $77, $11, $77, $80, $29, $81, $2B, $80, $1F, $01, $67, $80, $A7, $02, $77, $77, $80, $06 ;0xD60
-	dc.b	$01, $77, $80, $02, $06, $11, $77, $71, $11, $00, $71, $80, $96, $85, $99, $80, $B2, $01, $00, $81, $A6, $82, $2C, $FF, $03, $FF, $85, $FF, $FF, $8A, $FF, $00 ;0xD80
+	include "art/compressed/portrait/puyo_unkChar4.asm" ; Unknown Character Portrait
 loc_0005D736:
-	dc.b	$01, $11, $80, $00, $04, $10, $00, $00, $00, $95, $03, $81, $1F, $80, $1E, $96, $02, $93, $1F, $01, $01, $80, $33, $06, $1F, $F8, $00, $00, $18, $FF, $84, $3F ;0x0 (0x0005D736-0x0005EAAF, Entry count: 0x1379)
-	dc.b	$80, $43, $02, $11, $54, $80, $4C, $11, $53, $01, $FF, $8C, $11, $15, $8F, $FF, $9C, $C1, $1C, $89, $99, $98, $C1, $5C, $CC, $81, $7F, $09, $55, $11, $54, $44 ;0x20
-	dc.b	$31, $F8, $11, $54, $41, $80, $1B, $0B, $11, $89, $F8, $C1, $C1, $59, $99, $81, $8C, $1C, $99, $80, $0C, $83, $01, $14, $41, $14, $33, $33, $1F, $81, $43, $33 ;0x40
-	dc.b	$9F, $98, $14, $33, $8F, $98, $C1, $43, $59, $F9, $81, $54, $83, $1E, $02, $CC, $19, $81, $BF, $01, $33, $83, $00, $01, $3C, $81, $07, $0C, $41, $11, $11, $43 ;0x60
-	dc.b	$18, $FF, $FC, $14, $FF, $99, $8C, $14, $80, $60, $01, $54, $83, $1F, $12, $34, $45, $CC, $CC, $CC, $C4, $CC, $CC, $89, $98, $33, $3C, $C9, $FF, $33, $33, $CC ;0x80
-	dc.b	$99, $80, $33, $05, $C8, $44, $43, $33, $33, $82, $63, $80, $FF, $01, $45, $80, $E5, $01, $C4, $80, $04, $10, $9C, $C4, $45, $10, $FF, $8C, $44, $41, $9F, $9C ;0xA0
-	dc.b	$C4, $44, $C8, $88, $C3, $44, $84, $FF, $01, $01, $8D, $03, $01, $10, $80, $E4, $01, $41, $82, $17, $02, $01, $89, $80, $D7, $11, $18, $01, $89, $8C, $51, $1F ;0xC0
-	dc.b	$FF, $F9, $8C, $18, $89, $98, $C1, $01, $5C, $CC, $18, $80, $F7, $05, $88, $8F, $9C, $1C, $88, $81, $C5, $25, $98, $C1, $14, $C8, $C1, $14, $82, $22, $14, $88 ;0xE0
-	dc.b	$2F, $F2, $C8, $82, $F2, $22, $88, $82, $22, $28, $88, $88, $41, $11, $88, $41, $1D, $7D, $4C, $88, $88, $88, $22, $22, $88, $88, $FF, $80, $03, $81, $15, $80 ;0x100
-	dc.b	$18, $82, $01, $01, $58, $80, $17, $06, $11, $C8, $88, $88, $8C, $C4, $80, $48, $03, $88, $CC, $45, $80, $26, $01, $8C, $84, $1A, $83, $21, $80, $FE, $06, $8C ;0x120
-	dc.b	$11, $D7, $7D, $C8, $CC, $81, $E1, $13, $15, $C8, $C4, $51, $18, $99, $8C, $CC, $51, $89, $88, $CC, $C4, $15, $88, $8C, $CC, $41, $5C, $80, $EF, $03, $11, $54 ;0x140
-	dc.b	$CC, $82, $1D, $80, $DE, $8B, $02, $81, $F4, $80, $78, $81, $7B, $8D, $1F, $84, $1A, $81, $85, $01, $82, $81, $03, $89, $3F, $86, $1B, $80, $B0, $01, $F2, $80 ;0x160
-	dc.b	$B0, $01, $22, $80, $C6, $86, $5F, $83, $53, $80, $A3, $06, $8F, $F2, $88, $88, $C2, $FF, $80, $03, $02, $22, $88, $81, $83, $83, $7F, $01, $01, $81, $03, $01 ;0x180
-	dc.b	$10, $80, $07, $01, $C1, $80, $0B, $01, $81, $80, $0F, $01, $41, $84, $0F, $11, $CC, $C4, $14, $41, $CC, $C5, $15, $10, $CC, $C1, $11, $00, $CC, $51, $00, $00 ;0x1A0
-	dc.b	$CC, $80, $24, $01, $C5, $80, $28, $80, $1F, $01, $00, $80, $2F, $9E, $01, $81, $FD, $81, $27, $95, $03, $92, $FF, $8C, $EF, $D8, $1F, $81, $FE, $8D, $7F, $01 ;0x1C0
-	dc.b	$11, $80, $B4, $05, $4C, $11, $4C, $88, $88, $80, $02, $01, $88, $88, $9F, $08, $01, $00, $01, $11, $14, $11, $14, $C8, $80, $15, $82, $02, $01, $82, $81, $03 ;0x1E0
-	dc.b	$82, $BF, $01, $11, $80, $17, $80, $2F, $82, $19, $07, $82, $28, $88, $82, $F2, $28, $88, $80, $02, $01, $88, $80, $02, $82, $3F, $10, $C8, $C2, $FF, $C1, $88 ;0x200
-	dc.b	$82, $FF, $2C, $88, $8C, $22, $C4, $88, $88, $8C, $41, $80, $02, $09, $10, $88, $C1, $10, $11, $88, $C5, $11, $C2, $84, $FF, $02, $01, $10, $84, $03, $82, $67 ;0x220
-	dc.b	$88, $0F, $80, $17, $01, $00, $99, $03, $9C, $02, $80, $FB, $02, $01, $89, $80, $E5, $11, $18, $01, $89, $8C, $51, $1F, $FF, $F9, $8C, $18, $89, $98, $C1, $01 ;0x240
-	dc.b	$5C, $CC, $18, $80, $F8, $1C, $88, $8F, $9C, $1C, $8C, $99, $8C, $11, $11, $98, $C1, $14, $C8, $C1, $14, $82, $22, $14, $88, $2F, $F2, $C8, $82, $F2, $22, $88 ;0x260
-	dc.b	$82, $22, $81, $BA, $81, $FB, $01, $1C, $80, $D6, $06, $88, $22, $22, $88, $88, $FF, $80, $03, $81, $15, $82, $18, $88, $03, $02, $8C, $C4, $80, $48, $03, $88 ;0x280
-	dc.b	$CC, $45, $81, $0A, $8B, $18, $08, $11, $11, $8C, $11, $EF, $FF, $C8, $CC, $81, $E1, $2A, $15, $C8, $C4, $51, $18, $99, $8C, $CC, $51, $89, $88, $CC, $C4, $15 ;0x2A0
-	dc.b	$88, $8C, $CC, $41, $11, $14, $CC, $C4, $FE, $E1, $1C, $CC, $11, $14, $33, $33, $9F, $F1, $43, $33, $99, $81, $44, $43, $8C, $15, $44, $44, $80, $2B, $0A, $44 ;0x2C0
-	dc.b	$58, $9F, $F1, $14, $18, $99, $9F, $81, $41, $80, $AB, $0D, $33, $CC, $CC, $C4, $33, $33, $CC, $C3, $33, $33, $33, $C3, $43, $80, $04, $01, $44, $80, $04, $01 ;0x2E0
-	dc.b	$44, $80, $04, $01, $44, $80, $04, $80, $03, $06, $44, $45, $10, $00, $01, $44, $80, $03, $4A, $34, $51, $00, $01, $33, $41, $00, $11, $33, $45, $11, $61, $33 ;0x300
-	dc.b	$45, $1E, $F1, $34, $41, $6F, $F1, $44, $51, $EF, $F1, $99, $81, $48, $88, $88, $C1, $88, $C1, $CC, $1C, $8C, $1D, $11, $18, $C1, $D7, $11, $48, $51, $AA, $C1 ;0x320
-	dc.b	$C8, $1D, $66, $C1, $88, $1A, $6F, $14, $88, $1D, $6F, $41, $1D, $7A, $AA, $1D, $7A, $A6, $66, $77, $AA, $6F, $FF, $7A, $A6, $FF, $FF, $AA, $AF, $83, $03, $03 ;0x340
-	dc.b	$FA, $AA, $FF, $82, $0C, $14, $7D, $1C, $88, $88, $A7, $D1, $C8, $88, $6A, $71, $58, $8C, $F6, $AD, $18, $85, $FF, $A7, $18, $81, $85, $03, $0C, $6A, $AD, $18 ;0x360
-	dc.b	$81, $C1, $D7, $7A, $AA, $51, $77, $AA, $66, $80, $43, $06, $FF, $17, $7A, $AF, $FF, $DA, $80, $40, $01, $A6, $80, $44, $05, $AF, $6A, $AA, $FF, $A6, $80, $4D ;0x380
-	dc.b	$19, $7D, $11, $4C, $CC, $67, $7D, $14, $CC, $F6, $A7, $D1, $4C, $FF, $6A, $71, $5C, $FF, $F6, $AD, $14, $FF, $FF, $A7, $15, $FF, $80, $10, $05, $FF, $6A, $A7 ;0x3A0
-	dc.b	$71, $88, $85, $00, $13, $22, $22, $88, $82, $2F, $28, $88, $82, $F2, $28, $88, $C2, $F2, $88, $88, $82, $22, $88, $88, $80, $06, $A9, $01, $80, $31, $02, $22 ;0x3C0
-	dc.b	$28, $87, $32, $01, $82, $82, $0B, $18, $8C, $C1, $11, $11, $8C, $54, $8C, $41, $88, $88, $8F, $24, $88, $88, $C2, $21, $8C, $C5, $51, $10, $CC, $4C, $C4, $51 ;0x3E0
-	dc.b	$83, $2F, $07, $88, $2F, $00, $00, $00, $01, $10, $84, $03, $81, $0B, $85, $03, $85, $13, $01, $11, $80, $00, $12, $44, $44, $44, $45, $33, $33, $33, $34, $33 ;0x400
-	dc.b	$3C, $C3, $34, $33, $C8, $C3, $34, $3C, $CC, $80, $07, $81, $0F, $80, $13, $14, $01, $11, $10, $00, $15, $54, $41, $00, $15, $4C, $8C, $10, $14, $C8, $8C, $51 ;0x420
-	dc.b	$14, $C8, $28, $C1, $83, $03, $06, $88, $41, $14, $CC, $8C, $51, $80, $5B, $01, $00, $99, $03, $DF, $02, $09, $01, $4C, $00, $00, $14, $88, $00, $00, $1C, $80 ;0x440
-	dc.b	$03, $01, $18, $80, $07, $81, $0B, $02, $01, $CC, $80, $F7, $01, $15, $80, $FA, $02, $58, $88, $85, $00, $13, $22, $22, $88, $82, $2F, $28, $88, $82, $F2, $28 ;0x460
-	dc.b	$88, $C2, $F2, $88, $88, $82, $22, $88, $88, $80, $06, $A5, $01, $01, $82, $83, $31, $90, $30, $03, $8C, $CC, $2F, $80, $4A, $81, $4E, $08, $C1, $88, $88, $C5 ;0x480
-	dc.b	$11, $88, $88, $CC, $82, $2F, $04, $22, $88, $8C, $51, $81, $0F, $01, $21, $80, $A0, $01, $C1, $80, $A4, $01, $10, $84, $03, $81, $0F, $01, $F1, $84, $0F, $81 ;0x4A0
-	dc.b	$BC, $80, $17, $01, $00, $99, $03, $80, $DF, $01, $FF, $80, $E3, $01, $C8, $80, $FF, $01, $11, $85, $F0, $80, $FF, $01, $1C, $83, $13, $1F, $01, $88, $99, $81 ;0x4C0
-	dc.b	$4C, $11, $88, $C1, $C1, $EF, $CC, $1C, $1E, $FF, $11, $1C, $1F, $FF, $11, $41, $EF, $FF, $C1, $C1, $FF, $FF, $C1, $81, $FF, $FF, $14, $80, $03, $08, $EF, $FF ;0x4E0
-	dc.b	$FF, $E1, $FF, $FF, $FF, $FE, $80, $03, $83, $02, $01, $F1, $86, $09, $82, $12, $01, $18, $80, $FF, $01, $D1, $80, $C5, $10, $ED, $18, $88, $81, $FE, $1C, $88 ;0x500
-	dc.b	$C1, $FE, $D1, $88, $1E, $FF, $E1, $88, $1F, $85, $03, $01, $C1, $80, $40, $01, $1F, $80, $40, $80, $47, $81, $42, $81, $0A, $8B, $40, $07, $FE, $D1, $CC, $FF ;0x520
-	dc.b	$FF, $ED, $1C, $80, $62, $01, $14, $81, $0C, $80, $6B, $81, $6F, $84, $03, $23, $FE, $E1, $C5, $1C, $C1, $15, $CC, $11, $18, $91, $CC, $51, $C9, $F9, $CC, $C1 ;0x540
-	dc.b	$11, $1C, $CC, $C5, $14, $41, $CC, $C4, $14, $C4, $CC, $C4, $15, $CC, $CC, $C3, $51, $CC, $44, $80, $00, $01, $14, $80, $04, $01, $81, $80, $08, $01, $C1, $84 ;0x560
-	dc.b	$0B, $01, $15, $80, $14, $01, $41, $80, $18, $01, $C4, $81, $18, $05, $1A, $FF, $F1, $44, $16, $85, $03, $16, $EF, $F1, $44, $17, $6E, $E1, $44, $51, $6E, $E1 ;0x580
-	dc.b	$45, $11, $76, $61, $51, $00, $17, $71, $1C, $88, $51, $A6, $80, $B6, $09, $D6, $18, $88, $85, $1A, $18, $88, $8C, $1D, $80, $CF, $02, $C1, $1C, $80, $CF, $80 ;0x5A0
-	dc.b	$03, $02, $88, $14, $80, $DB, $04, $FF, $AA, $AA, $66, $80, $03, $03, $AA, $6A, $AA, $80, $09, $0E, $A6, $FF, $A7, $D7, $7A, $6A, $7D, $11, $D7, $77, $D1, $C5 ;0x5C0
-	dc.b	$11, $11, $81, $22, $0E, $88, $AA, $71, $58, $81, $A7, $D1, $C8, $85, $7D, $15, $88, $8C, $D1, $80, $38, $05, $11, $C8, $88, $88, $5C, $81, $18, $84, $03, $01 ;0x5E0
-	dc.b	$D6, $80, $40, $15, $1A, $6F, $FA, $AA, $1D, $A6, $AA, $AA, $C1, $DA, $77, $A6, $8C, $11, $D7, $7A, $88, $C5, $11, $D7, $88, $80, $04, $81, $3F, $19, $66, $AA ;0x600
-	dc.b	$A7, $71, $AA, $AA, $A7, $D1, $FF, $AA, $77, $15, $F6, $A7, $7D, $1C, $6A, $77, $D1, $4C, $77, $D1, $14, $CC, $11, $80, $DE, $05, $88, $88, $CC, $CC, $11, $80 ;0x620
-	dc.b	$50, $1C, $34, $45, $1C, $88, $33, $33, $41, $4C, $33, $31, $15, $11, $33, $1F, $61, $43, $33, $16, $71, $33, $33, $31, $14, $33, $11, $43, $33, $33, $83, $6A ;0x640
-	dc.b	$16, $CC, $CC, $8C, $CC, $41, $5C, $11, $45, $15, $4C, $45, $11, $55, $55, $33, $41, $11, $11, $33, $34, $10, $00, $80, $33, $01, $00, $81, $A3, $80, $92, $80 ;0x660
-	dc.b	$49, $02, $CC, $82, $80, $03, $03, $CC, $44, $4C, $81, $53, $07, $55, $44, $00, $00, $11, $11, $00, $80, $00, $01, $8C, $80, $C8, $1A, $88, $C8, $CC, $10, $28 ;0x680
-	dc.b	$88, $82, $C1, $CC, $C5, $1C, $21, $CC, $CC, $41, $10, $CC, $CC, $C8, $41, $11, $15, $C8, $10, $00, $01, $82, $22, $01, $01, $99, $03, $04, $33, $33, $33, $44 ;0x6A0
-	dc.b	$80, $00, $09, $45, $34, $44, $51, $11, $33, $44, $45, $10, $80, $0D, $02, $10, $33, $80, $0C, $80, $16, $80, $85, $01, $11, $80, $C6, $05, $44, $10, $15, $54 ;0x6C0
-	dc.b	$51, $80, $4A, $01, $10, $81, $6E, $8A, $03, $81, $1F, $81, $15, $99, $03, $99, $02, $90, $52, $88, $63, $01, $01, $80, $70, $02, $1C, $41, $84, $BF, $01, $15 ;0x6E0
-	dc.b	$80, $EB, $01, $14, $80, $EF, $01, $13, $82, $03, $0B, $01, $11, $13, $11, $15, $43, $33, $38, $CC, $33, $3C, $81, $A3, $01, $43, $80, $C4, $34, $33, $88, $CC ;0x700
-	dc.b	$C3, $38, $F9, $98, $CC, $39, $F9, $88, $CC, $C8, $98, $CC, $C3, $88, $8C, $C3, $33, $CC, $C3, $33, $33, $11, $11, $C8, $88, $34, $45, $1C, $88, $33, $33, $41 ;0x720
-	dc.b	$4C, $33, $31, $15, $11, $33, $1F, $61, $43, $33, $16, $71, $33, $33, $31, $14, $33, $81, $38, $01, $88, $82, $00, $0B, $CC, $CC, $8C, $CC, $41, $5C, $11, $45 ;0x740
-	dc.b	$15, $44, $45, $80, $F4, $01, $33, $80, $75, $04, $33, $34, $10, $00, $80, $33, $01, $00, $83, $1D, $02, $CC, $C8, $80, $03, $02, $CC, $44, $80, $00, $81, $F3 ;0x760
-	dc.b	$89, $D6, $17, $88, $8C, $CC, $C8, $82, $88, $8C, $82, $CC, $CC, $C5, $11, $44, $CC, $C1, $00, $11, $14, $CC, $10, $00, $01, $48, $80, $FE, $83, $26, $80, $E2 ;0x780
-	dc.b	$81, $C8, $81, $C3, $92, $03, $80, $E4, $81, $23, $96, $03, $07, $00, $00, $1C, $8C, $00, $00, $18, $88, $03, $02, $1C, $88, $80, $52, $01, $C8, $80, $83, $01 ;0x7A0
-	dc.b	$14, $81, $53, $04, $1C, $81, $EF, $FF, $81, $03, $10, $18, $8C, $1E, $FF, $18, $88, $1D, $EF, $18, $88, $81, $1D, $1C, $88, $88, $C1, $80, $03, $02, $88, $14 ;0x7C0
-	dc.b	$80, $DC, $01, $FF, $8A, $00, $05, $FE, $EE, $EE, $EE, $D1, $80, $E1, $02, $15, $C8, $83, $F7, $80, $1F, $0F, $E1, $88, $1E, $FE, $E1, $88, $C1, $EE, $D1, $88 ;0x7E0
-	dc.b	$81, $D1, $18, $88, $88, $81, $37, $89, $02, $85, $3F, $01, $DF, $80, $48, $05, $11, $DE, $EE, $EE, $8C, $80, $FF, $8B, $1F, $18, $FE, $D1, $FF, $FF, $EE, $14 ;0x800
-	dc.b	$FF, $FE, $ED, $1C, $EE, $ED, $11, $CC, $11, $11, $5C, $CC, $88, $8C, $CC, $CC, $88, $88, $83, $03, $03, $CC, $CC, $51, $80, $04, $01, $41, $89, $03, $01, $44 ;0x820
-	dc.b	$80, $13, $01, $11, $80, $17, $1A, $54, $CC, $C3, $15, $44, $C4, $14, $44, $51, $C5, $14, $45, $10, $C1, $54, $51, $00, $41, $45, $10, $00, $14, $41, $00, $00 ;0x840
-	dc.b	$44, $80, $FC, $80, $06, $82, $FF, $04, $10, $00, $01, $71, $80, $EB, $01, $11, $81, $EB, $93, $03, $16, $01, $89, $00, $11, $11, $18, $01, $89, $8C, $51, $1F ;0x860
-	dc.b	$FF, $F9, $8C, $18, $89, $98, $C1, $01, $5C, $CC, $18, $81, $A6, $05, $8F, $9C, $1C, $88, $99, $80, $B0, $1D, $98, $C1, $14, $C8, $C1, $14, $82, $22, $14, $88 ;0x880
-	dc.b	$2F, $F2, $C8, $82, $F2, $22, $88, $82, $22, $28, $88, $88, $41, $11, $88, $41, $1D, $7D, $4C, $80, $EF, $02, $22, $22, $80, $E7, $80, $03, $81, $15, $80, $18 ;0x8A0
-	dc.b	$82, $FF, $01, $58, $80, $FF, $06, $11, $C8, $88, $88, $8C, $C4, $81, $EF, $02, $CC, $45, $80, $F3, $01, $8C, $89, $F7, $01, $88, $80, $57, $05, $8C, $11, $D7 ;0x8C0
-	dc.b	$7D, $C8, $80, $F1, $10, $11, $11, $15, $C8, $C4, $51, $18, $99, $8C, $CC, $51, $89, $88, $CC, $C4, $15, $80, $FF, $09, $41, $5C, $CC, $CC, $C4, $11, $54, $CC ;0x8E0
-	dc.b	$CC, $80, $C6, $97, $02, $04, $11, $11, $10, $01, $80, $63, $06, $01, $48, $88, $88, $00, $1C, $80, $03, $01, $14, $80, $07, $80, $10, $01, $00, $80, $10, $01 ;0x900
-	dc.b	$00, $80, $10, $04, $00, $01, $11, $C8, $9A, $3F, $80, $5C, $9A, $3F, $01, $00, $9F, $3F, $0E, $CC, $C4, $14, $41, $CC, $C5, $15, $10, $CC, $C1, $11, $00, $CC ;0x920
-	dc.b	$51, $80, $0F, $04, $10, $00, $00, $C5, $80, $03, $01, $41, $80, $B8, $80, $0A, $9E, $01, $80, $2E, $01, $01, $80, $32, $05, $16, $10, $00, $01, $6F, $84, $03 ;0x940
-	dc.b	$01, $EF, $80, $0B, $01, $7E, $80, $46, $01, $17, $81, $1B, $0F, $6E, $61, $10, $00, $FF, $FE, $71, $00, $FF, $FF, $67, $10, $FF, $FF, $E6, $80, $03, $80, $07 ;0x960
-	dc.b	$12, $E6, $61, $51, $6E, $67, $15, $44, $11, $11, $53, $34, $00, $01, $C2, $81, $00, $01, $82, $80, $03, $02, $C8, $C1, $80, $F3, $01, $51, $80, $F3, $36, $1C ;0x980
-	dc.b	$10, $1C, $C1, $C8, $51, $C8, $14, $88, $41, $24, $1C, $8C, $CC, $34, $51, $11, $45, $11, $14, $C8, $11, $4C, $82, $22, $4C, $22, $22, $88, $82, $F2, $88, $88 ;0x9A0
-	dc.b	$82, $8C, $15, $88, $88, $81, $C8, $C1, $CC, $C1, $8C, $14, $11, $11, $11, $41, $88, $88, $C5, $11, $88, $80, $04, $80, $03, $86, $02, $23, $11, $11, $C8, $88 ;0x9C0
-	dc.b	$33, $35, $11, $C8, $F6, $13, $33, $3C, $67, $13, $33, $CC, $11, $43, $33, $CC, $C5, $14, $33, $33, $8C, $41, $43, $33, $88, $C4, $14, $33, $88, $8C, $51, $80 ;0x9E0
-	dc.b	$03, $12, $C1, $43, $CC, $33, $35, $10, $CC, $33, $34, $10, $C3, $33, $33, $51, $33, $33, $33, $41, $83, $03, $06, $34, $45, $33, $33, $44, $44, $80, $02, $01 ;0xA00
-	dc.b	$44, $94, $F3, $86, $03, $A0, $02, $01, $01, $99, $03, $89, $4B, $91, $0B, $8F, $7F, $18, $11, $11, $00, $01, $C8, $8C, $00, $1C, $82, $28, $01, $48, $22, $28 ;0xA20
-	dc.b	$01, $C8, $88, $88, $01, $48, $88, $88, $00, $1C, $80, $03, $04, $14, $88, $88, $10, $80, $10, $0B, $41, $11, $48, $88, $84, $15, $1C, $88, $C1, $44, $41, $80 ;0xA40
-	dc.b	$1D, $9E, $01, $15, $C5, $88, $C5, $11, $11, $C1, $11, $55, $44, $81, $54, $33, $33, $8C, $14, $34, $51, $88, $C1, $11, $5C, $85, $37, $01, $11, $80, $57, $04 ;0xA60
-	dc.b	$55, $18, $88, $88, $81, $49, $80, $5E, $01, $88, $80, $6A, $8C, $52, $02, $CC, $CC, $82, $03, $01, $8C, $84, $03, $01, $CC, $83, $03, $80, $0E, $81, $01, $21 ;0xA80
-	dc.b	$C4, $CC, $C4, $14, $41, $CC, $C5, $15, $10, $CC, $C1, $11, $01, $CC, $51, $00, $1C, $CC, $10, $11, $C8, $C5, $11, $51, $48, $41, $14, $35, $1C, $15, $43, $CC ;0xAA0
-	dc.b	$14, $88, $D5, $15, $00, $88, $C4, $10, $00, $88, $88, $C1, $00, $82, $28, $84, $10, $88, $28, $8C, $10, $88, $88, $8C, $10, $80, $FF, $01, $01, $99, $03, $02 ;0xAC0
-	dc.b	$99, $81, $80, $FC, $27, $C1, $88, $C1, $CC, $1C, $8C, $1D, $11, $18, $C1, $D7, $11, $48, $51, $A6, $C1, $C8, $1D, $6F, $C1, $88, $1A, $6F, $14, $88, $1D, $6F ;0xAE0
-	dc.b	$41, $1D, $76, $66, $1D, $7A, $6F, $FF, $77, $A6, $FF, $FF, $80, $06, $02, $FF, $AA, $80, $03, $01, $6A, $80, $07, $01, $FA, $80, $0F, $01, $F6, $80, $0C, $01 ;0xB00
-	dc.b	$7D, $80, $DF, $10, $67, $D1, $C8, $88, $F6, $71, $58, $8C, $FF, $AD, $18, $85, $FF, $67, $18, $81, $85, $03, $09, $F6, $AD, $18, $81, $C1, $D7, $7A, $66, $51 ;0xB20
-	dc.b	$80, $3C, $05, $1D, $77, $6F, $FF, $17, $80, $47, $01, $DA, $80, $40, $01, $A6, $80, $40, $03, $6F, $F6, $A6, $80, $03, $1A, $AA, $6F, $7D, $11, $4C, $CC, $F6 ;0xB40
-	dc.b	$7D, $14, $CC, $FF, $67, $D1, $4C, $FF, $F6, $71, $5C, $FF, $FF, $6D, $14, $FF, $FF, $67, $15, $80, $03, $3E, $D1, $FF, $F6, $A7, $71, $01, $4C, $8C, $51, $14 ;0xB60
-	dc.b	$82, $28, $C1, $1C, $82, $28, $41, $18, $82, $88, $15, $18, $88, $88, $14, $1C, $88, $8C, $14, $15, $88, $C4, $14, $01, $5C, $45, $14, $11, $15, $44, $1C, $43 ;0xB80
-	dc.b	$33, $33, $41, $3C, $CC, $CC, $34, $CC, $82, $8C, $33, $CC, $8F, $98, $C3, $3C, $CC, $88, $CC, $33, $80, $10, $04, $33, $33, $33, $C3, $80, $FF, $85, $02, $29 ;0xBA0
-	dc.b	$11, $00, $01, $11, $53, $00, $14, $C1, $4C, $01, $C8, $C1, $4C, $14, $82, $81, $53, $1C, $22, $8C, $13, $00, $11, $55, $1C, $11, $54, $33, $41, $54, $33, $CC ;0xBC0
-	dc.b	$34, $33, $C8, $8C, $33, $C8, $2F, $28, $C3, $80, $47, $01, $CC, $81, $00, $01, $3C, $80, $41, $88, $3F, $92, $0A, $01, $11, $80, $60, $12, $45, $11, $10, $00 ;0xBE0
-	dc.b	$44, $44, $51, $10, $33, $CC, $44, $51, $3C, $CC, $C4, $44, $3C, $C8, $80, $4B, $03, $CC, $C3, $34, $80, $7F, $01, $41, $89, $3F, $01, $10, $80, $8C, $01, $51 ;0xC00
-	dc.b	$80, $30, $0C, $51, $55, $11, $00, $15, $C8, $C5, $10, $5C, $82, $8C, $51, $81, $13, $99, $03, $01, $15, $80, $DC, $01, $14, $80, $9B, $2D, $13, $CC, $8C, $41 ;0xC20
-	dc.b	$13, $C8, $9C, $1F, $13, $CF, $9C, $51, $13, $CF, $8C, $31, $13, $C9, $8C, $31, $14, $C8, $8C, $31, $41, $81, $44, $41, $11, $41, $45, $1E, $9C, $14, $51, $FF ;0xC40
-	dc.b	$C1, $15, $1E, $FF, $1C, $15, $1F, $FF, $89, $80, $03, $1C, $9C, $14, $1E, $FF, $F1, $14, $41, $FF, $11, $CC, $58, $C1, $FE, $1C, $C8, $88, $FF, $E1, $1C, $C8 ;0xC60
-	dc.b	$FF, $FF, $E1, $33, $FF, $FF, $FE, $14, $80, $03, $80, $25, $02, $FE, $15, $81, $07, $0B, $15, $43, $35, $1C, $C1, $15, $44, $1C, $88, $C1, $15, $80, $25, $19 ;0xC80
-	dc.b	$C1, $58, $43, $CC, $88, $88, $44, $11, $14, $C8, $51, $EF, $E1, $11, $1F, $FF, $FF, $EE, $88, $88, $C5, $14, $88, $88, $C4, $80, $03, $02, $8C, $51, $80, $03 ;0xCA0
-	dc.b	$01, $41, $83, $03, $07, $83, $41, $C8, $88, $C4, $41, $14, $80, $EF, $0F, $33, $44, $44, $55, $33, $41, $55, $11, $43, $45, $11, $00, $43, $45, $10, $8A, $03 ;0xCC0
-	dc.b	$01, $44, $80, $0F, $81, $F3, $BC, $02, $01, $01, $99, $03, $81, $5F, $99, $03, $1B, $01, $C8, $22, $8C, $01, $88, $28, $C1, $01, $C8, $88, $41, $01, $48, $8C ;0xCE0
-	dc.b	$1C, $00, $14, $C4, $1C, $00, $01, $51, $53, $00, $00, $11, $80, $03, $17, $00, $15, $14, $8C, $44, $1C, $49, $F8, $C3, $41, $C8, $99, $8C, $34, $CC, $88, $8C ;0xD00
-	dc.b	$33, $CC, $C8, $CC, $C3, $CC, $80, $00, $09, $33, $CC, $CC, $3C, $43, $33, $33, $33, $88, $80, $00, $01, $4C, $80, $04, $01, $11, $80, $04, $01, $45, $80, $04 ;0xD20
-	dc.b	$01, $33, $80, $04, $01, $33, $80, $04, $80, $1A, $01, $34, $80, $1E, $82, $1F, $89, $03, $81, $3B, $07, $11, $54, $44, $44, $45, $11, $11, $81, $23, $81, $3F ;0xD40
-	dc.b	$01, $8C, $80, $02, $80, $5A, $81, $55, $81, $59, $0D, $C4, $51, $44, $51, $11, $15, $11, $15, $44, $44, $44, $43, $44, $80, $66, $09, $C4, $51, $CC, $CC, $41 ;0xD60
-	dc.b	$14, $CC, $45, $15, $80, $33, $02, $44, $43, $80, $3B, $03, $33, $44, $44, $81, $59, $83, $03, $0B, $44, $3C, $8C, $51, $43, $CC, $CC, $31, $33, $CC, $C3, $81 ;0xD80
-	dc.b	$6F, $80, $19, $01, $34, $84, $03, $80, $25, $80, $66, $15, $C8, $88, $CC, $10, $48, $8C, $C5, $10, $14, $CC, $41, $00, $51, $44, $10, $00, $41, $11, $00, $00 ;0xDA0
-	dc.b	$45, $80, $FC, $01, $51, $84, $FF, $80, $E3, $01, $01, $99, $03, $15, $1C, $88, $51, $6F, $1C, $88, $C1, $D6, $18, $88, $85, $1A, $18, $88, $8C, $1D, $18, $88 ;0xDC0
-	dc.b	$88, $C1, $1C, $80, $B3, $80, $03, $02, $88, $14, $80, $FC, $04, $F6, $AA, $AA, $66, $80, $03, $14, $AA, $6A, $A6, $F6, $A7, $AA, $AF, $FF, $67, $D7, $76, $F6 ;0xDE0
-	dc.b	$7D, $11, $D7, $77, $D1, $C5, $11, $11, $81, $22, $0E, $88, $6A, $71, $58, $81, $77, $D1, $C8, $85, $7D, $15, $88, $8C, $D1, $80, $38, $05, $11, $C8, $88, $88 ;0xE00
-	dc.b	$5C, $81, $18, $84, $03, $05, $DF, $FF, $6A, $AA, $16, $80, $03, $11, $1D, $66, $AA, $A6, $C1, $DA, $A7, $AF, $8C, $11, $D7, $76, $88, $C5, $11, $D7, $88, $80 ;0xE20
-	dc.b	$04, $81, $3F, $24, $66, $6A, $A7, $71, $AA, $AA, $77, $D1, $F6, $A7, $77, $15, $FF, $67, $7D, $1C, $F6, $77, $D1, $4C, $77, $D1, $14, $CC, $11, $15, $CC, $CC ;0xE40
-	dc.b	$88, $88, $CC, $CC, $00, $11, $11, $15, $84, $C3, $8E, $02, $01, $11, $80, $00, $0C, $44, $43, $33, $33, $11, $54, $44, $33, $00, $11, $15, $43, $80, $EA, $01 ;0xE60
-	dc.b	$44, $80, $EE, $81, $07, $82, $03, $81, $1F, $14, $1C, $82, $8C, $14, $14, $82, $88, $15, $01, $C8, $88, $C1, $01, $5C, $8C, $C5, $00, $11, $44, $51, $80, $39 ;0xE80
-	dc.b	$01, $10, $85, $3F, $01, $33, $80, $00, $01, $44, $80, $04, $03, $54, $44, $44, $81, $2F, $02, $44, $10, $8C, $3F, $91, $77, $89, $8B, $18, $33, $33, $34, $51 ;0xEA0
-	dc.b	$44, $33, $45, $15, $35, $11, $55, $15, $33, $45, $11, $15, $33, $44, $45, $11, $33, $34, $44, $51, $80, $55, $01, $41, $81, $9F, $13, $48, $82, $8C, $41, $C8 ;0xEC0
-	dc.b	$88, $8C, $51, $CC, $88, $C4, $10, $4C, $CC, $45, $10, $55, $55, $51, $80, $D2, $82, $7E, $82, $BF, $81, $88, $99, $03, $0E, $14, $3C, $9C, $35, $15, $3C, $8C ;0xEE0
-	dc.b	$33, $01, $3C, $CC, $33, $01, $43, $80, $03, $09, $53, $CC, $33, $00, $14, $33, $33, $00, $15, $80, $03, $2B, $01, $43, $33, $1C, $91, $81, $EF, $19, $C1, $48 ;0xF00
-	dc.b	$1E, $1F, $1C, $1C, $81, $51, $C9, $14, $88, $31, $9C, $11, $C8, $31, $F1, $89, $1C, $35, $1F, $9C, $11, $33, $1C, $11, $9C, $FF, $FF, $E1, $51, $FF, $EE, $15 ;0xF20
-	dc.b	$51, $80, $DA, $06, $51, $CC, $C4, $44, $41, $82, $80, $04, $09, $88, $22, $CC, $C3, $48, $88, $88, $CC, $11, $80, $04, $02, $EF, $FF, $83, $00, $81, $07, $41 ;0xF40
-	dc.b	$EF, $FF, $1F, $FE, $1E, $FF, $FF, $EE, $41, $EE, $EE, $E1, $C4, $11, $11, $15, $CC, $44, $44, $45, $E1, $44, $44, $51, $E1, $44, $45, $15, $E1, $54, $45, $11 ;0xF60
-	dc.b	$E1, $54, $51, $14, $15, $55, $11, $15, $55, $51, $C1, $01, $55, $1C, $41, $00, $11, $C4, $10, $00, $44, $51, $00, $00, $51, $14, $10, $00, $14, $CC, $10, $00 ;0xF80
-	dc.b	$CC, $80, $0F, $02, $4C, $41, $80, $D7, $83, $DE, $C5, $04, $01, $01, $99, $03, $81, $6A, $95, $03, $01, $11, $80, $00, $84, $3F, $92, $90, $81, $1F, $05, $15 ;0xFA0
-	dc.b	$43, $33, $33, $01, $80, $04, $04, $00, $01, $14, $43, $80, $6A, $01, $44, $80, $6E, $81, $07, $82, $03, $81, $3F, $01, $33, $82, $00, $16, $CC, $CC, $33, $3C ;0xFC0
-	dc.b	$88, $8C, $33, $C8, $89, $28, $3C, $82, $F2, $2C, $C8, $2F, $92, $8C, $C8, $29, $28, $CC, $83, $1F, $12, $41, $11, $33, $34, $1F, $67, $C3, $31, $6F, $66, $C3 ;0xFE0
-	dc.b	$31, $76, $67, $C3, $34, $17, $77, $82, $13, $03, $33, $33, $44, $81, $7F, $80, $5E, $01, $33, $81, $63, $01, $71, $84, $03, $81, $6F, $01, $54, $80, $54, $81 ;0x1000
-	dc.b	$17, $86, $5F, $06, $CC, $33, $33, $3C, $8C, $C3, $80, $66, $80, $03, $88, $01, $82, $7F, $0C, $44, $44, $51, $44, $44, $45, $10, $34, $44, $41, $00, $33, $80 ;0x1020
-	dc.b	$07, $80, $0F, $05, $10, $33, $34, $44, $51, $80, $5E, $01, $41, $84, $DF, $96, $02, $88, $FF, $92, $03, $81, $FF, $01, $88, $82, $00, $0C, $8C, $51, $88, $81 ;0x1040
-	dc.b	$11, $14, $88, $81, $53, $45, $88, $88, $85, $13, $87, $05, $01, $14, $80, $24, $01, $51, $80, $28, $01, $1C, $80, $2C, $01, $C8, $8D, $1C, $83, $40, $03, $C4 ;0x1060
-	dc.b	$88, $51, $8F, $37, $85, $47, $01, $18, $97, $37, $02, $88, $88, $80, $C5, $14, $C1, $15, $55, $55, $15, $54, $44, $33, $15, $44, $51, $15, $C1, $51, $15, $51 ;0x1080
-	dc.b	$8C, $15, $C8, $8C, $85, $83, $15, $11, $48, $88, $88, $55, $11, $C8, $88, $33, $45, $18, $88, $43, $35, $18, $88, $15, $51, $C8, $88, $51, $81, $88, $8C, $43 ;0x10A0
-	dc.b	$06, $85, $15, $44, $44, $81, $54, $80, $CF, $03, $11, $5C, $CC, $8D, $BF, $81, $43, $02, $45, $15, $80, $C7, $80, $C4, $01, $51, $81, $8C, $94, $87, $05, $84 ;0x10C0
-	dc.b	$15, $C8, $88, $8C, $94, $E0, $81, $87, $02, $C5, $14, $80, $FC, $8C, $5D, $18, $CC, $34, $51, $11, $45, $11, $14, $C8, $11, $4C, $82, $22, $4C, $22, $22, $88 ;0x10E0
-	dc.b	$82, $F2, $88, $8C, $82, $88, $8C, $5C, $80, $2D, $09, $8C, $CC, $C8, $C5, $C1, $11, $11, $11, $41, $80, $39, $01, $11, $80, $FE, $01, $C5, $81, $FF, $85, $5E ;0x1100
-	dc.b	$01, $11, $80, $D3, $08, $55, $35, $11, $C8, $10, $00, $00, $00, $95, $03, $80, $3B, $0D, $11, $00, $01, $54, $33, $00, $00, $14, $43, $00, $00, $01, $44, $80 ;0x1120
-	dc.b	$2A, $01, $14, $80, $2E, $01, $01, $80, $32, $82, $02, $81, $1F, $15, $33, $51, $51, $FC, $33, $33, $31, $91, $33, $33, $34, $15, $44, $33, $33, $33, $54, $43 ;0x1140
-	dc.b	$33, $33, $11, $80, $04, $04, $00, $11, $15, $44, $81, $3F, $05, $1C, $11, $14, $CC, $19, $80, $85, $0D, $1F, $11, $9C, $C1, $31, $54, $1F, $91, $34, $44, $41 ;0x1160
-	dc.b	$15, $44, $84, $00, $81, $5F, $03, $CC, $C4, $51, $80, $A2, $12, $19, $C1, $C9, $C1, $58, $91, $1F, $9C, $11, $14, $41, $11, $54, $45, $44, $44, $45, $11, $80 ;0x1180
-	dc.b	$02, $82, $7F, $09, $C1, $11, $10, $00, $91, $51, $00, $00, $15, $80, $A8, $80, $06, $82, $AB, $89, $7F, $88, $0E, $8E, $0A, $C4, $1F, $81, $EF, $92, $03, $83 ;0x11A0
-	dc.b	$7F, $02, $01, $89, $80, $A8, $11, $18, $01, $89, $8C, $51, $1F, $FF, $F9, $8C, $18, $89, $98, $C1, $01, $5C, $CC, $18, $80, $FB, $1E, $88, $8F, $9C, $1C, $88 ;0x11C0
-	dc.b	$99, $8C, $11, $11, $98, $C1, $14, $C8, $C1, $14, $82, $22, $14, $88, $2F, $F2, $C8, $82, $F2, $22, $88, $82, $22, $28, $88, $80, $00, $05, $C1, $11, $11, $1C ;0x11E0
-	dc.b	$4C, $80, $08, $05, $22, $22, $88, $88, $FF, $80, $03, $81, $15, $82, $18, $88, $03, $02, $8C, $C4, $80, $48, $03, $88, $CC, $45, $81, $0A, $8B, $1A, $08, $C1 ;0x1200
-	dc.b	$11, $88, $81, $1E, $FF, $C8, $CC, $81, $E5, $37, $15, $C8, $C4, $51, $18, $99, $8C, $CC, $51, $89, $88, $CC, $C4, $15, $88, $8C, $CC, $41, $11, $14, $CC, $C4 ;0x1220
-	dc.b	$FE, $E1, $1C, $CC, $99, $81, $48, $81, $88, $C1, $88, $1E, $CC, $1C, $81, $EF, $11, $18, $C1, $FF, $11, $48, $1E, $FF, $C1, $C8, $1F, $FF, $C1, $88, $1F, $FF ;0x1240
-	dc.b	$14, $80, $03, $08, $1E, $FF, $FF, $E1, $FF, $FF, $FF, $FE, $80, $03, $83, $02, $01, $F1, $86, $09, $82, $12, $01, $18, $80, $A8, $01, $D1, $80, $AC, $01, $ED ;0x1260
-	dc.b	$80, $08, $02, $FE, $1C, $80, $03, $80, $0C, $02, $FF, $E1, $87, $03, $01, $88, $80, $40, $05, $81, $EF, $FF, $FF, $C1, $80, $44, $80, $4B, $02, $1F, $1F, $80 ;0x1280
-	dc.b	$4C, $85, $03, $80, $5B, $80, $59, $06, $D1, $CC, $FF, $FF, $ED, $1C, $80, $62, $01, $14, $81, $0C, $80, $6B, $81, $6F, $84, $03, $80, $A1, $80, $87, $01, $1C ;0x12A0
-	dc.b	$80, $44, $03, $18, $88, $C1, $80, $6B, $06, $81, $EF, $18, $88, $8C, $1E, $80, $66, $01, $C1, $80, $6A, $02, $88, $14, $80, $FF, $8B, $8D, $02, $FF, $FE, $80 ;0x12C0
-	dc.b	$6A, $08, $EE, $1E, $EE, $EE, $D1, $C1, $11, $11, $81, $22, $02, $88, $FE, $80, $8B, $81, $93, $01, $EE, $80, $9B, $81, $A3, $81, $AB, $81, $B3, $85, $02, $81 ;0x12E0
-	dc.b	$83, $81, $9B, $81, $A3, $81, $AB, $04, $88, $81, $1E, $EE, $80, $5E, $01, $11, $85, $22, $83, $93, $04, $EE, $14, $FF, $FE, $80, $A3, $0D, $EE, $D1, $CC, $EE ;0x1300
-	dc.b	$D1, $1C, $CC, $11, $14, $CC, $CC, $88, $8C, $80, $03, $04, $88, $CC, $CC, $00, $FF, $00, $9A, $82, $10, $11, $CC, $8C, $8C, $FE, $1C, $C8, $88, $FF, $E1, $1C ;0x1320
-	dc.b	$C8, $FF, $FF, $E1, $33, $80, $CF, $01, $14, $80, $D3, $02, $15, $1F, $80, $03, $81, $07, $0B, $11, $53, $35, $1C, $8C, $15, $44, $1C, $88, $C1, $15, $80, $25 ;0x1340
-	dc.b	$03, $C1, $58, $43, $80, $D5, $09, $44, $11, $14, $C8, $51, $EF, $E1, $11, $1F, $80, $F8, $FF, $DF, $FF, $81, $B9, $FF, $00 ;0x1360
-	dc.b	$00 ;0x0 (0x0005EAAF-0x0005EAB0, Entry count: 0x1) [Unknown data]
+	include "art/compressed/portrait/puyo_unkChar3.asm" ; Unknown Character Portrait
 loc_0005EAB0:
 	include "art/compressed/portrait/puyo_unkChar2.asm" ; Unknown Character Portrait
 loc_0005FD80:
@@ -28316,6 +27831,7 @@ loc_0006FFE0: ; ???? + HAIYAH
 z80SoundDriver: ;76C00
 	include "puyo_sound_driver.asm"
 ; 78000
+loc_00078000:
 	include "sound/PCM/puyo_pcmData2.asm" ; YATANA and PUYOPUYO sound bytes (78000)
 loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	include "art/compressed/puyo_titleScreen.asm"
@@ -28325,3 +27841,12 @@ endOfRom:
 ;	* The game uses custom compression for it's art.
 ;	  I've written a tool to decompress this data
 ;	* The PCM data seems to have a header attatched to it.  Not sure why yet.
+;   * The Sound Driver appears to be uncompressed? (not certain yet)
+
+; Todo:
+;   * Document the game
+;   * Make the game shiftable
+;   * Replace ASM includes with BINCLUDEs
+
+; Shiftability:
+;   * I intend to do this from the bottom up, doing data first, then code.

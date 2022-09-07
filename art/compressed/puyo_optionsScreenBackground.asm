@@ -122,7 +122,9 @@
 	dc.b	$74, $A2, $02, $81, $A9, $80, $D2, $85, $91, $82, $0B, $8F, $7D, $FF, $10, $FF, $92, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $E1 ;0xF20
 	dc.b	$FF, $00 ;0xF40
 	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;0x0 (0x0006AA42-0x0006C400, Entry count: 0x19BE) [Unknown data]
-	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $01, $00 ;0x20
+	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+loc_0006AA80:
+	dc.b    $01, $00 ;0x20
 	dc.b	$9C, $00, $01, $17, $80, $00, $08, $71, $71, $D1, $71, $1D, $17, $1D, $17, $80, $06, $05, $D1, $11, $17, $1D, $1D, $80, $0E, $02, $71, $1D, $80, $10, $80, $0D ;0x40
 	dc.b	$83, $07, $80, $20, $80, $16, $80, $17, $80, $27, $80, $18, $80, $07, $01, $D1, $80, $0E, $05, $1D, $11, $D1, $11, $D1, $80, $3F, $01, $11, $80, $36, $82, $1F ;0x60
 	dc.b	$80, $2E, $80, $0F, $01, $11, $80, $05, $02, $71, $71, $80, $4E, $80, $1F, $02, $71, $11, $81, $0F, $80, $4E, $80, $5F, $02, $17, $1D, $80, $5E, $81, $67, $01 ;0x80

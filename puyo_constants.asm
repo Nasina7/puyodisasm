@@ -14,4 +14,7 @@ vdpData2 = $C00002
 vdpControl1 = $C00004
 vdpControl2 = $C00006
 
+transitionLoadLocation = $00FF0A36
+functionReturnState = $00FF0A3A
+
 SystemStack = $00FFFC00

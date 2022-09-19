@@ -1,8 +1,12 @@
 # Puyo Puyo 1 Megadrive/Genesis Disassembly
-This is a WIP Disassembly for Puyo Puyo 1 on the Megadrive/Genesis    
+This is a WIP Disassembly of Puyo Puyo 1 for the Megadrive/Genesis    
 I'm still quite new to game disassembly so suggestions, pull requests, and the like are all welcome!    
-## Todo:
-- Document the Game Code
-- Make the disassembly shiftable
-- Split the game data into multiple files
-- Etc...
+## Building
+	Download the Repo from github and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
+## Todo (In order of priority):
+- Make the Game Shiftable
+- Document all of the game data
+- Convert Binary ASM includes into binary includes
+- Store Art Data in the repo as uncompressed, and compress the files on build
+- Document Game Code
+- Decompile Sound Driver

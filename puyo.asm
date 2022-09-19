@@ -7,6 +7,7 @@
 
 startOfRom:
 	include "puyo_constants.asm"
+	include "puyo_macros.asm"
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset
@@ -96,11 +97,8 @@ checksum:
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
 Reset:
-	;nop
-	;nop
-	;nop
-	;nop
-	;nop
+	nop
+	nop
 	TST.l	$00A10008	;Predicted (Offset array entry)
 	BNE.b	loc_0000020F	;Predicted (Code-scan)
 	TST.w	$00A1000C	;Predicted (Code-scan)
@@ -1196,9 +1194,9 @@ loc_00001236:
 	dc.b	$00, $FF, $0A, $2D, $02, $00, $00, $FC, $13, $C0, $00, $FF, $0A, $2D, $42, $39, $00, $FF, $01, $36, $42, $79, $00, $FF, $06, $24, $60, $00, $17, $20, $4E, $75 ;0x80
 	dc.b	$4E, $75 ;0xA0
 loc_000013D8:
-	MOVE.l	#loc_00001632, $00FF0A36	;Predicted (Code-scan)
+	MOVE.l	#loc_00001632, transitionLoadLocation	;Predicted (Code-scan)
 loc_000013E2:
-	CLR.b	$00FF0A3A	;Predicted (Code-scan)
+	CLR.b	functionReturnState	;Predicted (Code-scan)
 	CLR.b	$00FF0A3B	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
 loc_000013F0:
@@ -1209,10 +1207,10 @@ loc_000013F6:
 loc_000013FC:
 	CLR.b	$00FF0A3C
 loc_00001402:
-	MOVEA.l	$00FF0A36, A0
+	MOVEA.l	transitionLoadLocation, A0
 	MOVE.w	(A0)+, D1
 	MOVE.w	(A0)+, D0
-	MOVE.l	A0, $00FF0A36
+	MOVE.l	A0, transitionLoadLocation
 	ASL.w	#2, D1
 	MOVEA.l	loc_00001424(PC,D1.w), A0
 	JSR	(A0)
@@ -1220,21 +1218,27 @@ loc_00001402:
 	BEQ.b	loc_000013FC
 	RTS
 loc_00001424: ; This IS a lookup table
-	dc.l	loc_00001474
-loc_00001428:
-	dc.l	loc_0000148C
+	dc.l	loc_00001474 ; Loop?
+	dc.l	loc_0000148C ; Loop?
 	dc.l	loc_0000149C
-	dc.l	loc_000014D0
-	dc.l	loc_0000152A
-	dc.l	loc_00001542
+	dc.l	loc_000014D0 ; Loop?
+	dc.l	func_lookupTableRamWrite ; Write To Ram
+	
+	dc.l	func_lookupTableJumpAddress ; 05
+	
 	dc.l	loc_00001556
 	dc.l	loc_00001568
 	dc.l	loc_00001578
+	
 	dc.l	loc_00001588
 	dc.l	loc_000015AE
-	dc.l	loc_000015B2
+	
+	dc.l	loc_000015B2 ; 0B
+	
 	dc.l	loc_000015C4
+	
 	dc.l	loc_000015F0
+	
 	dc.l	loc_000015C8
 	dc.l	loc_00001608
 	dc.l	loc_0000160E	;Predicted (Code target predicted at 0x160E)
@@ -1242,12 +1246,12 @@ loc_00001428:
 	dc.l	loc_00001620
 	dc.l	loc_0000162C
 loc_00001474:
-	SUBQ.l	#2, $00FF0A36
+	SUBQ.l	#2, transitionLoadLocation
 	MOVE.b	#$FF, $00FF0A3C
 	MOVE.b	#$FF, $00FF0A3B
 	RTS
 loc_0000148C:
-	SUBQ.l	#2, $00FF0A36
+	SUBQ.l	#2, transitionLoadLocation
 	MOVE.b	#$FF, $00FF0A3C
 	RTS
 loc_0000149C:
@@ -1265,7 +1269,7 @@ loc_000014C2:
 	CLR.b	$00FF0A3B
 	BRA.w	loc_00002AF2
 loc_000014D0:
-	SUBQ.l	#2, $00FF0A36
+	SUBQ.l	#2, transitionLoadLocation
 	MOVE.b	#$FF, $00FF0A3C
 	MOVE.b	#$FF, $00FF0A3B
 	LEA	loc_000014F0, A1
@@ -1291,42 +1295,45 @@ loc_0000150E:
 loc_00001524:
 	ORI	#1, SR
 	RTS
-loc_0000152A:
-	MOVEA.l	$00FF0A36, A0
+func_lookupTableRamWrite:
+	MOVEA.l	transitionLoadLocation, A0
 	SWAP	D0
 	MOVE.w	(A0)+, D0
 	MOVE.w	(A0)+, D1
-	MOVE.l	A0, $00FF0A36
+	MOVE.l	A0, transitionLoadLocation
 	MOVEA.l	D0, A0
 	MOVE.w	D1, (A0)
 	RTS
-loc_00001542:
-	MOVEA.l	$00FF0A36, A0
+func_lookupTableJumpAddress: ; Case 0005
+	MOVEA.l	transitionLoadLocation, A0
 	SWAP	D0
 	MOVE.w	(A0)+, D0
-	MOVE.l	A0, $00FF0A36
+	MOVE.l	A0, transitionLoadLocation
 	MOVEA.l	D0, A0
 	JMP	(A0)
-loc_00001556:
-	MOVEA.l	$00FF0A36, A0
+	
+loc_00001556: ; Case 0006
+	MOVEA.l	transitionLoadLocation, A0
 	SWAP	D0
 	MOVE.w	(A0), D0
-	MOVE.l	D0, $00FF0A36
+	MOVE.l	D0, transitionLoadLocation
 	RTS
-loc_00001568:
-	TST.b	$00FF0A3A
+
+loc_00001568: ; Case 0007
+	TST.b	functionReturnState
 	BEQ.b	loc_00001556
-	ADDQ.l	#2, $00FF0A36
+	ADDQ.l	#2, transitionLoadLocation
 	RTS
-loc_00001578:
-	TST.b	$00FF0A3A
+loc_00001578: ; Case 0008
+	TST.b	functionReturnState
 	BNE.b	loc_00001556
-	ADDQ.l	#2, $00FF0A36
+	ADDQ.l	#2, transitionLoadLocation
 	RTS
+	
 loc_00001588:
-	MOVEA.l	$00FF0A36, A0
+	MOVEA.l	transitionLoadLocation, A0
 	CLR.w	D1
-	MOVE.b	$00FF0A3A, D1
+	MOVE.b	functionReturnState, D1
 	CMP.w	D0, D1
 	BCS.w	loc_000015A0
 	MOVE.w	D0, D1	;Predicted (Code-scan)
@@ -1334,14 +1341,14 @@ loc_00001588:
 loc_000015A0:
 	LSL.w	#2, D1
 	MOVE.l	(A0,D1.w), D2
-	MOVE.l	D2, $00FF0A36
+	MOVE.l	D2, transitionLoadLocation
 	RTS
 loc_000015AE:
 	BRA.w	loc_00000D30
 loc_000015B2:
-	MOVEA.l	$00FF0A36, A1
+	MOVEA.l	transitionLoadLocation, A1
 	MOVEA.l	(A1)+, A0
-	MOVE.l	A1, $00FF0A36
+	MOVE.l	A1, transitionLoadLocation
 	BRA.w	loc_00000C82
 loc_000015C4:
 	BRA.w	loc_00000BF2
@@ -1352,10 +1359,10 @@ loc_000015C8:
 	LEA	loc_00002210, A2
 	ADDA.l	D0, A2
 	MOVE.b	D1, D0
-	MOVEA.l	$00FF0A36, A0
+	MOVEA.l	transitionLoadLocation, A0
 	MOVE.b	(A0)+, D1
 	MOVE.b	(A0)+, D2
-	MOVE.l	A0, $00FF0A36
+	MOVE.l	A0, transitionLoadLocation
 	BRA.w	loc_00000E46
 loc_000015F0:
 	MOVE.b	D0, D1
@@ -1370,410 +1377,467 @@ loc_00001608:
 loc_0000160E:
 	JMP	loc_000072BE	;Predicted (Offset array entry)
 loc_00001614:
-	SUBQ.l	#2, $00FF0A36
+	SUBQ.l	#2, transitionLoadLocation
 	JMP	loc_000072EE
 loc_00001620:
-	SUBQ.l	#2, $00FF0A36
+	SUBQ.l	#2, transitionLoadLocation
 	JMP	loc_00007308
 loc_0000162C:
 	JMP	loc_00007356
-loc_00001632: ;; LOOKUP TABLE
-	dc.w    $0005
-	dc.l    loc_00000FB8
-	dc.w	$0005
-	dc.l 	loc_000021E2
-	dc.w	$0005
-	dc.l	getChecksum
-	dc.w    $0007
-	dc.l    loc_00001682
+	
+; These Lookup Tables are very complex
+; Type 0000 - 0004 = ???
+
+; Type 0005 = Jump Function
+
+; Type 0006 = Jump Lookup Table Execution to address
+; Type 0007 = Above, but only if functionReturnState = 0
+; Type 0008 = Above, but only if functionReturnState != 0
+
+; Type 0009 - 000A = ???
+
+; Type 000B.XXXX = Load Art Data into VRAM address XXXX
+
+; Type 000C - 0013 = ???
+
+; Type 0014 - FFFF = INVALID
+	
+	
+loc_00001632: ; Bootup Lookup Table
+
+	lookupJumpFunction loc_00000FB8
+	
+	lookupJumpFunction loc_000021E2
+	
+	lookupJumpFunction getChecksum
+
+	lookupJumpLocationEQ loc_00001682
+
 	dc.w	$000A ; ???
-	dc.l    $0001000B ;???
-	dc.w    $0000 ; ???
-	dc.l    loc_00069B00 ; ???
-	dc.w    $000B ; ???
-	dc.l	$A0000006 ; ???
-	dc.w	$3136 ; ???
-	dc.w 	$0005
-	dc.l	loc_0001CD34
+	dc.w    $0001
+	
+	lookupLoadDataToVram $0000, loc_00069B00
+	
+	lookupLoadDataToVram $A000, loc_00063136
+
+	lookupJumpFunction loc_0001CD34
 
 	
 ; Shiftability: is the rest of this a lookup table???
 	dc.b    $00, $01, $00, $0D, $0C, $00, $00, $0D, $1C, $01, $00, $0D, $15, $02 ;0x20
 	dc.b	$00, $00, $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02, $00, $01 ;0x40
 loc_00001682:
-	dc.b	$00, $05, $00, $00 ;0x0 (0x00001682-0x00001686, Entry count: 0x4) [Unknown data]
-	dc.w	loc_00000FB8
-	dc.w	$000A, $0001, $000B, $A000 ;0x0 (0x00001688-0x00001690, Entry count: 0x8)
-	dc.l	loc_00061400
-	dc.b	$00, $05, $00, $00 ;0x0 (0x00001694-0x00001698, Entry count: 0x4) [Unknown data]
-	dc.w	loc_0000A49E
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	lookupJumpFunction loc_00000FB8
+	
+	dc.w	$000A, $0001
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	lookupJumpFunction loc_0000A49E
+	
+	lookupJumpFunction loc_0000C960
+	
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C960
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.w	$0001, $0004, $00FF, $013A, $0000, $0004, $00FF, $05D2, $0000, $0001 ;0x0 (0x000016AC-0x000016C0, Entry count: 0x14)
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$0001
+	
+	lookupWriteRam $00FF013A, $0000
+	lookupWriteRam $00FF05D2, $0000
+	
+	dc.w    $0001 ;0x0 (0x000016AC-0x000016C0, Entry count: 0x14)
 loc_000016C0:
-	dc.b	$00, $0A, $00, $00, $00, $0B, $00, $00 ;0x0 (0x000016C0-0x000016C8, Entry count: 0x8) [Unknown data]
-	dc.l	loc_0007A300
-	dc.l	$000BA000	;Predicted
-	dc.l	loc_00061400
-	dc.w	$0013, $0082, $000F, $0003, $000C, $0020, $0001, $0005, $0000 ;0x0 (0x000016D4-0x000016E6, Entry count: 0x12)
-	dc.w	loc_0000CE58
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001702-1	;Predicted (Code target predicted at 0x1701) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001F02	;Predicted (Code target predicted at 0x1F02) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00002103-1	;Predicted (Code target predicted at 0x2103)
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	dc.b	$00, $0A, $00, $00
+	
+	lookupLoadDataToVram $0000, loc_0007A300
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	
+	dc.w	$0013, $0082, $000F, $0003, $000C, $0020, $0001
+	
+	lookupJumpFunction loc_0000CE58
+	
+	dc.w	$000E ;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0100	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000	;Predicted (Code target predicted at 0x0)
+	dc.w	$000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$1701	;Predicted (Code target predicted at 0x1701) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000	;Predicted (Code target predicted at 0x0)
+	dc.w	$000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$1F02	;Predicted (Code target predicted at 0x1F02) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000	;Predicted (Code target predicted at 0x0)
+	dc.w	$000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$2103	;Predicted (Code target predicted at 0x2103)
+	dc.w	$0000	;Predicted (Code target predicted at 0x0)
+	dc.w	$0000	;Predicted (Code target predicted at 0x0)
 loc_00001702: ; Lookup Table for loading data and functions on the transition from title screen to menu screen
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin+$3A	;Predicted (Code target predicted at 0x13A) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	$000005D2	;Predicted (Code target predicted at 0x5D2)
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000BA4
-	dc.w	$0002, $0006, $0012, $0009, $0004 ;0x0 (0x00001732-0x0000173C, Entry count: 0xA)
+	
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupWriteRam $00FF013A, $0000
+	
+	lookupWriteRam $00FF05D2, $0000
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_00000BA4
+	
+	dc.w	$0002, $0006
+	
+	dc.w    $0012, $0009, $0004 ;0x0 (0x00001732-0x0000173C, Entry count: 0xA)
 	dc.l	loc_0000174C
 	dc.l    loc_00001F34
-	;dc.l	$00001F34 TEST THIS
 	dc.l	loc_00001EAC
 	dc.l	loc_00001B38
+	
+	
 loc_0000174C: ; Second half of above transition
-	dc.w	$000A, $0000, $000B, $A000 ;0x0 (0x0000174C-0x00001754, Entry count: 0x8)
-	dc.l	loc_00061400
-	dc.b	$00, $05, $00, $00 ;0x0 (0x00001758-0x0000175C, Entry count: 0x4) [Unknown data]
-	dc.w	loc_0000C548
-	dc.b	$00, $0B, $00, $00 ;0x0 (0x0000175E-0x00001762, Entry count: 0x4) [Unknown data]
-	dc.l	loc_0006C400
-	dc.w	$000F, $0004, $000C, $001F, $0001, $000D, $0500, $000D, $0401, $000D, $0B03, $0001, $0005, $0000 ;0x0 (0x00001766-0x00001782, Entry count: 0x1C)
-	dc.w	$0000B0F6
+	dc.w	$000A, $0000
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	lookupJumpFunction loc_0000C548
+	
+	lookupLoadDataToVram $0000, loc_0006C400
+	
+	dc.w	$000F, $0004, $000C, $001F, $0001, $000D, $0500, $000D, $0401, $000D, $0B03, $0001
+	
+	lookupJumpFunction loc_0000B0F6
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000011	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_000029D6
+	
 	dc.b	$00, $12, $00, $09, $00, $04 ;0x0 (0x000017A0-0x000017A6, Entry count: 0x6) [Unknown data]
-	dc.l	$0000187C
-	dc.b	$00, $00, $1D, $62, $00, $00, $1E, $20 ;0x0 (0x000017AA-0x000017B2, Entry count: 0x8) [Unknown data]
-	dc.l	$000017B6
-	dc.w	$000A, $0001, $000F, $0004, $000B, $0000 ;0x0 (0x000017B6-0x000017C2, Entry count: 0xC)
-	dc.l	loc_00069B00
-	dc.l	$000BA000	;Predicted
-	dc.l	loc_00063136
-	dc.b	$00, $01, $00, $05, $00, $01 ;0x0 (0x000017CE-0x000017D4, Entry count: 0x6) [Unknown data]
-	dc.w	$0000D35C
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001500	;Predicted (Code target predicted at 0x1500)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001B01	;Predicted (Code target predicted at 0x1B01) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001C02	;Predicted (Code target predicted at 0x1C02) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001D04-1	;Predicted (Code target predicted at 0x1D03)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$0000D3A0
+	dc.l	loc_0000187C
+	dc.l	loc_00001D62
+	dc.l    loc_00001E20 ;0x0 (0x000017AA-0x000017B2, Entry count: 0x8) [Unknown data]
+	dc.l	loc_000017B6
+loc_000017B6:
+	dc.w	$000A, $0001, $000F, $0004
+	
+	lookupLoadDataToVram $0000, loc_00069B00
+	lookupLoadDataToVram $A000, loc_00063136
+	
+	
+	dc.w	$0001
+	
+	lookupJumpFunction loc_0001D35C
+	
+	dc.w	$0001
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1500	;Predicted (Code target predicted at 0x1500)
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1B01	;Predicted (Code target predicted at 0x1B01) [Code verification failed! Opcode target not generated.]
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1C02	;Predicted (Code target predicted at 0x1C02) [Code verification failed! Opcode target not generated.]
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1D03	;Predicted (Code target predicted at 0x1D03)
+	
+	dc.w	$0001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_0001D3A0
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$0012, $0001, $0008 ;0x0 (0x00001808-0x00001810, Entry count: 0x8)
+	dc.l	loc_00001818
+	
+	dc.b	$00, $06 ;0x0 (0x00001812-0x00001816, Entry count: 0x4) [Unknown data]
+	dc.l	loc_000016C0
+loc_00001818:
+	dc.w	$000A, $0001
+	
+	lookupLoadDataToVram $6000, loc_00034800
+	lookupLoadDataToVram $8000, loc_00041D38
+	lookupLoadDataToVram $0000, loc_00069B00
+	lookupLoadDataToVram $A000, loc_00063136
+	
+	lookupJumpFunction loc_0001CCDC
+	
+	dc.w	$0001	;Predicted (Code target predicted at 0x1)
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0400	;Predicted (Code target predicted at 0x400)
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0C01	;Predicted (Code target predicted at 0xC01)
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1502	;Predicted (Code target predicted at 0x1502)
+	
+	dc.w	$000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1D03	;Predicted (Code target predicted at 0x1D03)
+	
+	lookupJumpFunction loc_0001CD28
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.w	$0012, $0001, $0008, $0000 ;0x0 (0x00001808-0x00001810, Entry count: 0x8)
-	dc.w	$1818
-	dc.b	$00, $06, $00, $00 ;0x0 (0x00001812-0x00001816, Entry count: 0x4) [Unknown data]
-	dc.w	$16C0
-	dc.w	$000A, $0001, $000B, $6000 ;0x0 (0x00001818-0x00001820, Entry count: 0x8)
-	dc.l	loc_00034800
-	dc.b	$00, $0B, $80, $00 ;0x0 (0x00001824-0x00001828, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00041D38
-	dc.b	$00, $0B, $00, $00 ;0x0 (0x0000182C-0x00001830, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00069B00
-	dc.b	$00, $0B, $A0, $00 ;0x0 (0x00001834-0x00001838, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00063136
-	dc.b	$00, $05, $00, $01 ;0x0 (0x0000183C-0x00001840, Entry count: 0x4) [Unknown data]
-	dc.w	$0000CCDC
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000C04-3	;Predicted (Code target predicted at 0xC01)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001504-2	;Predicted (Code target predicted at 0x1502)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001D04-1	;Predicted (Code target predicted at 0x1D03)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$0000CD28
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.b	$00, $06, $00, $00 ;0x0 (0x00001876-0x0000187A, Entry count: 0x4) [Unknown data]
-	dc.w	$17B6
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000012	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.b	$00, $06
+	dc.l	loc_000017B6
 loc_0000187C:
-	dc.w	$000A, $0000, $000B, $8000 ;0x0 (0x0000187C-0x00001884, Entry count: 0x8)
-	dc.l	loc_0002CD00
-	dc.l	$000BA000	;Predicted
-	dc.l	loc_00061400
+	dc.w	$000A, $0000
+loc_00001880:
+	lookupLoadDataToVram $8000, loc_0002CD00
+
+	lookupLoadDataToVram $A000, loc_00061400
 loc_00001890:
 	dc.w	$000C ;0x0 (0x00001890-0x00001892, Entry count: 0x2)
-loc_00001892:
-	dc.b	$00, $1E, $00, $01, $00, $05, $00, $00 ;0x0 (0x00001892-0x0000189A, Entry count: 0x8) [Unknown data]
-	dc.w	$0000C162
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000301	;Predicted (Code target predicted at 0x300)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000402-1	;Predicted (Code target predicted at 0x401)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001402	;Predicted (Code target predicted at 0x1402)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001904-1	;Predicted (Code target predicted at 0x1903) [Code verification failed! Opcode target not generated.]
+loc_00001892: ; Loads Portrait Screen
+	dc.b	$00, $1E
+	dc.b    $00, $01
+	
+	lookupJumpFunction loc_0000C162
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0300	;Predicted (Code target predicted at 0x300)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0401	;Predicted (Code target predicted at 0x401)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1402	;Predicted (Code target predicted at 0x1402)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$1903	;Predicted (Code target predicted at 0x1903) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$0000000A	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_00000BDC
+	
+	lookupLoadDataToVram $6000, loc_00034800
+	
+	lookupWriteRam $00FF05D2, $FF20
+	lookupWriteRam $00FF05D4, $FF60
+	
+	lookupJumpFunction loc_00009B7A
+	
+	lookupJumpFunction loc_000093F4
+	lookupJumpFunction loc_0000A1A4
+	lookupJumpFunction loc_0000A2AC
+	lookupJumpFunction loc_0000204E
+	
+	
+	dc.w	$0001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_0000A2F4
+	
+	
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0400	;Predicted (Code target predicted at 0x400)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_00002128
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BDC
-	dc.b	$00, $0B, $60, $00 ;0x0 (0x000018D2-0x000018D6, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00034800
-	dc.w	$0004, $00FF, $05D2, $FF20, $0004, $00FF, $05D4, $FF60, $0005, $0000 ;0x0 (0x000018DA-0x000018EE, Entry count: 0x14)
-	dc.w	$00009B7A
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_00002204
+	
+	lookupJumpLocationEQ loc_0000195C
+	
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$000093F4
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000A1A4
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000A2AC
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-loc_00001904:
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_0000204E
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000A2F4
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00002128
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00002204
-	dc.w	$00000000+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_0000195C	; (Predicted offset)
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6	;Predicted (Code target predicted at 0x29D6)
-	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
-	dc.w	$00000000+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00002FB8	;Predicted (Code target predicted at 0x2FB8)
-	dc.w	$00000000+7	;Predicted (Code target predicted at 0x7) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_0000187C	;Predicted (Code target predicted at 0x187C)
-	dc.w	$00000000+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00001682	;Predicted (Code target predicted at 0x1682) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$0000000D	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	dc.w	$00000012	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$00000002	;Predicted (Code target predicted at 0x2)
+	dc.w	$00000010	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_00002FB8
+	
+	lookupJumpLocationEQ loc_0000187C
+	
+	lookupJumpLocation loc_00001682
+	
 loc_0000195C:
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_0000208A
+	
+	dc.w	$00000011	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_000021D0
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupWriteRam $00FF1892, $0000
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_0000208A
-	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_00000BC6
+	
+	lookupLoadDataToVram $2000, loc_00064000
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	dc.w	$0012, $0003, $000D, $0100, $000D, $0201, $000D, $0403
+	
+	lookupJumpFunction loc_00002128
+	
+	lookupWriteRam $00FF1108, $0802
+	
+	lookupJumpFunction loc_00002EBA
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_00003056
+	
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_000055A4
+	
+	lookupJumpFunction loc_0000C14A
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000021D0
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001892	;Predicted (Code target predicted at 0x1892) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BC6
-	dc.b	$00, $0B, $20, $00 ;0x0 (0x00001980-0x00001984, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00064000
-	dc.l	$000BA000	;Predicted
-	dc.l	loc_00061400
-	dc.w	$0012, $0003, $000D, $0100, $000D, $0201, $000D, $0403, $0005, $0000 ;0x0 (0x00001990-0x000019A4, Entry count: 0x14)
-	dc.w	loc_00002128
-	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001108+2	;Predicted (Code target predicted at 0x1108)
-	dc.w	loc_00000802	;Predicted (Code target predicted at 0x802)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00002EBA
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00003056
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000055A4
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C14A
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001108+2	;Predicted (Code target predicted at 0x1108)
-	dc.w	loc_00001008-5	;Predicted (Code target predicted at 0x1003)
-	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	
+	lookupWriteRam $00FF1108, $1003
+	
+	dc.w	$00000011	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	
 	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00001A14	; (Predicted offset)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00002FB8
-	dc.w	$00000000+$C-3	;Predicted (Code target predicted at 0x9) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000	; (Predicted offset)
-	dc.w	loc_0000187C	;Predicted (Code target predicted at 0x187C)
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.w	$00000012	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpLocationNE loc_00001A14
+	
+	lookupJumpFunction loc_00002FB8
+	
+	dc.w	$00000009	;Predicted (Code target predicted at 0x9) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	dc.l	loc_0000187C	;Predicted (Code target predicted at 0x187C)
 loc_00001A0C:
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001B38	;Predicted (Code target predicted at 0x1B38) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00001AAE	;Predicted (Code target predicted at 0x1AAE) [Code verification failed! Opcode target not generated.]
 loc_00001A14:
-	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.w	$0000000A	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
+	dc.w	$00000001	;Predicted (Code target predicted at 0x1)
+	
+	lookupJumpFunction loc_00000BDC
+	
+	lookupWriteRam $00FF05D2, $0000
+	lookupWriteRam $00FF05D4, $0000
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	lookupLoadDataToVram $0000, loc_00029800
+	
+	dc.w	$000F, $0007, $000C, $0006, $0001
+	
+	lookupJumpFunction loc_0000C652
+	
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0400	;Predicted (Code target predicted at 0x400)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BDC
-	dc.w	$0004, $00FF, $05D2, $0000, $0004, $00FF, $05D4, $0000, $000B, $A000 ;0x0 (0x00001A1E-0x00001A32, Entry count: 0x14)
-	dc.l	loc_00061400
-	dc.l	$000B0000	;Predicted
-	dc.l	loc_00029800
-	dc.w	$000F, $0007, $000C, $0006, $0001, $0005, $0000 ;0x0 (0x00001A3E-0x00001A4C, Entry count: 0xE)
-	dc.w	$0000C652
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000402-2	;Predicted (Code target predicted at 0x400)
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0401	;Predicted (Code target predicted at 0x401)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000402-1	;Predicted (Code target predicted at 0x401)
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0D02	;Predicted (Code target predicted at 0xD02)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000D04-2	;Predicted (Code target predicted at 0xD02)
+	dc.w	$0000000E	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
+	dc.w	$0103	;Predicted (Code target predicted at 0x103)
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin+3	;Predicted (Code target predicted at 0x103)
+	
+	dc.w	$00000003	;Predicted (Code target predicted at 0x3)
+	
+	lookupJumpFunction loc_0000C6CC
+	
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C6CC
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
+	
 	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
@@ -1788,31 +1852,97 @@ loc_00001A14:
 	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BA4
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.b	$00, $07, $00, $00, $18, $7C ;0x0 (0x00001A9A-0x00001AA0, Entry count: 0x6) [Unknown data]
-	dc.w	$0004, $00FF, $1890, $0000, $0006, $0000 ;0x0 (0x00001AA0-0x00001AAC, Entry count: 0xC)
-	dc.w	$1CEC
+	
+	dc.w	$00000012	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
+	
+	lookupJumpFunction loc_00000BA4
+	
+	lookupJumpFunction loc_000029D6
+	
+	lookupJumpLocationEQ loc_0000187C
+	
+	lookupWriteRam $00FF1890, $0000
+	
+	lookupJumpLocation loc_00001CEC
+	
 loc_00001AAE:
-	dc.b	$00, $04, $00, $FF, $01, $12, $10, $10, $00, $0A, $00, $01, $00, $05, $00, $00, $0B, $DC, $00, $0B, $60, $00, $00, $03, $48, $00, $00, $04, $00, $FF, $05, $D2 ;0x0 (0x00001AAE-0x00001B01, Entry count: 0x53) [Unknown data]
-	dc.b	$FF, $20, $00, $04, $00, $FF, $05, $D4, $FF, $60, $00, $05, $00, $00, $93, $F4, $00, $05, $00, $00, $A2, $AC, $00, $05, $00, $00, $20, $4E, $00, $01, $00, $05 ;0x20
-	dc.b	$00, $00, $A2, $F4, $00, $0E, $04, $00, $00, $00, $00, $0E, $03, $02, $00, $00, $00, $0E, $04 ;0x40
-loc_00001B01:
-	dc.b	$03, $00, $00, $00, $00, $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00, $00 ;0x0 (0x00001B01-0x00001B38, Entry count: 0x37) [Unknown data]
-	dc.b	$03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $04, $00, $FF, $18, $90, $00, $00, $00, $06, $00, $00, $1C, $EC ;0x20
+	lookupWriteRam $00FF0112, $1010
+
+	dc.b	$00, $0A, $00, $01
+	
+	lookupJumpFunction loc_00000BDC 
+	
+	lookupLoadDataToVram $6000, loc_00034800
+	
+	lookupWriteRam $00FF05D2, $FF20
+	lookupWriteRam $00FF05D4, $FF60
+	
+	lookupJumpFunction loc_000093F4
+	lookupJumpFunction loc_0000A2AC
+	lookupJumpFunction loc_0000204E
+	
+	dc.b	$00, $01
+	
+	lookupJumpFunction loc_0000A2F4
+	
+	dc.b	$00, $0E, $04, $00, $00, $00
+	dc.b    $00, $0E, $03, $02, $00, $00
+	dc.b    $00, $0E, $04, $03, $00, $00
+	dc.b    $00, $00
+	dc.b    $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00, $00 ;0x0 (0x00001B01-0x00001B38, Entry count: 0x37) [Unknown data]
+	dc.b	$03
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.b    $00, $12
+	
+	lookupWriteRam $00FF1890, $0000
+	
+	lookupJumpLocation loc_00001CEC
 loc_00001B38:
-	dc.b	$00, $04, $00, $FF, $FC, $02, $FF, $FF, $00, $05, $00, $01, $DC, $02, $00, $0A, $00, $00, $00, $0F, $00, $12, $00, $0B, $00, $00, $00, $02, $FC, $00, $00, $0C ;0x0 (0x00001B38-0x00001C02, Entry count: 0xCA) [Unknown data]
-	dc.b	$00, $09, $00, $01, $00, $05, $00, $00, $BF, $DE, $00, $05, $00, $00, $D9, $08, $00, $0E, $0F, $00, $00, $00, $00, $0E, $10, $01, $00, $00, $00, $0E, $01, $02 ;0x20
-	dc.b	$00, $00, $00, $00, $00, $07, $00, $00, $1B, $9E, $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $01 ;0x40
-	dc.b	$00, $06, $00, $00, $1B, $BC, $00, $0E, $00, $01, $04, $00, $00, $0E, $00, $02, $04, $00, $00, $02, $00, $50, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12 ;0x60
-	dc.b	$00, $02, $00, $C0, $00, $02, $00, $80, $00, $0A, $00, $01, $00, $05, $00, $00, $0B, $DC, $00, $04, $00, $FF, $05, $D2, $FF, $20, $00, $04, $00, $FF, $05, $D4 ;0x80
-	dc.b	$FF, $60, $00, $0F, $00, $11, $00, $0B, $60, $00, $00, $03, $48, $00, $00, $0B, $A0, $00, $00, $06, $1D, $D0, $00, $04, $00, $FF, $01, $12, $00, $00, $00, $05 ;0xA0
-	dc.b	$00, $00, $DA, $F4, $00, $05, $00, $00, $D9, $08 ;0xC0
+	lookupWriteRam $00FFFC02, $FFFF
+	
+	lookupJumpFunction loc_0001DC02
+
+	dc.b	$00, $0A
+	dc.b    $00, $00
+	dc.b    $00, $0F, $00, $12
+	
+	lookupLoadDataToVram $0000, loc_0002FC00
+	
+	
+	dc.b    $00, $0C ;0x0 (0x00001B38-0x00001C02, Entry count: 0xCA) [Unknown data]
+	dc.b	$00, $09, $00, $01
+	lookupJumpFunction loc_0000BFDE
+	
+	lookupJumpFunction loc_0000D908
+	
+	
+	dc.b    $00, $0E, $0F, $00, $00, $00, $00, $0E, $10, $01, $00, $00, $00, $0E, $01, $02 ;0x20
+	dc.b	$00, $00, $00, $00
+	
+	lookupJumpLocationEQ loc_00001B9E
+	
+	dc.b    $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02
+	dc.b    $00, $05, $00, $00, $29, $D6
+	dc.b    $00, $12, $00, $01 ;0x40
+	
+	lookupJumpLocation loc_00001BBC
+loc_00001B9E:
+	dc.b    $00, $0E, $00, $01, $04, $00, $00, $0E, $00, $02, $04, $00, $00, $02, $00, $50, $00, $03
+	lookupJumpFunction loc_000029D6
+	dc.b    $00, $12, $00, $02, $00, $C0
+loc_00001BBC:
+	dc.b    $00, $02, $00, $80 
+	dc.b    $00, $0A, $00, $01
+	lookupJumpFunction loc_00000BDC
+	lookupWriteRam $00FF05D2, $FF20
+	lookupWriteRam $00FF05D4, $FF60
+	
+	dc.b    $00, $0F, $00, $11, $00, $0B, $60, $00, $00, $03, $48, $00, $00, $0B, $A0, $00, $00, $06, $1D, $D0
+	lookupWriteRam $00FF0112, $0000
+	lookupJumpFunction loc_0000DAF4
+	lookupJumpFunction loc_0000D908
 loc_00001C02:
 	dc.b	$00, $00, $00, $01, $00, $09, $00, $03, $00, $00, $1C, $36, $00, $00, $1B, $F6, $00, $00, $1C, $16, $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02 ;0x0 (0x00001C02-0x00001CEC, Entry count: 0xEA) [Unknown data]
 	dc.b	$00, $0D, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $01, $00, $06, $00, $00, $1C, $62, $00, $11, $00, $0E, $00, $00, $06, $00, $00, $0E, $00, $01 ;0x20
@@ -1822,28 +1952,34 @@ loc_00001C02:
 	dc.b	$00, $0D, $00, $00, $00, $0D, $00, $01, $00, $05, $00, $00, $29, $D6, $00, $01, $00, $12, $00, $04, $00, $FF, $18, $90, $00, $00, $00, $06, $00, $00, $1C, $EC ;0xA0
 	dc.b	$00, $11, $00, $05, $00, $00, $29, $D6, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $02, $00, $10, $00, $03, $00, $05, $00, $00, $29, $D6 ;0xC0
 	dc.b	$00, $12, $00, $04, $00, $FF, $18, $90, $00, $00 ;0xE0
-	dc.w	$000A, $0000, $0005, $0000 ;0x0 (0x00001CEC-0x00001CF4, Entry count: 0x8)
-	dc.w	loc_00000BC6
-	dc.w	$000F, $0004, $000B, $0000 ;0x0 (0x00001CF6-0x00001CFE, Entry count: 0x8)
-	dc.l	loc_00028B00
-	dc.b	$00, $0B ;0x0 (0x00001D02-0x00001D04, Entry count: 0x2) [Unknown data]
-loc_00001D04:
-	dc.b	$20, $00 ;0x0 (0x00001D04-0x00001D06, Entry count: 0x2) [Unknown data]
-	dc.l	loc_00064000
-	dc.b	$00, $0B, $60, $00 ;0x0 (0x00001D0A-0x00001D0E, Entry count: 0x4) [Unknown data]
-	dc.l	loc_0002CD00
-	dc.b	$00, $0B, $A0, $00 ;0x0 (0x00001D12-0x00001D16, Entry count: 0x4) [Unknown data]
-	dc.l	loc_00061400
-	dc.w	$000C, $0008, $0001, $0005, $0000 ;0x0 (0x00001D1A-0x00001D24, Entry count: 0xA)
-	dc.w	$0000BB0E
+loc_00001CEC:
+
+	dc.w	$000A, $0000
+	
+	lookupJumpFunction loc_00000BC6
+	
+	dc.w	$000F, $0004
+	
+	lookupLoadDataToVram $0000, loc_00028B00
+	
+	lookupLoadDataToVram $2000, loc_00064000
+	
+	lookupLoadDataToVram $6000, loc_0002CD00
+	
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	dc.w	$000C, $0008, $0001
+	
+	lookupJumpFunction loc_0000BB0E
+	
 	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001200	;Predicted (Code target predicted at 0x1200)
+	dc.w	$1200	;Predicted (Code target predicted at 0x1200)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
+	dc.w	$0201	;Predicted (Code target predicted at 0x201)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+$10-2	;Predicted (Code target predicted at 0xE) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
+	dc.w	$0302
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+$14-3	;Predicted (Code target predicted at 0x11) [Code verification failed! Opcode target not generated.]
@@ -1859,11 +1995,13 @@ loc_00001D04:
 	dc.w	$00000000+2	;Predicted (Code target predicted at 0x2)
 	dc.w	$00000000+$10	;Predicted (Code target predicted at 0x10) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+3	;Predicted (Code target predicted at 0x3)
-	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000029D6
-	dc.b	$00, $12, $00, $06, $00, $00 ;0x0 (0x00001D5A-0x00001D60, Entry count: 0x6) [Unknown data]
-	dc.w	$1682
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.b	$00, $12
+	
+	lookupJumpLocation loc_00001682
+loc_00001D62:
 	dc.b	$00, $04, $00, $FF, $01, $28, $00, $00, $00, $05, $00, $00, $7F, $00, $00, $0A, $00, $01, $00, $0B, $00, $00, $00, $06, $93, $00, $00, $0B, $A0, $00, $00, $06 ;0x0 (0x00001D62-0x00001E03, Entry count: 0xA1) [Unknown data]
 	dc.b	$14, $00, $00, $0C, $00, $04, $00, $01, $00, $0F, $00, $06, $00, $0D, $01, $00, $00, $0D, $02, $01, $00, $0D, $03, $02, $00, $0D, $0E, $03, $00, $04, $00, $FF ;0x20
 	dc.b	$11, $08, $08, $02, $00, $04, $00, $FF, $01, $12, $00, $00, $00, $0D, $01, $00, $00, $0B, $20, $00, $00, $06, $40, $00, $00, $05, $00, $00, $7F, $9C, $00, $05 ;0x40
@@ -1871,21 +2009,50 @@ loc_00001D04:
 	dc.b	$00, $00, $1D, $A6, $00, $04, $00, $FF, $11, $08, $10, $03, $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00 ;0x80
 	dc.b	$00 ;0xA0
 loc_00001E03:
-	dc.b	$0E, $00, $03, $00, $00, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $04, $00, $FF, $18, $90, $00, $FF, $00, $06, $00, $00, $1C, $EC, $00, $0A, $00 ;0x0 (0x00001E03-0x00001EAC, Entry count: 0xA9) [Unknown data]
-	dc.b	$01, $00, $0B, $00, $00, $00, $06, $9B, $00, $00, $0B, $20, $00, $00, $06, $40, $00, $00, $0B, $A0, $00, $00, $06, $14, $00, $00, $0C, $00, $16, $00, $01, $00 ;0x20
-	dc.b	$0F, $00, $05, $00, $0E, $01, $00, $00, $00, $00, $0E, $02, $01, $00, $00, $00, $0E, $15, $02, $00, $00, $00, $0E, $18, $03, $00, $00, $00, $04, $00, $FF, $11 ;0x40
-	dc.b	$08, $08, $02, $00, $05, $00, $00, $30, $56, $00, $00, $00, $04, $00, $FF, $11, $08, $10, $03, $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00 ;0x60
-	dc.b	$00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00, $00, $02, $00, $10, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $04, $00, $FF, $18 ;0x80
-	dc.b	$90, $01, $00, $00, $06, $00, $00, $1C, $EC ;0xA0
-loc_00001EAC: ;; Interestingly, $000400FF seems to denote the beginning of a jump table?
+	dc.b	$0E, $00, $03, $00, $00, $00, $03, $00, $05, $00, $00, $29, $D6, $00, $12, $00, $04, $00, $FF, $18, $90, $00, $FF, $00, $06, $00, $00, $1C, $EC
+loc_00001E20:
+	
+
+
+	dc.b    $00, $0A
+	dc.b    $00, $01
+	
+	lookupLoadDataToVram $0000, loc_00069B00
+	lookupLoadDataToVram $2000, loc_00064000
+	lookupLoadDataToVram $A000, loc_00061400
+	
+	dc.b    $00, $0C, $00, $16
+	dc.b    $00, $01
+	dc.b    $00, $0F, $00, $05, $00, $0E, $01, $00, $00, $00, $00, $0E, $02, $01, $00, $00, $00, $0E, $15, $02, $00, $00, $00, $0E, $18, $03, $00, $00
+	
+	lookupWriteRam $00FF1108, $0802
+	
+	lookupJumpFunction loc_00003056
+	
+	dc.b    $00, $00
+	
+	lookupWriteRam $00FF1108, $1003
+	
+	dc.b    $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00
+	dc.b    $00, $02
+	dc.b    $00, $10, $00, $03
+	
+	lookupJumpFunction loc_000029D6
+	
+	dc.b    $00, $12
+	
+	lookupWriteRam $00FF1890, $0100
+	
+	lookupJumpLocation loc_00001CEC
+loc_00001EAC:
 	dc.w	$0004, $00FF, $1882, $0400, $000A, $0001, $000B, $0000 ;0x0 (0x00001EAC-0x00001EBC, Entry count: 0x10)
 	dc.l	loc_0001E000
 	dc.w	$000C, $0003, $0001, $000B, $2000 ;0x0 (0x00001EC0-0x00001ECA, Entry count: 0xA)
 	dc.l	loc_00064000
 	dc.l	$000BA000	;Predicted
 	dc.l	loc_00061400
-	dc.w	$000D, $0100, $000D, $0201, $000D, $0302, $000D, $0403, $0005, $0000 ;0x0 (0x00001ED6-0x00001EEA, Entry count: 0x14)
-	dc.w	$0000C9BA
+	dc.w	$000D, $0100, $000D, $0201, $000D, $0302, $000D, $0403, $0005;0x0 (0x00001ED6-0x00001EEA, Entry count: 0x14)
+	dc.l	loc_0000C9BA
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_00002EBA
@@ -1897,19 +2064,18 @@ loc_00001EAC: ;; Interestingly, $000400FF seems to denote the beginning of a jum
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000055A4
 	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-loc_00001F02:
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C14A
+	dc.w	loc_0000C14A
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C946
+	dc.w	loc_0000C946
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.w	$000D, $0000, $000D, $0001, $000D, $0002, $000D, $0003, $0001, $0008, $0000 ;0x0 (0x00001F16-0x00001F2C, Entry count: 0x16)
-	dc.w	$16C0
+	dc.w	$000D, $0000, $000D, $0001, $000D, $0002, $000D, $0003, $0001, $0008 ;0x0 (0x00001F16-0x00001F2C, Entry count: 0x16)
+	dc.l	loc_000016C0
 	dc.b	$00, $06, $00, $00, $1F, $C8 ;0x0 (0x00001F2E-0x00001F34, Entry count: 0x6) [Unknown data]
 loc_00001F34:
 	dc.w	$0004, $00FF, $1882, $0400, $0004, $00FF, $0112, $0303, $000A, $0001, $000B, $2000 ;0x0 (0x00001F34-0x00001F4C, Entry count: 0x18)
@@ -1921,25 +2087,23 @@ loc_00001F34:
 	dc.b	$00, $0B, $A0, $00 ;0x0 (0x00001F60-0x00001F64, Entry count: 0x4) [Unknown data]
 	dc.l	loc_00061400
 	dc.w	$000C, $0003, $000C, $002A, $0001, $000F, $0004, $0005, $0000 ;0x0 (0x00001F68-0x00001F7A, Entry count: 0x12)
-	dc.w	$0000C9BA
+	dc.w	loc_0000C9BA
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	loc_00000560
+	dc.l	loc_00010560
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
+	dc.l	loc_000105CC
 	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
-	dc.w	loc_000005CE-2
-	dc.w	$00000000+1	;Predicted (Code target predicted at 0x1)
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
+	dc.w	$0100	;Predicted (Code target predicted at 0x100) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
+	dc.w	$0201	;Predicted (Code target predicted at 0x201)
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
+	dc.w	$0302
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001E03	;Predicted (Code target predicted at 0x1E03)
+	dc.w	$1E03	;Predicted (Code target predicted at 0x1E03)
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000C960
+	dc.w	loc_0000C960
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
@@ -1955,17 +2119,14 @@ loc_00001F34:
 	dc.w	loc_000029D6
 	dc.w	$00000000+$14-2	;Predicted (Code target predicted at 0x12) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+8	;Predicted (Code target predicted at 0x8) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_000016C0	;Predicted (Code target predicted at 0x16C0)
+	dc.l	loc_000016C0	;Predicted (Code target predicted at 0x16C0)
 	dc.w	$00000000+6	;Predicted (Code target predicted at 0x6) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00001FC8	; (Predicted offset)
+	dc.l	loc_00001FC8	; (Predicted offset)
 loc_00001FC8:
 	dc.w	$00000000+$C-2	;Predicted (Code target predicted at 0xA) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
-	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	loc_00000BC6
+	dc.l	loc_00000BC6
 	dc.w	$000F, $0004, $000B, $0000 ;0x0 (0x00001FD2-0x00001FDA, Entry count: 0x8)
 	dc.l	loc_00028B00
 	dc.b	$00, $0B, $20, $00 ;0x0 (0x00001FDE-0x00001FE2, Entry count: 0x4) [Unknown data]
@@ -1975,23 +2136,23 @@ loc_00001FC8:
 	dc.b	$00, $0B, $A0, $00 ;0x0 (0x00001FEE-0x00001FF2, Entry count: 0x4) [Unknown data]
 	dc.l	loc_00061400
 	dc.w	$000C, $0008, $0001, $0005, $0000 ;0x0 (0x00001FF6-0x00002000, Entry count: 0xA)
-	dc.w	$0000C960
+	dc.w	loc_0000C960
 	dc.w	$00000000+4	;Predicted (Code target predicted at 0x4) [Code verification failed! Opcode target not generated.]
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001890	;Predicted (Code target predicted at 0x1890)
-	dc.w	headerBegin-1	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
+	dc.w	$00FF	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
+	dc.w	$1890	;Predicted (Code target predicted at 0x1890)
+	dc.w	$00FF	;Predicted (Code target predicted at 0xFF) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000C9BA
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
-	dc.w	$0000BB0E
+	dc.w	loc_0000BB0E
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00001200	;Predicted (Code target predicted at 0x1200)
+	dc.w	$1200
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	Reset+1	;Predicted (Code target predicted at 0x201)
+	dc.w	$0201	;Predicted (Code target predicted at 0x201)
 	dc.w	$00000000+$10-3	;Predicted (Code target predicted at 0xD) [Code verification failed! Opcode target not generated.]
-	dc.w	loc_00000305-2	;Predicted (Code target predicted at 0x302)
+	dc.w	$0302
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
@@ -2007,8 +2168,8 @@ loc_00001FC8:
 	dc.w	$00000000+5	;Predicted (Code target predicted at 0x5) [Code verification failed! Opcode target not generated.]
 	dc.w	$00000000	;Predicted (Code target predicted at 0x0)
 	dc.w	loc_000029D6
-	dc.b	$00, $12, $00, $08, $00, $00, $16, $C0, $00, $06, $00, $00 ;0x0 (0x00002040-0x0000204C, Entry count: 0xC) [Unknown data]
-	dc.w	$1682
+	dc.b	$00, $12, $00, $08, $00, $00, $16, $C0, $00, $06 ;0x0 (0x00002040-0x0000204C, Entry count: 0xC) [Unknown data]
+	dc.l	loc_00001682
 loc_0000204E:
 	CLR.w	D1
 	MOVE.b	$00FF0112, D1
@@ -2123,7 +2284,7 @@ loc_000021E2:
 	move.b #0, ($00FF1879).l
 	rts
 loc_00002204:
-	MOVE.b	$00FF1878, $00FF0A3A
+	MOVE.b	$00FF1878, functionReturnState
 	RTS
 loc_00002210:
 	dc.w	$0000
@@ -3481,14 +3642,14 @@ loc_00002FB8:
 	MOVE.b	$00FF0113, D0
 	LEA	$00FF0116, A1
 	MOVE.b	#$FF, (A1,D0.w)
-	MOVE.b	#0, $00FF0A3A
+	MOVE.b	#0, functionReturnState
 	CMPI.b	#3, $00FF0112
 	BNE.w	loc_00002FFA
-	MOVE.b	#2, $00FF0A3A	;Predicted (Code-scan)
+	MOVE.b	#2, functionReturnState	;Predicted (Code-scan)
 loc_00002FFA:
 	RTS
 loc_00002FFC:
-	MOVE.b	#1, $00FF0A3A	;Predicted (Code-scan)
+	MOVE.b	#1, functionReturnState	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
 loc_00003006:
 	LEA	loc_00003010, A1
@@ -6476,7 +6637,7 @@ loc_00006562:
 	CLR.w	$00FF0144
 	MOVE.b	$2A(A0), D0
 	EORI.b	#1, D0
-	MOVE.b	D0, $00FF0A3A
+	MOVE.b	D0, functionReturnState
 	MOVE.b	D0, $00FF0115
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
@@ -7029,10 +7190,14 @@ z80Load_Loop1:
 z80Load_LoadData: ; 000071C0
 	MOVE.b	(A0)+, (A1)+	;Predicted (Code-scan)
 	DBF	D0, z80Load_LoadData	;Predicted (Code-scan)
-	MOVE.b	#0, $00A01F00	;Predicted (Code-scan)
-	MOVE.b	#7, $00A01F01	;Predicted (Code-scan)
-	MOVE.b	#$80, $00A01F02	;Predicted (Code-scan)
-	MOVE.b	#7, $00A01F03	;Predicted (Code-scan)
+	
+	; This is the code that determines where the sound data is located in rom, as well as where the z80 will load it from.
+	; The sound data must be 8KB aligned in the rom
+	MOVE.b	#((loc_00070000>>8)&$80), $00A01F00	;Predicted (Code-scan)
+	MOVE.b	#((loc_00070000>>16)&$FF), $00A01F01	;Predicted (Code-scan)
+	MOVE.b	#((loc_00078000>>8)&$80), $00A01F02	;Predicted (Code-scan)
+	MOVE.b	#((loc_00078000>>16)&$FF), $00A01F03	;Predicted (Code-scan)
+	
 	BSR.w	z80Load_resetZ80	;Predicted (Code-scan)
 	MOVE.w	#0, Z80BusReq	;Predicted (Code-scan)
 	NOP	;Predicted (Code-scan)
@@ -7042,6 +7207,7 @@ z80Load_LoadData: ; 000071C0
 	NOP	;Predicted (Code-scan)
 	NOP	;Predicted (Code-scan)
 	NOP	;Predicted (Code-scan)
+loc_00007200:
 	CMPI.b	#8, $00A00022	;Predicted (Code-scan)
 	BCS.w	z80Load_unkRtsBranch	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
@@ -7065,13 +7231,37 @@ z80Load_resetZ80:
 	NOP	;Predicted (Code-scan)
 	MOVE.w	#$0100, Z80Reset	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
+loc_0000723E:
+	move.w #$100, (Z80BusReq).l
+	bsr.b    z80Load_resetZ80
+loc_00007248:
+	btst.b #0, (Z80BusReq).l
+	bne.b loc_00007248
+	lea (loc_0007E000).l, a0
+	lea (Z80Ram).l, A1
+	move.w #$1FFF, d0
+loc_00007262:
+	move.b (a0)+, (a1)+
+	dbf d0, loc_00007262
 	
-	dc.b	$33, $FC, $01, $00, $00, $A1, $11, $00, $61, $C8, $08, $39, $00, $00, $00, $A1, $11, $00, $66, $F6, $41, $F9, $00, $07, $E0, $00, $43, $F9, $00, $A0, $00, $00 ;0x0 (0x0000723E-0x000072BE, Entry count: 0x80) [Unknown data]
-	dc.b	$30, $3C, $1F, $FF, $12, $D8, $51, $C8, $FF, $FC, $13, $FC, $00, $00, $00, $A0, $1F, $00, $13, $FC, $00, $07, $00, $A0, $1F, $01, $13, $FC, $00, $80, $00, $A0 ;0x20
-	dc.b	$1F, $02, $13, $FC, $00, $07, $00, $A0, $1F, $03, $13, $FC, $00, $C3, $00, $A0, $00, $00, $13, $FC, $00, $00, $00, $A0, $00, $01, $13, $FC, $00, $00, $00, $A0 ;0x40
-	dc.b	$00, $02, $61, $00, $FF, $6E, $33, $FC, $00, $00, $00, $A1, $11, $00, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $4E, $71, $60, $00, $FF, $44 ;0x60
-
-
+	MOVE.b	#((loc_00070000>>8)&$80), $00A01F00	;Predicted (Code-scan)
+	MOVE.b	#((loc_00070000>>16)&$FF), $00A01F01	;Predicted (Code-scan)
+	MOVE.b	#((loc_00078000>>8)&$80), $00A01F02	;Predicted (Code-scan)
+	MOVE.b	#((loc_00078000>>16)&$FF), $00A01F03	;Predicted (Code-scan)
+	
+	move.b #$C3, ($00A00000).l
+	move.b #$0, ($00A00001).l
+	move.b #$0, ($00A00002).l
+	bsr.w z80Load_resetZ80
+	move.w #0, (Z80BusReq).l
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	bra.w loc_00007200
 loc_000072BE:
 	MOVEM.l	A2/D1, -(A7)
 	LEA	$00FF0130, A2
@@ -7974,12 +8164,37 @@ loc_000087B6:
 	JMP	(A1)
 loc_000087CA:
 	dc.l	loc_000087DA
-	dc.b	$00, $00, $87, $DC, $00, $00, $87, $F6, $00, $00, $87, $F6 ;0x0 (0x000087CE-0x000087DA, Entry count: 0xC) [Unknown data]
+	dc.l    loc_000087DC
+	dc.l    loc_000087F6
+	dc.l    loc_000087F6
 loc_000087DA:
 	RTS
-	dc.b	$42, $40, $10, $28, $00, $2B, $E3, $48, $31, $7B, $00, $06, $00, $14, $4E, $75, $00, $00, $00, $00, $00, $00, $00, $12, $00, $1E, $22, $68, $00, $32, $42, $41 ;0x0 (0x000087DC-0x00008832, Entry count: 0x56) [Unknown data]
-	dc.b	$12, $28, $00, $2B, $E5, $09, $02, $01, $00, $38, $33, $7B, $10, $16, $00, $20, $13, $7B, $10, $12, $00, $07, $20, $3B, $10, $06, $60, $00, $00, $1A, $00, $00 ;0x20
-	dc.b	$00, $00, $FF, $FF, $00, $00, $00, $00, $9C, $40, $00, $28, $00, $00, $00, $01, $5F, $90, $00, $24, $01, $00 ;0x40
+loc_000087DC:
+	clr.w d0
+	move.b $2b(a0), d0
+	lsl.w #1, d0
+	move.w (loc_000087EC, PC, d0.w), $14(a0)
+	rts
+loc_000087EC:
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $12, $00, $1E
+loc_000087F6:
+	movea.l $32(a0), a1
+	clr.w d1
+	move.b $2b(a0), d1
+	lsl.b #2, d1
+	andi.b #$38, d1
+	move.w (loc_0000881E, PC, d1.w), $20(a1)
+	move.b (loc_00008820, PC, d1.w), $7(a1)
+	move.l (loc_0000881A, PC, d1.w), d0
+	bra.w loc_00008832
+	
+loc_0000881A:
+	dc.b    $00, $00 ;0x20
+	dc.b	$00, $00
+loc_0000881E:
+	dc.b    $FF, $FF
+loc_00008820:
+	dc.b    $00, $00, $00, $00, $9C, $40, $00, $28, $00, $00, $00, $01, $5F, $90, $00, $24, $01, $00 ;0x40
 loc_00008832:
 	BSR.w	loc_0000884C
 loc_00008836:
@@ -8178,6 +8393,7 @@ loc_00008BC4:
 	dc.b	$06, $42, $00, $60, $33, $42, $00, $0E, $52, $28, $00, $36, $0C, $28, $00, $41, $00, $36, $64, $00, $00, $04, $4E, $75, $33, $FC, $FF, $02, $00, $FF, $18, $AE ;0x7E0
 	dc.b	$4E, $B9, $00, $00, $2B, $26, $22, $68, $00, $2E, $4A, $29, $00, $07, $67, $00, $00, $1A, $52, $69, $00, $0E, $0C, $69, $00, $64, $00, $0E, $67, $00, $00, $04 ;0x800
 	dc.b	$4E, $75, $33, $FC, $FF, $00, $00, $FF, $18, $AE, $4E, $F9, $00, $00, $2A, $F2 ;0x820
+loc_000093F4:
 	CLR.w	D0
 	MOVE.b	$00FF0113, D0
 	LSL.w	#2, D0
@@ -8504,6 +8720,7 @@ loc_00009A94:
 	dc.b	$06, $06, $00, $00, $FF, $00, $00, $00, $9B, $48, $06, $03, $04, $00, $FF, $00, $00, $00, $9B, $3E, $F0, $00, $06, $02, $FF, $00, $00, $00, $9B, $48, $00, $07 ;0xA0
 	dc.b	$FE, $00, $06, $05, $04, $01, $FF, $00, $00, $00, $9B, $56, $06, $04, $04, $02, $FF, $00, $00, $00, $9B, $60, $10, $00, $05, $06, $00, $08, $FE, $00, $00, $05 ;0xC0
 	dc.b	$FE, $00, $00, $02, $FE, $00 ;0xE0
+loc_00009B7A:
 	MOVE.b	#$FF, $00FF18AC
 	MOVE.b	#0, $00FF18AD
 	LEA	loc_00009BDA, A1
@@ -8673,6 +8890,7 @@ loc_00009E18:
 	dc.b	$4E, $B9, $00, $00, $10, $20, $11, $7C, $00, $00, $00, $06, $4A, $39, $00, $FF, $18, $86, $67, $00, $FF, $1C, $10, $28, $00, $28, $61, $00, $D1, $40, $60, $00 ;0x340
 	dc.b	$FF, $10, $01, $80, $01, $80, $00, $00, $01, $40, $01, $80, $01, $40, $01, $80, $01, $40, $01, $40, $FF, $FF, $FF, $C8, $00, $3E, $FF, $E8, $00, $3D, $00, $08 ;0x360
 	dc.b	$00, $3D ;0x380
+loc_0000A1A4:
 	LEA	loc_0000A1D2, A1
 	BSR.w	loc_00002A54
 	LEA	loc_0000A23A, A1
@@ -8731,6 +8949,7 @@ loc_0000A286:
 	MOVE.b	D0, $00FF0A2D
 	CLR.w	$00FF0624
 	BRA.w	loc_00002AF2
+loc_0000A2AC:
 	LEA	loc_0000E0E2, A1
 	BSR.w	loc_00002A54
 	CLR.w	D0
@@ -8739,7 +8958,7 @@ loc_0000A286:
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	MOVE.b	D1, D2
 	LSR.b	#1, D2
-	MOVE.b	D2, $00FF0A3A
+	MOVE.b	D2, functionReturnState
 	LSL.w	#2, D1
 	MOVEA.l	loc_0000A2E8(PC,D1.w), A2
 	JMP	(A2)
@@ -8751,6 +8970,7 @@ loc_0000A2D6:
 loc_0000A2E8:
 	dc.l	loc_0000A316
 	dc.b	$00, $00, $A3, $68, $00, $00, $A3, $B6 ;0x0 (0x0000A2EC-0x0000A2F4, Entry count: 0x8) [Unknown data]
+loc_0000A2F4:
 	CLR.w	D0
 	CLR.w	D1
 	MOVE.b	$00FF0112, D0
@@ -8957,6 +9177,7 @@ loc_0000A632:
 	dc.b	$80, $01, $80, $02, $80, $03, $80, $04, $80, $05, $80, $06, $80, $07, $80, $08, $80, $09, $80, $0A, $80, $0B, $80, $00, $80, $0C, $80, $0D, $80, $0E, $80, $0F ;0x0 (0x0000AC32-0x0000B0F6, Entry count: 0x4C4) [Unknown data]
 	dc.b	$80, $10, $80, $11, $80, $12, $80, $13, $80, $14, $80, $15, $80, $16, $80, $17, $80, $18, $80, $19, $80, $1A, $80, $1B, $80, $1C, $80, $1D, $80, $1E, $80, $1F ;0x20
 	dc.b	$80, $20, $80, $21, $80, $22, $80, $23, $80, $24, $80, $25, $80, $26, $80, $27, $80, $28, $80, $29, $80, $2A, $80, $2B, $80, $2C, $80, $2D, $80, $2E, $80, $2F ;0x40
+loc_0000AC92:
 	dc.b	$11, $7C, $00, $FF, $00, $07, $21, $7C, $00, $00, $AE, $CA, $00, $32, $30, $3C, $02, $00, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $4A, $68 ;0x60
 	dc.b	$00, $26, $67, $00, $00, $08, $53, $68, $00, $26, $4E, $75, $22, $68, $00, $32, $30, $19, $67, $00, $00, $16, $6B, $00, $00, $3A, $E3, $48, $31, $40, $00, $26 ;0x80
 	dc.b	$24, $59, $21, $49, $00, $32, $60, $00, $00, $4C, $11, $7C, $00, $00, $00, $07, $30, $3C, $08, $00, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26 ;0xA0
@@ -8993,6 +9214,7 @@ loc_0000A632:
 	dc.b	$01, $20, $00, $11, $2E, $70, $3C, $3A, $3E, $2A, $16, $2E, $32, $3C, $32, $54, $2E, $16, $3C, $3A, $56, $00, $01, $20, $00, $0D, $1E, $26, $30, $32, $3A, $3E ;0x480
 	dc.b	$2A, $1E, $00, $30, $16, $22, $16, $32, $01, $20, $00, $04, $26, $1A, $24, $26, $01, $20, $00, $0E, $16, $2C, $2C, $00, $32, $3E, $38, $00, $20, $1E, $2C, $2C ;0x4A0
 	dc.b	$32, $42, $3A, $4A ;0x4C0
+loc_0000B0F6:
 	MOVE.b	#2, D0
 	MOVE.b	#0, D1
 	MOVE.b	#2, D2
@@ -9077,7 +9299,7 @@ loc_0000B22E:
 	MOVE.w	$26(A0), D0
 	MOVE.b	loc_0000B260(PC,D0.w), D1
 	MOVE.b	D1, $00FF1882
-	MOVE.b	D1, $00FF0A3A
+	MOVE.b	D1, functionReturnState
 	BEQ.w	loc_0000B354
 	CMPI.b	#3, D1
 	BEQ.w	loc_0000B254
@@ -9604,6 +9826,7 @@ loc_0000BA60:
 	dc.b	$00, $10, $52, $40, $0C, $40, $00, $03, $65, $C6, $4E, $75, $22, $68, $00, $2E, $4A, $29, $00, $07, $66, $00, $00, $08, $4E, $F9, $00, $00, $2A, $F2, $11, $7C ;0x40
 	dc.b	$00, $80, $00, $06, $30, $29, $00, $0E, $B0, $68, $00, $1E, $65, $00, $00, $08, $11, $7C, $00, $00, $00, $06, $4E, $F9, $00, $00, $2B, $72, $F0, $00, $01, $02 ;0x60
 	dc.b	$00, $00, $02, $03, $00, $00, $01, $02, $00, $00, $02, $03, $FF, $00, $00, $00, $BA, $F8 ;0x80
+loc_0000BB0E:
 	JSR	loc_00000BA4
 	LEA	loc_0000BC2C, A1
 	JMP	loc_00002A54
@@ -9828,26 +10051,161 @@ loc_0000BDBA:
 	MOVE.w	D1, vdpData1
 	ANDI	#$F8FF, SR
 	RTS
-	dc.b	$43, $F9, $00, $FF, $13, $1C, $30, $3C, $00, $07, $42, $19, $51, $C8, $FF, $FC, $43, $F9, $00, $00, $AC, $92, $4E, $B9, $00, $00, $2A, $54, $43, $F9, $00, $00 ;0x0 (0x0000BE0E-0x0000C08C, Entry count: 0x27E) [Unknown data]
-	dc.b	$BE, $38, $4E, $B9, $00, $00, $2A, $54, $4E, $75, $11, $7C, $00, $FF, $00, $07, $43, $F9, $00, $00, $BF, $96, $4E, $B9, $00, $00, $2A, $54, $65, $00, $00, $24 ;0x20
-	dc.b	$23, $48, $00, $2E, $61, $00, $13, $86, $10, $3C, $00, $00, $14, $3C, $00, $04, $45, $F9, $00, $00, $22, $10, $4E, $B9, $00, $00, $0E, $28, $33, $7C, $00, $80 ;0x40
-	dc.b	$00, $28, $11, $7C, $00, $33, $00, $06, $21, $7C, $00, $00, $08, $00, $00, $12, $21, $7C, $00, $00, $02, $00, $00, $16, $4E, $B9, $00, $00, $2B, $26, $4E, $B9 ;0x60
-	dc.b	$00, $00, $2C, $2A, $30, $28, $00, $0E, $44, $40, $33, $C0, $00, $FF, $05, $D4, $0C, $68, $00, $1C, $00, $0E, $64, $00, $00, $04, $4E, $75, $42, $00, $12, $3C ;0x80
-	dc.b	$00, $04, $45, $F9, $00, $00, $22, $10, $4E, $B9, $00, $00, $0E, $46, $30, $3C, $00, $80, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $28 ;0xA0
-	dc.b	$00, $07, $30, $3C, $00, $0B, $4E, $B9, $00, $00, $0B, $F2, $42, $00, $12, $3C, $00, $04, $45, $F9, $00, $00, $22, $10, $D5, $FC, $00, $00, $02, $20, $4E, $B9 ;0xC0
-	dc.b	$00, $00, $0E, $46, $30, $3C, $00, $40, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $31, $7C, $00, $1E, $00, $0A, $42, $68, $00, $0C, $31, $7C ;0xE0
-	dc.b	$00, $40, $00, $0E, $42, $68, $00, $10, $31, $7C, $00, $32, $00, $12, $42, $68, $00, $14, $4E, $B9, $00, $00, $2B, $26, $42, $40, $43, $F9, $00, $FF, $0A, $70 ;0x100
-	dc.b	$61, $00, $00, $18, $58, $40, $0C, $40, $00, $0C, $65, $F4, $42, $00, $45, $F9, $00, $FF, $0A, $56, $4E, $F9, $00, $00, $10, $20, $32, $30, $00, $0C, $D2, $70 ;0x120
-	dc.b	$00, $0A, $08, $01, $00, $0B, $67, $00, $00, $0A, $44, $70, $00, $0A, $32, $30, $00, $0C, $31, $81, $00, $0C, $E0, $49, $34, $00, $02, $02, $00, $08, $D2, $42 ;0x140
-	dc.b	$E3, $49, $32, $FB, $10, $04, $4E, $75, $04, $66, $06, $88, $08, $AA, $0A, $CC, $0C, $CC, $0C, $EE, $0E, $EE, $0E, $EE, $0C, $62, $0C, $64, $0C, $66, $0E, $88 ;0x160
-	dc.b	$0E, $AA, $0E, $CC, $0E, $EE, $0E, $EE, $22, $68, $00, $2E, $4A, $29, $00, $07, $67, $00, $00, $34, $45, $F9, $00, $FF, $07, $C2, $10, $28, $00, $36, $32, $3C ;0x180
-	dc.b	$01, $20, $36, $3C, $00, $1F, $4E, $B9, $00, $00, $12, $18, $48, $42, $D4, $69, $00, $0A, $34, $FC, $00, $00, $34, $C2, $06, $00, $00, $2D, $51, $CB, $FF, $E8 ;0x1A0
-	dc.b	$56, $28, $00, $36, $4E, $75, $61, $00, $12, $1A, $4E, $F9, $00, $00, $2A, $F2, $61, $00, $12, $10, $43, $F9, $00, $00, $BF, $EE, $4E, $F9, $00, $00, $2A, $54 ;0x1C0
-	dc.b	$30, $3C, $01, $40, $90, $68, $00, $26, $33, $C0, $00, $FF, $06, $22, $44, $40, $33, $C0, $00, $FF, $06, $24, $67, $00, $00, $08, $54, $68, $00, $26, $4E, $75 ;0x1E0
-	dc.b	$30, $3C, $00, $06, $61, $00, $11, $F6, $30, $3C, $00, $C0, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $10, $3C, $00, $00, $12, $3C, $00, $04 ;0x200
-	dc.b	$45, $F9, $00, $00, $22, $10, $4E, $B9, $00, $00, $0E, $46, $10, $3C, $00, $01, $12, $3C, $00, $08, $14, $3C, $00, $04, $45, $F9, $00, $00, $22, $10, $4E, $B9 ;0x220
-	dc.b	$00, $00, $0E, $28, $30, $3C, $00, $40, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $30, $3C, $00, $05, $61, $00, $11, $A2, $30, $3C, $02, $00 ;0x240
-	dc.b	$4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $39, $00, $FF, $0A, $3B, $42, $39, $00, $FF, $0A, $3A, $4E, $F9, $00, $00, $2A, $F2 ;0x260
+
+
+loc_0000BE0E:
+	lea 	($00FF131C).l, a1
+	move.w 	#7, d0
+loc_0000BE18:
+	clr.b   (a1)+
+	dbf    	d0, loc_0000BE18
+	lea		(loc_0000AC92).l, a1
+	jsr		loc_00002A54
+	lea		(loc_0000be38).l, a1
+	jsr		loc_00002A54
+	rts
+	
+loc_0000BE38:
+	move.b   #$FF, $7(a0)
+	lea		 (loc_0000BF96).l, a1
+	jsr		 loc_00002A54
+	bcs.w    loc_0000BE70
+	move.l   a0, $2E(a1)
+	bsr.w    loc_0000D1DA
+	move.b   #0, d0
+	move.b   #4, d2
+	lea 	 (loc_00002210).l, a2
+	jsr      loc_00000E28
+	move.w   #$80, $28(a1)
+loc_0000BE70:
+	move.b    #$33, $6(a0)
+	move.l    #$800, $12(a0)
+	move.l    #$200, $16(a0)
+	jsr		  loc_00002B26
+	jsr		  loc_00002C2A
+	move.w    $E(a0), d0
+	neg.w     d0
+	move.w    d0, ($00FF05D4).l
+	cmpi.w    #$1C,$E(a0)
+	bcc.w    loc_0000BEAA
+	rts
+loc_0000BEAA:
+	clr.b  d0
+	move.b #4, d1
+	lea (loc_00002210).l, a2
+	jsr loc_00000E46
+	move.w  #$80, d0
+	jsr  loc_00002B1C
+	jsr  loc_00002B26
+	clr.b    $7(a0)
+	move.w    #$B, d0
+	jsr  loc_00000BF2
+	clr.b  d0
+	move.b  #4, d1
+	lea (loc_00002210).l, a2
+	adda.l    #$220, a2
+	jsr loc_00000E46
+	move.w   #$40, d0
+	jsr  loc_00002B1C
+	jsr  loc_00002B26
+	move.w    #$1e, $A(a0)
+	clr.w    $C(a0)
+	move.w    #$40, $E(a0)
+	clr.w    $10(a0)
+	move.w    #$32, $12(a0)
+	clr.w    $14(a0)
+	jsr    loc_00002B26
+	clr.w  d0
+	lea   ($00FF0A70).l, a1
+loc_0000BF2E:
+	bsr.w    loc_0000BF48
+	addq.w #4, d0
+	cmpi.w #$C, d0
+	bcs.b    loc_0000BF2E
+	clr.b    d0
+	lea    ($00FF0A56).l, a2
+	jmp		loc_00001020
+loc_0000BF48:
+	move.w    $C(a0, d0.w), d1
+	add.w     $A(a0, d0.w), d1
+	btst.l    #$b, d1
+	beq.w     loc_0000BF60
+	neg.w    $A(a0, d0.w)
+	move.w    $C(a0, d0.w), d1
+loc_0000BF60:
+	move.w d1,$C(a0, d0)
+	lsr.w #8, d1
+	move.w d0, d2
+	andi.b #8, d2
+	add.w d2, d1
+	lsl.w #1, d1
+	move.w (loc_0000BF76, pc, d1.w), (a1)+
+	rts
+loc_0000BF76:
+	dc.b	$04, $66, $06, $88, $08, $AA, $0A, $CC, $0C, $CC, $0C, $EE, $0E, $EE, $0E, $EE, $0C, $62, $0C, $64, $0C, $66, $0E, $88 ;0x160
+	dc.b	$0E, $AA, $0E, $CC, $0E, $EE, $0E, $EE
+loc_0000BF96:
+	movea.l $2e(a0), a1
+	tst.b $7(a1)
+	beq.w loc_0000BFD4
+	lea ($00FF07C2).l, a2
+	move.b $36(a0), d0
+	move.w #$120, d1
+	move.w #$1f, d3
+loc_0000BFB4:
+	jsr loc_00001218
+	swap d2
+	add.w $a(a1), d2
+	move.w #0, (a2)+
+loc_0000BFC4:
+	move.w d2, (a2)+
+	addi.b #$2d, d0
+	dbf d3, loc_0000BFB4
+	addq.b #3, $36(a0)
+	rts
+loc_0000BFD4:
+	bsr.w    loc_0000D1F0
+	jmp loc_00002AF2
+loc_0000BFDE:
+	bsr.w    loc_0000D1F0
+	lea    (loc_0000BFEE).l, a1
+	jmp    loc_00002A54
+loc_0000BFEE:
+	move.w    #$140, d0
+	sub.w    $26(a0), d0
+	move.w    d0, ($00FF0622).l
+	neg.w   d0
+	move.w    d0, ($00FF0624).l
+	beq.w    loc_0000C00E
+	addq.w    #2, $26(a0)
+	rts
+loc_0000C00E:
+	move.w #6, d0
+	bsr.w loc_0000D20A
+	move.w #$c0, d0
+	jsr loc_00002B1C
+	jsr loc_00002B26
+	move.b #0, d0
+	move.b #4, d1
+	lea (loc_00002210).l, a2
+	jsr loc_00000E46
+	move.b #1, d0
+	move.b #8, d1
+	move.b #4, d2
+	lea (loc_00002210).l, a2
+	jsr loc_00000E28
+	move.w #$40, d0
+	jsr loc_00002B1C
+	jsr loc_00002B26
+	move.w #5, d0
+	bsr.w loc_0000D20A
+	move.w #$200, d0
+	jsr loc_00002B1C
+	jsr loc_00002B26
+	clr.b ($00FF0A3B).l
+	clr.b ($00FF0A3A).l
+	jmp loc_00002AF2
+
 loc_0000C08C:
 	ORI	#$0700, SR
 	MOVE.w	#$000D, D0
@@ -9892,10 +10250,12 @@ loc_0000C10E:
 	dc.b	$41, $8E, $8F, $81, $82, $83, $84, $85, $86, $20, $87, $60, $4D, $88, $89, $8A, $8B, $8C, $01, $8D, $87, $60, $4D, $88, $89, $8A, $8B, $8C, $01, $8D ;0x0 (0x0000C10E-0x0000C12C, Entry count: 0x1E)
 loc_0000C12C:
 	dc.b	$61, $CD, $CE, $90, $A5, $A6, $A7, $C8, $C9, $40, $2D, $80, $6D, $9A, $9B, $9C, $CA, $CB, $21, $CC, $2D, $80, $6D, $9A, $9B, $9C, $CA, $CB, $21, $CC ;0x0 (0x0000C12C-0x0000C14A, Entry count: 0x1E)
+loc_0000C14A:
 	MOVE.l	#$97000000, D0
 	JSR	loc_00000C4C
 	MOVE.l	#$9A000000, D0
 	JMP	loc_00000C4C
+loc_0000C162:
 	CLR.w	D0
 	MOVE.b	$00FF0112, D0
 	LEA	loc_0000C20A, A1
@@ -10191,6 +10551,7 @@ loc_0000C640:
 	dc.b	$00, $04, $0D, $FF ;0x0 (0x0000C640-0x0000C644, Entry count: 0x4) [Unknown data]
 loc_0000C644:
 	dc.b	$03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $FF ;0x0 (0x0000C644-0x0000C652, Entry count: 0xE) [Unknown data]
+loc_0000C652:
 	ORI	#$0700, SR
 	MOVE.w	#$CC08, D5
 	BSR.w	loc_0000C696
@@ -10226,6 +10587,7 @@ loc_0000C6BE:
 	ADDQ.w	#1, D1
 	DBF	D0, loc_0000C6BE
 	RTS
+loc_0000C6CC:
 	BSR.w	loc_0000C7D6
 	LEA	loc_0000C6FC, A1
 	JSR	loc_00002A54
@@ -10234,7 +10596,7 @@ loc_0000C6BE:
 loc_0000C6E2:
 	MOVE.w	#1, $12(A1)
 	MOVE.w	#$000B, $28(A1)
-	MOVE.b	#$FF, $00FF0A3A
+	MOVE.b	#$FF, functionReturnState
 	BSR.w	loc_0000D1DA
 	RTS
 loc_0000C6FC:
@@ -10269,7 +10631,7 @@ loc_0000C74E:
 loc_0000C764:
 	MOVE.b	#$52, D0	;Predicted (Code-scan)
 	BSR.w	loc_000072BE	;Predicted (Code-scan)
-	CLR.b	$00FF0A3A	;Predicted (Code-scan)
+	CLR.b	functionReturnState	;Predicted (Code-scan)
 loc_0000C772:
 	CLR.b	$00FF0A3B
 	JSR	loc_00002B26
@@ -10385,6 +10747,7 @@ loc_0000C8E2:
 	RTS
 	dc.b	$4A, $28, $00, $09, $67, $00, $00, $08, $4E, $F9, $00, $00, $2A, $F2, $11, $7C, $00, $00, $00, $06, $4E, $B9, $00, $00, $2B, $26, $20, $3C, $80, $0B, $0F, $00 ;0x0 (0x0000C910-0x0000C946, Entry count: 0x36) [Unknown data]
 	dc.b	$4A, $39, $00, $FF, $18, $84, $67, $00, $00, $08, $20, $3C, $80, $10, $0F, $00, $4E, $F9, $00, $00, $0C, $4C ;0x20
+loc_0000C946:
 	LEA	loc_0000C96C, A1
 	JSR	loc_00002A54
 	BCC.w	loc_0000C958
@@ -10392,6 +10755,7 @@ loc_0000C8E2:
 loc_0000C958:
 	MOVE.w	#$0C00, $26(A1)
 	RTS
+loc_0000C960:
 	LEA	loc_0000C96C, A1
 	JMP	loc_00002A54
 loc_0000C96C:
@@ -10407,13 +10771,14 @@ loc_0000C98A:
 	BEQ.w	loc_0000C9A8
 	RTS
 loc_0000C994:
-	MOVE.b	#$FF, $00FF0A3A
+	MOVE.b	#$FF, functionReturnState
 	CLR.b	$00FF0A3B
 	JMP	loc_00002AF2
 loc_0000C9A8:
-	CLR.b	$00FF0A3A	;Predicted (Code-scan)
+	CLR.b	functionReturnState	;Predicted (Code-scan)
 	CLR.b	$00FF0A3B	;Predicted (Code-scan)
 	JMP	loc_00002AF2	;Predicted (Code-scan)
+loc_0000C9BA:
 	LEA	loc_0000C9F0, A1
 	JSR	loc_00002AB0
 	BCC.w	loc_0000C9CC
@@ -10422,7 +10787,7 @@ loc_0000C9CC:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$1C, $8(A1)
 	CLR.w	D0
-	MOVE.b	$00FF0A3A, D0
+	MOVE.b	functionReturnState, D0
 	LSL.b	#2, D0
 	MOVE.w	loc_0000CA12(PC,D0.w), $A(A1)
 	MOVE.w	loc_0000CA14(PC,D0.w), $E(A1)
@@ -10926,7 +11291,7 @@ loc_0000D0D4:
 	MOVE.b	#$52, D0
 	JSR	loc_000072BE
 	CLR.b	$00FF0A3B
-	CLR.b	$00FF0A3A
+	CLR.b	functionReturnState
 	JMP	loc_00002AF2
 loc_0000D0F0:
 	LEA	loc_0000D188, A1
@@ -11871,6 +12236,7 @@ loc_0000D34A:
 	dc.b	$03
 	dc.b	$3C ;0x0 (0x0000D72D-0x0000D72E, Entry count: 0x1) [Unknown data]
 	dc.b	$FF
+	
 	dc.b	$00, $FF, $04, $00, $20, $FF, $08, $FA, $8C, $02, $E4, $02, $B0, $01, $F4, $FF, $04, $00, $60, $FF, $0C, $00, $22, $FF, $08, $FA, $8C, $02, $B4, $02, $C4, $02 ;0x0 (0x0000D72F-0x0000E0E2, Entry count: 0x9B3) [Unknown data]
 	dc.b	$D0, $02, $F0, $02, $C0, $02, $FC, $02, $C8, $02, $D4, $FF, $04, $00, $40, $FF, $0C, $00, $22, $FF, $08, $FB, $0C, $02, $F8, $02, $D8, $02, $F8, $02, $D8, $02 ;0x20
 	dc.b	$E8, $FF, $04, $00, $08, $01, $FC, $02, $FC, $02, $C8, $02, $BC, $02, $E0, $02, $F4, $02, $B8, $02, $DC, $02, $EC, $01, $F8, $FF, $04, $00, $80, $FF, $0C, $00 ;0x40
@@ -11885,9 +12251,23 @@ loc_0000D34A:
 	dc.b	$50, $43, $44, $43, $54, $43, $5C, $FF, $04, $00, $40, $FF, $08, $EC, $16, $43, $94, $43, $40, $43, $98, $43, $9C, $43, $60, $43, $74, $FF, $04, $00, $08, $43 ;0x160
 	dc.b	$A8, $43, $4C, $43, $60, $43, $40, $FF, $04, $00, $30, $FF, $08, $F2, $12, $43, $78, $43, $68, $43, $78, $43, $68, $43, $A0, $43, $A4, $43, $64, $FF, $04, $00 ;0x180
 	dc.b	$20, $43, $AC, $43, $6C, $43, $70, $43, $58, $FF, $04, $00, $40, $43, $7C, $FF, $00, $FF, $04, $00, $20, $FF, $08, $D2, $0A, $83, $80, $83, $48, $83, $88, $83 ;0x1A0
-	dc.b	$88, $83, $88, $FF, $04, $00, $20, $FF, $08, $D5, $0E, $83, $90, $83, $70, $83, $58, $83, $6C, $83, $8C, $83, $84, $FF, $00, $43, $F9, $00, $00, $D9, $14, $4E ;0x1C0
-	dc.b	$F9, $00, $00, $2A, $54, $10, $39, $00, $FF, $11, $0B, $80, $39, $00, $FF, $11, $11, $02, $00, $00, $F0, $66, $00, $00, $04, $4E, $75, $42, $39, $00, $FF, $0A ;0x1E0
-	dc.b	$3B, $13, $FC, $00, $02, $00, $FF, $0A, $3A, $4E, $F9, $00, $00, $2A, $F2, $48, $E7, $00, $80, $42, $40, $10, $39, $00, $FF, $01, $13, $E5, $48, $43, $F9, $00 ;0x200
+	dc.b	$88, $83, $88, $FF, $04, $00, $20, $FF, $08, $D5, $0E, $83, $90, $83, $70, $83, $58, $83, $6C, $83, $8C, $83, $84, $FF, $00
+	
+loc_0000D908:
+	lea (loc_0000D914).l, a1
+	jmp loc_00002A54
+loc_0000D914:
+	move.b ($00FF110b).l, d0
+	or.b ($00FF1111).l, d0
+	andi.b #$F0, d0
+	bne.w loc_0000D92A
+	rts
+loc_0000D92A:
+	clr.b ($00FF0A3B).l
+	move.b #2, ($00FF0A3A).l
+	jmp loc_00002AF2
+	
+	dc.b    $48, $E7, $00, $80, $42, $40, $10, $39, $00, $FF, $01, $13, $E5, $48, $43, $F9, $00 ;0x200
 	dc.b	$00, $95, $04, $20, $71, $00, $00, $30, $3C, $80, $00, $4E, $B9, $00, $00, $0C, $82, $4C, $DF, $01, $00, $42, $40, $10, $39, $00, $FF, $01, $13, $12, $00, $06 ;0x220
 	dc.b	$01, $00, $09, $43, $F9, $00, $00, $DA, $02, $4E, $B9, $00, $00, $2A, $B0, $64, $00, $00, $04, $4E, $75, $23, $48, $00, $2E, $13, $7C, $00, $B7, $00, $06, $13 ;0x240
 	dc.b	$7C, $00, $FF, $00, $07, $13, $41, $00, $08, $33, $7C, $00, $60, $00, $0A, $33, $7C, $00, $64, $00, $0E, $33, $7C, $00, $04, $00, $1E, $33, $7C, $00, $38, $00 ;0x260
@@ -11901,8 +12281,18 @@ loc_0000D34A:
 	dc.b	$B7, $00, $06, $13, $7C, $00, $FF, $00, $07, $13, $7C, $00, $08, $00, $08, $33, $7C, $01, $E0, $00, $0A, $33, $7C, $00, $60, $00, $0E, $33, $7C, $FF, $FC, $00 ;0x360
 	dc.b	$1E, $33, $7C, $00, $38, $00, $26, $33, $7C, $FF, $FA, $00, $12, $33, $7C, $40, $00, $00, $1C, $23, $7C, $00, $00, $DA, $EA, $00, $32, $24, $49, $43, $F9, $00 ;0x380
 	dc.b	$00, $9C, $3C, $4E, $B9, $00, $00, $2A, $B0, $64, $00, $00, $04, $4E, $75, $23, $4A, $00, $2E, $13, $7C, $00, $08, $00, $08, $4E, $75, $02, $00, $08, $06, $0C ;0x3A0
-	dc.b	$13, $00, $0B, $FE, $00, $42, $40, $10, $39, $00, $FF, $01, $12, $43, $F9, $00, $00, $DB, $16, $13, $F1, $00, $00, $00, $FF, $01, $13, $43, $F9, $00, $00, $DB ;0x3C0
-	dc.b	$28, $4E, $F9, $00, $00, $2A, $54, $10, $00, $04, $0D, $03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $11, $11, $7C, $00, $FF, $00, $07, $61 ;0x3E0
+	dc.b	$13, $00, $0B, $FE, $00
+loc_0000DAF4:
+	clr.w    d0
+	move.b   ($00FF0112).l, d0
+	lea (loc_0000DB16).l, a1
+	move.b $0(a1, d0.w), ($00FF0113).l
+	lea (loc_0000DB28).l, a1
+	jmp loc_00002A54
+loc_0000DB16:
+	dc.b    $10, $00, $04, $0D, $03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $11
+loc_0000DB28:
+	dc.b    $11, $7C, $00, $FF, $00, $07, $61 ;0x3E0
 	dc.b	$00, $00, $D6, $4E, $B9, $00, $00, $2B, $26, $0C, $39, $00, $11, $00, $FF, $01, $13, $65, $00, $00, $1C, $30, $3C, $00, $2E, $4E, $B9, $00, $00, $0B, $F2, $4E ;0x400 (DB2F)
 	dc.b	$B9, $00, $00, $2B, $26, $30, $3C, $00, $2F, $4E, $B9, $00, $00, $0B, $F2, $61, $00, $00, $D6, $4E, $B9, $00, $00, $2B, $26, $61, $00, $02, $68, $42, $39, $00 ;0x420
 	dc.b	$FF, $18, $86, $30, $3C, $00, $C0, $4E, $B9, $00, $00, $2B, $1C, $4E, $B9, $00, $00, $2B, $26, $42, $40, $10, $39, $00, $FF, $01, $12, $61, $00, $03, $60, $33 ;0x440
@@ -13720,6 +14110,7 @@ loc_0001055C:
 	dc.b	$00 ;0x0 (0x0001055D-0x0001055E, Entry count: 0x1) [Unknown data]
 	dc.b	$FE
 	dc.b	$00 ;0x0 (0x0001055F-0x00010560, Entry count: 0x1) [Unknown data]
+loc_00010560:
 	LEA	$00FF111C, A1
 	LEA	loc_00010572, A2
 loc_0001056C:
@@ -13731,6 +14122,7 @@ loc_00010572:
 	dc.b	$05, $05, $03, $03, $03, $04, $03, $05, $05, $05, $04, $05, $01, $01, $01, $04, $01, $00, $00, $00, $04, $00, $01, $04, $01, $05, $01, $05, $01, $04, $04, $04 ;0x20
 	dc.b	$05, $05, $00, $00, $05, $00, $05, $00, $04, $05, $03, $04, $03, $04, $04, $05, $03, $03, $03, $04, $03, $04, $03, $04, $FF ;0x40
 	dc.b	$00 ;0x0 (0x000105CB-0x000105CC, Entry count: 0x1) [Unknown data]
+loc_000105CC:
 	MOVE.w	#$CB3E, $00FF18A8
 	CLR.w	$00FF188C
 	CLR.w	$00FF05CA
@@ -13769,7 +14161,7 @@ loc_00010670:
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	CLR.b	$00FF0A3A
+	CLR.b	functionReturnState
 	CLR.b	$00FF0A3B
 	JMP	loc_00002AF2
 loc_000106A4:
@@ -14171,10 +14563,10 @@ loc_00010C9C:
 	CLR.b	$00FF0A3B
 	MOVE.b	$00FF188E, D0
 	ADDQ.b	#1, D0
-	MOVE.b	D0, $00FF0A3A
+	MOVE.b	D0, functionReturnState
 	ANDI.b	#1, D0
 	MOVE.b	D0, $00FF188E
-	CMPI.b	#2, $00FF0A3A
+	CMPI.b	#2, functionReturnState
 	BEQ.w	loc_00010CCC
 	JMP	loc_00002AF2
 loc_00010CCC:
@@ -16063,8 +16455,7 @@ loc_00014440:
 	MOVEA.l	loc_0001444C(PC,D2.w), A4
 	JMP	(A4)
 loc_0001444C:
-	dc.l	
-	
+	dc.l	loc_0001514A
 	dc.l	loc_00015204
 	dc.l	loc_00015212
 	dc.l	loc_00014E82	;Predicted (Code target predicted at 0x14E82)
@@ -17654,7 +18045,7 @@ loc_0001705A:
 loc_00017170:
 	dc.l	loc_00017A98
 	dc.l	loc_00017C1C	;Predicted
-	dc.l	loc_00017D04-2	;Predicted
+	dc.l	loc_00017D02	;Predicted
 	dc.l	loc_000177A2
 	dc.l	loc_0001786A	;Predicted
 	dc.l	loc_00017914	;Predicted
@@ -17695,64 +18086,134 @@ loc_00017170:
 	dc.l	$00000000	;Predicted
 	dc.l	$00000000	;Predicted
 	dc.l	loc_0001746A
-	dc.l	loc_000174CA-2
+	dc.l	loc_000174C8
 	dc.l	loc_00017A28	;Predicted
 	dc.l	loc_00017A32	;Predicted
 	dc.l	loc_00017A54	;Predicted
 	dc.l	loc_00017A76	;Predicted
-	dc.l	loc_00017C14-2	;Predicted
-	dc.l	loc_00017D04-2	;Predicted
+	dc.l	loc_00017C12	;Predicted
+	dc.l	loc_00017D02	;Predicted
+	
+; Around here is the beginning of a bunch of lookup tables for code
+; I think these are used depending on what transition the game is in (title->menu for example)
+; I don't fully understand the format of them, but the format seems mostly consistent
+
+; Each one starts with a word stating how long the table is, followed by rom pointers for each entry.
+; After that I'm not certain what the rest of the data is
+; It seems like the first word for each entry defines what type of entry it is???
+	
 loc_00017238:
-	dc.l	loc_00040001	;Predicted
-	dc.l	$724A0001	;Predicted
-	dc.l	$72560001	;Predicted
-	dc.l	$72620001	;Predicted
-	dc.l	$726E0004	;Predicted
+	dc.w    $0004
+	dc.l    loc_0001724A
+	dc.l    loc_00017256
+	dc.l    loc_00017262
+	dc.l    loc_0001726E
+
+loc_0001724A:
+	dc.w	$0004	;Predicted
 	dc.l	$1002CA18	;Predicted
 	dc.l	loc_0001C844
-	dc.l	$E3000004	;Predicted
+	dc.w	$E300
+loc_00017256:
+	dc.w    $0004	;Predicted
 	dc.l	$1002CD18	;Predicted
 	dc.l	loc_0001C8A4
-	dc.l	$E3000004	;Predicted
+	dc.w	$E300
+loc_00017262:
+	dc.w    $0004	;Predicted
 	dc.l	$1002D018	;Predicted
 	dc.l	loc_0001C8E4
-	dc.l	$E3000004	;Predicted
+	dc.w	$E300
+loc_0001726E:
+	dc.w    $0004	;Predicted
 	dc.l	$1002D318	;Predicted
 	dc.l	loc_0001C924
-	dc.b	$E3, $00 ;0x0 (0x00017278-0x0001727A, Entry count: 0x2) [Unknown data]
+	dc.w	$E300
+	
+; Lookup End
+	
+; Lookup Begin
 loc_0001727A:
+	dc.w    $0004
+	dc.l    loc_0001728C
+	dc.l    loc_00017298
+	dc.l    loc_000172A4
+	dc.l    loc_000172B0
 
-
-
-	dc.b	$00, $04, $00, $01, $72, $8C, $00, $01, $72, $98, $00, $01, $72, $A4, $00, $01, $72, $B0, $00, $04, $10, $02, $CA, $18 ;0x0 (0x0001727A-0x00017292, Entry count: 0x18) [Unknown data]
+loc_0001728C:
+	dc.b	$00, $04, $10, $02, $CA, $18 ;0x0 (0x0001727A-0x00017292, Entry count: 0x18) [Unknown data]
 	dc.l	loc_0001C864
-	dc.b	$E3, $00, $00, $04, $10, $02, $CD, $18 ;0x0 (0x00017296-0x0001729E, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_00017298:
+	dc.b    $00, $04, $10, $02, $CD, $18 ;0x0 (0x00017296-0x0001729E, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C884
-	dc.b	$E3, $00, $00, $04, $10, $02, $D0, $18 ;0x0 (0x000172A2-0x000172AA, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_000172A4:
+	dc.b    $00, $04, $10, $02, $D0, $18 ;0x0 (0x000172A2-0x000172AA, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C8E4
-	dc.b	$E3, $00, $00, $04, $10, $02, $D3, $18 ;0x0 (0x000172AE-0x000172B6, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_000172B0:
+	dc.b    $00, $04, $10, $02, $D3, $18 ;0x0 (0x000172AE-0x000172B6, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C924
 	dc.b	$E3, $00 ;0x0 (0x000172BA-0x000172BC, Entry count: 0x2) [Unknown data]
+	
+; Lookup End
+	
+	
 loc_000172BC:
-	dc.b	$00, $04, $00, $01, $72, $CE, $00, $01, $72, $DA, $00, $01, $72, $E6, $00, $01, $72, $F2, $00, $04, $10, $02, $CA, $18 ;0x0 (0x000172BC-0x000172D4, Entry count: 0x18) [Unknown data]
+	dc.w    $0004
+	dc.l    loc_000172CE
+	dc.l    loc_000172DA
+	dc.l    loc_000172E6
+	dc.l    loc_000172F2
+	
+loc_000172CE:
+	dc.b	$00, $04, $10, $02, $CA, $18 ;0x0 (0x000172BC-0x000172D4, Entry count: 0x18) [Unknown data]
 	dc.l	loc_0001C864
-	dc.b	$E3, $00, $00, $04, $10, $02, $CD, $18 ;0x0 (0x000172D8-0x000172E0, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_000172DA:
+	dc.b    $00, $04, $10, $02, $CD, $18 ;0x0 (0x000172D8-0x000172E0, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C8A4
-	dc.b	$E3, $00, $00, $04, $10, $02, $D0, $18 ;0x0 (0x000172E4-0x000172EC, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_000172E6:
+	dc.b    $00, $04, $10, $02, $D0, $18 ;0x0 (0x000172E4-0x000172EC, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C8C4
-	dc.b	$E3, $00, $00, $04, $10, $02, $D3, $18 ;0x0 (0x000172F0-0x000172F8, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_000172F2:
+	dc.b    $00, $04, $10, $02, $D3, $18 ;0x0 (0x000172F0-0x000172F8, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001C924
 	dc.b	$E3, $00 ;0x0 (0x000172FC-0x000172FE, Entry count: 0x2) [Unknown data]
+	
+; Lookup End
+
+
 loc_000172FE:
-	dc.b	$00, $04, $00, $01, $73, $10, $00, $01, $73, $1C, $00, $01, $73, $28, $00, $01, $73, $34, $00, $04, $10, $02, $CA, $18 ;0x0 (0x000172FE-0x00017316, Entry count: 0x18) [Unknown data]
+	dc.w    $0004
+	dc.l    loc_00017310
+	dc.l    loc_0001731C
+	dc.l    loc_00017328
+	dc.l    loc_00017334
+	
+	
+loc_00017310:
+	dc.b	$00, $04, $10, $02, $CA, $18
 	dc.l	loc_0001C864
-	dc.b	$E3, $00, $00, $04, $10, $02, $CD, $18 ;0x0 (0x0001731A-0x00017322, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_0001731C:
+	dc.b    $00, $04, $10, $02, $CD, $18
 	dc.l	loc_0001C8A4
-	dc.b	$E3, $00, $00, $04, $10, $02, $D0, $18 ;0x0 (0x00017326-0x0001732E, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_00017328:
+	dc.b    $00, $04, $10, $02, $D0, $18
 	dc.l	loc_0001C8E4
-	dc.b	$E3, $00, $00, $04, $10, $02, $D3, $18 ;0x0 (0x00017332-0x0001733A, Entry count: 0x8) [Unknown data]
+	dc.b	$E3, $00
+loc_00017334:
+	dc.b    $00, $04, $10, $02, $D3, $18
 	dc.l	loc_0001C904
-	dc.b	$E3, $00 ;0x0 (0x0001733E-0x00017340, Entry count: 0x2) [Unknown data]
+	dc.b	$E3, $00
+
+
+	
 loc_00017340:
 	dc.w    $0013
 	dc.l    loc_0001738E
@@ -17871,23 +18332,53 @@ loc_0001745E:
 
 
 loc_0001746A:
-	dc.b	$00, $07, $00, $01, $74, $88, $00, $01, $74, $90, $00, $01, $74, $98, $00, $01, $74, $A0, $00, $01, $74, $AC, $00, $01, $74, $B8, $00, $01, $74, $C0, $00, $00 ;0x0 (0x0001746A-0x000174A2, Entry count: 0x38) [Unknown data]
-	dc.b	$17, $19, $C1, $1E, $80, $00, $00, $00, $16, $11, $E1, $20, $63, $FD, $00, $00, $15, $10, $E1, $A2, $63, $FC, $00, $04 ;0x20
+	dc.w    $0007
+	dc.l    loc_00017488
+	dc.l    loc_00017490
+	dc.l    loc_00017498
+	dc.l    loc_000174A0
+	dc.l    loc_000174AC
+	dc.l    loc_000174B8
+	dc.l    loc_000174C0
+
+loc_00017488:
+	dc.b	$00, $00, $17, $19, $C1, $1E, $80, $00
+loc_00017490:
+	dc.b    $00, $00, $16, $11, $E1, $20, $63, $FD
+loc_00017498:
+	dc.b    $00, $00, $15, $10, $E1, $A2, $63, $FC
+loc_000174A0:
+	dc.w    $0004 ;0x20
 	dc.l	$0111E11E	;Predicted
 	dc.l	loc_0001C4E6
-	dc.l	$40000004	;Predicted
+	dc.w	$4000
+loc_000174AC:
+	dc.w    $0004	;Predicted
 	dc.l	$1708E99E	;Predicted
 	dc.l	loc_0001C4F8
-	dc.l	$40000000	;Predicted
+	dc.w	$4000
+loc_000174B8:
+	dc.w    $0000	;Predicted
 	dc.l	$0E06EA20	;Predicted
-	dc.l	$63FD0000	;Predicted
+	dc.w	$63FD
+loc_000174C0:
+	dc.w    $0000	;Predicted
 	dc.l	$0D05EAA2	;Predicted
-	dc.l	$63FC0001	;Predicted
-loc_000174CA:
+	dc.w	$63FC
+	
+; Lookup End
+	
+	
+loc_000174C8:
+	dc.w    $0001	;Predicted
+
 	dc.l	loc_000174CE	;Predicted
 loc_000174CE:
-	dc.l	loc_00001614-3	;Predicted
+	dc.l	$00001611	;Predicted
 	dc.l	$C1208000	;Predicted
+	
+; Lookup End
+
 loc_000174D6:
 	dc.w	$0003	;Predicted
 	dc.l	loc_000174E4	;Predicted
@@ -17907,6 +18398,7 @@ loc_000174F4
 	dc.l	loc_0001C4B6 ; Shiftability (should this be this?)
 	dc.b	$80, $00 ;0x0 (0x000174FE-0x00017500, Entry count: 0x2) [Unknown data]
 	
+; Lookup End
 	
 loc_00017500:
 	dc.w	$0008 ; Lookup Table Size
@@ -17967,28 +18459,42 @@ loc_000175AA:
 loc_000175B2:
 	dc.b    $00, $00, $40, $1C, $E0, $00, $00, $00
 loc_000175BA:
-	dc.b	$00, $04, $20, $07, $C8, $88, $00, $01, $A1, $5E, $81, $00
+	dc.b	$00, $04, $20, $07, $C8, $88
+	dc.l    loc_0001A15E
+	dc.b    $81, $00
 loc_000175C6:
-	dc.b    $00, $04, $20, $09, $C2, $08, $00, $01, $9F, $BE, $80, $00
+	dc.b    $00, $04, $20, $09, $C2, $08
+	dc.l    loc_00019FBE
+	dc.b    $80, $00
 loc_000175D2:
-	dc.b 	$00, $04, $20, $01, $C6, $88, $00, $01, $9F, $9E, $80, $00
+	dc.b 	$00, $04, $20, $01, $C6, $88
+	dc.l    loc_00019F9E
+	dc.b    $80, $00
 loc_000175DE:
 	dc.b 	$00, $00, $40, $09, $E2, $00, $00, $0F
 loc_000175E6:
-	dc.b 	$00, $04, $20, $04, $E6, $80, $00, $01, $9F, $1E, $00, $00
+	dc.b 	$00, $04, $20, $04, $E6, $80
+	dc.l    loc_00019F1E
+	dc.b    $00, $00
 loc_000175F2:
-	dc.b 	$00, $04, $20, $04, $E6, $C0, $00, $01, $9F, $1E, $00, $00
+	dc.b 	$00, $04, $20, $04, $E6, $C0
+	dc.l    loc_00019F1E
+	dc.b    $00, $00
 loc_000175FE:
-	dc.b    $00, $04, $20, $04, $E6, $88, $00, $01, $9F, $1E, $00, $00
+	dc.b    $00, $04, $20, $04, $E6, $88
+	dc.l    loc_00019F1E
+	dc.b    $00, $00
 ; Lookup End
 	
 ; Lookup Start
 	
-loc_0001760A: ; SO MANY LOOKUP TABLES
+loc_0001760A:
 	dc.w	$0001
 	dc.l    loc_00017610
 loc_00017610:
-	dc.b	$00, $04, $20, $14, $C2, $08, $00, $01, $A2, $3E, $81, $00
+	dc.b	$00, $04, $20, $14, $C2, $08
+	dc.l    loc_0001A23E
+	dc.b    $81, $00
 	
 ; Lookup End
 	
@@ -18006,13 +18512,21 @@ loc_00017636:
 loc_0001763E:
 	dc.b	$00, $00, $80, $1C, $E0, $00, $00, $00
 loc_00017646:
-	dc.b    $00, $04, $18, $10, $C8, $20, $00, $01, $9D, $3E, $22, $00
+	dc.b    $00, $04, $18, $10, $C8, $20
+	dc.l    loc_00019D3E
+	dc.b    $22, $00
 loc_00017652:
-	dc.b    $00, $04, $18, $04, $D8, $20, $00, $01, $9E, $BE, $23, $00
+	dc.b    $00, $04, $18, $04, $D8, $20
+	dc.l    loc_00019EBE
+	dc.b    $23, $00
 loc_0001765E:
-	dc.b 	$00, $04, $20, $0D, $E4, $08, $00, $01, $9F, $BE, $00, $00
+	dc.b 	$00, $04, $20, $0D, $E4, $08
+	dc.l    loc_00019FBE
+	dc.b    $00, $00
 loc_0001766A:
-	dc.b    $00, $04, $20, $07, $F1, $08, $00, $01, $A1, $5E, $01, $00
+	dc.b    $00, $04, $20, $07, $F1, $08
+	dc.l    loc_0001A15E
+	dc.b    $01, $00
 	
 ; Lookup End
 	
@@ -18120,10 +18634,12 @@ loc_00017786:
 	dc.l	loc_00019892
 	dc.b	$01, $00 
 	
-	
+; Lookup End
 
 loc_00017792:
-	dc.b    $00, $00, $28, $04, $CE, $00, $80, $00, $00, $00, $28, $04, $EE, $00, $80, $00
+	dc.b    $00, $00, $28, $04, $CE, $00, $80, $00
+loc_0001779A:
+	dc.b    $00, $00, $28, $04, $EE, $00, $80, $00
 	
 loc_000177A2:
 	dc.w    $0009
@@ -18170,34 +18686,156 @@ loc_0001781C:
 	dc.l	loc_000185BC
 	dc.b	$40, $00
 	
-	
-	
+; Lookup End
 
 loc_00017828:
-	dc.b	$00, $04, $00, $01, $78, $3A, $00, $01, $78, $46, $00, $01, $78, $52, $00, $01, $78, $5E, $00, $04, $20, $0E, $C0, $00, $00, $01, $A9, $5E, $E0, $00, $00, $04 ;0x0 (0x00017828-0x0001786A, Entry count: 0x42) [Unknown data]
-	dc.b	$08, $0E, $C0, $40, $00, $01, $AB, $1E, $E0, $00, $00, $04, $20, $0C, $C7, $00, $00, $01, $AB, $8E, $E0, $00, $00, $04, $08, $0C, $C7, $40, $00, $01, $AD, $4E ;0x20
-	dc.b	$E0, $00 ;0x40
+	dc.w    $0004
+	dc.l    loc_0001783A
+	dc.l    loc_00017846
+	dc.l    loc_00017852
+	dc.l    loc_0001785E
+
+
+loc_0001783A:
+	dc.b	$00, $04, $20, $0E, $C0, $00
+	dc.l    loc_0001A95E
+	dc.b    $E0, $00
+loc_00017846:
+	dc.b    $00, $04 ;0x0 (0x00017828-0x0001786A, Entry count: 0x42) [Unknown data]
+	dc.b	$08, $0E, $C0, $40
+	dc.l    loc_0001AB1E
+	dc.b    $E0, $00
+loc_00017852:
+	dc.b    $00, $04, $20, $0C, $C7, $00
+	dc.l    loc_0001AB8E
+	dc.b    $E0, $00
+loc_0001785E:
+	dc.b    $00, $04, $08, $0C, $C7, $40
+	dc.l    loc_0001AD4E
+	dc.b    $E0, $00 ;0x40
+	
+; Lookup End	
+
 loc_0001786A:
-	dc.b	$00, $0C, $00, $01, $78, $9C, $00, $01, $78, $A8, $00, $01, $78, $B4, $00, $01, $78, $C0, $00, $01, $78, $CC, $00, $01, $78, $D8, $00, $01, $78, $E4, $00, $01 ;0x0 (0x0001786A-0x00017914, Entry count: 0xAA) [Unknown data]
-	dc.b	$78, $F0, $00, $01, $78, $FC, $00, $01, $79, $08, $00, $01, $77, $92, $00, $01, $77, $9A, $00, $04, $20, $0E, $C0, $00, $00, $01, $A9, $5E, $E0, $00, $00, $04 ;0x20
-	dc.b	$08, $0E, $C0, $40, $00, $01, $AB, $1E, $E0, $00, $00, $04, $20, $0E, $C7, $00, $00, $01, $AB, $8E, $E0, $00, $00, $04, $08, $0E, $C7, $40, $00, $01, $AD, $4E ;0x40
-	dc.b	$E0, $00, $00, $04, $20, $0E, $E0, $00, $00, $01, $AD, $BE, $60, $00, $00, $04, $08, $0E, $E0, $40, $00, $01, $AF, $7E, $60, $00, $00, $04, $20, $0E, $E7, $00 ;0x60
-	dc.b	$00, $01, $AF, $EE, $60, $00, $00, $04, $08, $0E, $E7, $40, $00, $01, $B1, $AE, $60, $00, $00, $04, $20, $02, $E0, $00, $00, $01, $A9, $5E, $60, $00, $00, $04 ;0x80
+	dc.w   $000C
+	dc.l   loc_0001789C
+	dc.l   loc_000178A8
+	dc.l   loc_000178B4
+	dc.l   loc_000178C0
+	dc.l   loc_000178CC
+	dc.l   loc_000178D8
+	dc.l   loc_000178E4
+	dc.l   loc_000178F0
+	dc.l   loc_000178FC
+	dc.l   loc_00017908
+	dc.l   loc_00017792 ; ???
+	dc.l   loc_0001779A ; ???
+	
+	; Todo: Pick up where I left off from here and add the rom pointers for entries of type $0004 (and $0010?)?  Just fix rom pointers lol
+loc_0001789C:
+	dc.b    $00, $04, $20, $0E, $C0, $00, $00, $01, $A9, $5E, $E0, $00
+loc_000178A8:
+	dc.b    $00, $04 ;0x20
+	dc.b	$08, $0E, $C0, $40, $00, $01, $AB, $1E, $E0, $00
+loc_000178B4:
+	dc.b    $00, $04, $20, $0E, $C7, $00, $00, $01, $AB, $8E, $E0, $00
+loc_000178C0:
+	dc.b    $00, $04, $08, $0E, $C7, $40, $00, $01, $AD, $4E ;0x40
+	dc.b	$E0, $00
+loc_000178CC:
+	dc.b    $00, $04, $20, $0E, $E0, $00, $00, $01, $AD, $BE, $60, $00
+loc_000178D8:
+	dc.b    $00, $04, $08, $0E, $E0, $40, $00, $01, $AF, $7E, $60, $00
+loc_000178E4:
+	dc.b    $00, $04, $20, $0E, $E7, $00 ;0x60
+	dc.b	$00, $01, $AF, $EE, $60, $00
+loc_000178F0:
+	dc.b    $00, $04, $08, $0E, $E7, $40, $00, $01, $B1, $AE, $60, $00
+loc_000178FC:
+	dc.b    $00, $04, $20, $02, $E0, $00, $00, $01, $A9, $5E, $60, $00
+loc_00017908:
+	dc.b    $00, $04 ;0x80
 	dc.b	$08, $02, $E0, $40, $00, $01, $AB, $1E, $60, $00 ;0xA0
+	
+; Lookup End
+	
+	
+	
+	
 loc_00017914:
-	dc.b	$00, $06, $00, $01, $79, $2E, $00, $01, $79, $3A, $00, $01, $79, $46, $00, $01, $79, $52, $00, $01, $77, $92, $00, $01, $77, $9A, $00, $04, $20, $1C, $C0, $00 ;0x0 (0x00017914-0x0001795E, Entry count: 0x4A) [Unknown data]
-	dc.b	$00, $01, $B2, $1E, $C0, $00, $00, $04, $08, $1C, $C0, $40, $00, $01, $B5, $9E, $C0, $00, $00, $04, $20, $1C, $E0, $00, $00, $01, $B6, $7E, $40, $00, $00, $04 ;0x20
-	dc.b	$08, $1C, $E0, $40, $00, $01, $B9, $FE, $40, $00 ;0x40
+	dc.w    $0006
+	dc.l    loc_0001792E
+	dc.l    loc_0001793A
+	dc.l    loc_00017946
+	dc.l    loc_00017952
+	dc.l    loc_00017792 ; ???
+	dc.l    loc_0001779A ; ???
+	
+loc_0001792E:
+	dc.b	$00, $04, $20, $1C, $C0, $00, $00, $01, $B2, $1E, $C0, $00
+loc_0001793A:
+	dc.b    $00, $04, $08, $1C, $C0, $40, $00, $01, $B5, $9E, $C0, $00
+loc_00017946:
+	dc.b    $00, $04, $20, $1C, $E0, $00, $00, $01, $B6, $7E, $40, $00
+loc_00017952:	
+	dc.b    $00, $04, $08, $1C, $E0, $40, $00, $01, $B9, $FE, $40, $00
+	
+	
+	
+	
 loc_0001795E:
-	dc.b	$00, $0B, $00, $01, $79, $98, $00, $01, $79, $A8, $00, $01, $79, $B8, $00, $01, $79, $C8, $00, $01, $79, $D8, $00, $01, $79, $E4, $00, $01, $79, $F0, $00, $01 ;0x0 (0x0001795E-0x00017A28, Entry count: 0xCA) [Unknown data]
-	dc.b	$79, $FC, $00, $01, $7A, $08, $00, $01, $7A, $18, $00, $01, $79, $90, $00, $01, $77, $92, $00, $00, $28, $04, $D0, $1C, $80, $00, $00, $10, $20, $0E, $C0, $00 ;0x20
-	dc.b	$00, $01, $BA, $DE, $00, $01, $BC, $9E, $80, $00, $00, $10, $08, $0E, $C0, $40, $00, $01, $BD, $0E, $00, $01, $BD, $7E, $80, $00, $00, $10, $20, $0E, $C7, $00 ;0x40
-	dc.b	$00, $01, $BD, $9A, $00, $01, $BF, $5A, $80, $00, $00, $10, $08, $0E, $C7, $40, $00, $01, $BF, $CA, $00, $01, $C0, $3A, $80, $00, $00, $04, $20, $0E, $E0, $00 ;0x60
-	dc.b	$00, $01, $C0, $56, $40, $00, $00, $04, $08, $0E, $E0, $40, $00, $01, $C2, $16, $40, $00, $00, $04, $20, $0E, $E7, $00, $00, $01, $C2, $86, $40, $00, $00, $04 ;0x80
-	dc.b	$08, $0E, $E7, $40, $00, $01, $C4, $46, $40, $00, $00, $10, $20, $02, $E0, $00, $00, $01, $BA, $DE, $00, $01, $BC, $9E, $00, $00, $00, $10, $08, $02, $E0, $40 ;0xA0
+	; left off
+	dc.w    $000B
+	dc.l    loc_00017998
+	dc.l    loc_000179A8
+	dc.l    loc_000179B8
+	dc.l    loc_000179C8
+	dc.l    loc_000179D8
+	dc.l    loc_000179E4
+	dc.l    loc_000179F0
+	dc.l    loc_000179FC
+	dc.l    loc_00017A08
+	dc.l    loc_00017A18
+	dc.l    loc_00017990
+	dc.l    loc_00017792
+	
+loc_00017990:
+	dc.b	$00, $00, $28, $04, $D0, $1C, $80, $00
+loc_00017998:
+	dc.b    $00, $10, $20, $0E, $C0, $00 ;0x20
+	dc.b	$00, $01, $BA, $DE, $00, $01, $BC, $9E, $80, $00
+loc_000179A8:
+	dc.b    $00, $10, $08, $0E, $C0, $40, $00, $01, $BD, $0E, $00, $01, $BD, $7E, $80, $00
+loc_000179B8:
+	dc.b    $00, $10, $20, $0E, $C7, $00 ;0x40
+	dc.b	$00, $01, $BD, $9A, $00, $01, $BF, $5A, $80, $00
+loc_000179C8:
+	dc.b    $00, $10, $08, $0E, $C7, $40, $00, $01, $BF, $CA, $00, $01, $C0, $3A, $80, $00
+loc_000179D8:
+	dc.b    $00, $04, $20, $0E, $E0, $00 ;0x60
+	dc.b	$00, $01, $C0, $56, $40, $00
+loc_000179E4:
+	dc.b    $00, $04, $08, $0E, $E0, $40, $00, $01, $C2, $16, $40, $00
+loc_000179F0:
+	dc.b    $00, $04, $20, $0E, $E7, $00, $00, $01, $C2, $86, $40, $00
+loc_000179FC:
+	dc.b    $00, $04 ;0x80
+	dc.b	$08, $0E, $E7, $40, $00, $01, $C4, $46, $40, $00
+loc_00017A08:
+	dc.b    $00, $10, $20, $02, $E0, $00, $00, $01, $BA, $DE, $00, $01, $BC, $9E, $00, $00
+loc_00017A18:
+	dc.b    $00, $10, $08, $02, $E0, $40 ;0xA0
 	dc.b	$00, $01, $BD, $0E, $00, $01, $BD, $7E, $00, $00 ;0xC0
+	
+; Lookup Table End
+
+	
+	
 loc_00017A28:
-	dc.b	$00, $02, $00, $01, $7A, $FA, $00, $01, $7B, $06 ;0x0 (0x00017A28-0x00017A32, Entry count: 0xA) [Unknown data]
+	dc.w    $0002
+	dc.l    loc_00017AFA
+	dc.l    loc_00017B06
+	
 loc_00017A32:
 	dc.b	$00, $08, $00, $01, $7A, $FA, $00, $01, $7B, $06, $00, $01, $7B, $12, $00, $01, $7B, $1E, $00, $01, $7B, $2A, $00, $01, $7B, $34, $00, $01, $7B, $3E, $00, $01 ;0x0 (0x00017A32-0x00017A54, Entry count: 0x22) [Unknown data]
 	dc.b	$7B, $4A ;0x20
@@ -18208,76 +18846,152 @@ loc_00017A76:
 	dc.b	$00, $08, $00, $01, $7B, $B2, $00, $01, $7B, $BE, $00, $01, $7B, $CA, $00, $01, $7B, $D6, $00, $01, $7B, $E2, $00, $01, $7B, $EE, $00, $01, $7B, $FA, $00, $01 ;0x0 (0x00017A76-0x00017A98, Entry count: 0x22) [Unknown data]
 	dc.b	$7C, $06 ;0x20
 loc_00017A98:
-	dc.b	$00, $18, $00, $01, $7A, $FA, $00, $01, $7B, $06, $00, $01, $7B, $12, $00, $01, $7B, $1E, $00, $01, $7B, $2A, $00, $01, $7B, $34, $00, $01, $7B, $3E, $00, $01 ;0x0 (0x00017A98-0x00017B00, Entry count: 0x68) [Unknown data]
-	dc.b	$7B, $4A, $00, $01, $7B, $56, $00, $01, $7B, $5E, $00, $01, $7B, $6A, $00, $01, $7B, $76, $00, $01, $7B, $82, $00, $01, $7B, $8E, $00, $01, $7B, $9A, $00, $01 ;0x20
-	dc.b	$7B, $A6, $00, $01, $7B, $B2, $00, $01, $7B, $BE, $00, $01, $7B, $CA, $00, $01, $7B, $D6, $00, $01, $7B, $E2, $00, $01, $7B, $EE, $00, $01, $7B, $FA, $00, $01 ;0x40
-	dc.b	$7C, $06, $00, $04, $20, $10, $D2, $00 ;0x60
+
+	dc.w    $0018
+	dc.l    loc_00017AFA
+	dc.l    loc_00017B06
+	dc.l    loc_00017B12
+	dc.l    loc_00017B1E
+	dc.l    loc_00017B2A
+	dc.l    loc_00017B34
+	dc.l    loc_00017B3E
+	dc.l    loc_00017B4A
+	dc.l    loc_00017B56
+	dc.l    loc_00017B5E
+	dc.l    loc_00017B6A
+	dc.l    loc_00017B76
+	dc.l    loc_00017B82
+	dc.l    loc_00017B8E
+	dc.l    loc_00017B9A
+	dc.l    loc_00017BA6
+	dc.l    loc_00017BB2
+	dc.l    loc_00017BBE
+	dc.l    loc_00017BCA
+	dc.l    loc_00017BD6
+	dc.l    loc_00017BE2
+	dc.l    loc_00017BEE
+	dc.l    loc_00017BFA
+	dc.l    loc_00017C06
+	
+	
+loc_00017AFA:
+	dc.b    $00, $04, $20, $10, $D2, $00 ;0x60
 	dc.l	loc_0001862C
-	dc.b	$21, $00, $00, $04, $08, $10, $D2, $40 ;0x0 (0x00017B04-0x00017B0C, Entry count: 0x8) [Unknown data]
+	dc.b	$21, $00
+loc_00017B06:
+	dc.b	$00, $04, $08, $10, $D2, $40 ;0x0 (0x00017B04-0x00017B0C, Entry count: 0x8) [Unknown data]
 	dc.l	loc_0001882C
-	dc.b	$21, $00, $00, $04, $20, $09, $DA, $00 ;0x0 (0x00017B10-0x00017B18, Entry count: 0x8) [Unknown data]
+	dc.b	$21, $00
+loc_00017B12:
+	dc.b    $00, $04, $20, $09, $DA, $00 ;0x0 (0x00017B10-0x00017B18, Entry count: 0x8) [Unknown data]
 	dc.l	loc_000188AC
-	dc.b	$62, $00, $00, $04, $08, $09, $DA, $40 ;0x0 (0x00017B1C-0x00017B24, Entry count: 0x8) [Unknown data]
+	dc.b	$62, $00
+loc_00017B1E:
+	dc.b    $00, $04, $08, $09, $DA, $40 ;0x0 (0x00017B1C-0x00017B24, Entry count: 0x8) [Unknown data]
 	dc.l	loc_000189CC
-	dc.b	$62, $00, $00, $08, $02, $03, $DD, $00 ;0x0 (0x00017B28-0x00017B30, Entry count: 0x8) [Unknown data]
+	dc.b	$62, $00
+loc_00017B2A:
+	dc.b    $00, $08, $02, $03, $DD, $00 ;0x0 (0x00017B28-0x00017B30, Entry count: 0x8) [Unknown data]
 	dc.l	loc_00018A14
+loc_00017B34:
 	dc.b	$00, $08, $02, $04, $DC, $CC ;0x0 (0x00017B34-0x00017B3A, Entry count: 0x6) [Unknown data]
 	dc.l	loc_00018A20
+loc_00017B3E:
 	dc.b	$00, $04 ;0x0 (0x00017B3E-0x00017B40, Entry count: 0x2) [Unknown data]
 	dc.l	$2003DE80	;Predicted
 	dc.l	loc_00018A30
-	dc.l	$E1000004	;Predicted
+	dc.w	$E100
+loc_00017B4A:
+	dc.w    $0004	;Predicted
 	dc.l	$0803DEC0	;Predicted
 	dc.l	loc_00018A90
-	dc.l	$E1000000	;Predicted
+	dc.w	$E100
+loc_00017B56:
+	dc.w    $0000	;Predicted
 	dc.l	$4040E000	;Predicted
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B5E:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F480	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B6A:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F518	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B76:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F534	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B82:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F4D2	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B8E:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F568	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017B9A:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F780	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BA6:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F79C	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BB2:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F832	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BBE:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F7CC	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BCA:
+	dc.w    $0004	;Predicted
 	dc.l	$0B05F864	;Predicted
 	dc.l	loc_00018AA8
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BD6:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04FB04	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BE2:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04FAA4	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BEE:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04FABE	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017BFA:
+	dc.w    $0004	;Predicted
 	dc.l	$0C04FB5C	;Predicted
 	dc.l	loc_00018AE0
-	dc.l	$22000004	;Predicted
+	dc.w	$2200
+loc_00017C06:
+	dc.w    $0004	;Predicted
 	dc.l	$0302FC78	;Predicted
 	dc.l	loc_00018B10
-	dc.l	$22000002	;Predicted
-loc_00017C14:
+	dc.w	$2200
+	
+	
+	
+	; Very corrupted lookup tables ahead :<
+
+loc_00017C12:
+	dc.w    $0002	;Predicted
 	dc.l	loc_00017C78-2	;Predicted
 	dc.l	loc_00017C84-2	;Predicted
 loc_00017C1C:
@@ -18340,8 +19054,9 @@ loc_00017C84:
 	dc.l	$002D002D	;Predicted
 	dc.l	$002C0033	;Predicted
 	dc.l	$002D3839	;Predicted
-	dc.l	$002C0007	;Predicted
-loc_00017D04:
+	dc.w	$002C
+loc_00017D02:
+	dc.w    $0007	;Predicted
 	dc.l	loc_00017D20	;Predicted
 	dc.l	loc_00017D28	;Predicted
 	dc.l	loc_00017D34	;Predicted
@@ -18665,6 +19380,7 @@ loc_00019C42:
 	dc.b	$88, $89, $8A, $8B, $8C, $01, $8D, $87, $9A, $9B, $9C, $CA, $CB, $21, $CC, $2D, $8B, $8C, $01, $8D, $87, $60, $4D, $88, $CA, $CB, $21, $CC, $2D, $80, $6D, $9A ;0xC0
 loc_00019D22:
 	dc.b	$86, $20, $C9, $40, $87, $60, $2D, $80, $88, $89, $9A, $9B, $8A, $8B, $9C, $CA, $01, $8D, $21, $CC, $41, $8E, $61, $CD, $81, $82, $90, $A5 ;0x0 (0x00019D22-0x00019D3E, Entry count: 0x1C)
+loc_00019D3E:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $01, $02, $03, $04, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $05 ;0x0 (0x00019D3E-0x0001A4BE, Entry count: 0x780) [Unknown data]
 	dc.b	$06, $07, $08, $09, $0A, $0B, $0C, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $0D, $0E, $0F, $10, $11, $12, $13, $14, $15, $16, $17 ;0x20
 	dc.b	$18, $00, $00, $00, $00, $00, $00, $00, $00, $00, $19, $1A, $1B, $1C, $1D, $1E, $1F, $20, $21, $22, $23, $24, $25, $26, $27, $28, $00, $00, $00, $00, $00, $00 ;0x40
@@ -18677,14 +19393,18 @@ loc_00019D22:
 	dc.b	$00, $00, $00, $A9, $AA, $AB, $AC, $AD, $AE, $AF, $B0, $B1, $B2, $B3, $B4, $B5, $B6, $B7, $B8, $00, $B9, $BA, $5E, $BB, $00, $00, $00, $00, $BC, $BD, $5E, $BE ;0x120
 	dc.b	$BF, $C0, $C1, $C2, $C3, $C4, $C5, $C6, $C7, $9C, $C8, $C9, $CA, $CB, $CC, $CD, $00, $00, $00, $00, $CE, $CF, $D0, $D1, $D2, $D3, $C0, $C0, $D4, $D5, $D6, $D7 ;0x140
 	dc.b	$D8, $9C, $D9, $DA, $DB, $DC, $DD, $00, $00, $00, $00, $00, $DE, $DF, $E0, $E1, $E2, $E3, $C0, $E4, $E5, $E6, $E7, $E8, $E9, $EA, $EB, $EC, $ED, $EE, $EF, $00 ;0x160
+loc_00019EBE:
 	dc.b	$00, $00, $00, $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $00, $0E, $0F, $10, $11, $00, $00, $00, $00, $00, $00, $00, $12, $13, $14 ;0x180
 	dc.b	$15, $16, $17, $18, $19, $1A, $1B, $1C, $1D, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1E, $1F, $20, $21, $22, $23, $24, $25, $26 ;0x1A0
 	dc.b	$27, $28, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $33, $34, $35, $00, $00, $00, $00, $00 ;0x1C0
+loc_00019F1E:
 	dc.b	$0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $C5, $C6, $C7, $C8, $C9, $CA, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $0F ;0x1E0
 	dc.b	$D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D4, $D5, $D6, $D7, $D8, $D8, $D9, $DA, $DB, $DC, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3 ;0x200
 	dc.b	$DD, $DD, $DD, $DD, $DD, $DD, $DD, $DE, $DF, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $E0, $E1, $E2, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD ;0x220
 	dc.b	$E3, $E3, $E3, $E3, $E3, $E3, $E3, $E4, $E5, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $E0, $E6, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3 ;0x240
+loc_00019F9E:
 	dc.b	$C0, $C1, $C2, $C3, $C4, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $CB, $CC, $CD, $CE, $CF, $D0, $D1, $D2, $0F ;0x260
+loc_00019FBE:
 	dc.b	$01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $0F, $0F, $0F, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1A, $1B, $1C, $1D ;0x280
 	dc.b	$1E, $1F, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $0F, $0F, $0F, $0F, $0F, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $33, $34, $35, $36, $37 ;0x2A0
 	dc.b	$38, $39, $3A, $3B, $3C, $3D, $3E, $3F, $40, $41, $42, $43, $44, $0F, $0F, $0F, $0F, $0F, $0F, $0F, $45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50 ;0x2C0
@@ -18698,6 +19418,7 @@ loc_00019D22:
 	dc.b	$D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D4, $D5, $D6, $D7, $D8, $D8, $D9, $DA, $DB, $DC, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3 ;0x3C0
 	dc.b	$DD, $DD, $DD, $DD, $DD, $DD, $DD, $DE, $DF, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $E0, $E1, $E2, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD, $DD ;0x3E0
 	dc.b	$E3, $E3, $E3, $E3, $E3, $E3, $E3, $E4, $E5, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $D8, $E0, $E6, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3, $E3 ;0x400
+loc_0001A15E:
 	dc.b	$01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1A, $1B, $1C, $1D, $1E, $1F, $20 ;0x420
 	dc.b	$21, $22, $23, $24, $25, $26, $27, $28, $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E, $3F, $40 ;0x440
 	dc.b	$41, $42, $43, $44, $45, $46, $47, $48, $49, $4A, $4B, $4C, $4D, $4E, $4F, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $5A, $5B, $5C, $5D, $5E, $5F, $60 ;0x460
@@ -18705,6 +19426,7 @@ loc_00019D22:
 	dc.b	$81, $82, $83, $84, $85, $86, $87, $88, $89, $8A, $8B, $8C, $8D, $8E, $8F, $90, $91, $92, $93, $94, $95, $96, $97, $98, $99, $9A, $9B, $9C, $9D, $9E, $9F, $A0 ;0x4A0
 	dc.b	$A1, $A2, $A3, $A4, $A5, $A6, $A7, $A8, $A9, $AA, $AB, $AC, $AD, $AE, $AF, $B0, $B1, $B2, $B3, $B4, $B5, $B6, $B7, $B8, $B9, $BA, $BB, $BC, $BD, $BE, $BF, $C0 ;0x4C0
 	dc.b	$C1, $C2, $C3, $C4, $C5, $C6, $C7, $C8, $C9, $CA, $CB, $CC, $CD, $CE, $CF, $D0, $D1, $D2, $D3, $04, $D4, $D5, $D6, $D7, $04, $D8, $D9, $DA, $DB, $DC, $DD, $DE ;0x4E0
+loc_0001A23E:
 	dc.b	$DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $E0, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $E1, $DF, $E2, $DF, $DF, $DF, $DF, $DF ;0x500
 	dc.b	$DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $E3, $DF, $E4, $DF, $DF, $DF, $DF, $E5, $DF ;0x520
 	dc.b	$DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $E6, $DF, $E7, $DF, $E8, $E9, $DF, $EA, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF, $DF ;0x540
@@ -18756,6 +19478,7 @@ loc_0001A8EE:
 loc_0001A926:
 	dc.b	$00, $00, $05, $06, $07, $08, $00, $00, $00, $00, $0D, $0E, $0F, $10, $11, $12, $00, $00, $00, $16, $17, $18, $19, $1A, $00, $23, $24, $25, $26, $27, $28, $00 ;0x0 (0x0001A926-0x0001A95E, Entry count: 0x38)
 	dc.b	$31, $32, $33, $34, $35, $36, $37, $38, $41, $42, $43, $44, $45, $46, $47, $48, $4D, $4E, $4F, $50, $51, $52, $53, $54 ;0x20
+loc_0001A95E:
 	dc.b	$05, $06, $13, $14, $15, $16, $17, $16, $1C, $05, $02, $0A, $01, $02, $03, $0F, $10, $02, $07, $08, $02, $06, $33, $34, $35, $3C, $05, $0F, $10, $0D, $0E, $03 ;0x0 (0x0001A95E-0x0001C4B6, Entry count: 0x1B58) [Unknown data]
 	dc.b	$02, $06, $33, $34, $35, $36, $37, $36, $3C, $05, $01, $02, $06, $05, $03, $11, $12, $02, $04, $01, $02, $03, $04, $03, $04, $01, $02, $11, $12, $04, $03, $03 ;0x20
 	dc.b	$02, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $13, $14, $15, $16, $17, $16, $17, $18, $19, $1A, $1B, $1C, $00, $00, $00, $00, $00, $00 ;0x40
@@ -18770,10 +19493,13 @@ loc_0001A926:
 	dc.b	$02, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $05, $01, $02, $03, $11, $12, $0D, $0E, $07, $08, $02, $06, $00, $00, $00, $00, $00, $00 ;0x160
 	dc.b	$09, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00 ;0x180
 	dc.b	$0A, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00 ;0x1A0
+loc_0001AB1E:
 	dc.b	$02, $04, $01, $02, $03, $04, $03, $06, $06, $05, $01, $02, $03, $06, $13, $14, $00, $00, $00, $00, $00, $00, $33, $34, $00, $00, $00, $00, $00, $00, $05, $01 ;0x1C0
 	dc.b	$00, $00, $00, $00, $00, $00, $05, $09, $00, $00, $00, $00, $00, $00, $05, $0A, $00, $00, $00, $00, $00, $00, $13, $14, $00, $00, $00, $00, $00, $00, $33, $34 ;0x1E0
 	dc.b	$00, $00, $00, $00, $00, $00, $05, $06, $00, $00, $00, $00, $00, $00, $05, $06, $00, $00, $00, $00, $00, $00, $05, $01, $00, $00, $00, $00, $00, $00, $05, $0F ;0x200
-	dc.b	$00, $00, $00, $00, $00, $00, $05, $11, $00, $00, $00, $00, $00, $00, $05, $06, $05, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00 ;0x220
+	dc.b	$00, $00, $00, $00, $00, $00, $05, $11, $00, $00, $00, $00, $00, $00, $05, $06
+loc_0001AB8E:
+	dc.b    $05, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00 ;0x220
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00, $05, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00 ;0x240
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00, $02, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00 ;0x260
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00, $00, $00, $00, $00, $00, $05, $06, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $1D, $00 ;0x280
@@ -18787,7 +19513,9 @@ loc_0001A926:
 	dc.b	$0C, $03, $02, $04, $04, $04, $01, $11, $12, $06, $00, $00, $00, $00, $00, $00, $3B, $3C, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $05, $0D ;0x380
 	dc.b	$0E, $06, $05, $04, $01, $09, $02, $04, $02, $06, $00, $00, $00, $00, $00, $00, $1B, $18, $15, $14, $15, $16, $17, $18, $19, $15, $16, $1A, $1B, $18, $15, $1A ;0x3A0
 	dc.b	$1B, $1C, $05, $0F, $10, $0A, $06, $13, $1B, $18, $15, $14, $15, $16, $17, $18, $3B, $38, $35, $34, $35, $36, $37, $38, $39, $35, $36, $3A, $3B, $38, $35, $34 ;0x3C0
-	dc.b	$3B, $3C, $05, $11, $12, $04, $06, $33, $3B, $38, $35, $34, $35, $36, $37, $38, $00, $00, $00, $00, $00, $00, $05, $0F, $00, $00, $00, $00, $00, $00, $05, $11 ;0x3E0
+	dc.b	$3B, $3C, $05, $11, $12, $04, $06, $33, $3B, $38, $35, $34, $35, $36, $37, $38
+loc_0001AD4E:
+	dc.b    $00, $00, $00, $00, $00, $00, $05, $0F, $00, $00, $00, $00, $00, $00, $05, $11 ;0x3E0
 	dc.b	$00, $00, $00, $00, $00, $00, $05, $06, $00, $00, $00, $00, $00, $00, $05, $02, $00, $00, $00, $00, $00, $00, $13, $14, $00, $00, $00, $00, $00, $00, $33, $34 ;0x400
 	dc.b	$00, $00, $00, $00, $00, $00, $05, $09, $00, $00, $00, $00, $00, $00, $05, $0A, $00, $00, $00, $00, $00, $00, $05, $02, $00, $00, $00, $00, $00, $00, $13, $14 ;0x420
 	dc.b	$00, $00, $00, $00, $00, $00, $33, $34, $00, $00, $00, $00, $00, $00, $05, $06, $19, $15, $16, $1A, $1B, $18, $15, $1A, $39, $35, $36, $3A, $3B, $38, $35, $34 ;0x440
@@ -19057,6 +19785,7 @@ loc_0001CC24:
 	dc.b	$00, $00, $00, $00, $21, $3A, $39, $00, $00, $00, $00, $00, $21, $47, $46, $00, $00, $00, $00, $00, $21, $49, $4A, $4B, $C6, $C7, $21, $21, $21, $36, $4C, $4D ;0x60
 	dc.b	$E6, $E7, $21, $21, $21, $3A, $39, $00, $21, $21, $21, $21, $21, $2C, $2D, $00, $21, $21, $21, $21, $21, $31, $32, $00, $21, $21, $21, $21, $21, $55, $56, $00 ;0x80
 	dc.b	$0C, $09, $0D, $10, $0C, $5B, $5C, $00, $63, $64, $62, $65, $66, $67, $68, $00, $69, $6A, $00, $00, $00, $00, $00, $00 ;0xA0
+loc_0001CCDC:
 	BSR.w	loc_0001CE34
 	BSR.w	loc_0001CDE8
 	MOVE.b	#$FF, $00FF1834
@@ -19076,6 +19805,7 @@ loc_0001CD0A:
 	EORI.b	#2, D6
 	DBF	D0, loc_0001CCF8
 	BRA.w	loc_0001D3B4
+loc_0001CD28:
 	LEA	loc_0001CE84, A1
 	JMP	loc_00002A54
 loc_0001CD34:
@@ -19502,6 +20232,7 @@ loc_0001D350:
 	dc.b	$F7 ;0x0 (0x0001D350-0x0001D351, Entry count: 0x1) [Unknown data]
 	dc.b	$1A, $0B, $1F, $1D, $0F, $00, $19, $10, $10, $FF ;0x0 (0x0001D351-0x0001D35B, Entry count: 0xA)
 	dc.b	$00 ;0x0 (0x0001D35B-0x0001D35C, Entry count: 0x1) [Unknown data]
+loc_0001D35C:
 	MOVE.b	#$FF, $00FF1834
 	MOVE.w	#$E000, D5
 	MOVE.w	#$001B, D0
@@ -19519,6 +20250,7 @@ loc_0001D382:
 	EORI.b	#2, D6
 	DBF	D0, loc_0001D370
 	BRA.w	loc_0001D3B4
+loc_0001D3A0:
 	LEA	loc_0001D6E4, A1
 	JSR	loc_00002A54
 	BCC.w	loc_0001D3B2
@@ -19778,7 +20510,7 @@ loc_0001D6E4:
 loc_0001D72C:
 	BSR.w	loc_0001DC02
 	CLR.b	$00FF1834
-	MOVE.b	#0, $00FF0A3A
+	MOVE.b	#0, functionReturnState
 	CLR.b	$00FF0A3B
 	JMP	loc_00002AF2
 loc_0001D74A:
@@ -19896,7 +20628,7 @@ loc_0001D8BC:
 	JSR	loc_000072BE
 	MOVEM.l	(A7)+, D0
 	CLR.b	$00FF1834
-	MOVE.b	#1, $00FF0A3A
+	MOVE.b	#1, functionReturnState
 	CLR.b	$00FF0A3B
 	JMP	loc_00002AF2
 loc_0001D8E4:
@@ -20127,10 +20859,10 @@ loc_0001DBCA:
 	nop
 	nop
 	nop
-	move.b #0, ($00FF0A3A).l
+	move.b #0, (functionReturnState).l
 	cmp.w (checksum).w, D1
 	beq.w loc_0001DBFA
-	move.b #$FF, ($00FF0A3A).l
+	move.b #$FF, (functionReturnState).l
 loc_0001DBFA:
 	move.w D1, ($00FF0106).l
 	rts
@@ -22662,7 +23394,9 @@ loc_0002DB6D:
 	dc.b	$56, $11, $13, $14, $51, $6F, $61, $14, $41, $F1, $F1, $81, $07, $07, $12, $43, $11, $12, $01, $24, $43, $80, $FB, $02, $24, $44, $80, $F5, $1C, $11, $21, $11 ;0x2EA0
 	dc.b	$23, $21, $16, $F6, $14, $41, $1F, $1F, $15, $41, $16, $F6, $16, $31, $21, $11, $65, $21, $33, $56, $52, $10, $45, $42, $11, $80, $1D, $02, $00, $00, $00 ;0x2EC0
 	dc.b	$00, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;0x0 (0x0002FBDF-0x00030000, Entry count: 0x421) [Unknown data]
-	dc.b	$FF, $01, $00, $9C, $00, $04, $33, $33, $32, $22, $81, $03, $0A, $32, $22, $23, $33, $32, $33, $22, $22, $23, $22, $81, $04, $02, $33, $23, $81, $09, $80, $00 ;0x20
+	dc.b	$FF
+loc_0002FC00:
+	dc.b    $01, $00, $9C, $00, $04, $33, $33, $32, $22, $81, $03, $0A, $32, $22, $23, $33, $32, $33, $22, $22, $23, $22, $81, $04, $02, $33, $23, $81, $09, $80, $00 ;0x20
 	dc.b	$82, $04, $84, $05, $04, $22, $23, $32, $22, $80, $2B, $83, $03, $81, $08, $01, $33, $80, $00, $80, $24, $80, $15, $80, $18, $82, $2F, $82, $3B, $80, $45, $80 ;0x40
 	dc.b	$49, $81, $1C, $02, $33, $43, $81, $18, $87, $3C, $83, $21, $01, $22, $80, $72, $80, $65, $82, $1A, $80, $2D, $86, $51, $84, $40, $84, $78, $02, $33, $33, $81 ;0x60
 	dc.b	$1B, $80, $4D, $1A, $45, $65, $33, $36, $65, $43, $33, $34, $54, $35, $33, $45, $56, $55, $33, $44, $55, $86, $23, $33, $46, $65, $33, $32, $34, $44, $80, $B9 ;0x80
@@ -27826,11 +28560,15 @@ loc_00069B00: ; Options Menu Background (Interestingly, it seems there are many 
 	include "art/compressed/puyo_optionsScreenBackground.asm"
 loc_0006C400: ; Menu Screen Graphics
 	include "art/compressed/puyo_menuScreen.asm"
-loc_0006FFE0: ; ???? + HAIYAH
+loc_0006FFE0:
+	dc.b	$FF, $FF, $FF
+	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+	align $8000
+loc_00070000: ; ???? + HAIYAH
 	include "unkData/puyo_unkData2.asm"
 z80SoundDriver: ;76C00
-	include "puyo_sound_driver.asm"
-; 78000
+	include "sound/puyo_sound_driver.asm"
+	align $8000
 loc_00078000:
 	include "sound/PCM/puyo_pcmData2.asm" ; YATANA and PUYOPUYO sound bytes (78000)
 loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
@@ -27841,12 +28579,9 @@ endOfRom:
 ;	* The game uses custom compression for it's art.
 ;	  I've written a tool to decompress this data
 ;	* The PCM data seems to have a header attatched to it.  Not sure why yet.
-;   * The Sound Driver appears to be uncompressed? (not certain yet)
+;   * The Sound Driver is uncompressed
 
 ; Todo:
 ;   * Document the game
 ;   * Make the game shiftable
 ;   * Replace ASM includes with BINCLUDEs
-
-; Shiftability:
-;   * I intend to do this from the bottom up, doing data first, then code.

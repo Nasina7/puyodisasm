@@ -1,6 +1,5 @@
 ; The data for Arle's HAIYAH is somewhere in here, but idk where it is yet
-	dc.b	$FF, $FF, $FF ;0x0 (0x0006FFE0-0x0006FFE3, Entry count: 0x3) [Unknown data]
-	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $74, $8E, $BA ;0x0 (0x0006FFE3-0x00076C00, Entry count: 0x6C1D) [Unknown data]
+	dc.b    $74, $8E, $BA
 	dc.b	$89, $6D, $8A, $39, $8A, $B5, $8A, $FB, $7F, $10, $80, $09, $00, $04, $DB, $D4, $00, $80, $00, $00, $00, $02, $02, $02, $00, $00, $3A, $00, $7F, $14, $9F, $0F ;0x20
 	dc.b	$09, $6F, $00, $22, $1E, $8E, $00, $00, $12, $00, $43, $23, $9F, $00, $00, $81, $00, $01, $00, $5A, $00, $00, $03, $00, $00, $00, $33, $00, $04, $16, $DF, $11 ;0x40
 	dc.b	$02, $51, $00, $02, $19, $94, $0A, $05, $51, $00, $02, $28, $DF, $0B, $01, $51, $00, $02, $00, $9F, $0B, $01, $2A, $00, $00, $00, $22, $00, $54, $21, $9A, $0A ;0x60

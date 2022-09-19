@@ -24,7 +24,16 @@ lookupJumpLocationNE: macro loc
 	dc.l    loc
 	endm
 	
-
+lookupLocationLookup: macro lookupSize
+	dc.w    $0009
+	dc.w    lookupSize
+	endm
+	
+; TODO: Make Constants for the mode part of this macro
+lookupSetVDPMode: macro mode
+	dc.w    $000A
+	dc.w    mode
+	endm
 	
 lookupLoadDataToVram: macro addr, data
 	dc.w    $000B
@@ -33,5 +42,5 @@ lookupLoadDataToVram: macro addr, data
 	endm
 	
 align macro alignment
-	cnop 0,alignment
+	cnop $00,alignment
     endm

@@ -2,7 +2,7 @@
 This is a WIP Disassembly of Puyo Puyo 1 for the Megadrive/Genesis    
 I'm still quite new to game disassembly so suggestions, pull requests, and the like are all welcome!    
 ## Building
-	Download the Repo from github and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
+Download the Repo from github and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
 ## Todo (In order of priority):
 - Make the Game Shiftable
 - Document all of the game data

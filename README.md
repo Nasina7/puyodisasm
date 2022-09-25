@@ -10,3 +10,7 @@ I'm still quite new to game disassembly so suggestions, pull requests, and the l
 - Store Art Data in the repo as uncompressed, and compress the files on build
 - Document Game Code
 - Decompile Sound Driver
+## Stretch Goals:
+- Allow building the Arcade (Japan) Release
+- Allow building the Arcade (World) Release
+- Allow building the Sharp X68000 Release

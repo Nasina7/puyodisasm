@@ -96,7 +96,7 @@ checksum:
 	dc.b    "                                        " ; Reserved
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
-	align $380000
+	;align $380000
 Reset:
 	
 	TST.l	$00A10008	;Predicted (Offset array entry)
@@ -6330,34 +6330,117 @@ loc_000056E8:
 	dc.l	loc_00005C6E	;Predicted
 	dc.l	loc_00005CF2	;Predicted
 	dc.l	loc_00005D9A	;Predicted
-	dc.b	$00, $00, $57, $28, $00, $00, $57, $82, $00, $00, $58, $04, $00, $00, $57, $48, $00, $00, $57, $5A, $00, $00, $57, $6A, $00, $00, $57, $76, $00, $00, $57, $80 ;0x0 (0x0000571C-0x0000586A, Entry count: 0x14E) [Unknown data]
-	dc.b	$00, $00, $57, $80, $00, $00, $57, $80, $00, $00, $57, $80, $00, $00, $01, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $FF, $00, $00, $00, $57, $4A, $00, $00 ;0x20
-	dc.b	$03, $02, $03, $05, $03, $06, $03, $07, $FF, $00, $00, $00, $57, $5C, $03, $08, $03, $09, $04, $0A, $FF, $00, $00, $00, $57, $6A, $06, $01, $08, $0B, $FF, $00 ;0x40
-	dc.b	$00, $00, $57, $76, $FE, $00, $00, $00, $57, $A2, $00, $00, $57, $A6, $00, $00, $57, $B2, $00, $00, $57, $D0, $00, $00, $57, $F0, $00, $00, $57, $F0, $00, $00 ;0x60
-	dc.b	$58, $02, $00, $00, $58, $02, $00, $00, $FE, $00, $00, $00, $01, $02, $01, $03, $FF, $00, $00, $00, $57, $A8, $00, $04, $02, $05, $03, $06, $01, $05, $04, $04 ;0x80
-	dc.b	$02, $05, $03, $06, $01, $05, $04, $04, $02, $0B, $02, $0C, $02, $0B, $FF, $00, $00, $00, $57, $B2, $F1, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D ;0xA0
-	dc.b	$01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $FF, $00, $00, $00, $57, $D0, $02, $07, $02, $08, $02, $09, $02, $08, $F1, $07, $F1, $07 ;0xC0
-	dc.b	$FF, $00, $00, $00, $57, $F0, $FE, $00, $00, $00, $58, $24, $00, $00, $58, $36, $00, $00, $58, $46, $00, $00, $58, $58, $00, $00, $58, $68, $00, $00, $58, $68 ;0xE0
-	dc.b	$00, $00, $58, $68, $00, $00, $58, $68, $00, $00, $02, $02, $02, $03, $02, $02, $F1, $00, $F1, $00, $FF, $00, $00, $00, $58, $26, $02, $05, $02, $06, $02, $05 ;0x100
-	dc.b	$F1, $04, $F1, $04, $FF, $00, $00, $00, $58, $36, $01, $07, $F4, $07, $02, $08, $02, $09, $02, $0A, $02, $0B, $FF, $00, $00, $00, $58, $46, $00, $01, $05, $0C ;0x120
-	dc.b	$03, $0D, $05, $0E, $03, $0D, $FF, $00, $00, $00, $58, $5A, $FE, $00 ;0x140
+	dc.l	loc_00005728
+	dc.l    loc_00005782
+	dc.b    $00, $00, $58, $04
+	
+loc_00005728:
+	dc.l    loc_00005748
+	dc.l    loc_0000575A
+	dc.l    loc_0000576A
+	dc.l    loc_00005776
+	dc.l    loc_00005780
+	dc.l    loc_00005780
+	dc.l    loc_00005780
+	dc.l    loc_00005780
+loc_00005748:
+	dc.b    $00, $00
+loc_0000574A:
+	dc.b    $01, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $FF, $00
+	dc.l    loc_0000574A
+loc_0000575A:
+	dc.b    $00, $00 ;0x20
+loc_0000575C:
+	dc.b	$03, $02, $03, $05, $03, $06, $03, $07, $FF, $00
+	dc.l    loc_0000575C
+loc_0000576A:
+	dc.b    $03, $08, $03, $09, $04, $0A, $FF, $00
+	dc.l    loc_0000576A
+loc_00005776:
+	dc.b    $06, $01, $08, $0B, $FF, $00 ;0x40
+	dc.l	loc_00005776
+loc_00005780:
+	dc.b    $FE, $00
+loc_00005782:
+	dc.l    loc_000057A2
+	dc.l    loc_000057A6
+	dc.l    loc_000057B2
+	dc.l    loc_000057D0
+	dc.l    loc_000057F0
+	dc.l    loc_000057F0
+	dc.l    loc_00005802
+	dc.l    loc_00005802
+	
+loc_000057A2:
+	dc.b    $00, $00, $FE, $00
+loc_000057A6:
+	dc.b    $00, $00
+loc_000057A8:
+	dc.b    $01, $02, $01, $03, $FF, $00
+	dc.l    loc_000057A8
+loc_000057B2:
+	dc.b    $00, $04, $02, $05, $03, $06, $01, $05, $04, $04 ;0x80
+	dc.b	$02, $05, $03, $06, $01, $05, $04, $04, $02, $0B, $02, $0C, $02, $0B, $FF, $00
+	dc.l    loc_000057B2
+loc_000057D0:
+	dc.b    $F1, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D ;0xA0
+	dc.b	$01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $FF, $00
+	dc.l    loc_000057D0
+loc_000057F0:
+	dc.b    $02, $07, $02, $08, $02, $09, $02, $08, $F1, $07, $F1, $07 ;0xC0
+	dc.b	$FF, $00
+	dc.l    loc_000057F0
+loc_00005802:
+	dc.b    $FE, $00
+	dc.l    loc_00005824
+	dc.l    loc_00005836
+	dc.l    loc_00005846
+	dc.l    loc_00005858
+	dc.l    loc_00005868
+	dc.l    loc_00005868
+	dc.l    loc_00005868
+	dc.l    loc_00005868
+loc_00005824:
+	dc.b    $00, $00
+loc_00005826:
+	dc.b    $02, $02, $02, $03, $02, $02, $F1, $00, $F1, $00, $FF, $00
+	dc.l    loc_00005826
+loc_00005836:
+	dc.b    $02, $05, $02, $06, $02, $05 ;0x100
+	dc.b	$F1, $04, $F1, $04, $FF, $00
+	dc.l    loc_00005836
+loc_00005846:
+	dc.b    $01, $07, $F4, $07, $02, $08, $02, $09, $02, $0A, $02, $0B, $FF, $00
+	dc.l    loc_00005846
+loc_00005858:
+	dc.b    $00, $01
+loc_0000585A:
+	dc.b    $05, $0C ;0x120
+	dc.b	$03, $0D, $05, $0E, $03, $0D, $FF, $00
+	dc.l    loc_0000585A ; Left off (fix all of this past this point)
+loc_00005868:
+	dc.b    $FE, $00 ;0x140
 loc_0000586A:
 	dc.b	$00, $00, $58, $8A, $00, $00, $58, $8A, $00, $00, $58, $96, $00, $00, $58, $A4, $00, $00, $58, $A8, $00, $00, $58, $B4, $00, $00, $58, $C2, $00, $00, $58, $C6 ;0x0 (0x0000586A-0x000058C8, Entry count: 0x5E) [Unknown data]
 	dc.b	$00, $00, $F0, $02, $06, $03, $FF, $00, $00, $00, $58, $8C, $00, $02, $04, $04, $04, $05, $04, $06, $FF, $00, $00, $00, $58, $98, $00, $01, $FE, $00, $07, $07 ;0x20
 	dc.b	$07, $08, $07, $09, $FF, $00, $00, $00, $58, $A8, $08, $0B, $06, $0B, $03, $0C, $03, $0D, $FF, $00, $00, $00, $58, $B8, $00, $0A, $FE, $00, $FE, $00 ;0x40
 loc_000058C8:
-	dc.l	$000058E8
-	dc.l	$000058E8
-	dc.l	$000058E8
-	dc.b	$00, $00, $58, $EC ;0x0 (0x000058D4-0x000058D8, Entry count: 0x4) [Unknown data]
-	dc.l	$000058F0
-	dc.l	$00005900
-	dc.l	$00005910
-	dc.b	$00, $00, $59, $1E ;0x0 (0x000058E4-0x000058E8, Entry count: 0x4) [Unknown data]
+	dc.l	loc_000058E8
+	dc.l	loc_000058E8
+	dc.l	loc_000058E8
+	dc.l	loc_000058EC
+	dc.l	loc_000058F0
+	dc.l	loc_00005900
+	dc.l	loc_00005910
+	dc.l	loc_0000591E
+loc_000058E8:
 	dc.b	$00
 	dc.b	$00 ;0x0 (0x000058E9-0x000058EA, Entry count: 0x1) [Unknown data]
 	dc.b	$FE
-	dc.b	$00, $00, $01, $FE, $00 ;0x0 (0x000058EB-0x000058F0, Entry count: 0x5) [Unknown data]
+	dc.b	$00
+loc_000058EC:
+	dc.b    $00, $01, $FE, $00 ;0x0 (0x000058EB-0x000058F0, Entry count: 0x5) [Unknown data]
+loc_000058F0:
 	dc.b	$00
 	dc.b	$00 ;0x0 (0x000058F1-0x000058F2, Entry count: 0x1) [Unknown data]
 loc_000058F2:
@@ -6372,11 +6455,13 @@ loc_000058F2:
 	dc.b	$FF
 	dc.b	$00 ;0x0 (0x000058FB-0x000058FC, Entry count: 0x1) [Unknown data]
 	dc.l	loc_000058F2
+loc_00005900:
 	dc.l	loc_0000F106-1	; (Predicted offset)
 loc_00005904:
 	dc.l	$03060807	; (Predicted offset)
 	dc.l	$0306FF00	; (Predicted offset)
 	dc.l	loc_00005904-2
+loc_00005910:
 	dc.b	$00
 	dc.b	$00 ;0x0 (0x00005911-0x00005912, Entry count: 0x1) [Unknown data]
 	dc.b	$00
@@ -6389,6 +6474,7 @@ loc_00005914:
 	dc.b	$FF
 	dc.b	$00 ;0x0 (0x00005919-0x0000591A, Entry count: 0x1) [Unknown data]
 	dc.l	loc_00005914
+loc_0000591E:
 	dc.b	$FE, $00 ;0x0 (0x0000591E-0x00005920, Entry count: 0x2) [Unknown data]
 loc_00005920:
 	dc.b	$00, $00, $59, $40, $00, $00, $59, $40, $00, $00, $59, $40, $00, $00, $59, $44, $00, $00, $59, $48, $00, $00, $59, $54, $00, $00, $59, $64, $00, $00, $59, $70 ;0x0 (0x00005920-0x00005972, Entry count: 0x52) [Unknown data]
@@ -20784,6 +20870,7 @@ loc_0001CF2A:
 	BRA.w	loc_0001CF36
 loc_0001CF32:
 	MOVE.b	#$FF, D1
+; This function updates values in the soundtest
 loc_0001CF36:
 	MOVE.w	$26(A0), D0
 	LEA	loc_0001CF6E, A1
@@ -20816,7 +20903,7 @@ loc_0001CF74:
 loc_0001CF8E:
 	LSL.w	#2, D0
 	LSL.w	#2, D1
-	LEA	loc_0001D122, A1
+	LEA	soundTest_MainArray, A1
 	MOVEA.l	(A1,D1.w), A2
 	MOVEA.l	(A2,D0.w), A1
 	MOVE.b	(A1), D0
@@ -20843,7 +20930,7 @@ loc_0001CFC6:
 	CLR.w	D0
 	MOVE.b	$15(A0), D0
 	LSL.w	#2, D0
-	LEA	loc_0001D12E, A1
+	LEA	soundTest_MusicArray, A1
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.b	(A2), $00FF012E
 loc_0001D00C:
@@ -20866,9 +20953,9 @@ loc_0001D028:
 loc_0001D03A:
 	MOVE.w	D0, D1
 	LSL.w	#2, D1
-	LEA	loc_0001D122, A1
+	LEA	soundTest_MainArray, A1
 	MOVEA.l	(A1,D1.w), A2
-	MOVE.b	$15(A0,D0.w), D1
+	MOVE.b	$15(A0,D0.w), D1 ; Value of Sound Test Music
 	LSL.w	#2, D1
 	MOVEA.l	(A2,D1.w), A1
 	ADDQ.l	#1, A1
@@ -20923,7 +21010,7 @@ loc_0001D0F8:
 	SUBQ.w	#3, D2
 	BCS.w	loc_0001D11C
 	LSL.w	#2, D2
-	LEA	loc_0001D122, A1
+	LEA	soundTest_MainArray, A1
 	MOVEA.l	(A1,D2.w), A2
 	LSL.w	#2, D1
 	MOVEA.l	(A2,D1.w), A1
@@ -20932,107 +21019,124 @@ loc_0001D0F8:
 loc_0001D11C:
 	ADDI.b	#$20, D1
 	RTS
-loc_0001D122:
-	dc.l	loc_0001D12E
-	dc.l	loc_0001D2D0
-	dc.l	loc_0001D2F8
-loc_0001D12E:
-	dc.l	loc_0001D172
-	dc.l	loc_0001D186
-	dc.l	loc_0001D19A
-	dc.l	loc_0001D1B0
-	dc.l	loc_0001D1C6
-	dc.l	loc_0001D1DC
-	dc.l	loc_0001D1EE
-	dc.l	loc_0001D202
-	dc.l	loc_0001D218
-	dc.l	loc_0001D22C
-	dc.l	loc_0001D244
-	dc.l	loc_0001D25A
-	dc.l	loc_0001D26C
-	dc.l	loc_0001D282
-	dc.l	loc_0001D294
-	dc.l	loc_0001D2A8
-	dc.l	loc_0001D2BA
-loc_0001D172:
+soundTest_MainArray:
+	dc.l	soundTest_MusicArray
+	dc.l	soundTest_VoiceArray
+	dc.l	soundTest_CommandArray
+soundTest_MusicArray:
+	dc.l	soundTest_FinalOfPuyoPuyo
+	dc.l	soundTest_ThemeOfPuyoPuyo
+	dc.l	soundTest_BaroqueOfPuyoPuyo
+	dc.l	soundTest_CookingOfPuyoPuyo
+	dc.l	soundTest_MorningOfPuyoPuyo
+	dc.l	soundTest_ToyOfPuyoPuyo
+	dc.l	soundTest_SorrowOfPuyoPuyo
+	dc.l	soundTest_StickerOfPuyoPuyo
+	dc.l	soundTest_SunsetOfPuyoPuyo
+	dc.l	soundTest_RejectionOfPuyoPuyo
+	dc.l	soundTest_MemoriesOfPuyoPuyo
+	dc.l	soundTest_ThemeForHarpy
+	dc.l	soundTest_WarningOfPuyoPuyo
+	dc.l	soundTest_ThemeForSatan
+	dc.l	soundTest_BraveOfPuyoPuyo
+	dc.l	soundTest_OndoOfPuyoPuyo
+	dc.l	soundTest_VictoryOfPuyoPuyo
+	
+; These arrays contain IDs and Names for the songs in the soundtest
+; Text format is A = $0B, B = $0C, etc...
+; Space is $00
+; The strings are terminated with $FF
+soundTest_FinalOfPuyoPuyo:
 	dc.b	$01 ;0x0 (0x0001D172-0x0001D173, Entry count: 0x1) [Unknown data]
-	dc.b	$10, $13, $18, $0B, $16, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D173-0x0001D185, Entry count: 0x12)
-	dc.b	$00 ;0x0 (0x0001D185-0x0001D186, Entry count: 0x1) [Unknown data]
-loc_0001D186:
+	soundTestText "FINAL OF PUYOPUYO"
+	even
+soundTest_ThemeOfPuyoPuyo:
 	dc.b	$02 ;0x0 (0x0001D186-0x0001D187, Entry count: 0x1) [Unknown data]
-	dc.b	$1E, $12, $0F, $17, $0F, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D187-0x0001D199, Entry count: 0x12)
-	dc.b	$00 ;0x0 (0x0001D199-0x0001D19A, Entry count: 0x1) [Unknown data]
-loc_0001D19A:
+	soundTestText "THEME OF PUYOPUYO"
+	even
+soundTest_BaroqueOfPuyoPuyo:
 	dc.b	$03 ;0x0 (0x0001D19A-0x0001D19B, Entry count: 0x1) [Unknown data]
-	dc.b	$0C, $0B, $1C, $19, $1B, $1F, $0F, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D19B-0x0001D1AF, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D1AF-0x0001D1B0, Entry count: 0x1) [Unknown data]
-loc_0001D1B0:
+	soundTestText "BAROQUE OF PUYOPUYO"
+	even
+soundTest_CookingOfPuyoPuyo:
 	dc.b	$04 ;0x0 (0x0001D1B0-0x0001D1B1, Entry count: 0x1) [Unknown data]
-	dc.b	$0D, $19, $19, $15, $13, $18, $11, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D1B1-0x0001D1C5, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D1C5-0x0001D1C6, Entry count: 0x1) [Unknown data]
-loc_0001D1C6:
+	soundTestText "COOKING OF PUYOPUYO"
+	even
+soundTest_MorningOfPuyoPuyo:
 	dc.b	$05 ;0x0 (0x0001D1C6-0x0001D1C7, Entry count: 0x1) [Unknown data]
-	dc.b	$17, $19, $1C, $18, $13, $18, $11, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D1C7-0x0001D1DB, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D1DB-0x0001D1DC, Entry count: 0x1) [Unknown data]
-loc_0001D1DC:
+	soundTestText "MORNING OF PUYOPUYO"
+	even
+soundTest_ToyOfPuyoPuyo:
 	dc.b	$06 ;0x0 (0x0001D1DC-0x0001D1DD, Entry count: 0x1) [Unknown data]
-	dc.b	$1E, $19, $23, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D1DD-0x0001D1ED, Entry count: 0x10)
-	dc.b	$00 ;0x0 (0x0001D1ED-0x0001D1EE, Entry count: 0x1) [Unknown data]
-loc_0001D1EE:
+	soundTestText "TOY OF PUYOPUYO"
+	even
+soundTest_SorrowOfPuyoPuyo:
 	dc.b	$07 ;0x0 (0x0001D1EE-0x0001D1EF, Entry count: 0x1) [Unknown data]
-	dc.b	$1D, $19, $1C, $1C, $19, $21, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D1EF-0x0001D202, Entry count: 0x13)
-loc_0001D202:
+	soundTestText "SORROW OF PUYOPUYO"
+	even
+soundTest_StickerOfPuyoPuyo:
 	dc.b	$08 ;0x0 (0x0001D202-0x0001D203, Entry count: 0x1) [Unknown data]
-	dc.b	$1D, $1E, $13, $0D, $15, $0F, $1C, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D203-0x0001D217, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D217-0x0001D218, Entry count: 0x1) [Unknown data]
-loc_0001D218:
-	dc.b	$0A ;0x0 (0x0001D218-0x0001D219, Entry count: 0x1) [Unknown data]
-	dc.b	$1D, $1F, $18, $1D, $0F, $1E, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D219-0x0001D22C, Entry count: 0x13)
-loc_0001D22C:
-	dc.b	$0B ;0x0 (0x0001D22C-0x0001D22D, Entry count: 0x1) [Unknown data]
-	dc.b	$1C, $0F, $14, $0F, $0D, $1E, $13, $19, $18, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D22D-0x0001D243, Entry count: 0x16)
-	dc.b	$00 ;0x0 (0x0001D243-0x0001D244, Entry count: 0x1) [Unknown data]
-loc_0001D244:
+	soundTestText "STICKER OF PUYOPUYO"
+	even
+	
+; It's worth noting that the game is missing an ID between 08 and 0A.
+; I tried playing song 09 and it just points to 0A.
+; My guess is that it was removed at some point, and the pointer to it
+; in the sound driver was never removed.
+
+soundTest_SunsetOfPuyoPuyo:
+	dc.b	$0A
+	soundTestText "SUNSET OF PUYOPUYO"
+	even
+soundTest_RejectionOfPuyoPuyo:
+	dc.b	$0B
+	soundTestText "REJECTION OF PUYOPUYO"
+	even
+soundTest_MemoriesOfPuyoPuyo:
 	dc.b	$0C ;0x0 (0x0001D244-0x0001D245, Entry count: 0x1) [Unknown data]
-	dc.b	$17, $0F, $17, $19, $1C, $13, $0F, $1D, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D245-0x0001D25A, Entry count: 0x15)
-loc_0001D25A:
+	soundTestText "MEMORIES OF PUYOPUYO"
+	even
+soundTest_ThemeForHarpy:
 	dc.b	$0D ;0x0 (0x0001D25A-0x0001D25B, Entry count: 0x1) [Unknown data]
-	dc.b	$1E, $12, $0F, $17, $0F, $00, $10, $19, $1C, $00, $12, $0B, $1C, $1A, $23, $FF ;0x0 (0x0001D25B-0x0001D26B, Entry count: 0x10)
-	dc.b	$00 ;0x0 (0x0001D26B-0x0001D26C, Entry count: 0x1) [Unknown data]
-loc_0001D26C:
+	soundTestText "THEME FOR HARPY"
+	even
+soundTest_WarningOfPuyoPuyo:
 	dc.b	$0E ;0x0 (0x0001D26C-0x0001D26D, Entry count: 0x1) [Unknown data]
-	dc.b	$21, $0B, $1C, $18, $13, $18, $11, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D26D-0x0001D281, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D281-0x0001D282, Entry count: 0x1) [Unknown data]
-loc_0001D282:
+	soundTestText "WARNING OF PUYOPUYO"
+	even
+soundTest_ThemeForSatan:
 	dc.b	$0F ;0x0 (0x0001D282-0x0001D283, Entry count: 0x1) [Unknown data]
-	dc.b	$1E, $12, $0F, $17, $0F, $00, $10, $19, $1C, $00, $1D, $0B, $1E, $0B, $18, $FF ;0x0 (0x0001D283-0x0001D293, Entry count: 0x10)
-	dc.b	$00 ;0x0 (0x0001D293-0x0001D294, Entry count: 0x1) [Unknown data]
-loc_0001D294:
+	soundTestText "THEME FOR SATAN"
+	even
+soundTest_BraveOfPuyoPuyo:
 	dc.b	$10 ;0x0 (0x0001D294-0x0001D295, Entry count: 0x1) [Unknown data]
-	dc.b	$0C, $1C, $0B, $20, $0F, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D295-0x0001D2A7, Entry count: 0x12)
-	dc.b	$00 ;0x0 (0x0001D2A7-0x0001D2A8, Entry count: 0x1) [Unknown data]
-loc_0001D2A8:
+	soundTestText "BRAVE OF PUYOPUYO"
+	even
+soundTest_OndoOfPuyoPuyo:
 	dc.b	$11 ;0x0 (0x0001D2A8-0x0001D2A9, Entry count: 0x1) [Unknown data]
-	dc.b	$19, $18, $0E, $19, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D2A9-0x0001D2BA, Entry count: 0x11)
-loc_0001D2BA:
+	soundTestText "ONDO OF PUYOPUYO"
+	even
+soundTest_VictoryOfPuyoPuyo:
 	dc.b	$12 ;0x0 (0x0001D2BA-0x0001D2BB, Entry count: 0x1) [Unknown data]
-	dc.b	$20, $13, $0D, $1E, $19, $1C, $23, $00, $19, $10, $00, $1A, $1F, $23, $19, $1A, $1F, $23, $19, $FF ;0x0 (0x0001D2BB-0x0001D2CF, Entry count: 0x14)
-	dc.b	$00 ;0x0 (0x0001D2CF-0x0001D2D0, Entry count: 0x1) [Unknown data]
-loc_0001D2D0:
-	dc.l	loc_0001D2E8-2
-	dc.l	loc_0001D2DC
-	dc.l	loc_0001D2EC
-loc_0001D2DC:
-	dc.l	$81230B1E	;Predicted
-	dc.l	$1E0B180B	;Predicted
-	dc.l	$FF008010	;Predicted
-loc_0001D2E8:
-	dc.l	$131C0FFF	;Predicted
-loc_0001D2EC:
-	dc.l	$821A1F23	;Predicted
-	dc.l	$19001A1F	;Predicted
-	dc.l	$2319FF00	;Predicted
-loc_0001D2F8:
+	soundTestText "VICTORY OF PUYOPUYO"
+	even
+soundTest_VoiceArray:
+	dc.l	soundTest_Fire
+	dc.l	soundTest_Yattana
+	dc.l	soundTest_PuyoPuyo
+soundTest_Yattana:
+	dc.b    $81
+	soundTestText "YATTANA"
+	even
+soundTest_Fire:
+	dc.b    $80
+	soundTestText "FIRE"
+	even
+soundTest_PuyoPuyo:
+	dc.b    $82
+	soundTestText "PUYO PUYO"
+	even
+soundTest_CommandArray:
 	dc.l	loc_0001D314
 	dc.l	loc_0001D320
 	dc.l	loc_0001D328
@@ -21042,30 +21146,32 @@ loc_0001D2F8:
 	dc.l	loc_0001D350
 loc_0001D314:
 	dc.b	$F1 ;0x0 (0x0001D314-0x0001D315, Entry count: 0x1) [Unknown data]
-	dc.b	$0B, $16, $16, $00, $0D, $16, $0F, $0B, $1C, $FF ;0x0 (0x0001D315-0x0001D31F, Entry count: 0xA)
-	dc.b	$00 ;0x0 (0x0001D31F-0x0001D320, Entry count: 0x1) [Unknown data]
+	soundTestText "ALL CLEAR"
+	even
 loc_0001D320:
 	dc.b	$F2 ;0x0 (0x0001D320-0x0001D321, Entry count: 0x1) [Unknown data]
-	dc.b	$0D, $16, $0F, $0B, $1C, $FF ;0x0 (0x0001D321-0x0001D327, Entry count: 0x6)
-	dc.b	$00 ;0x0 (0x0001D327-0x0001D328, Entry count: 0x1) [Unknown data]
+	soundTestText "CLEAR"
+	even
 loc_0001D328:
 	dc.b	$F3 ;0x0 (0x0001D328-0x0001D329, Entry count: 0x1) [Unknown data]
-	dc.b	$10, $0B, $0E, $0F, $00, $19, $1F, $1E, $FF ;0x0 (0x0001D329-0x0001D332, Entry count: 0x9)
+	soundTestText "FADE OUT"
+	even
 loc_0001D332:
 	dc.b	$F4 ;0x0 (0x0001D332-0x0001D333, Entry count: 0x1) [Unknown data]
-	dc.b	$10, $0B, $0E, $0F, $00, $13, $18, $FF ;0x0 (0x0001D333-0x0001D33B, Entry count: 0x8)
-	dc.b	$00 ;0x0 (0x0001D33B-0x0001D33C, Entry count: 0x1) [Unknown data]
+	soundTestText "FADE IN"
+	even
 loc_0001D33C:
 	dc.b	$F5 ;0x0 (0x0001D33C-0x0001D33D, Entry count: 0x1) [Unknown data]
-	dc.b	$1C, $0F, $0C, $13, $1C, $1E, $12, $FF ;0x0 (0x0001D33D-0x0001D345, Entry count: 0x8)
-	dc.b	$00 ;0x0 (0x0001D345-0x0001D346, Entry count: 0x1) [Unknown data]
+	soundTestText "REBIRTH"
+	even
 loc_0001D346:
 	dc.b	$F6 ;0x0 (0x0001D346-0x0001D347, Entry count: 0x1) [Unknown data]
-	dc.b	$1A, $0B, $1F, $1D, $0F, $00, $19, $18, $FF ;0x0 (0x0001D347-0x0001D350, Entry count: 0x9)
+	soundTestText "PAUSE ON"
+	even
 loc_0001D350:
 	dc.b	$F7 ;0x0 (0x0001D350-0x0001D351, Entry count: 0x1) [Unknown data]
-	dc.b	$1A, $0B, $1F, $1D, $0F, $00, $19, $10, $10, $FF ;0x0 (0x0001D351-0x0001D35B, Entry count: 0xA)
-	dc.b	$00 ;0x0 (0x0001D35B-0x0001D35C, Entry count: 0x1) [Unknown data]
+	soundTestText "PAUSE OFF"
+	even
 loc_0001D35C:
 	MOVE.b	#$FF, $00FF1834
 	MOVE.w	#$E000, D5
@@ -29419,10 +29525,15 @@ endOfRom:
 ; Some interesting things of note:
 ;	* The game uses custom compression for it's art.
 ;	  I've written a tool to decompress this data
-;	* The PCM data seems to have a header attatched to it.  Not sure why yet.
+;	* The PCM data seems to have a header attatched to it.
+;   *    It seems to use VOX ACPCM?  The Sharp X68000 version does as well.
+;   *    I've yet to figure out how to import the data into Audacity though.
 ;   * The Sound Driver is uncompressed
 
-; Todo:
-;   * Document the game
-;   * Make the game shiftable
-;   * Replace ASM includes with BINCLUDEs
+; Versions of the game that use the original source code:
+;   * Arcade (Japan)
+;   * Arcade (World)
+;   * Megadrive
+;   * Sharp X68000
+; Note: For completeness sake, I did track down the MacOS 68000 System 7 Port just to check if it's based on
+;       the arcade version or not.  It's not, it's based on the Windows 3.1 version.

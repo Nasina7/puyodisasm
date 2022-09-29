@@ -98,7 +98,8 @@ checksum:
 	dc.b	"             " ; Reserved
 	;align $380000
 Reset:
-	
+	;nop
+	;nop
 	TST.l	$00A10008	;Predicted (Offset array entry)
 	BNE.b	loc_0000020F	;Predicted (Code-scan)
 	TST.w	$00A1000C	;Predicted (Code-scan)
@@ -6417,13 +6418,44 @@ loc_00005858:
 loc_0000585A:
 	dc.b    $05, $0C ;0x120
 	dc.b	$03, $0D, $05, $0E, $03, $0D, $FF, $00
-	dc.l    loc_0000585A ; Left off (fix all of this past this point)
+	dc.l    loc_0000585A
 loc_00005868:
 	dc.b    $FE, $00 ;0x140
 loc_0000586A:
-	dc.b	$00, $00, $58, $8A, $00, $00, $58, $8A, $00, $00, $58, $96, $00, $00, $58, $A4, $00, $00, $58, $A8, $00, $00, $58, $B4, $00, $00, $58, $C2, $00, $00, $58, $C6 ;0x0 (0x0000586A-0x000058C8, Entry count: 0x5E) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $06, $03, $FF, $00, $00, $00, $58, $8C, $00, $02, $04, $04, $04, $05, $04, $06, $FF, $00, $00, $00, $58, $98, $00, $01, $FE, $00, $07, $07 ;0x20
-	dc.b	$07, $08, $07, $09, $FF, $00, $00, $00, $58, $A8, $08, $0B, $06, $0B, $03, $0C, $03, $0D, $FF, $00, $00, $00, $58, $B8, $00, $0A, $FE, $00, $FE, $00 ;0x40
+	dc.l    loc_0000588A
+	dc.l    loc_0000588A
+	dc.l    loc_00005896
+	dc.l    loc_000058A4
+	dc.l    loc_000058A8
+	dc.l    loc_000058B4
+	dc.l    loc_000058C2
+	dc.l    loc_000058C6
+loc_0000588A:
+	dc.w    $0000
+loc_0000588C:
+	dc.w    $F002
+	dc.b	$06, $03, $FF, $00
+	dc.l    loc_0000588C
+loc_00005896:
+	dc.b    $00, $02
+loc_00005898:
+	dc.b    $04, $04, $04, $05, $04, $06, $FF, $00
+	dc.l    loc_00005898
+loc_000058A4:
+	dc.b    $00, $01, $FE, $00
+loc_000058A8:
+	dc.b    $07, $07 ;0x20
+	dc.b	$07, $08, $07, $09, $FF, $00
+	dc.l    loc_000058A8
+loc_000058B4:
+	dc.b    $08, $0B, $06, $0B
+loc_000058B8:
+	dc.b    $03, $0C, $03, $0D, $FF, $00
+	dc.l    loc_000058B8
+loc_000058C2:
+	dc.b    $00, $0A, $FE, $00
+loc_000058C6:
+	dc.b    $FE, $00 ;0x40
 loc_000058C8:
 	dc.l	loc_000058E8
 	dc.l	loc_000058E8
@@ -6456,11 +6488,13 @@ loc_000058F2:
 	dc.b	$00 ;0x0 (0x000058FB-0x000058FC, Entry count: 0x1) [Unknown data]
 	dc.l	loc_000058F2
 loc_00005900:
-	dc.l	loc_0000F106-1	; (Predicted offset)
+	dc.w	$0000
+loc_00005902:
+	dc.w    $F105
 loc_00005904:
 	dc.l	$03060807	; (Predicted offset)
 	dc.l	$0306FF00	; (Predicted offset)
-	dc.l	loc_00005904-2
+	dc.l	loc_00005902
 loc_00005910:
 	dc.b	$00
 	dc.b	$00 ;0x0 (0x00005911-0x00005912, Entry count: 0x1) [Unknown data]
@@ -6477,18 +6511,45 @@ loc_00005914:
 loc_0000591E:
 	dc.b	$FE, $00 ;0x0 (0x0000591E-0x00005920, Entry count: 0x2) [Unknown data]
 loc_00005920:
-	dc.b	$00, $00, $59, $40, $00, $00, $59, $40, $00, $00, $59, $40, $00, $00, $59, $44, $00, $00, $59, $48, $00, $00, $59, $54, $00, $00, $59, $64, $00, $00, $59, $70 ;0x0 (0x00005920-0x00005972, Entry count: 0x52) [Unknown data]
-	dc.b	$00, $00, $FE, $00, $00, $01, $FE, $00, $00, $00, $F1, $02, $08, $03, $FF, $00, $00, $00, $59, $4A, $00, $00, $F1, $04, $04, $03, $06, $02, $04, $03, $FF, $00 ;0x20
-	dc.b	$00, $00, $59, $56, $00, $05, $08, $06, $08, $07, $FF, $00, $00, $00, $59, $66, $FE, $00 ;0x40
+	dc.l    loc_00005940
+	dc.l    loc_00005940
+	dc.l    loc_00005940
+	dc.l    loc_00005944
+	dc.l    loc_00005948
+	dc.l    loc_00005954
+	dc.l    loc_00005964
+	dc.l    loc_00005970
+loc_00005940:
+	dc.b	$00, $00, $FE, $00
+loc_00005944:
+	dc.b    $00, $01, $FE, $00
+loc_00005948:
+	dc.b    $00, $00
+loc_0000594A:
+	dc.b    $F1, $02, $08, $03, $FF, $00
+	dc.l    loc_0000594A
+loc_00005954:
+	dc.b    $00, $00
+loc_00005956:
+	dc.b    $F1, $04, $04, $03, $06, $02, $04, $03, $FF, $00 ;0x20
+	dc.l	loc_00005956
+loc_00005964:
+	dc.b    $00, $05
+loc_00005966:
+	dc.b    $08, $06, $08, $07, $FF, $00
+	dc.l    loc_00005966
+loc_00005970:
+	dc.b    $FE, $00 ;0x40
 loc_00005972:
-	dc.l	$00005992
-	dc.b	$00, $00, $59, $92 ;0x0 (0x00005976-0x0000597A, Entry count: 0x4) [Unknown data]
-	dc.l	$000059A4
-	dc.l	$000059B4
-	dc.l	$000059B8
-	dc.b	$00, $00, $59, $C8 ;0x0 (0x00005986-0x0000598A, Entry count: 0x4) [Unknown data]
-	dc.l	$000059DA
-	dc.l	$000059EC
+	dc.l	loc_00005992
+	dc.l	loc_00005992
+	dc.l	loc_000059A4
+	dc.l	loc_000059B4
+	dc.l	loc_000059B8
+	dc.l	loc_000059C8
+	dc.l	loc_000059DA
+	dc.l	loc_000059EC
+loc_00005992:
 	dc.b	$00
 	dc.b	$00 ;0x0 (0x00005993-0x00005994, Entry count: 0x1) [Unknown data]
 loc_00005994:
@@ -6510,37 +6571,124 @@ loc_000059A4:
 	dc.l	$030D020C	; (Predicted offset)
 	dc.l	$F00BFF00	; (Predicted offset)
 	dc.l	loc_000059A4
-	dc.l	loc_0001FE00	; (Predicted offset)
+loc_000059B4:
+	dc.l	$0001FE00
 loc_000059B8:
 	dc.l	$02050207	; (Predicted offset)
 	dc.l	$02060207	; (Predicted offset)
 	dc.l	$F105FF00	; (Predicted offset)
 	dc.l	loc_000059B8
-	dc.l	loc_0002080A	;Predicted
+loc_000059C8:
+	dc.l	$0002080A ; This might be a label
 	dc.l	$04090808	;Predicted
 	dc.l	$0409F10A	;Predicted
-	dc.l	$FF000000	;Predicted
-	dc.l	$59C8000B	;Predicted
+	dc.w	$FF00
+	dc.l	loc_000059C8
+loc_000059DA:
+	dc.w    $000B	;Predicted
 loc_000059DC:
 	dc.l	$2010040F	; (Predicted offset)
 	dc.l	$200E040F	; (Predicted offset)
 	dc.l	$F110FF00	; (Predicted offset)
-	dc.l	loc_000059DC-2
+	dc.l	loc_000059DA
+loc_000059EC:
 	dc.b	$FE
 	dc.b	$00 ;0x0 (0x000059ED-0x000059EE, Entry count: 0x1) [Unknown data]
+	
+	
 loc_000059EE:
-	dc.b	$00, $00, $5A, $0E, $00, $00, $5A, $1C, $00, $00, $5A, $22, $00, $00, $5A, $28, $00, $00, $5A, $36, $00, $00, $5A, $36, $00, $00, $5A, $36, $00, $00, $5A, $36 ;0x0 (0x000059EE-0x00005A38, Entry count: 0x4A) [Unknown data]
-	dc.b	$00, $00, $F2, $02, $05, $02, $05, $03, $FF, $00, $00, $00, $5A, $10, $00, $00, $00, $05, $FE, $00, $00, $00, $00, $04, $FE, $00, $03, $06, $03, $07, $03, $08 ;0x20
-	dc.b	$03, $09, $FF, $00, $00, $00, $5A, $28, $FE, $00 ;0x40
+	dc.l    loc_00005A0E
+	dc.l    loc_00005A1C
+	dc.l    loc_00005A22
+	dc.l    loc_00005A28
+	dc.l    loc_00005A36
+	dc.l    loc_00005A36
+	dc.l    loc_00005A36
+	dc.l    loc_00005A36
+loc_00005A0E:
+	dc.b	$00, $00
+loc_00005A10:
+	dc.b    $F2, $02, $05, $02, $05, $03, $FF, $00
+	dc.l    loc_00005A10
+loc_00005A1C:
+	dc.b    $00, $00, $00, $05, $FE, $00
+loc_00005A22:
+	dc.b    $00, $00, $00, $04, $FE, $00
+loc_00005A28:
+	dc.b    $03, $06, $03, $07, $03, $08 ;0x20
+	dc.b	$03, $09, $FF, $00
+	dc.l    loc_00005A28
+loc_00005A36:
+	dc.b    $FE, $00 ;0x40
 loc_00005A38:
-	dc.b	$00, $00, $5A, $58, $00, $00, $5A, $68, $00, $00, $5A, $68, $00, $00, $5A, $78, $00, $00, $5A, $7C, $00, $00, $5A, $8E, $00, $00, $5A, $A0, $00, $00, $5A, $A2 ;0x0 (0x00005A38-0x00005AA4, Entry count: 0x6C) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00, $00, $00, $5A, $5A, $00, $00, $F0, $08, $01, $09, $03, $0A, $02, $09, $FF, $00, $00, $00, $5A, $6A ;0x20
-	dc.b	$00, $01, $FE, $00, $F1, $05, $02, $06, $02, $07, $02, $06, $02, $05, $02, $06, $FF, $00, $00, $00, $5A, $7C, $F1, $0B, $02, $0C, $02, $0D, $02, $0C, $02, $0B ;0x40
-	dc.b	$02, $0C, $FF, $00, $00, $00, $5A, $8E, $FE, $00, $FE, $00 ;0x60
+	dc.l    loc_00005A58
+	dc.l    loc_00005A68
+	dc.l    loc_00005A68
+	dc.l    loc_00005A78
+	dc.l    loc_00005A7C
+	dc.l    loc_00005A8E
+	dc.l    loc_00005AA0
+	dc.l    loc_00005AA2
+loc_00005A58:
+	dc.b	$00, $00
+loc_00005A5A:
+	dc.b    $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00
+	dc.l    loc_00005A5A
+loc_00005A68:
+	dc.b    $00, $00
+loc_00005A6A:
+	dc.b    $F0, $08, $01, $09, $03, $0A, $02, $09, $FF, $00
+	dc.l    loc_00005A6A
+loc_00005A78:
+	dc.b	$00, $01, $FE, $00
+loc_00005A7C:
+	dc.b    $F1, $05, $02, $06, $02, $07, $02, $06, $02, $05, $02, $06, $FF, $00
+	dc.l    loc_00005A7C
+loc_00005A8E:
+	dc.b    $F1, $0B, $02, $0C, $02, $0D, $02, $0C, $02, $0B ;0x40
+	dc.b	$02, $0C, $FF, $00
+	dc.l    loc_00005A8E
+loc_00005AA0:
+	dc.b    $FE, $00
+loc_00005AA2:
+	dc.b    $FE, $00 ;0x60
+	
+	
 loc_00005AA4:
-	dc.b	$00, $00, $5A, $C4, $00, $00, $5A, $C8, $00, $00, $5A, $C8, $00, $00, $5A, $CA, $00, $00, $5A, $CE, $00, $00, $5A, $DE, $00, $00, $5A, $EC, $00, $00, $5A, $F8 ;0x0 (0x00005AA4-0x00005AFA, Entry count: 0x56) [Unknown data]
-	dc.b	$00, $00, $FE, $00, $FE, $00, $00, $01, $FE, $00, $00, $00, $F1, $02, $02, $03, $02, $04, $02, $03, $FF, $00, $00, $00, $5A, $D0, $F1, $05, $02, $03, $02, $04 ;0x20
-	dc.b	$02, $03, $FF, $00, $00, $00, $5A, $DE, $00, $00, $F1, $06, $04, $07, $FF, $00, $00, $00, $5A, $EE, $FE, $00 ;0x40
+	dc.l    loc_00005AC4
+	dc.l    loc_00005AC8
+	dc.l    loc_00005AC8
+	dc.l    loc_00005ACA
+	dc.l    loc_00005ACE
+	dc.l    loc_00005ADE
+	dc.l    loc_00005AEC
+	dc.l    loc_00005AF8
+	
+loc_00005AC4:
+	dc.b	$00, $00, $FE, $00
+loc_00005AC8:
+	dc.b    $FE, $00
+loc_00005ACA:
+	dc.b    $00, $01
+	
+	dc.b    $FE, $00
+loc_00005ACE:
+	dc.b    $00, $00
+loc_00005AD0:
+	dc.b    $F1, $02, $02, $03, $02, $04, $02, $03, $FF, $00
+	dc.l    loc_00005AD0
+loc_00005ADE:
+	dc.b    $F1, $05, $02, $03, $02, $04 ;0x20
+	dc.b	$02, $03, $FF, $00
+	dc.l    loc_00005ADE
+loc_00005AEC:
+	dc.b    $00, $00
+loc_00005AEE:
+	dc.b    $F1, $06, $04, $07, $FF, $00
+	dc.l    loc_00005AEE
+loc_00005AF8:
+	dc.b    $FE, $00 ;0x40
+; LEFT OFF (fix from here)
 loc_00005AFA:
 	dc.b	$00, $00, $5B, $1A, $00, $00, $5B, $2A, $00, $00, $5B, $30, $00, $00, $5B, $3E, $00, $00, $5B, $42, $00, $00, $5B, $50, $00, $00, $5B, $5E, $00, $00, $5B, $6C ;0x0 (0x00005AFA-0x00005B6E, Entry count: 0x74) [Unknown data]
 	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00, $00, $00, $5B, $1C, $00, $00, $00, $04, $FE, $00, $F0, $0B, $01, $0C, $03, $0D, $02, $0C, $FF, $00 ;0x20

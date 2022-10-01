@@ -722,8 +722,7 @@ loc_00000C5C:
 	ANDI	#$FFFE, SR
 	RTS
 	
-; Start of Graphics Decompression Routine?
-loc_00000C82:
+graphicsDecompress:
 	ORI	#$0700, SR
 	MOVE.w	D0, D1
 	ANDI.w	#$3FFF, D1
@@ -737,7 +736,6 @@ loc_00000C82:
 	LEA	$00FF0100, A2
 	CLR.w	D0
 	CLR.w	D1
-	
 loc_00000CB4:
 	MOVE.b	(A0)+, D2
 	TST.b	D2
@@ -783,7 +781,7 @@ loc_00000D16:
 	DBF	D2, loc_00000CFC
 	BRA.b	loc_00000CB4
 	
-; End of Graphics Decompression Routine?
+
 
 loc_00000D24:
 	CLR.w	D0	;Predicted (Code-scan)
@@ -1396,7 +1394,7 @@ loc_000015B2:
 	MOVEA.l	transitionLoadLocation, A1
 	MOVEA.l	(A1)+, A0
 	MOVE.l	A1, transitionLoadLocation
-	BRA.w	loc_00000C82
+	BRA.w	graphicsDecompress
 loc_000015C4:
 	BRA.w	loc_00000BF2
 loc_000015C8:
@@ -2351,20 +2349,20 @@ loc_0000209A:
 loc_000020DA:
 	LEA	loc_0001E000, A0
 	MOVE.w	#0, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	MOVE.w	#3, D0
 	JMP	loc_00000BF2
 loc_000020F4:
 	LEA loc_0006AA80, A0
 	MOVE.w  #0, D0
-	JSR loc_00000C82
+	JSR graphicsDecompress
 loc_00002103:
 	MOVE.w	#5, D0
 	JMP	loc_00000BF2	;Predicted (Code-scan)
 loc_0000210E:
 	LEA loc_00069B00, A0
 	MOVE.w  #0, D0
-	JSR loc_00000C82
+	JSR graphicsDecompress
 	MOVE.w  #$16, D0
 	jmp loc_00000BF2
 loc_00002128:
@@ -4357,10 +4355,12 @@ loc_00003B78:
 	dc.b	$FF
 	dc.b	$00 ;0x0 (0x00003B89-0x00003B8A, Entry count: 0x1) [Unknown data]
 	dc.l	loc_00003B78
-	dc.b	$04, $00, $05, $01, $04, $00, $05, $02, $FF, $00, $00, $00, $3B, $8E
+loc_00003B8E:
+	dc.b	$04, $00, $05, $01, $04, $00, $05, $02, $FF, $00
+	dc.l    loc_00003B8E
 loc_00003B9C:
 	dc.b    $F0, $00, $01, $01, $00, $00, $01, $02, $00, $00, $01, $01, $00, $00, $01, $02, $FF, $00 ;0x0 (0x00003B8E-0x00003BB2, Entry count: 0x24) [Unknown data]
-	dc.b	$00, $00, $3B, $9C ;0x20
+	dc.l	loc_00003B9C
 loc_00003BB2:
 	TST.w	$14(A0)
 	BNE.w	loc_00003BBC
@@ -5253,6 +5253,7 @@ loc_0000473C:
 	ADDI.w	#$0020, D0
 	MOVE.w	D0, $28(A0)
 	RTS
+; BAD CODE
 	dc.b	$42, $40, $10, $29, $00, $2B, $51, $00, $E4, $08, $0C, $00, $00, $08, $65, $00, $00, $06, $10, $3C, $00, $07, $44, $40, $06, $40, $00, $11, $31, $40, $00, $28 ;0x0 (0x0000474A-0x0000476C, Entry count: 0x22) [Unknown data]
 	dc.b	$4E, $75 ;0x20
 loc_0000476C:
@@ -5551,6 +5552,7 @@ loc_00004B2E:
 	MOVE.w	#$00FF, (A2)+
 	DBF	D0, loc_00004B2E
 	RTS
+; BAD CODE
 	dc.b	$4A, $39, $00, $FF, $18, $89, $66, $00, $00, $04, $4E, $75, $48, $E7, $00, $20, $95, $FC, $00, $00, $00, $48, $42, $40, $10, $39, $00, $FF, $18, $89, $53, $00 ;0x0 (0x00004B38-0x00004BF2, Entry count: 0xBA) [Unknown data]
 	dc.b	$C0, $FC, $00, $26, $43, $F9, $00, $00, $4B, $80, $D2, $C0, $30, $3C, $00, $23, $14, $D9, $14, $FC, $00, $FF, $51, $C8, $FF, $F8, $24, $68, $00, $32, $35, $59 ;0x20
 	dc.b	$00, $26, $4C, $DF, $04, $00, $4E, $75, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $80, $90, $00, $00, $00, $00, $80, $90, $00, $00, $00 ;0x40
@@ -6110,6 +6112,7 @@ loc_000052A4:
 	BEQ.w	loc_000051B4	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
 loc_000052BA:
+; BAD CODE
 	dc.b	$21, $7C, $00, $00, $53, $D2, $00, $32, $61, $00, $D8, $62, $22, $68, $00, $2E, $61, $00, $D8, $A6, $65, $00, $00, $0A, $13, $68, $00, $09, $00, $09, $4E, $75 ;0x0 (0x000052BA-0x000053DC, Entry count: 0x122) [Unknown data]
 	dc.b	$11, $7C, $00, $05, $00, $06, $31, $69, $00, $0A, $00, $0A, $31, $69, $00, $0A, $00, $36, $31, $69, $00, $0E, $00, $0E, $31, $69, $00, $0E, $00, $38, $31, $7C ;0x20
 	dc.b	$FF, $FF, $00, $16, $31, $7C, $0A, $00, $00, $1A, $31, $7C, $18, $00, $00, $1C, $10, $3C, $00, $75, $4E, $B9, $00, $00, $72, $BE, $61, $00, $D8, $10, $22, $68 ;0x40
@@ -6132,6 +6135,7 @@ loc_000053DC:
 	BPL.w	loc_000051B4	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
 loc_0000540C:
+; BAD CODE
 	dc.b	$10, $39, $00, $FF, $01, $44, $C0, $39, $00, $FF, $01, $45, $6A, $00, $D6, $D8, $61, $00, $D7, $54, $22, $68, $00, $2E, $13, $68, $00, $09, $00, $09, $4E, $75 ;0x0 (0x0000540C-0x0000543E, Entry count: 0x32) [Unknown data]
 loc_0000542C:
 	dc.b	$14, $2B, $16, $2C, $18, $2B, $12, $2C, $15, $2B, $17, $2C, $FF, $00, $00, $00, $54, $2C ;0x20
@@ -6245,7 +6249,7 @@ loc_000055C4:
 	LSL.w	#2, D0
 	MOVEA.l	loc_00005622(PC,D0.w), A0
 	MOVE.w	D1, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, D2/A0
 	CLR.w	$00FF18AA
 	LEA	loc_00005666, A1
@@ -6333,7 +6337,7 @@ loc_000056E8:
 	dc.l	loc_00005D9A	;Predicted
 	dc.l	loc_00005728
 	dc.l    loc_00005782
-	dc.b    $00, $00, $58, $04
+	dc.l    loc_00005804
 	
 loc_00005728:
 	dc.l    loc_00005748
@@ -6393,6 +6397,7 @@ loc_000057F0:
 	dc.l    loc_000057F0
 loc_00005802:
 	dc.b    $FE, $00
+loc_00005804:
 	dc.l    loc_00005824
 	dc.l    loc_00005836
 	dc.l    loc_00005846
@@ -6688,41 +6693,633 @@ loc_00005AEE:
 	dc.l    loc_00005AEE
 loc_00005AF8:
 	dc.b    $FE, $00 ;0x40
-; LEFT OFF (fix from here)
 loc_00005AFA:
-	dc.b	$00, $00, $5B, $1A, $00, $00, $5B, $2A, $00, $00, $5B, $30, $00, $00, $5B, $3E, $00, $00, $5B, $42, $00, $00, $5B, $50, $00, $00, $5B, $5E, $00, $00, $5B, $6C ;0x0 (0x00005AFA-0x00005B6E, Entry count: 0x74) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00, $00, $00, $5B, $1C, $00, $00, $00, $04, $FE, $00, $F0, $0B, $01, $0C, $03, $0D, $02, $0C, $FF, $00 ;0x20
-	dc.b	$00, $00, $5B, $30, $00, $01, $FE, $00, $F1, $05, $02, $07, $02, $06, $02, $07, $FF, $00, $00, $00, $5B, $42, $F1, $0A, $02, $09, $02, $08, $02, $09, $FF, $00 ;0x40
-	dc.b	$00, $00, $5B, $50, $F1, $06, $02, $07, $02, $05, $02, $07, $FF, $00, $00, $00, $5B, $5E, $FE, $00 ;0x60
+    dc.l    loc_00005B1A
+    dc.l    loc_00005B2A
+    dc.l    loc_00005B30
+    dc.l    loc_00005B3E
+    dc.l    loc_00005B42
+    dc.l    loc_00005B50
+    dc.l    loc_00005B5E
+    dc.l    loc_00005B6C
+loc_00005B1A:
+    dc.b    $00
+    dc.b    $00
+loc_00005B1C:
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B1C
+loc_00005B2A:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FE
+    dc.b    $00
+loc_00005B30:
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B30
+loc_00005B3E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005B42:
+    dc.b    $F1
+    dc.b    $05
+    dc.b    $02
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $02
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B42
+loc_00005B50:
+    dc.b    $F1
+    dc.b    $0A
+    dc.b    $02
+    dc.b    $09
+    dc.b    $02
+    dc.b    $08
+    dc.b    $02
+    dc.b    $09
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B50
+loc_00005B5E:
+    dc.b    $F1
+    dc.b    $06
+    dc.b    $02
+    dc.b    $07
+    dc.b    $02
+    dc.b    $05
+    dc.b    $02
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B5E
+loc_00005B6C:
+    dc.b    $FE
+    dc.b    $00
+
 loc_00005B6E:
-	dc.b	$00, $00, $5B, $8E, $00, $00, $5B, $B6, $00, $00, $5B, $BC, $00, $00, $5B, $CA, $00, $00, $5B, $CE, $00, $00, $5B, $CE, $00, $00, $5B, $CE, $00, $00, $5B, $CE ;0x0 (0x00005B6E-0x00005BD0, Entry count: 0x62) [Unknown data]
-	dc.b	$00, $00, $01, $03, $03, $04, $02, $03, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $03, $06, $08, $07, $02, $06 ;0x20
-	dc.b	$F1, $05, $FF, $00, $00, $00, $5B, $90, $00, $00, $00, $04, $FE, $00, $02, $08, $01, $09, $02, $0A, $01, $09, $FF, $00, $00, $00, $5B, $BC, $00, $01, $FE, $00 ;0x40
-	dc.b	$FE, $00 ;0x60
+    dc.l    loc_00005B8E
+    dc.l    loc_00005BB6
+    dc.l    loc_00005BBC
+    dc.l    loc_00005BCA
+    dc.l    loc_00005BCE
+    dc.l    loc_00005BCE
+    dc.l    loc_00005BCE
+    dc.l    loc_00005BCE
+loc_00005B8E:
+    dc.b    $00
+    dc.b    $00
+loc_00005B90:
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $03
+    dc.b    $06
+    dc.b    $08
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F1
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005B90
+loc_00005BB6:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FE
+    dc.b    $00
+loc_00005BBC:
+    dc.b    $02
+    dc.b    $08
+    dc.b    $01
+    dc.b    $09
+    dc.b    $02
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $09
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005BBC
+loc_00005BCA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005BCE:
+    dc.b    $FE
+    dc.b    $00
+
 loc_00005BD0:
-	dc.b	$00, $00, $5B, $F0, $00, $00, $5C, $12, $00, $00, $5C, $36, $00, $00, $5C, $5A, $00, $00, $5C, $5E, $00, $00, $5C, $5E, $00, $00, $5C, $5E, $00, $00, $5C, $60 ;0x0 (0x00005BD0-0x00005C6E, Entry count: 0x9E) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $02, $0D, $02, $0C, $02, $0D, $02, $0B, $FF, $00, $00, $00 ;0x20
-	dc.b	$5B, $F2, $00, $00, $00, $0E, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05, $02, $0F, $02, $10, $02, $0F, $02, $0E ;0x40
-	dc.b	$FF, $00, $00, $00, $5C, $16, $00, $00, $00, $11, $F0, $08, $01, $09, $03, $0A, $02, $09, $F0, $08, $01, $09, $03, $0A, $02, $09, $F0, $08, $02, $0D, $02, $0B ;0x60
-	dc.b	$02, $0D, $02, $11, $FF, $00, $00, $00, $5C, $3A, $00, $01, $FE, $00, $FE, $00, $F1, $12, $02, $14, $02, $13, $02, $14, $FF, $00, $00, $00, $5C, $60 ;0x80
+    dc.l    loc_00005BF0
+    dc.l    loc_00005C12
+    dc.l    loc_00005C36
+    dc.l    loc_00005C5A
+    dc.l    loc_00005C5E
+    dc.l    loc_00005C5E
+    dc.l    loc_00005C5E
+    dc.l    loc_00005C60
+loc_00005BF0:
+    dc.b    $00
+    dc.b    $00
+loc_00005BF2:
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $02
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $02
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0B
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005BF2
+loc_00005C12:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+loc_00005C16:
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $02
+    dc.b    $10
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $02
+    dc.b    $0E
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005C16
+loc_00005C36:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $11
+loc_00005C3A:
+    dc.b    $F0
+    dc.b    $08
+    dc.b    $01
+    dc.b    $09
+    dc.b    $03
+    dc.b    $0A
+    dc.b    $02
+    dc.b    $09
+    dc.b    $F0
+    dc.b    $08
+    dc.b    $01
+    dc.b    $09
+    dc.b    $03
+    dc.b    $0A
+    dc.b    $02
+    dc.b    $09
+    dc.b    $F0
+    dc.b    $08
+    dc.b    $02
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $11
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005C3A
+loc_00005C5A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005C5E:
+    dc.b    $FE
+    dc.b    $00
+loc_00005C60:
+    dc.b    $F1
+    dc.b    $12
+    dc.b    $02
+    dc.b    $14
+    dc.b    $02
+    dc.b    $13
+    dc.b    $02
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005C60
+
 loc_00005C6E:
-	dc.b	$00, $00, $5C, $8E, $00, $00, $5C, $A4, $00, $00, $5C, $CA, $00, $00, $5C, $EC, $00, $00, $5C, $F0, $00, $00, $5C, $F0, $00, $00, $5C, $F0, $00, $00, $5C, $F0 ;0x0 (0x00005C6E-0x00005CF2, Entry count: 0x84) [Unknown data]
-	dc.b	$F0, $00, $01, $03, $03, $04, $02, $03, $F0, $02, $06, $06, $08, $00, $06, $06, $FF, $00, $00, $00, $5C, $8E, $F0, $00, $01, $03, $03, $04, $02, $03, $F0, $02 ;0x20
-	dc.b	$06, $06, $08, $00, $06, $06, $F0, $00, $03, $07, $02, $00, $03, $07, $02, $00, $03, $07, $02, $00, $03, $07, $FF, $00, $00, $00, $5C, $A4, $00, $00, $F0, $05 ;0x40
-	dc.b	$01, $03, $03, $04, $02, $03, $F0, $05, $06, $09, $04, $08, $06, $09, $04, $08, $06, $09, $04, $08, $06, $09, $04, $08, $FF, $00, $00, $00, $5C, $CE, $00, $01 ;0x60
-	dc.b	$FE, $00, $FE, $00 ;0x80
+    dc.l    loc_00005C8E
+    dc.l    loc_00005CA4
+    dc.l    loc_00005CCA
+    dc.l    loc_00005CEC
+    dc.l    loc_00005CF0
+    dc.l    loc_00005CF0
+    dc.l    loc_00005CF0
+    dc.l    loc_00005CF0
+loc_00005C8E:
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $06
+    dc.b    $06
+    dc.b    $08
+    dc.b    $00
+    dc.b    $06
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005C8E
+loc_00005CA4:
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $06
+    dc.b    $06
+    dc.b    $08
+    dc.b    $00
+    dc.b    $06
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $00
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $00
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $00
+    dc.b    $03
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005CA4
+loc_00005CCA:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $F0
+    dc.b    $05
+loc_00005CCE:
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $06
+    dc.b    $09
+    dc.b    $04
+    dc.b    $08
+    dc.b    $06
+    dc.b    $09
+    dc.b    $04
+    dc.b    $08
+    dc.b    $06
+    dc.b    $09
+    dc.b    $04
+    dc.b    $08
+    dc.b    $06
+    dc.b    $09
+    dc.b    $04
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005CCE
+loc_00005CEC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005CF0:
+    dc.b    $FE
+    dc.b    $00
+
 loc_00005CF2:
-	dc.b	$00, $00, $5D, $12, $00, $00, $5D, $3C, $00, $00, $5D, $68, $00, $00, $5D, $94, $00, $00, $5D, $98, $00, $00, $5D, $98, $00, $00, $5D, $98, $00, $00, $5D, $98 ;0x0 (0x00005CF2-0x00005D9A, Entry count: 0xA8) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $02, $09, $03, $0A ;0x20
-	dc.b	$02, $09, $00, $08, $FF, $00, $00, $00, $5D, $14, $00, $00, $00, $0B, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05 ;0x40
-	dc.b	$01, $06, $03, $07, $02, $06, $F0, $05, $02, $0C, $03, $0D, $02, $0C, $00, $0B, $FF, $00, $00, $00, $5D, $40, $00, $00, $00, $0E, $F0, $05, $01, $06, $03, $07 ;0x60
-	dc.b	$02, $06, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05, $01, $06, $03, $07, $02, $06, $F0, $05, $02, $0F, $03, $10, $02, $0F, $00, $0E, $FF, $00, $00, $00 ;0x80
-	dc.b	$5D, $6C, $00, $01, $FE, $00, $FE, $00 ;0xA0
+    dc.l    loc_00005D12
+    dc.l    loc_00005D3C
+    dc.l    loc_00005D68
+    dc.l    loc_00005D94
+    dc.l    loc_00005D98
+    dc.l    loc_00005D98
+    dc.l    loc_00005D98
+    dc.l    loc_00005D98
+loc_00005D12:
+    dc.b    $00
+    dc.b    $00
+loc_00005D14:
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $02
+    dc.b    $09
+    dc.b    $03
+    dc.b    $0A
+    dc.b    $02
+    dc.b    $09
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005D14
+loc_00005D3C:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0B
+loc_00005D40:
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0B
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005D40
+loc_00005D68:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+loc_00005D6C:
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $06
+    dc.b    $03
+    dc.b    $07
+    dc.b    $02
+    dc.b    $06
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $03
+    dc.b    $10
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005D6C
+loc_00005D94:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005D98:
+    dc.b    $FE
+    dc.b    $00
+
 loc_00005D9A:
-	dc.b	$00, $00, $5D, $BA, $00, $00, $5D, $BA, $00, $00, $5D, $BA, $00, $00, $5D, $CA, $00, $00, $5D, $CE, $00, $00, $5D, $DC, $00, $00, $5D, $EA, $00, $00, $5D, $F8 ;0x0 (0x00005D9A-0x00005E06, Entry count: 0x6C) [Unknown data]
-	dc.b	$00, $00, $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00, $00, $00, $5D, $BC, $00, $01, $FE, $00, $F1, $05, $02, $07, $03, $06, $02, $07, $FF, $00, $00, $00 ;0x20
-	dc.b	$5D, $CE, $F1, $0A, $02, $09, $03, $08, $02, $09, $FF, $00, $00, $00, $5D, $DC, $F1, $0B, $02, $0C, $03, $0D, $02, $0C, $FF, $00, $00, $00, $5D, $EA, $04, $0E ;0x40
-	dc.b	$02, $0F, $03, $10, $02, $0F, $FF, $00, $00, $00, $5D, $F8 ;0x60
+    dc.l    loc_00005DBA
+    dc.l    loc_00005DBA
+    dc.l    loc_00005DBA
+    dc.l    loc_00005DCA
+    dc.l    loc_00005DCE
+    dc.l    loc_00005DDC
+    dc.l    loc_00005DEA
+    dc.l    loc_00005DF8
+loc_00005DBA:
+    dc.b    $00
+    dc.b    $00
+loc_00005DBC:
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $03
+    dc.b    $03
+    dc.b    $04
+    dc.b    $02
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005DBC
+loc_00005DCA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FE
+    dc.b    $00
+loc_00005DCE:
+    dc.b    $F1
+    dc.b    $05
+    dc.b    $02
+    dc.b    $07
+    dc.b    $03
+    dc.b    $06
+    dc.b    $02
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005DCE
+loc_00005DDC:
+    dc.b    $F1
+    dc.b    $0A
+    dc.b    $02
+    dc.b    $09
+    dc.b    $03
+    dc.b    $08
+    dc.b    $02
+    dc.b    $09
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005DDC
+loc_00005DEA:
+    dc.b    $F1
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $00
+    dc.l    loc_00005DEA
+loc_00005DF8:
+    dc.b    $04
+    dc.b    $0E
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $03
+    dc.b    $10
+    dc.b    $02
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $00
+    dc.l	loc_00005DF8
+
 loc_00005E06:
 	EORI.b	#1, $2A(A0)
 	BSR.w	loc_00005064
@@ -6804,39 +7401,50 @@ loc_00005F38:
 	MOVE.b	#$76, D0
 	JSR	loc_000072BE
 	BRA.w	loc_00002AF2
+	
 loc_00005F4A:
-	dc.l	$00005F5A, $00005F62, $00005F6A, $00005F72 ;0x0 (0x00005F4A-0x00005F5A, Entry count: 0x10)
-	dc.b	$08
-	dc.b	$00 ;0x0 (0x00005F5B-0x00005F5C, Entry count: 0x1) [Unknown data]
-	dc.b	$20
-	dc.b	$04 ;0x0 (0x00005F5D-0x00005F5E, Entry count: 0x1) [Unknown data]
-	dc.b	$40
-	dc.b	$08 ;0x0 (0x00005F5F-0x00005F60, Entry count: 0x1) [Unknown data]
-	dc.b	$FE
-	dc.b	$00 ;0x0 (0x00005F61-0x00005F62, Entry count: 0x1) [Unknown data]
-	dc.b	$08
-	dc.b	$01 ;0x0 (0x00005F63-0x00005F64, Entry count: 0x1) [Unknown data]
-	dc.b	$20
-	dc.b	$05 ;0x0 (0x00005F65-0x00005F66, Entry count: 0x1) [Unknown data]
-	dc.b	$40
-	dc.b	$09 ;0x0 (0x00005F67-0x00005F68, Entry count: 0x1) [Unknown data]
-	dc.b	$FE
-	dc.b	$00 ;0x0 (0x00005F69-0x00005F6A, Entry count: 0x1) [Unknown data]
-	dc.b	$08
-	dc.b	$02 ;0x0 (0x00005F6B-0x00005F6C, Entry count: 0x1) [Unknown data]
-	dc.b	$20
-	dc.b	$06 ;0x0 (0x00005F6D-0x00005F6E, Entry count: 0x1) [Unknown data]
-	dc.b	$40
-	dc.b	$0A ;0x0 (0x00005F6F-0x00005F70, Entry count: 0x1) [Unknown data]
-	dc.b	$FE
-	dc.b	$00 ;0x0 (0x00005F71-0x00005F72, Entry count: 0x1) [Unknown data]
-	dc.b	$08
-	dc.b	$03 ;0x0 (0x00005F73-0x00005F74, Entry count: 0x1) [Unknown data]
-	dc.b	$20
-	dc.b	$07 ;0x0 (0x00005F75-0x00005F76, Entry count: 0x1) [Unknown data]
-	dc.b	$40
-	dc.b	$0B ;0x0 (0x00005F77-0x00005F78, Entry count: 0x1) [Unknown data]
-	dc.b	$FE
+	dc.l    loc_00005F5A
+    dc.l    loc_00005F62
+    dc.l    loc_00005F6A
+    dc.l    loc_00005F72
+loc_00005F5A:
+    dc.b    $08
+    dc.b    $00
+    dc.b    $20
+    dc.b    $04
+    dc.b    $40
+    dc.b    $08
+    dc.b    $FE
+    dc.b    $00
+loc_00005F62:
+    dc.b    $08
+    dc.b    $01
+    dc.b    $20
+    dc.b    $05
+    dc.b    $40
+    dc.b    $09
+    dc.b    $FE
+    dc.b    $00
+loc_00005F6A:
+    dc.b    $08
+    dc.b    $02
+    dc.b    $20
+    dc.b    $06
+    dc.b    $40
+    dc.b    $0A
+    dc.b    $FE
+    dc.b    $00
+loc_00005F72:
+    dc.b    $08
+    dc.b    $03
+    dc.b    $20
+    dc.b    $07
+    dc.b    $40
+    dc.b    $0B
+    dc.b    $FE
+
+	
+	; BAD CODE
 	dc.b	$00, $45, $F9, $00, $00, $5F, $D8, $32, $3C, $00, $A0, $4A, $28, $00, $2A, $66, $00, $00, $06, $32, $3C, $01, $60, $30, $3C, $00, $03, $43, $F9, $00, $00, $5F ;0x0 (0x00005F79-0x00005FEE, Entry count: 0x75) [Unknown data]
 	dc.b	$E0, $4E, $B9, $00, $00, $2A, $B0, $65, $00, $00, $30, $13, $7C, $00, $25, $00, $08, $13, $40, $00, $09, $48, $E7, $80, $00, $4E, $B9, $00, $00, $11, $D0, $02 ;0x20
 	dc.b	$40, $00, $3F, $D0, $41, $33, $40, $00, $0A, $4C, $DF, $00, $01, $34, $00, $E9, $4A, $33, $42, $00, $26, $33, $5A, $00, $0E, $51, $C8, $FF, $C0, $4E, $75, $00 ;0x40
@@ -7544,10 +8152,119 @@ loc_0000710E:
 	dc.b	$FF
 	dc.b	$00 ;0x0 (0x00007117-0x00007118, Entry count: 0x1) [Unknown data]
 	dc.l	loc_0000710E
-	dc.b	$00, $00, $71, $38, $00, $00, $71, $46, $00, $00, $71, $54, $00, $00, $71, $62, $00, $00, $71, $70, $00, $00, $71, $7E, $00, $00, $71, $8C, $F1, $16, $2C, $2C ;0x0 (0x0000711C-0x0000719A, Entry count: 0x7E) [Unknown data]
-	dc.b	$00, $1A, $2C, $1E, $16, $38, $00, $00, $00, $00, $F2, $1A, $2C, $1E, $16, $38, $00, $00, $00, $00, $00, $00, $00, $00, $F3, $20, $16, $1C, $1E, $00, $32, $3E ;0x20
-	dc.b	$3C, $00, $00, $00, $00, $00, $F4, $20, $16, $1C, $1E, $00, $26, $30, $00, $00, $00, $00, $00, $00, $F5, $38, $1E, $18, $26, $38, $3C, $24, $00, $00, $00, $00 ;0x40
-	dc.b	$00, $00, $F6, $34, $16, $3E, $3A, $1E, $00, $32, $30, $00, $00, $00, $00, $00, $F7, $34, $16, $3E, $3A, $1E, $00, $32, $20, $20, $00, $00, $00, $00 ;0x60
+	dc.l    loc_00007138
+    dc.l    loc_00007146
+    dc.l    loc_00007154
+    dc.l    loc_00007162
+    dc.l    loc_00007170
+    dc.l    loc_0000717E
+    dc.l    loc_0000718C
+loc_00007138:
+    dc.b    $F1
+    dc.b    $16
+    dc.b    $2C
+    dc.b    $2C
+    dc.b    $00
+    dc.b    $1A
+    dc.b    $2C
+    dc.b    $1E
+    dc.b    $16
+    dc.b    $38
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_00007146:
+    dc.b    $F2
+    dc.b    $1A
+    dc.b    $2C
+    dc.b    $1E
+    dc.b    $16
+    dc.b    $38
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_00007154:
+    dc.b    $F3
+    dc.b    $20
+    dc.b    $16
+    dc.b    $1C
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $32
+    dc.b    $3E
+    dc.b    $3C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_00007162:
+    dc.b    $F4
+    dc.b    $20
+    dc.b    $16
+    dc.b    $1C
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $26
+    dc.b    $30
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_00007170:
+    dc.b    $F5
+    dc.b    $38
+    dc.b    $1E
+    dc.b    $18
+    dc.b    $26
+    dc.b    $38
+    dc.b    $3C
+    dc.b    $24
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_0000717E:
+    dc.b    $F6
+    dc.b    $34
+    dc.b    $16
+    dc.b    $3E
+    dc.b    $3A
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $32
+    dc.b    $30
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+loc_0000718C:
+    dc.b    $F7
+    dc.b    $34
+    dc.b    $16
+    dc.b    $3E
+    dc.b    $3A
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $32
+    dc.b    $20
+    dc.b    $20
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+
 
 
 z80Load_Begin:
@@ -8767,7 +9484,9 @@ loc_00008A64:
 	dc.b	$0B, $00, $00, $04, $0B, $00, $00, $04, $0B, $00, $00, $04, $0C, $00, $00, $04, $0C, $00, $00, $04, $0D, $00, $00, $04, $10, $00, $00, $04, $10, $00, $00, $04 ;0x140
 loc_00008BC4:
 	dc.b	$00, $00, $91, $F4, $00, $00, $90, $EC, $00, $00, $90, $54, $00, $00, $8F, $32, $00, $00, $8F, $E6, $00, $00, $8D, $A6, $00, $00, $92, $F6, $00, $00, $93, $3E ;0x0 (0x00008BC4-0x000093F4, Entry count: 0x830) [Unknown data]
-	dc.b	$00, $00, $8C, $48, $00, $00, $90, $E0, $00, $00, $8B, $F4, $00, $00, $8E, $BE, $43, $F9, $00, $00, $8C, $28, $61, $00, $9E, $58, $64, $00, $00, $04, $4E, $75 ;0x20
+	dc.b	$00, $00, $8C, $48, $00, $00, $90, $E0, $00, $00, $8B, $F4, $00, $00, $8E, $BE
+	
+	dc.b    $43, $F9, $00, $00, $8C, $28, $61, $00, $9E, $58, $64, $00, $00, $04, $4E, $75 ;0x20
 	dc.b	$23, $48, $00, $2E, $33, $68, $00, $0A, $00, $0A, $13, $7C, $00, $0A, $00, $06, $33, $7C, $FF, $FF, $00, $12, $33, $7C, $1C, $00, $00, $1A, $33, $7C, $00, $20 ;0x40
 	dc.b	$00, $26, $4E, $75, $22, $68, $00, $2E, $4A, $29, $00, $07, $67, $00, $9E, $C0, $61, $00, $9F, $F4, $33, $68, $00, $0A, $00, $0A, $53, $68, $00, $26, $67, $00 ;0x60
 	dc.b	$9E, $AE, $4E, $75, $43, $F9, $00, $00, $8C, $7C, $61, $00, $9E, $04, $64, $00, $00, $04, $4E, $75, $23, $48, $00, $2E, $33, $68, $00, $0A, $00, $0A, $33, $68 ;0x80
@@ -8839,14 +9558,14 @@ loc_000093F4:
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	CLR.w	D0
 	MOVE.b	$00FF0113, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	$44(A1,D0.w), A0
 	MOVE.w	#0, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	MOVE.b	#$FF, $00FF18AE
 	MOVE.b	#0, $00FF18AF
 	CLR.w	D0
@@ -9956,7 +10675,7 @@ loc_0000A30A:
 loc_0000A316:
 	LEA	(loc_00020000).l, A0
 	MOVE.w	#$2000, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	MOVE.w	#0, D0
 	JSR	loc_00000BF2
 	BRA.w	loc_0000A3F4
@@ -9976,7 +10695,7 @@ loc_0000A34E:
 loc_0000A368:
 	lea (loc_00022EF0).l, a0
 	move.w #$2000, d0
-	jsr loc_00000C82
+	jsr graphicsDecompress
 	move.w #1, d0
 	jmp loc_00000BF2
 	
@@ -9994,7 +10713,7 @@ loc_0000A382:
 loc_0000A3B6:
 	lea (loc_00025400).l, a0
 	move.w #$2000, d0
-	jsr loc_00000C82
+	jsr graphicsDecompress
 	move.w #2, d0
 	jsr loc_00000BF2
 	bsr.w loc_0000A072
@@ -11509,7 +12228,7 @@ loc_0000C5AA:
 	LSL.w	#2, D0
 	MOVEA.l	(A3,D0.w), A0
 	MOVE.w	#0, D0
-	JSR	loc_00000C82
+	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/A0/A1/A2/A3
 	MOVE.w	#0, D5
 	TST.b	(A1,D0.w)
@@ -12439,7 +13158,12 @@ loc_0000D2C4:
 	dc.l	loc_0000D2EC
 	dc.l	loc_0000D2F2
 	dc.l	loc_0000D2F8
-	dc.b	$00, $00, $D2, $DC, $00, $00, $D3, $00, $22, $68, $00, $2E, $13, $41, $00, $07, $4E, $75 ;0x0 (0x0000D2D4-0x0000D2E6, Entry count: 0x12) [Unknown data]
+	dc.l    loc_0000D2DC
+	dc.l    loc_0000D300
+loc_0000D2DC:
+	movea.l $2E(a0), a1
+	move.b d1, $7(a1)
+	rts
 loc_0000D2E6:
 	JMP	loc_00002AF2
 loc_0000D2EC:
@@ -12451,7 +13175,9 @@ loc_0000D2F2:
 loc_0000D2F8:
 	MOVE.w	D1, D0
 	JMP	loc_00000BF2
-	dc.b	$11, $41, $00, $08, $4E, $75 ;0x0 (0x0000D300-0x0000D306, Entry count: 0x6) [Unknown data]
+loc_0000D300:
+	move.b d1, $8(a0)
+	rts
 loc_0000D306:
 	ORI	#$0700, SR
 	EORI.w	#$8000, D0
@@ -12470,789 +13196,1433 @@ loc_0000D306:
 	ADDQ.w	#4, $12(A0)
 	RTS
 loc_0000D34A:
-	dc.b	$00, $00, $D7, $30, $00, $00, $D7, $A4, $00, $00, $D7, $C0, $00, $00, $D8, $1A, $00, $00, $D8, $30, $00, $00, $D8, $86, $00, $00, $D8, $E0 ;0x0 (0x0000D34A-0x0000D366, Entry count: 0x1C) [Unknown data]
-	dc.l	$0000D48C, $0000D4CA, $0000D524, $0000D580, $0000D5C2, $0000D61A, $0000D6AC, $0000D6AE ;0x0 (0x0000D366-0x0000D386, Entry count: 0x20)
-	dc.b	$00, $00, $00, $00 ;0x0 (0x0000D386-0x0000D38A, Entry count: 0x4) [Unknown data]
-	dc.l	$0000D3A6, $0000D3BE, $0000D3DE, $0000D3F8, $0000D410, $0000D42A, $0000D44A ;0x0 (0x0000D38A-0x0000D3A6, Entry count: 0x1C)
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D3A7-0x0000D3AA, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D3AB-0x0000D3AE, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D3AF-0x0000D3B0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$8C ;0x0 (0x0000D3B1-0x0000D3B2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$CC ;0x0 (0x0000D3B3-0x0000D3B4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$48 ;0x0 (0x0000D3B5-0x0000D3B6, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$B8 ;0x0 (0x0000D3B7-0x0000D3B8, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$6C ;0x0 (0x0000D3B9-0x0000D3BA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D3BB-0x0000D3BC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D3BD-0x0000D3BE, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $48 ;0x0 (0x0000D3BF-0x0000D3C2, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D3C3-0x0000D3C6, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D3C7-0x0000D3CA, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$DC ;0x0 (0x0000D3CB-0x0000D3CC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F8 ;0x0 (0x0000D3CD-0x0000D3CE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D3CF-0x0000D3D0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$7C ;0x0 (0x0000D3D1-0x0000D3D2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C8 ;0x0 (0x0000D3D3-0x0000D3D4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D3D5-0x0000D3D6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D3D7-0x0000D3D8, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$BC ;0x0 (0x0000D3D9-0x0000D3DA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D3DB-0x0000D3DC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D3DD-0x0000D3DE, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D3DF-0x0000D3E2, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D3E3-0x0000D3E6, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D3E7-0x0000D3E8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$CC ;0x0 (0x0000D3E9-0x0000D3EA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D3EB-0x0000D3EC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E8 ;0x0 (0x0000D3ED-0x0000D3EE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D3EF-0x0000D3F0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$44 ;0x0 (0x0000D3F1-0x0000D3F2, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$58 ;0x0 (0x0000D3F3-0x0000D3F4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D3F5-0x0000D3F6, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D3F7-0x0000D3F8, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $48 ;0x0 (0x0000D3F9-0x0000D3FC, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D3FD-0x0000D400, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D401-0x0000D404, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$D0 ;0x0 (0x0000D405-0x0000D406, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D0 ;0x0 (0x0000D407-0x0000D408, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D409-0x0000D40A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$14 ;0x0 (0x0000D40B-0x0000D40C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$3C ;0x0 (0x0000D40D-0x0000D40E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D40F-0x0000D410, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D411-0x0000D414, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D415-0x0000D418, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$E8 ;0x0 (0x0000D419-0x0000D41A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D41B-0x0000D41C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$44 ;0x0 (0x0000D41D-0x0000D41E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$58 ;0x0 (0x0000D41F-0x0000D420, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F0 ;0x0 (0x0000D421-0x0000D422, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D423-0x0000D424, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D425-0x0000D426, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D427-0x0000D428, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D429-0x0000D42A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $40 ;0x0 (0x0000D42B-0x0000D42E, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D42F-0x0000D432, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D433-0x0000D436, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D437-0x0000D438, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D439-0x0000D43A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$14 ;0x0 (0x0000D43B-0x0000D43C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D43D-0x0000D43E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$5C ;0x0 (0x0000D43F-0x0000D440, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$68 ;0x0 (0x0000D441-0x0000D442, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B0 ;0x0 (0x0000D443-0x0000D444, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C4 ;0x0 (0x0000D445-0x0000D446, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D447-0x0000D448, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D449-0x0000D44A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D44B-0x0000D44E, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D44F-0x0000D452, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$50 ;0x0 (0x0000D453-0x0000D454, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$B0 ;0x0 (0x0000D455-0x0000D456, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$80 ;0x0 (0x0000D457-0x0000D458, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$9C ;0x0 (0x0000D459-0x0000D45A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$5C ;0x0 (0x0000D45B-0x0000D45C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D45D-0x0000D45E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $10 ;0x0 (0x0000D45F-0x0000D462, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D463-0x0000D466, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$4C ;0x0 (0x0000D467-0x0000D468, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$B8 ;0x0 (0x0000D469-0x0000D46A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$6C ;0x0 (0x0000D46B-0x0000D46C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D46D-0x0000D46E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E8 ;0x0 (0x0000D46F-0x0000D470, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$50 ;0x0 (0x0000D471-0x0000D472, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$B8 ;0x0 (0x0000D473-0x0000D474, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$6C ;0x0 (0x0000D475-0x0000D476, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D477-0x0000D47A, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D47B-0x0000D47C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E8 ;0x0 (0x0000D47D-0x0000D47E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D47F-0x0000D480, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D481-0x0000D482, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D483-0x0000D484, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D485-0x0000D486, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D487-0x0000D488, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D489-0x0000D48A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D48B-0x0000D48C, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D48D-0x0000D490, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D491-0x0000D494, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$4C ;0x0 (0x0000D495-0x0000D496, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D497-0x0000D498, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$68 ;0x0 (0x0000D499-0x0000D49A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D49B-0x0000D49C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$58 ;0x0 (0x0000D49D-0x0000D49E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D49F-0x0000D4A0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D4A1-0x0000D4A2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D4A3-0x0000D4A4, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D4A5-0x0000D4A8, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D4A9-0x0000D4AA, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$08 ;0x0 (0x0000D4AB-0x0000D4AC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D4AD-0x0000D4AE, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$08 ;0x0 (0x0000D4AF-0x0000D4B0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D4B1-0x0000D4B2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$7C ;0x0 (0x0000D4B3-0x0000D4B4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D4B5-0x0000D4B6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D4B7-0x0000D4B8, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D4B9-0x0000D4BC, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D4BD-0x0000D4BE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D4BF-0x0000D4C0, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$08 ;0x0 (0x0000D4C1-0x0000D4C2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D4C3-0x0000D4C4, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$08 ;0x0 (0x0000D4C5-0x0000D4C6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D4C7-0x0000D4C8, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D4C9-0x0000D4CA, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D4CB-0x0000D4CE, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D4CF-0x0000D4D2, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$34 ;0x0 (0x0000D4D3-0x0000D4D4, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$24 ;0x0 (0x0000D4D5-0x0000D4D6, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$48 ;0x0 (0x0000D4D7-0x0000D4D8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D4 ;0x0 (0x0000D4D9-0x0000D4DA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D4DB-0x0000D4DC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$AC ;0x0 (0x0000D4DD-0x0000D4DE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D4DF-0x0000D4E0, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D4E1-0x0000D4E4, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D4E5-0x0000D4E6, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D4E7-0x0000D4E8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D4E9-0x0000D4EA, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D4EB-0x0000D4EC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $30 ;0x0 (0x0000D4ED-0x0000D4F0, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D4F1-0x0000D4F2, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$0C ;0x0 (0x0000D4F3-0x0000D4F4, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$BC ;0x0 (0x0000D4F5-0x0000D4F6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D4F7-0x0000D4F8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$88 ;0x0 (0x0000D4F9-0x0000D4FA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D4FB-0x0000D4FC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $40 ;0x0 (0x0000D4FD-0x0000D500, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C6, $A6 ;0x0 (0x0000D501-0x0000D504, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D505-0x0000D506, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D507-0x0000D508, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D509-0x0000D50A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D50B-0x0000D50C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D50D-0x0000D50E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D50F-0x0000D510, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D511-0x0000D512, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D513-0x0000D514, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C8, $26 ;0x0 (0x0000D515-0x0000D518, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D519-0x0000D51A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D51B-0x0000D51C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$38 ;0x0 (0x0000D51D-0x0000D51E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$38 ;0x0 (0x0000D51F-0x0000D520, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$38 ;0x0 (0x0000D521-0x0000D522, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D523-0x0000D524, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D525-0x0000D528, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D529-0x0000D52C, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$44 ;0x0 (0x0000D52D-0x0000D52E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$2C ;0x0 (0x0000D52F-0x0000D530, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D531-0x0000D532, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$10 ;0x0 (0x0000D533-0x0000D534, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$54 ;0x0 (0x0000D535-0x0000D536, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D537-0x0000D538, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$A4 ;0x0 (0x0000D539-0x0000D53A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$04 ;0x0 (0x0000D53B-0x0000D53C, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D53D-0x0000D540, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D541-0x0000D542, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D543-0x0000D544, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D545-0x0000D548, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$B4 ;0x0 (0x0000D549-0x0000D54A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D54B-0x0000D54C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$7C ;0x0 (0x0000D54D-0x0000D54E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D54F-0x0000D550, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D551-0x0000D552, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C8 ;0x0 (0x0000D553-0x0000D554, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$70 ;0x0 (0x0000D555-0x0000D556, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$90 ;0x0 (0x0000D557-0x0000D558, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C6, $A6 ;0x0 (0x0000D559-0x0000D55C, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D55D-0x0000D55E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D55F-0x0000D560, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D561-0x0000D562, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D563-0x0000D564, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D565-0x0000D566, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $20 ;0x0 (0x0000D567-0x0000D56A, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C8, $26 ;0x0 (0x0000D56B-0x0000D56E, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D56F-0x0000D570, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E8 ;0x0 (0x0000D571-0x0000D572, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$58 ;0x0 (0x0000D573-0x0000D574, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$0C ;0x0 (0x0000D575-0x0000D576, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B0 ;0x0 (0x0000D577-0x0000D578, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D579-0x0000D57A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D57B-0x0000D57C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$3C ;0x0 (0x0000D57D-0x0000D57E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D57F-0x0000D580, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D581-0x0000D584, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D585-0x0000D588, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$6C ;0x0 (0x0000D589-0x0000D58A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$14 ;0x0 (0x0000D58B-0x0000D58C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D58D-0x0000D58E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$84 ;0x0 (0x0000D58F-0x0000D590, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$7C ;0x0 (0x0000D591-0x0000D592, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C8 ;0x0 (0x0000D593-0x0000D594, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D8 ;0x0 (0x0000D595-0x0000D596, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D597-0x0000D598, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D599-0x0000D59C, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$70 ;0x0 (0x0000D59D-0x0000D59E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$50 ;0x0 (0x0000D59F-0x0000D5A0, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$A8 ;0x0 (0x0000D5A1-0x0000D5A2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D5A3-0x0000D5A4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D5A5-0x0000D5A6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$AC ;0x0 (0x0000D5A7-0x0000D5A8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D5A9-0x0000D5AA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D5AB-0x0000D5AC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D5AD-0x0000D5B0, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$74 ;0x0 (0x0000D5B1-0x0000D5B2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$68 ;0x0 (0x0000D5B3-0x0000D5B4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D5B5-0x0000D5B6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D5B7-0x0000D5B8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$5C ;0x0 (0x0000D5B9-0x0000D5BA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D5BB-0x0000D5BC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$88 ;0x0 (0x0000D5BD-0x0000D5BE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D5BF-0x0000D5C0, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D5C1-0x0000D5C2, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D5C3-0x0000D5C6, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D5C7-0x0000D5CA, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$78 ;0x0 (0x0000D5CB-0x0000D5CC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D5CD-0x0000D5CE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D5CF-0x0000D5D0, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D5D1-0x0000D5D4, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$80 ;0x0 (0x0000D5D5-0x0000D5D6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E4 ;0x0 (0x0000D5D7-0x0000D5D8, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$78 ;0x0 (0x0000D5D9-0x0000D5DA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$70 ;0x0 (0x0000D5DB-0x0000D5DC, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D5DD-0x0000D5DE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D5DF-0x0000D5E0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D5E1-0x0000D5E2, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $20 ;0x0 (0x0000D5E3-0x0000D5E6, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D5E7-0x0000D5EA, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D5EB-0x0000D5EC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D5ED-0x0000D5EE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$94 ;0x0 (0x0000D5EF-0x0000D5F0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$74 ;0x0 (0x0000D5F1-0x0000D5F2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$80 ;0x0 (0x0000D5F3-0x0000D5F4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A0 ;0x0 (0x0000D5F5-0x0000D5F6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D5F7-0x0000D5F8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$A8 ;0x0 (0x0000D5F9-0x0000D5FA, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C6, $A6 ;0x0 (0x0000D5FB-0x0000D5FE, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$B0 ;0x0 (0x0000D5FF-0x0000D600, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$20 ;0x0 (0x0000D601-0x0000D602, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D603-0x0000D604, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$38 ;0x0 (0x0000D605-0x0000D606, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$1C ;0x0 (0x0000D607-0x0000D608, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D609-0x0000D60A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$2C ;0x0 (0x0000D60B-0x0000D60C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D60D-0x0000D60E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C8, $26 ;0x0 (0x0000D60F-0x0000D612, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$9C ;0x0 (0x0000D613-0x0000D614, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$54 ;0x0 (0x0000D615-0x0000D616, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D617-0x0000D618, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D619-0x0000D61A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D61B-0x0000D61E, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D61F-0x0000D622, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$B8 ;0x0 (0x0000D623-0x0000D624, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$6C ;0x0 (0x0000D625-0x0000D626, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D627-0x0000D628, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$B8 ;0x0 (0x0000D629-0x0000D62A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$6C ;0x0 (0x0000D62B-0x0000D62C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B4 ;0x0 (0x0000D62D-0x0000D62E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D62F-0x0000D632, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$64 ;0x0 (0x0000D633-0x0000D634, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$A0 ;0x0 (0x0000D635-0x0000D636, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$98 ;0x0 (0x0000D637-0x0000D638, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$3C ;0x0 (0x0000D639-0x0000D63A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $80 ;0x0 (0x0000D63B-0x0000D63E, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D63F-0x0000D642, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D643-0x0000D646, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$94 ;0x0 (0x0000D647-0x0000D648, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$84 ;0x0 (0x0000D649-0x0000D64A, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$3C ;0x0 (0x0000D64B-0x0000D64C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D64D-0x0000D64E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$28 ;0x0 (0x0000D64F-0x0000D650, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$9C ;0x0 (0x0000D651-0x0000D652, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D653-0x0000D654, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D655-0x0000D656, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D657-0x0000D65A, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$88 ;0x0 (0x0000D65B-0x0000D65C, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$70 ;0x0 (0x0000D65D-0x0000D65E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$8C ;0x0 (0x0000D65F-0x0000D660, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C8 ;0x0 (0x0000D661-0x0000D662, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$30 ;0x0 (0x0000D663-0x0000D664, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$18 ;0x0 (0x0000D665-0x0000D666, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$40 ;0x0 (0x0000D667-0x0000D668, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$40 ;0x0 (0x0000D669-0x0000D66A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D66B-0x0000D66E, Entry count: 0x3) [Unknown data]
-	dc.b	$04
-	dc.b	$28 ;0x0 (0x0000D66F-0x0000D670, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D671-0x0000D672, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $32 ;0x0 (0x0000D673-0x0000D676, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$6C ;0x0 (0x0000D677-0x0000D678, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$84 ;0x0 (0x0000D679-0x0000D67A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D67B-0x0000D67C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D67D-0x0000D67E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D8 ;0x0 (0x0000D67F-0x0000D680, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C6, $A6 ;0x0 (0x0000D681-0x0000D684, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D685-0x0000D686, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$10 ;0x0 (0x0000D687-0x0000D688, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$60 ;0x0 (0x0000D689-0x0000D68A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F8 ;0x0 (0x0000D68B-0x0000D68C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$90 ;0x0 (0x0000D68D-0x0000D68E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D68F-0x0000D690, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$88 ;0x0 (0x0000D691-0x0000D692, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D693-0x0000D694, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $40 ;0x0 (0x0000D695-0x0000D698, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C8, $26 ;0x0 (0x0000D699-0x0000D69C, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$64 ;0x0 (0x0000D69D-0x0000D69E, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$04 ;0x0 (0x0000D69F-0x0000D6A0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$80 ;0x0 (0x0000D6A1-0x0000D6A2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$5C ;0x0 (0x0000D6A3-0x0000D6A4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D6A5-0x0000D6A6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$54 ;0x0 (0x0000D6A7-0x0000D6A8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D6A9-0x0000D6AA, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D6AB-0x0000D6AC, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$00 ;0x0 (0x0000D6AD-0x0000D6AE, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D6AF-0x0000D6B2, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D6B3-0x0000D6B6, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$78 ;0x0 (0x0000D6B7-0x0000D6B8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$78 ;0x0 (0x0000D6B9-0x0000D6BA, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$14 ;0x0 (0x0000D6BB-0x0000D6BC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$3C ;0x0 (0x0000D6BD-0x0000D6BE, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $40 ;0x0 (0x0000D6BF-0x0000D6C2, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D6C3-0x0000D6C6, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$6C ;0x0 (0x0000D6C7-0x0000D6C8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$84 ;0x0 (0x0000D6C9-0x0000D6CA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D6CB-0x0000D6CC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D6CD-0x0000D6CE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D8 ;0x0 (0x0000D6CF-0x0000D6D0, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D6D1-0x0000D6D2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$70 ;0x0 (0x0000D6D3-0x0000D6D4, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D6D5-0x0000D6D6, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D6D7-0x0000D6DA, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$A4 ;0x0 (0x0000D6DB-0x0000D6DC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D6DD-0x0000D6DE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D6DF-0x0000D6E0, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$10 ;0x0 (0x0000D6E1-0x0000D6E2, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$88 ;0x0 (0x0000D6E3-0x0000D6E4, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D6E5-0x0000D6E6, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$60 ;0x0 (0x0000D6E7-0x0000D6E8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$34 ;0x0 (0x0000D6E9-0x0000D6EA, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$04, $00, $80 ;0x0 (0x0000D6EB-0x0000D6EE, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$0C, $00, $2B ;0x0 (0x0000D6EF-0x0000D6F2, Entry count: 0x3) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C2, $26 ;0x0 (0x0000D6F3-0x0000D6F6, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$6C ;0x0 (0x0000D6F7-0x0000D6F8, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$84 ;0x0 (0x0000D6F9-0x0000D6FA, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$EC ;0x0 (0x0000D6FB-0x0000D6FC, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$E0 ;0x0 (0x0000D6FD-0x0000D6FE, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D8 ;0x0 (0x0000D6FF-0x0000D700, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D701-0x0000D702, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$CC ;0x0 (0x0000D703-0x0000D704, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$30 ;0x0 (0x0000D705-0x0000D706, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C3, $A6 ;0x0 (0x0000D707-0x0000D70A, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$6C ;0x0 (0x0000D70B-0x0000D70C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B8 ;0x0 (0x0000D70D-0x0000D70E, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$BC ;0x0 (0x0000D70F-0x0000D710, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$BC ;0x0 (0x0000D711-0x0000D712, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$D8 ;0x0 (0x0000D713-0x0000D714, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$F4 ;0x0 (0x0000D715-0x0000D716, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$C0 ;0x0 (0x0000D717-0x0000D718, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$AC ;0x0 (0x0000D719-0x0000D71A, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	dc.b	$08, $C5, $26 ;0x0 (0x0000D71B-0x0000D71E, Entry count: 0x3) [Unknown data]
-	dc.b	$03
-	dc.b	$F8 ;0x0 (0x0000D71F-0x0000D720, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$04 ;0x0 (0x0000D721-0x0000D722, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$B0 ;0x0 (0x0000D723-0x0000D724, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$74 ;0x0 (0x0000D725-0x0000D726, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$68 ;0x0 (0x0000D727-0x0000D728, Entry count: 0x1) [Unknown data]
-	dc.b	$04
-	dc.b	$00 ;0x0 (0x0000D729-0x0000D72A, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$98 ;0x0 (0x0000D72B-0x0000D72C, Entry count: 0x1) [Unknown data]
-	dc.b	$03
-	dc.b	$3C ;0x0 (0x0000D72D-0x0000D72E, Entry count: 0x1) [Unknown data]
-	dc.b	$FF
-	
-	dc.b	$00, $FF, $04, $00, $20, $FF, $08, $FA, $8C, $02, $E4, $02, $B0, $01, $F4, $FF, $04, $00, $60, $FF, $0C, $00, $22, $FF, $08, $FA, $8C, $02, $B4, $02, $C4, $02 ;0x0 (0x0000D72F-0x0000E0E2, Entry count: 0x9B3) [Unknown data]
-	dc.b	$D0, $02, $F0, $02, $C0, $02, $FC, $02, $C8, $02, $D4, $FF, $04, $00, $40, $FF, $0C, $00, $22, $FF, $08, $FB, $0C, $02, $F8, $02, $D8, $02, $F8, $02, $D8, $02 ;0x20
-	dc.b	$E8, $FF, $04, $00, $08, $01, $FC, $02, $FC, $02, $C8, $02, $BC, $02, $E0, $02, $F4, $02, $B8, $02, $DC, $02, $EC, $01, $F8, $FF, $04, $00, $80, $FF, $0C, $00 ;0x40
-	dc.b	$22, $FF, $08, $FB, $22, $02, $CC, $05, $BC, $05, $4C, $FF, $04, $00, $C0, $FF, $0C, $00, $22, $FF, $00, $FF, $04, $00, $20, $FF, $08, $FA, $16, $05, $30, $05 ;0x60
-	dc.b	$18, $05, $30, $05, $18, $05, $24, $05, $58, $05, $1C, $05, $0C, $05, $44, $FF, $00, $FF, $0C, $00, $0F, $FF, $04, $00, $20, $FF, $08, $F9, $8E, $FF, $10, $00 ;0x80
-	dc.b	$FE, $05, $3C, $05, $30, $05, $18, $05, $30, $05, $18, $05, $14, $05, $20, $05, $28, $FF, $10, $00, $FF, $FF, $04, $00, $0A, $FF, $08, $FB, $18, $FF, $10, $00 ;0xA0
-	dc.b	$FE, $05, $10, $05, $38, $05, $64, $05, $04, $05, $68, $05, $10, $05, $38, $05, $64, $05, $50, $05, $04, $05, $44, $05, $40, $FF, $10, $00, $FC, $FF, $04, $00 ;0xC0
-	dc.b	$40, $FF, $10, $00, $00, $FF, $0C, $00, $0F, $FF, $00, $FF, $08, $FA, $1C, $05, $3C, $05, $4C, $05, $4C, $05, $4C, $05, $48, $05, $40, $FF, $04, $00, $18, $FF ;0xE0
-	dc.b	$00, $FF, $0C, $00, $0F, $FF, $08, $F9, $94, $05, $3C, $05, $2C, $05, $00, $05, $00, $05, $00, $05, $00, $05, $34, $05, $44, $05, $44, $05, $40, $FF, $04, $00 ;0x100
-	dc.b	$10, $FF, $0C, $00, $0F, $FF, $08, $F9, $90, $05, $3C, $05, $54, $05, $2C, $05, $08, $05, $1C, $FF, $04, $00, $08, $FF, $08, $FB, $1C, $05, $30, $05, $18, $05 ;0x120
-	dc.b	$30, $05, $18, $05, $60, $05, $5C, $05, $2C, $05, $44, $05, $40, $FF, $04, $00, $10, $FF, $0C, $00, $0F, $FF, $00, $FF, $04, $00, $20, $FF, $08, $E7, $20, $43 ;0x140
-	dc.b	$50, $43, $44, $43, $54, $43, $5C, $FF, $04, $00, $40, $FF, $08, $EC, $16, $43, $94, $43, $40, $43, $98, $43, $9C, $43, $60, $43, $74, $FF, $04, $00, $08, $43 ;0x160
-	dc.b	$A8, $43, $4C, $43, $60, $43, $40, $FF, $04, $00, $30, $FF, $08, $F2, $12, $43, $78, $43, $68, $43, $78, $43, $68, $43, $A0, $43, $A4, $43, $64, $FF, $04, $00 ;0x180
-	dc.b	$20, $43, $AC, $43, $6C, $43, $70, $43, $58, $FF, $04, $00, $40, $43, $7C, $FF, $00, $FF, $04, $00, $20, $FF, $08, $D2, $0A, $83, $80, $83, $48, $83, $88, $83 ;0x1A0
-	dc.b	$88, $83, $88, $FF, $04, $00, $20, $FF, $08, $D5, $0E, $83, $90, $83, $70, $83, $58, $83, $6C, $83, $8C, $83, $84, $FF, $00
+    dc.l    loc_0000D730
+    dc.l    loc_0000D7A4
+    dc.l    loc_0000D7C0
+    dc.l    loc_0000D81A
+    dc.l    loc_0000D830
+    dc.l    loc_0000D886
+    dc.l    loc_0000D8E0
+    dc.l    loc_0000D48C
+    dc.l    loc_0000D4CA
+    dc.l    loc_0000D524
+    dc.l    loc_0000D580
+    dc.l    loc_0000D5C2
+    dc.l    loc_0000D61A
+    dc.l    loc_0000D6AC
+    dc.l    loc_0000D6AE
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.l    loc_0000D3A6
+    dc.l    loc_0000D3BE
+    dc.l    loc_0000D3DE
+    dc.l    loc_0000D3F8
+    dc.l    loc_0000D410
+    dc.l    loc_0000D42A
+    dc.l    loc_0000D44A
+loc_0000D3A6:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $8C
+    dc.b    $03
+    dc.b    $CC
+    dc.b    $03
+    dc.b    $48
+    dc.b    $04
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D3BE:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $48
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $DC
+    dc.b    $03
+    dc.b    $F8
+    dc.b    $03
+    dc.b    $30
+    dc.b    $03
+    dc.b    $7C
+    dc.b    $03
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D3DE:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $03
+    dc.b    $CC
+    dc.b    $03
+    dc.b    $30
+    dc.b    $03
+    dc.b    $E8
+    dc.b    $03
+    dc.b    $64
+    dc.b    $03
+    dc.b    $44
+    dc.b    $04
+    dc.b    $58
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D3F8:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $48
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $D0
+    dc.b    $03
+    dc.b    $D0
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $14
+    dc.b    $03
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $00
+loc_0000D410:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $E8
+    dc.b    $03
+    dc.b    $64
+    dc.b    $03
+    dc.b    $44
+    dc.b    $04
+    dc.b    $58
+    dc.b    $03
+    dc.b    $F0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D42A:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $04
+    dc.b    $14
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $5C
+    dc.b    $03
+    dc.b    $68
+    dc.b    $03
+    dc.b    $B0
+    dc.b    $03
+    dc.b    $C4
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D44A:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $50
+    dc.b    $04
+    dc.b    $B0
+    dc.b    $03
+    dc.b    $80
+    dc.b    $03
+    dc.b    $9C
+    dc.b    $03
+    dc.b    $5C
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $4C
+    dc.b    $04
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $E8
+    dc.b    $03
+    dc.b    $50
+    dc.b    $04
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $6C
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $E8
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $64
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D48C:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $4C
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $68
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $03
+    dc.b    $58
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $64
+    dc.b    $04
+    dc.b    $08
+    dc.b    $03
+    dc.b    $64
+    dc.b    $04
+    dc.b    $08
+    dc.b    $03
+    dc.b    $30
+    dc.b    $03
+    dc.b    $7C
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $64
+    dc.b    $04
+    dc.b    $08
+    dc.b    $03
+    dc.b    $64
+    dc.b    $04
+    dc.b    $08
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D4CA:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $34
+    dc.b    $04
+    dc.b    $24
+    dc.b    $04
+    dc.b    $48
+    dc.b    $03
+    dc.b    $D4
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $03
+    dc.b    $AC
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $30
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $0C
+    dc.b    $04
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $88
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C6
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $03
+    dc.b    $74
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $38
+    dc.b    $03
+    dc.b    $38
+    dc.b    $03
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $00
+loc_0000D524:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $44
+    dc.b    $04
+    dc.b    $2C
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $10
+    dc.b    $04
+    dc.b    $54
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $04
+    dc.b    $A4
+    dc.b    $04
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $04
+    dc.b    $B4
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $7C
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $70
+    dc.b    $04
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C6
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $74
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $03
+    dc.b    $E8
+    dc.b    $03
+    dc.b    $58
+    dc.b    $04
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $B0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $00
+loc_0000D580:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $6C
+    dc.b    $04
+    dc.b    $14
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $84
+    dc.b    $04
+    dc.b    $7C
+    dc.b    $03
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $D8
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $70
+    dc.b    $03
+    dc.b    $50
+    dc.b    $04
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $74
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $AC
+    dc.b    $03
+    dc.b    $74
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $04
+    dc.b    $74
+    dc.b    $03
+    dc.b    $68
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $5C
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $88
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D5C2:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $78
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $04
+    dc.b    $80
+    dc.b    $03
+    dc.b    $E4
+    dc.b    $04
+    dc.b    $78
+    dc.b    $03
+    dc.b    $70
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $03
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $03
+    dc.b    $94
+    dc.b    $03
+    dc.b    $74
+    dc.b    $03
+    dc.b    $80
+    dc.b    $03
+    dc.b    $A0
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C6
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $B0
+    dc.b    $04
+    dc.b    $20
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $38
+    dc.b    $04
+    dc.b    $1C
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $2C
+    dc.b    $03
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $03
+    dc.b    $9C
+    dc.b    $03
+    dc.b    $54
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D61A:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $30
+    dc.b    $04
+    dc.b    $B8
+    dc.b    $04
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $04
+    dc.b    $64
+    dc.b    $04
+    dc.b    $A0
+    dc.b    $04
+    dc.b    $98
+    dc.b    $03
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $80
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $04
+    dc.b    $94
+    dc.b    $04
+    dc.b    $84
+    dc.b    $04
+    dc.b    $3C
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $28
+    dc.b    $03
+    dc.b    $9C
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $03
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $04
+    dc.b    $88
+    dc.b    $04
+    dc.b    $70
+    dc.b    $04
+    dc.b    $8C
+    dc.b    $03
+    dc.b    $C8
+    dc.b    $04
+    dc.b    $30
+    dc.b    $04
+    dc.b    $18
+    dc.b    $03
+    dc.b    $40
+    dc.b    $04
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $04
+    dc.b    $28
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $32
+    dc.b    $03
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $84
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C6
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $04
+    dc.b    $10
+    dc.b    $04
+    dc.b    $60
+    dc.b    $03
+    dc.b    $F8
+    dc.b    $03
+    dc.b    $90
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $88
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $03
+    dc.b    $64
+    dc.b    $04
+    dc.b    $04
+    dc.b    $03
+    dc.b    $80
+    dc.b    $03
+    dc.b    $5C
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $54
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $00
+loc_0000D6AC:
+    dc.b    $FF
+    dc.b    $00
+loc_0000D6AE:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $78
+    dc.b    $03
+    dc.b    $78
+    dc.b    $04
+    dc.b    $14
+    dc.b    $03
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $84
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $D8
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $03
+    dc.b    $70
+    dc.b    $03
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $03
+    dc.b    $A4
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $10
+    dc.b    $03
+    dc.b    $88
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $60
+    dc.b    $03
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $80
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C2
+    dc.b    $26
+    dc.b    $03
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $84
+    dc.b    $03
+    dc.b    $EC
+    dc.b    $03
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $D8
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $03
+    dc.b    $CC
+    dc.b    $03
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C3
+    dc.b    $A6
+    dc.b    $03
+    dc.b    $6C
+    dc.b    $03
+    dc.b    $B8
+    dc.b    $03
+    dc.b    $BC
+    dc.b    $04
+    dc.b    $BC
+    dc.b    $03
+    dc.b    $D8
+    dc.b    $03
+    dc.b    $F4
+    dc.b    $03
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $AC
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $C5
+    dc.b    $26
+    dc.b    $03
+    dc.b    $F8
+    dc.b    $04
+    dc.b    $04
+    dc.b    $03
+    dc.b    $B0
+    dc.b    $04
+    dc.b    $74
+    dc.b    $03
+    dc.b    $68
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $98
+    dc.b    $03
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $00
+loc_0000D730:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FA
+    dc.b    $8C
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $02
+    dc.b    $B0
+    dc.b    $01
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $60
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $22
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FA
+    dc.b    $8C
+    dc.b    $02
+    dc.b    $B4
+    dc.b    $02
+    dc.b    $C4
+    dc.b    $02
+    dc.b    $D0
+    dc.b    $02
+    dc.b    $F0
+    dc.b    $02
+    dc.b    $C0
+    dc.b    $02
+    dc.b    $FC
+    dc.b    $02
+    dc.b    $C8
+    dc.b    $02
+    dc.b    $D4
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $22
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FB
+    dc.b    $0C
+    dc.b    $02
+    dc.b    $F8
+    dc.b    $02
+    dc.b    $D8
+    dc.b    $02
+    dc.b    $F8
+    dc.b    $02
+    dc.b    $D8
+    dc.b    $02
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $08
+    dc.b    $01
+    dc.b    $FC
+    dc.b    $02
+    dc.b    $FC
+    dc.b    $02
+    dc.b    $C8
+    dc.b    $02
+    dc.b    $BC
+    dc.b    $02
+    dc.b    $E0
+    dc.b    $02
+    dc.b    $F4
+    dc.b    $02
+    dc.b    $B8
+    dc.b    $02
+    dc.b    $DC
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $01
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $80
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $22
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FB
+    dc.b    $22
+    dc.b    $02
+    dc.b    $CC
+    dc.b    $05
+    dc.b    $BC
+    dc.b    $05
+    dc.b    $4C
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $22
+    dc.b    $FF
+    dc.b    $00
+loc_0000D7A4:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FA
+    dc.b    $16
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $24
+    dc.b    $05
+    dc.b    $58
+    dc.b    $05
+    dc.b    $1C
+    dc.b    $05
+    dc.b    $0C
+    dc.b    $05
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $00
+loc_0000D7C0:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $F9
+    dc.b    $8E
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $FE
+    dc.b    $05
+    dc.b    $3C
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $14
+    dc.b    $05
+    dc.b    $20
+    dc.b    $05
+    dc.b    $28
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $0A
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FB
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $FE
+    dc.b    $05
+    dc.b    $10
+    dc.b    $05
+    dc.b    $38
+    dc.b    $05
+    dc.b    $64
+    dc.b    $05
+    dc.b    $04
+    dc.b    $05
+    dc.b    $68
+    dc.b    $05
+    dc.b    $10
+    dc.b    $05
+    dc.b    $38
+    dc.b    $05
+    dc.b    $64
+    dc.b    $05
+    dc.b    $50
+    dc.b    $05
+    dc.b    $04
+    dc.b    $05
+    dc.b    $44
+    dc.b    $05
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $00
+loc_0000D81A:
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FA
+    dc.b    $1C
+    dc.b    $05
+    dc.b    $3C
+    dc.b    $05
+    dc.b    $4C
+    dc.b    $05
+    dc.b    $4C
+    dc.b    $05
+    dc.b    $4C
+    dc.b    $05
+    dc.b    $48
+    dc.b    $05
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $00
+loc_0000D830:
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $F9
+    dc.b    $94
+    dc.b    $05
+    dc.b    $3C
+    dc.b    $05
+    dc.b    $2C
+    dc.b    $05
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $05
+    dc.b    $34
+    dc.b    $05
+    dc.b    $44
+    dc.b    $05
+    dc.b    $44
+    dc.b    $05
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $F9
+    dc.b    $90
+    dc.b    $05
+    dc.b    $3C
+    dc.b    $05
+    dc.b    $54
+    dc.b    $05
+    dc.b    $2C
+    dc.b    $05
+    dc.b    $08
+    dc.b    $05
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $FB
+    dc.b    $1C
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $30
+    dc.b    $05
+    dc.b    $18
+    dc.b    $05
+    dc.b    $60
+    dc.b    $05
+    dc.b    $5C
+    dc.b    $05
+    dc.b    $2C
+    dc.b    $05
+    dc.b    $44
+    dc.b    $05
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $FF
+    dc.b    $00
+loc_0000D886:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $E7
+    dc.b    $20
+    dc.b    $43
+    dc.b    $50
+    dc.b    $43
+    dc.b    $44
+    dc.b    $43
+    dc.b    $54
+    dc.b    $43
+    dc.b    $5C
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $EC
+    dc.b    $16
+    dc.b    $43
+    dc.b    $94
+    dc.b    $43
+    dc.b    $40
+    dc.b    $43
+    dc.b    $98
+    dc.b    $43
+    dc.b    $9C
+    dc.b    $43
+    dc.b    $60
+    dc.b    $43
+    dc.b    $74
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $08
+    dc.b    $43
+    dc.b    $A8
+    dc.b    $43
+    dc.b    $4C
+    dc.b    $43
+    dc.b    $60
+    dc.b    $43
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $F2
+    dc.b    $12
+    dc.b    $43
+    dc.b    $78
+    dc.b    $43
+    dc.b    $68
+    dc.b    $43
+    dc.b    $78
+    dc.b    $43
+    dc.b    $68
+    dc.b    $43
+    dc.b    $A0
+    dc.b    $43
+    dc.b    $A4
+    dc.b    $43
+    dc.b    $64
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $43
+    dc.b    $AC
+    dc.b    $43
+    dc.b    $6C
+    dc.b    $43
+    dc.b    $70
+    dc.b    $43
+    dc.b    $58
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $40
+    dc.b    $43
+    dc.b    $7C
+    dc.b    $FF
+    dc.b    $00
+loc_0000D8E0:
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $D2
+    dc.b    $0A
+    dc.b    $83
+    dc.b    $80
+    dc.b    $83
+    dc.b    $48
+    dc.b    $83
+    dc.b    $88
+    dc.b    $83
+    dc.b    $88
+    dc.b    $83
+    dc.b    $88
+    dc.b    $FF
+    dc.b    $04
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $08
+    dc.b    $D5
+    dc.b    $0E
+    dc.b    $83
+    dc.b    $90
+    dc.b    $83
+    dc.b    $70
+    dc.b    $83
+    dc.b    $58
+    dc.b    $83
+    dc.b    $6C
+    dc.b    $83
+    dc.b    $8C
+    dc.b    $83
+    dc.b    $84
+    dc.b    $FF
+    dc.b    $00
+
 loc_0000D908:
 	lea (loc_0000D914).l, a1
 	jmp loc_00002A54
@@ -15083,13 +16453,204 @@ loc_00010398:
 	MOVEM.l	(A7)+, A3	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
 loc_000103AC:
-	dc.b	$00, $01, $04, $56, $00, $01, $04, $62, $00, $01, $04, $70, $00, $01, $04, $7E, $00, $01, $04, $1A, $00, $01, $04, $28, $00, $01, $04, $38, $00, $01, $04, $48 ;0x0 (0x000103AC-0x0001048C, Entry count: 0xE0) [Unknown data]
-	dc.b	$00, $01, $04, $0A, $00, $01, $03, $FA, $00, $01, $03, $EA, $00, $01, $03, $DC, $03, $05, $00, $22, $10, $10, $11, $FF, $10, $00, $13, $23, $22, $FF, $03, $06 ;0x20
-	dc.b	$22, $01, $10, $31, $00, $21, $FF, $11, $01, $23, $13, $02, $22, $FF, $03, $06, $00, $01, $12, $34, $10, $12, $FF, $02, $10, $11, $22, $10, $00, $FF, $03, $06 ;0x40
-	dc.b	$00, $23, $12, $10, $10, $31, $FF, $00, $13, $22, $10, $23, $11, $FF, $03, $05, $00, $11, $02, $31, $10, $FF, $11, $22, $00, $01, $23, $FF, $03, $05, $11, $21 ;0x60
-	dc.b	$00, $03, $40, $21, $FF, $11, $11, $00, $13, $01, $20, $FF, $03, $05, $00, $21, $01, $01, $30, $14, $FF, $01, $13, $11, $11, $02, $00, $FF, $03, $05, $01, $22 ;0x80
-	dc.b	$10, $01, $10, $FF, $23, $22, $01, $13, $00, $FF, $02, $06, $01, $01, $00, $11, $FF, $00, $01, $00, $10, $FF, $02, $06, $20, $10, $01, $01, $13, $FF, $12, $13 ;0xA0
-	dc.b	$01, $02, $13, $FF, $02, $06, $00, $01, $12, $13, $10, $FF, $02, $00, $12, $13, $10, $FF, $02, $06, $00, $11, $00, $21, $13, $FF, $01, $10, $13, $13, $00, $FF ;0xC0
+    dc.l    loc_00010456
+    dc.l    loc_00010462
+    dc.l    loc_00010470
+    dc.l    loc_0001047E
+    dc.l    loc_0001041A
+    dc.l    loc_00010428
+    dc.l    loc_00010438
+    dc.l    loc_00010448
+    dc.l    loc_0001040A
+    dc.l    loc_000103FA
+    dc.l    loc_000103EA
+    dc.l    loc_000103DC
+loc_000103DC:
+    dc.b    $03
+    dc.b    $05
+    dc.b    $00
+    dc.b    $22
+    dc.b    $10
+    dc.b    $10
+    dc.b    $11
+    dc.b    $FF
+    dc.b    $10
+    dc.b    $00
+    dc.b    $13
+    dc.b    $23
+    dc.b    $22
+    dc.b    $FF
+loc_000103EA:
+    dc.b    $03
+    dc.b    $06
+    dc.b    $22
+    dc.b    $01
+    dc.b    $10
+    dc.b    $31
+    dc.b    $00
+    dc.b    $21
+    dc.b    $FF
+    dc.b    $11
+    dc.b    $01
+    dc.b    $23
+    dc.b    $13
+    dc.b    $02
+    dc.b    $22
+    dc.b    $FF
+loc_000103FA:
+    dc.b    $03
+    dc.b    $06
+    dc.b    $00
+    dc.b    $01
+    dc.b    $12
+    dc.b    $34
+    dc.b    $10
+    dc.b    $12
+    dc.b    $FF
+    dc.b    $02
+    dc.b    $10
+    dc.b    $11
+    dc.b    $22
+    dc.b    $10
+    dc.b    $00
+    dc.b    $FF
+loc_0001040A:
+    dc.b    $03
+    dc.b    $06
+    dc.b    $00
+    dc.b    $23
+    dc.b    $12
+    dc.b    $10
+    dc.b    $10
+    dc.b    $31
+    dc.b    $FF
+    dc.b    $00
+    dc.b    $13
+    dc.b    $22
+    dc.b    $10
+    dc.b    $23
+    dc.b    $11
+    dc.b    $FF
+loc_0001041A:
+    dc.b    $03
+    dc.b    $05
+    dc.b    $00
+    dc.b    $11
+    dc.b    $02
+    dc.b    $31
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $11
+    dc.b    $22
+    dc.b    $00
+    dc.b    $01
+    dc.b    $23
+    dc.b    $FF
+loc_00010428:
+    dc.b    $03
+    dc.b    $05
+    dc.b    $11
+    dc.b    $21
+    dc.b    $00
+    dc.b    $03
+    dc.b    $40
+    dc.b    $21
+    dc.b    $FF
+    dc.b    $11
+    dc.b    $11
+    dc.b    $00
+    dc.b    $13
+    dc.b    $01
+    dc.b    $20
+    dc.b    $FF
+loc_00010438:
+    dc.b    $03
+    dc.b    $05
+    dc.b    $00
+    dc.b    $21
+    dc.b    $01
+    dc.b    $01
+    dc.b    $30
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $01
+    dc.b    $13
+    dc.b    $11
+    dc.b    $11
+    dc.b    $02
+    dc.b    $00
+    dc.b    $FF
+loc_00010448:
+    dc.b    $03
+    dc.b    $05
+    dc.b    $01
+    dc.b    $22
+    dc.b    $10
+    dc.b    $01
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $23
+    dc.b    $22
+    dc.b    $01
+    dc.b    $13
+    dc.b    $00
+    dc.b    $FF
+loc_00010456:
+    dc.b    $02
+    dc.b    $06
+    dc.b    $01
+    dc.b    $01
+    dc.b    $00
+    dc.b    $11
+    dc.b    $FF
+    dc.b    $00, $01, $00, $10
+    dc.b    $FF
+loc_00010462:
+    dc.b    $02
+    dc.b    $06
+    dc.b    $20
+    dc.b    $10
+    dc.b    $01
+    dc.b    $01
+    dc.b    $13
+    dc.b    $FF
+    dc.b    $12
+    dc.b    $13
+    dc.b    $01
+    dc.b    $02
+    dc.b    $13
+    dc.b    $FF
+loc_00010470:
+    dc.b    $02
+    dc.b    $06
+    dc.b    $00
+    dc.b    $01
+    dc.b    $12
+    dc.b    $13
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $02
+    dc.b    $00
+    dc.b    $12
+    dc.b    $13
+    dc.b    $10
+    dc.b    $FF
+loc_0001047E:
+    dc.b    $02
+    dc.b    $06
+    dc.b    $00
+    dc.b    $11
+    dc.b    $00
+    dc.b    $21
+    dc.b    $13
+    dc.b    $FF
+    dc.b    $01
+    dc.b    $10
+    dc.b    $13
+    dc.b    $13
+    dc.b    $00
+    dc.b    $FF
+
 loc_0001048C:
 	LEA	loc_000104A4, A1
 	JSR	loc_00002A54
@@ -16038,7 +17599,7 @@ loc_0001126E:
 	dc.l	loc_000113C8
 	dc.l	loc_000119B2
 	dc.l	loc_0001189E
-	dc.l	loc_00011726-2	;Predicted
+	dc.l	loc_00011724	;Predicted
 	dc.l	loc_000113C8	;Predicted
 	dc.l	loc_0001318C
 	dc.l	loc_0001131A	;Predicted
@@ -16137,233 +17698,772 @@ loc_000116A0:
 loc_00011712:
 	dc.b	$00, $02, $FF, $F0, $0F, $01, $24, $E0, $FF, $E4, $FF, $F0 ;0x0 (0x00011712-0x0001171E, Entry count: 0xC) [Unknown data]
 	dc.l	$0B0124F0	;Predicted
-	dc.l	loc_00040001	;Predicted
-loc_00011726:
-	dc.l	$178A0001	;Predicted
-	dc.l	$17BC0001	;Predicted
-	dc.l	$17EE0001	;Predicted
-	dc.l	$18080001	;Predicted
-	dc.l	$18120001	;Predicted
-	dc.l	$181C0001	;Predicted
-	dc.l	$18260001	;Predicted
-	dc.l	$18300001	;Predicted
-	dc.l	$183A0001	;Predicted
-	dc.l	$18440001	;Predicted
-	dc.l	$184E0001	;Predicted
-	dc.l	$18580001	;Predicted
-	dc.l	$18620001	;Predicted
-	dc.l	$186C0001	;Predicted
-	dc.l	$18760001	;Predicted
-	dc.l	$18800001	;Predicted
-	dc.l	$188A0001	;Predicted
-	dc.l	$18940001	;Predicted
-	dc.l	$17700003	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$8080FFD0	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$8090FFF0	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$80A00010	;Predicted
-	dc.l	loc_0006FFE0	;Predicted
-	dc.l	$0F010200	;Predicted
-	dc.l	$FFD0FFE0	;Predicted
-	dc.l	$0F010210	;Predicted
-	dc.l	$FFF0FFE0	;Predicted
-	dc.l	$0F010220	;Predicted
-	dc.l	$00100000	;Predicted
-	dc.l	$0E010230	;Predicted
-	dc.l	$FFD00000	;Predicted
-	dc.l	$0E01023C	;Predicted
-	dc.l	$FFF00000	;Predicted
-	dc.l	$0E010248	;Predicted
-	dc.l	$00100006	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$0282FFD0	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$0292FFF0	;Predicted
-	dc.l	$FFE00F01	;Predicted
-	dc.l	$02A20010	;Predicted
-	dc.l	loc_00000F02-1	;Predicted
-	dc.l	$02B2FFD0	;Predicted
-	dc.l	loc_00000F02-1	;Predicted
-	dc.l	$02C2FFF0	;Predicted
-	dc.l	loc_00000F02-1	;Predicted
-	dc.l	$02D20010	;Predicted
-	dc.l	loc_00030000	;Predicted
-	dc.l	$0E018254	;Predicted
-	dc.l	$FFE40000	;Predicted
-	dc.l	$0E018260	;Predicted
-	dc.l	loc_00040000	;Predicted
-	dc.l	$0601826C	;Predicted
-	dc.l	$00240001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02E2FFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302E3	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02E4FFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302E5	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02E6FFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302E7	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02E8FFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302E9	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02EAFFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302EB	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02ECFFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302ED	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02EEFFFC	;Predicted
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_000302EF	;Predicted
-	dc.l	$FFFC0001	;Predicted
-	dc.l	$FFFC0003	;Predicted
-	dc.l	$02F0FFFC	;Predicted
+	dc.w	$0004
+loc_00011724:
+    dc.l    loc_0001178A
+    dc.l    loc_000117BC
+    dc.l    loc_000117EE
+    dc.l    loc_00011808
+    dc.l    loc_00011812
+    dc.l    loc_0001181C
+    dc.l    loc_00011826
+    dc.l    loc_00011830
+    dc.l    loc_0001183A
+    dc.l    loc_00011844
+    dc.l    loc_0001184E
+    dc.l    loc_00011858
+    dc.l    loc_00011862
+    dc.l    loc_0001186C
+    dc.l    loc_00011876
+    dc.l    loc_00011880
+    dc.l    loc_0001188A
+    dc.l    loc_00011894
+    dc.l    loc_00011770
+	
+	
+	
+loc_00011770:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $80
+    dc.b    $80
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $80
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $80
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $10
+loc_0001178A:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $20
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $02
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $02
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $02
+    dc.b    $48
+    dc.b    $00
+    dc.b    $10
+loc_000117BC:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $82
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $92
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $A2
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $B2
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $C2
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $02
+    dc.b    $D2
+    dc.b    $00
+    dc.b    $10
+loc_000117EE:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $82
+    dc.b    $54
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $00
+    dc.b    $00
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $82
+    dc.b    $60
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $00
+    dc.b    $06
+    dc.b    $01
+    dc.b    $82
+    dc.b    $6C
+    dc.b    $00
+    dc.b    $24
+loc_00011808:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E2
+    dc.b    $FF
+    dc.b    $FC
+loc_00011812:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E3
+    dc.b    $FF
+    dc.b    $FC
+loc_0001181C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $FF
+    dc.b    $FC
+loc_00011826:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E5
+    dc.b    $FF
+    dc.b    $FC
+loc_00011830:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E6
+    dc.b    $FF
+    dc.b    $FC
+loc_0001183A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E7
+    dc.b    $FF
+    dc.b    $FC
+loc_00011844:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $FC
+loc_0001184E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $E9
+    dc.b    $FF
+    dc.b    $FC
+loc_00011858:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $EA
+    dc.b    $FF
+    dc.b    $FC
+loc_00011862:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $EB
+    dc.b    $FF
+    dc.b    $FC
+loc_0001186C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $FC
+loc_00011876:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $ED
+    dc.b    $FF
+    dc.b    $FC
+loc_00011880:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $FC
+loc_0001188A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $EF
+    dc.b    $FF
+    dc.b    $FC
+loc_00011894:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $03
+    dc.b    $02
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $FC
+	
+	
+	
 loc_0001189E:
-	dc.l	loc_000118B6
-	dc.l	loc_000118D2-2
-	dc.l	loc_000118EA
-	dc.l	loc_0001191E-2
-	dc.l	loc_0001194E
-	dc.l	loc_00011982-2
+    dc.l    loc_000118B6
+    dc.l    loc_000118D0
+    dc.l    loc_000118EA
+    dc.l    loc_0001191C
+    dc.l    loc_0001194E
+    dc.l    loc_00011980
 loc_000118B6:
-	dc.l	loc_0003FFE4	;Predicted
-	dc.l	$0600A4C0	;Predicted
-	dc.l	$FFF0FFE4	;Predicted
-	dc.l	$0600ACC0	;Predicted
-	dc.l	loc_0000FFD8	;Predicted
-	dc.l	$0400E4CC	;Predicted
-	dc.l	$FFF80003	;Predicted
-loc_000118D2:
-	dc.l	$FFE40600	;Predicted
-	dc.l	$A4C6FFF0	;Predicted
-	dc.l	$FFE40600	;Predicted
-	dc.l	$ACC60000	;Predicted
-	dc.l	$FFD80400	;Predicted
-	dc.l	$E4CEFFF8	;Predicted
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $06
+    dc.b    $00
+    dc.b    $A4
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $06
+    dc.b    $00
+    dc.b    $AC
+    dc.b    $C0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $CC
+    dc.b    $FF
+    dc.b    $F8
+loc_000118D0:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $06
+    dc.b    $00
+    dc.b    $A4
+    dc.b    $C6
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $06
+    dc.b    $00
+    dc.b    $AC
+    dc.b    $C6
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $CE
+    dc.b    $FF
+    dc.b    $F8
 loc_000118EA:
-	dc.l	loc_0006FFE0+3	;Predicted
-	dc.l	$0503E4FC	;Predicted
-	dc.l	$FFF8FFF0	;Predicted
-	dc.l	$0502E4F4	;Predicted
-	dc.l	$FFF8FFE4	;Predicted
-	dc.l	$0502E4EC	;Predicted
-	dc.l	$FFE8FFE4	;Predicted
-	dc.l	$0502ECEC	;Predicted
-	dc.l	$0008FFDC	;Predicted
-	dc.l	$0201E4E6	;Predicted
-	dc.l	$FFFCFFC5	;Predicted
-	dc.l	$0F00E4D0	;Predicted
-	dc.l	$FFF00006	;Predicted
-loc_0001191E:
-	dc.l	$FFE30503	;Predicted
-	dc.l	$E4FCFFF8	;Predicted
-	dc.l	$FFF00502	;Predicted
-	dc.l	$E4F4FFF8	;Predicted
-	dc.l	$FFE40502	;Predicted
-	dc.l	$E4F0FFE8	;Predicted
-	dc.l	$FFE40502	;Predicted
-	dc.l	$ECEC0008	;Predicted
-	dc.l	$FFDC0601	;Predicted
-	dc.l	$E4E0FFF8	;Predicted
-	dc.l	$FFC50F00	;Predicted
-	dc.l	$E4D0FFE8	;Predicted
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E3
+    dc.b    $05
+    dc.b    $03
+    dc.b    $E4
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $EC
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $DC
+    dc.b    $02
+    dc.b    $01
+    dc.b    $E4
+    dc.b    $E6
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $C5
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $F0
+loc_0001191C:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E3
+    dc.b    $05
+    dc.b    $03
+    dc.b    $E4
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $EC
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $DC
+    dc.b    $06
+    dc.b    $01
+    dc.b    $E4
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $C5
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $E8
 loc_0001194E:
-	dc.l	loc_0006FFE0+3	;Predicted
-	dc.l	$0503E4FC	;Predicted
-	dc.l	$FFF8FFF0	;Predicted
-	dc.l	$0502E4F8	;Predicted
-	dc.l	$FFF8FFE4	;Predicted
-	dc.l	$0502E4EC	;Predicted
-	dc.l	$FFE8FFE4	;Predicted
-	dc.l	$0502ECEC	;Predicted
-	dc.l	$0008FFDC	;Predicted
-	dc.l	$0201E4E9	;Predicted
-	dc.l	$FFFCFFC9	;Predicted
-	dc.l	$0F00E4D0	;Predicted
-	dc.l	$FFF00006	;Predicted
-loc_00011982:
-	dc.l	$FFE30503	;Predicted
-	dc.l	$E4FCFFF8	;Predicted
-	dc.l	$FFF00502	;Predicted
-	dc.l	$E4F4FFF8	;Predicted
-	dc.l	$FFE40502	;Predicted
-	dc.l	$E4ECFFE8	;Predicted
-	dc.l	$FFE40502	;Predicted
-	dc.l	$ECF00008	;Predicted
-	dc.l	$FFDC0601	;Predicted
-	dc.l	$ECE0FFF8	;Predicted
-	dc.l	$FFC70F00	;Predicted
-	dc.l	$E4D0FFF8	;Predicted
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E3
+    dc.b    $05
+    dc.b    $03
+    dc.b    $E4
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $EC
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $DC
+    dc.b    $02
+    dc.b    $01
+    dc.b    $E4
+    dc.b    $E9
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $C9
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $F0
+loc_00011980:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E3
+    dc.b    $05
+    dc.b    $03
+    dc.b    $E4
+    dc.b    $FC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $05
+    dc.b    $02
+    dc.b    $EC
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $DC
+    dc.b    $06
+    dc.b    $01
+    dc.b    $EC
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $C7
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $E4
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $F8
+
+	
+	
+	
 loc_000119B2:
-	dc.l	loc_000119E2
-	dc.l	loc_00011A02-2
-	dc.l	loc_00011A1E
-	dc.l	loc_00011A3E-2
-	dc.l	loc_000119EE-2
-	dc.l	loc_00011A0A
-	dc.l	loc_00011A2A-2
-	dc.l	loc_00011A46
-	dc.l	loc_000119F6
-	dc.l	loc_00011A16-2
-	dc.l	loc_00011A32
-	dc.l	loc_00011A52-2
+    dc.l    loc_000119E2
+    dc.l    loc_00011A00
+    dc.l    loc_00011A1E
+    dc.l    loc_00011A3C
+    dc.l    loc_000119EC
+    dc.l    loc_00011A0A
+    dc.l    loc_00011A28
+    dc.l    loc_00011A46
+    dc.l    loc_000119F6
+    dc.l    loc_00011A14
+    dc.l    loc_00011A32
+    dc.l    loc_00011A50
 loc_000119E2:
-	dc.l	loc_0001FFF8	;Predicted
-	dc.l	$0502831C	;Predicted
-	dc.l	$FFF80001	;Predicted
-loc_000119EE:
-	dc.l	$FFFC0002	;Predicted
-	dc.l	$8324FFFC	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $83
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $F8
+loc_000119EC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $83
+    dc.b    $24
+    dc.b    $FF
+    dc.b    $FC
 loc_000119F6:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_00028326	;Predicted
-	dc.l	$FFFC0001	;Predicted
-loc_00011A02:
-	dc.l	$FFF80502	;Predicted
-	dc.l	$8320FFF8	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $83
+    dc.b    $26
+    dc.b    $FF
+    dc.b    $FC
+loc_00011A00:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $83
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $F8
 loc_00011A0A:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_00028325	;Predicted
-	dc.l	$FFFC0001	;Predicted
-loc_00011A16:
-	dc.l	$FFFC0002	;Predicted
-	dc.l	$8327FFFC	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $83
+    dc.b    $25
+    dc.b    $FF
+    dc.b    $FC
+loc_00011A14:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $83
+    dc.b    $27
+    dc.b    $FF
+    dc.b    $FC
 loc_00011A1E:
-	dc.l	loc_0001FFF8	;Predicted
-	dc.l	$0502A31C	;Predicted
-	dc.l	$FFF80001	;Predicted
-loc_00011A2A:
-	dc.l	$FFFC0002	;Predicted
-	dc.l	$A324FFFC	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $F8
+loc_00011A28:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $24
+    dc.b    $FF
+    dc.b    $FC
 loc_00011A32:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_0002A326	;Predicted
-	dc.l	$FFFC0001	;Predicted
-loc_00011A3E:
-	dc.l	$FFF80502	;Predicted
-	dc.l	$A320FFF8	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $26
+    dc.b    $FF
+    dc.b    $FC
+loc_00011A3C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $F8
 loc_00011A46:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	loc_0002A325	;Predicted
-	dc.l	$FFFC0001	;Predicted
-loc_00011A52:
-	dc.l	$FFFC0002	;Predicted
-	dc.l	$A327FFFC	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $25
+    dc.b    $FF
+    dc.b    $FC
+loc_00011A50:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $02
+    dc.b    $A3
+    dc.b    $27
+    dc.b    $FF
+    dc.b    $FC
+
+	
+	
+	
 loc_00011A5A:
 	dc.l	$00FF1324	;Predicted
 	dc.l	$00FF13C6	;Predicted
@@ -16382,13 +18482,207 @@ loc_00011A8A:
 	dc.b	$00, $06, $00, $00, $0F, $00, $E4, $F0, $00, $00, $00, $00, $0F, $00, $E4, $F0, $00, $20, $00, $00, $07, $00, $E4, $F0, $00, $40, $00, $20, $0E, $00, $E4, $F0 ;0x0 (0x00011A8A-0x00011ABC, Entry count: 0x32) [Unknown data]
 	dc.b	$00, $00, $00, $20, $0E, $00, $E4, $F0, $00, $20, $00, $20, $06, $00, $E4, $F0, $00, $40 ;0x20
 loc_00011ABC:
-	dc.b	$00, $01, $1A, $E4, $00, $01, $1A, $F6, $00, $01, $1B, $08, $00, $01, $1B, $1A, $00, $01, $1B, $2C, $00, $01, $1B, $3E, $00, $01, $1B, $50, $00, $01, $1B, $62 ;0x0 (0x00011ABC-0x00011B98, Entry count: 0xDC) [Unknown data]
-	dc.b	$00, $01, $1B, $74, $00, $01, $1B, $86, $00, $02, $FF, $F8, $0D, $02, $E4, $90, $FF, $EC, $FF, $F8, $01, $02, $E4, $98, $00, $0C, $00, $02, $FF, $F8, $0D, $02 ;0x20
-	dc.b	$E4, $9A, $FF, $EC, $FF, $F8, $01, $02, $E4, $A2, $00, $0C, $00, $02, $FF, $F8, $0D, $02, $E4, $A4, $FF, $EC, $FF, $F8, $01, $02, $E4, $AC, $00, $0C, $00, $02 ;0x40
-	dc.b	$FF, $F8, $0D, $02, $E4, $AE, $FF, $EC, $FF, $F8, $01, $02, $E4, $B6, $00, $0C, $00, $02, $FF, $F8, $0D, $02, $E4, $B8, $FF, $EC, $FF, $F8, $01, $02, $E4, $C0 ;0x60
-	dc.b	$00, $0C, $00, $02, $FF, $F8, $05, $02, $E4, $C2, $FF, $EE, $FF, $F8, $05, $02, $E4, $C6, $00, $02, $00, $02, $FF, $F8, $05, $02, $E4, $C6, $FF, $EE, $FF, $F8 ;0x80
-	dc.b	$05, $02, $E4, $CA, $00, $02, $00, $02, $FF, $F8, $05, $02, $E4, $CE, $FF, $EE, $FF, $F8, $05, $02, $E4, $D2, $00, $02, $00, $02, $FF, $F8, $05, $02, $E4, $D2 ;0xA0
-	dc.b	$FF, $EE, $FF, $F8, $05, $02, $E4, $CA, $00, $02, $00, $02, $FF, $F8, $05, $02, $E4, $C2, $FF, $EE, $FF, $F8, $05, $02, $E4, $D2, $00, $02 ;0xC0
+    dc.l    loc_00011AE4
+    dc.l    loc_00011AF6
+    dc.l    loc_00011B08
+    dc.l    loc_00011B1A
+    dc.l    loc_00011B2C
+    dc.l    loc_00011B3E
+    dc.l    loc_00011B50
+    dc.l    loc_00011B62
+    dc.l    loc_00011B74
+    dc.l    loc_00011B86
+loc_00011AE4:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $98
+    dc.b    $00
+    dc.b    $0C
+loc_00011AF6:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $9A
+    dc.b    $FF
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $A2
+    dc.b    $00
+    dc.b    $0C
+loc_00011B08:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $A4
+    dc.b    $FF
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $AC
+    dc.b    $00
+    dc.b    $0C
+loc_00011B1A:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $AE
+    dc.b    $FF
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $B6
+    dc.b    $00
+    dc.b    $0C
+loc_00011B2C:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $B8
+    dc.b    $FF
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $C0
+    dc.b    $00
+    dc.b    $0C
+loc_00011B3E:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $C2
+    dc.b    $FF
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $C6
+    dc.b    $00
+    dc.b    $02
+loc_00011B50:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $C6
+    dc.b    $FF
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $CA
+    dc.b    $00
+    dc.b    $02
+loc_00011B62:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $CE
+    dc.b    $FF
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $D2
+    dc.b    $00
+    dc.b    $02
+loc_00011B74:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $D2
+    dc.b    $FF
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $CA
+    dc.b    $00
+    dc.b    $02
+loc_00011B86:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $C2
+    dc.b    $FF
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $02
+    dc.b    $E4
+    dc.b    $D2
+    dc.b    $00
+    dc.b    $02
+
 loc_00011B98:
 	dc.l	loc_00011BAC
 	dc.l	loc_00011BB6
@@ -16406,89 +18700,234 @@ loc_00011BCA:
 loc_00011BD4:
 	dc.b	$00, $01, $00, $00, $01, $03 ;0x0 (0x00011BD4-0x00011BDA, Entry count: 0x6) [Unknown data]
 	dc.l	$83F50000	;Predicted
+	
+	
+	
 loc_00011BDE:
-	dc.l	loc_00011BFE
-	dc.l	loc_00011C0A-2
-	dc.l	loc_00011C12
-	dc.l	loc_00011C1E-2
-	dc.l	loc_00011C26
-	dc.l	loc_00011C32-2
-	dc.l	loc_00011C3A
-	dc.l	loc_00011C46-2
+    dc.l    loc_00011BFE
+    dc.l    loc_00011C08
+    dc.l    loc_00011C12
+    dc.l    loc_00011C1C
+    dc.l    loc_00011C26
+    dc.l    loc_00011C30
+    dc.l    loc_00011C3A
+    dc.l    loc_00011C44
 loc_00011BFE:
-	dc.l	loc_0001FFF0	;Predicted
-	dc.l	$0B008190	;Predicted
-	dc.l	$FFF40001	;Predicted
-loc_00011C0A:
-	dc.l	$FFF00B01	;Predicted
-	dc.l	$819CFFF4	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $00
+    dc.b    $81
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C08:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $81
+    dc.b    $9C
+    dc.b    $FF
+    dc.b    $F4
 loc_00011C12:
-	dc.l	loc_0001FFF0	;Predicted
-	dc.l	$0B0281A8	;Predicted
-	dc.l	$FFF40001	;Predicted
-loc_00011C1E:
-	dc.l	$FFF00B03	;Predicted
-	dc.l	$81B4FFF4	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $81
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C1C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $03
+    dc.b    $81
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $F4
 loc_00011C26:
-	dc.l	loc_0001FFF0	;Predicted
-	dc.l	$0B0001C0	;Predicted
-	dc.l	$FFF40001	;Predicted
-loc_00011C32:
-	dc.l	$FFF00B01	;Predicted
-	dc.l	$01CCFFF4	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C30:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $01
+    dc.b    $CC
+    dc.b    $FF
+    dc.b    $F4
 loc_00011C3A:
-	dc.l	loc_0001FFF0	;Predicted
-	dc.l	$0B0201D8	;Predicted
-	dc.l	$FFF40001	;Predicted
-loc_00011C46:
-	dc.l	$FFF00B03	;Predicted
-	dc.l	$01E4FFF4	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $01
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C44:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $03
+    dc.b    $01
+    dc.b    $E4
+    dc.b    $FF
+    dc.b    $F4
+
+	
+	
+
 loc_00011C4E:
-	dc.l	loc_00011C76	;Predicted
-	dc.l	loc_00011C82-2	;Predicted
-	dc.l	loc_00011C8A	;Predicted
-	dc.l	loc_00011C96-2	;Predicted
-	dc.l	loc_00011C9E	;Predicted
-	dc.l	loc_00011CAA-2	;Predicted
-	dc.l	loc_00011CB2	;Predicted
-	dc.l	loc_00011CBE-2	;Predicted
-	dc.l	loc_00011CC6	;Predicted
-	dc.l	loc_00011CD2-2	;Predicted
+    dc.l    loc_00011C76
+    dc.l    loc_00011C80
+    dc.l    loc_00011C8A
+    dc.l    loc_00011C94
+    dc.l    loc_00011C9E
+    dc.l    loc_00011CA8
+    dc.l    loc_00011CB2
+    dc.l    loc_00011CBC
+    dc.l    loc_00011CC6
+    dc.l    loc_00011CD0
 loc_00011C76:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	$0100856C	;Predicted
-	dc.l	$00000000+1	;Predicted
-loc_00011C82:
-	dc.l	$FFFC0100	;Predicted
-	dc.l	$856E0000	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $6C
+    dc.b    $00
+    dc.b    $00
+loc_00011C80:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $6E
+    dc.b    $00
+    dc.b    $00
 loc_00011C8A:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	$01008570	;Predicted
-	dc.l	$00000000+1	;Predicted
-loc_00011C96:
-	dc.l	$FFFC0100	;Predicted
-	dc.l	$85720000	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $70
+    dc.b    $00
+    dc.b    $00
+loc_00011C94:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $72
+    dc.b    $00
+    dc.b    $00
 loc_00011C9E:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	$01008574	;Predicted
-	dc.l	$00000000+1	;Predicted
-loc_00011CAA:
-	dc.l	$FFFC0100	;Predicted
-	dc.l	$85760000	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $74
+    dc.b    $00
+    dc.b    $00
+loc_00011CA8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $76
+    dc.b    $00
+    dc.b    $00
 loc_00011CB2:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	$01008578	;Predicted
-	dc.l	$00000000+1	;Predicted
-loc_00011CBE:
-	dc.l	$FFFC0100	;Predicted
-	dc.l	$857A0000	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $78
+    dc.b    $00
+    dc.b    $00
+loc_00011CBC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $7A
+    dc.b    $00
+    dc.b    $00
 loc_00011CC6:
-	dc.l	loc_0001FFFC	;Predicted
-	dc.l	$0100857C	;Predicted
-	dc.l	$00000000+1	;Predicted
-loc_00011CD2:
-	dc.l	$FFFC0100	;Predicted
-	dc.l	$857E0000	;Predicted
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $7C
+    dc.b    $00
+    dc.b    $00
+loc_00011CD0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $7E
+    dc.b    $00
+    dc.b    $00
+
+	
+	
 loc_00011CDA:
 	dc.l	loc_00011D92
 	dc.l	loc_00011D92	;Predicted
@@ -16593,52 +19032,1162 @@ loc_00011FC2:
 	dc.b	$00, $01, $FF, $D8, $08, $01, $83, $9D, $FF, $F8 ;0x0 (0x00011FC2-0x00011FCC, Entry count: 0xA) [Unknown data]
 loc_00011FCC:
 	dc.b	$00, $02, $FF, $D8, $01, $01, $83, $A3, $00, $00, $FF, $D8, $00, $00, $83, $A5, $00, $00 ;0x0 (0x00011FCC-0x00011FDE, Entry count: 0x12) [Unknown data]
+	
+	
+	
 loc_00011FDE:
-	dc.b	$00, $01, $20, $16, $00, $01, $20, $16, $00, $01, $20, $28, $00, $01, $20, $42, $00, $01, $20, $42, $00, $01, $20, $64, $00, $01, $20, $64, $00, $01, $20, $8E ;0x0 (0x00011FDE-0x000120DA, Entry count: 0xFC) [Unknown data]
-	dc.b	$00, $01, $20, $8E, $00, $01, $20, $A8, $00, $01, $20, $B2, $00, $01, $20, $BC, $00, $01, $20, $C6, $00, $01, $20, $D0, $00, $02, $FF, $C8, $0F, $01, $84, $00 ;0x20
-	dc.b	$FF, $F0, $FF, $E8, $0E, $01, $84, $10, $FF, $F0, $00, $03, $FF, $C8, $0F, $01, $84, $22, $FF, $F0, $FF, $C8, $07, $01, $84, $32, $00, $10, $FF, $E8, $0A, $01 ;0x40
-	dc.b	$84, $3A, $FF, $F0, $00, $04, $FF, $C8, $0F, $01, $84, $43, $FF, $D8, $FF, $C8, $0B, $01, $84, $53, $FF, $F8, $FF, $E8, $0E, $01, $84, $5F, $FF, $D8, $FF, $E8 ;0x60
-	dc.b	$06, $01, $84, $6B, $FF, $F8, $00, $05, $FF, $D8, $09, $01, $84, $77, $FF, $D8, $FF, $C8, $0F, $01, $84, $7D, $FF, $F0, $FF, $D0, $01, $01, $84, $8D, $00, $10 ;0x80
-	dc.b	$FF, $F8, $04, $01, $84, $8F, $FF, $E0, $FF, $E8, $0E, $01, $84, $91, $FF, $F0, $00, $03, $FF, $D0, $0A, $01, $84, $A0, $FF, $E0, $FF, $D0, $0E, $01, $84, $A9 ;0xA0
-	dc.b	$FF, $F8, $FF, $E8, $0E, $01, $84, $B5, $FF, $F8, $00, $01, $FF, $D8, $09, $00, $84, $1C, $FF, $F0, $00, $01, $FF, $D8, $09, $00, $84, $71, $FF, $E8, $00, $01 ;0xC0
-	dc.b	$FF, $E0, $08, $00, $84, $9D, $FF, $F0, $00, $01, $FF, $E8, $0E, $00, $84, $C1, $FF, $D8, $00, $01, $FF, $E8, $0D, $00, $84, $CD, $FF, $D8 ;0xE0
+    dc.l    loc_00012016
+    dc.l    loc_00012016
+    dc.l    loc_00012028
+    dc.l    loc_00012042
+    dc.l    loc_00012042
+    dc.l    loc_00012064
+    dc.l    loc_00012064
+    dc.l    loc_0001208E
+    dc.l    loc_0001208E
+    dc.l    loc_000120A8
+    dc.l    loc_000120B2
+    dc.l    loc_000120BC
+    dc.l    loc_000120C6
+    dc.l    loc_000120D0
+loc_00012016:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $F0
+loc_00012028:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $22
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $32
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $3A
+    dc.b    $FF
+    dc.b    $F0
+loc_00012042:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $43
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $53
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5F
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $6B
+    dc.b    $FF
+    dc.b    $F8
+loc_00012064:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $77
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $7D
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $8D
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $04
+    dc.b    $01
+    dc.b    $84
+    dc.b    $8F
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $91
+    dc.b    $FF
+    dc.b    $F0
+loc_0001208E:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A9
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B5
+    dc.b    $FF
+    dc.b    $F8
+loc_000120A8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $F0
+loc_000120B2:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $71
+    dc.b    $FF
+    dc.b    $E8
+loc_000120BC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $FF
+    dc.b    $F0
+loc_000120C6:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $00
+    dc.b    $84
+    dc.b    $C1
+    dc.b    $FF
+    dc.b    $D8
+loc_000120D0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $CD
+    dc.b    $FF
+    dc.b    $D8
+
 loc_000120DA:
-	dc.b	$00, $01, $21, $26, $00, $01, $21, $26, $00, $01, $21, $26, $00, $01, $21, $48, $00, $01, $21, $48, $00, $01, $21, $48, $00, $01, $21, $6A, $00, $01, $21, $6A ;0x0 (0x000120DA-0x0001226E, Entry count: 0x194) [Unknown data]
-	dc.b	$00, $01, $21, $6A, $00, $01, $21, $6A, $00, $01, $21, $9C, $00, $01, $21, $D6, $00, $01, $22, $10, $00, $01, $22, $1A, $00, $01, $22, $2C, $00, $01, $22, $36 ;0x20
-	dc.b	$00, $01, $22, $48, $00, $01, $22, $52, $00, $01, $22, $5C, $00, $04, $FF, $C8, $0B, $01, $84, $00, $FF, $F0, $FF, $C8, $07, $01, $84, $0C, $00, $08, $FF, $E8 ;0x40
-	dc.b	$0E, $01, $84, $14, $FF, $E8, $FF, $E8, $06, $01, $84, $20, $00, $08, $00, $04, $FF, $C0, $0F, $01, $84, $26, $FF, $E8, $FF, $C0, $03, $01, $84, $36, $00, $08 ;0x60
-	dc.b	$FF, $E0, $0F, $01, $84, $3A, $FF, $E8, $FF, $E0, $00, $01, $84, $4A, $00, $08, $00, $06, $FF, $C0, $0F, $01, $84, $4B, $FF, $F8, $FF, $C0, $03, $01, $84, $5B ;0x80
-	dc.b	$00, $18, $FF, $E0, $09, $01, $84, $5F, $00, $08, $FF, $E0, $04, $00, $84, $65, $FF, $F8, $FF, $E8, $0E, $00, $84, $67, $FF, $E8, $FF, $E8, $02, $00, $84, $73 ;0xA0
-	dc.b	$00, $08, $00, $07, $FF, $C0, $0F, $01, $84, $4B, $FF, $F8, $FF, $C0, $03, $01, $84, $5B, $00, $18, $FF, $E0, $09, $01, $84, $5F, $00, $08, $FF, $E0, $0F, $00 ;0xC0
-	dc.b	$84, $76, $FF, $F0, $00, $00, $04, $00, $84, $86, $FF, $F0, $FF, $D0, $08, $00, $84, $A0, $00, $00, $FF, $D8, $08, $00, $84, $9D, $00, $00, $00, $07, $FF, $C0 ;0xE0
-	dc.b	$0F, $01, $84, $4B, $FF, $F8, $FF, $C0, $03, $01, $84, $5B, $00, $18, $FF, $E0, $09, $01, $84, $5F, $00, $08, $FF, $D8, $0F, $00, $84, $88, $FF, $E8, $FF, $E8 ;0x100
-	dc.b	$01, $00, $84, $98, $00, $08, $FF, $D0, $08, $00, $84, $A0, $00, $00, $FF, $D8, $08, $00, $84, $9D, $00, $00, $00, $01, $FF, $E0, $08, $00, $84, $A3, $FF, $F8 ;0x120
-	dc.b	$00, $02, $FF, $D8, $08, $00, $84, $A0, $FF, $F8, $FF, $E0, $08, $00, $84, $9D, $FF, $F8, $00, $01, $FF, $D8, $08, $00, $84, $A3, $FF, $F0, $00, $02, $FF, $D0 ;0x140
-	dc.b	$08, $00, $84, $A0, $FF, $F0, $FF, $D8, $08, $00, $84, $9D, $FF, $F0, $00, $01, $FF, $D0, $08, $00, $84, $9A, $00, $00, $00, $01, $FF, $D8, $08, $00, $84, $9D ;0x160
-	dc.b	$00, $00, $00, $02, $FF, $D0, $08, $00, $84, $A0, $00, $00, $FF, $D8, $08, $00, $84, $9D, $00, $00 ;0x180
+    dc.l    loc_00012126
+    dc.l    loc_00012126
+    dc.l    loc_00012126
+    dc.l    loc_00012148
+    dc.l    loc_00012148
+    dc.l    loc_00012148
+    dc.l    loc_0001216A
+    dc.l    loc_0001216A
+    dc.l    loc_0001216A
+    dc.l    loc_0001216A
+    dc.l    loc_0001219C
+    dc.l    loc_000121D6
+    dc.l    loc_00012210
+    dc.l    loc_0001221A
+    dc.l    loc_0001222C
+    dc.l    loc_00012236
+    dc.l    loc_00012248
+    dc.l    loc_00012252
+    dc.l    loc_0001225C
+loc_00012126:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $20
+    dc.b    $00
+    dc.b    $08
+loc_00012148:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $26
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $36
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $3A
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $00
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4A
+    dc.b    $00
+    dc.b    $08
+loc_0001216A:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4B
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5B
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5F
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $65
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $00
+    dc.b    $84
+    dc.b    $67
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $00
+    dc.b    $84
+    dc.b    $73
+    dc.b    $00
+    dc.b    $08
+loc_0001219C:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4B
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5B
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5F
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $76
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $86
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $00
+    dc.b    $00
+loc_000121D6:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4B
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5B
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5F
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $88
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $84
+    dc.b    $98
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $00
+    dc.b    $00
+loc_00012210:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A3
+    dc.b    $FF
+    dc.b    $F8
+loc_0001221A:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $FF
+    dc.b    $F8
+loc_0001222C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A3
+    dc.b    $FF
+    dc.b    $F0
+loc_00012236:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $FF
+    dc.b    $F0
+loc_00012248:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9A
+    dc.b    $00
+    dc.b    $00
+loc_00012252:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $00
+    dc.b    $00
+loc_0001225C:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9D
+    dc.b    $00
+    dc.b    $00
+
 loc_0001226E:
-	dc.b	$00, $01, $22, $C6, $00, $01, $22, $C6, $00, $01, $23, $00, $00, $01, $23, $00, $00, $01, $23, $00, $00, $01, $23, $00, $00, $01, $23, $3A, $00, $01, $23, $3A ;0x0 (0x0001226E-0x00012420, Entry count: 0x1B2) [Unknown data]
-	dc.b	$00, $01, $23, $3A, $00, $01, $23, $3A, $00, $01, $23, $3A, $00, $01, $23, $3A, $00, $01, $23, $74, $00, $01, $23, $7E, $00, $01, $23, $88, $00, $01, $23, $92 ;0x20
-	dc.b	$00, $01, $23, $9C, $00, $01, $23, $AE, $00, $01, $23, $C0, $00, $01, $23, $D2, $00, $01, $23, $EC, $00, $01, $24, $06, $00, $07, $FF, $E8, $0E, $02, $84, $00 ;0x40
-	dc.b	$FF, $D8, $FF, $F8, $0D, $02, $84, $0C, $FF, $F8, $FF, $F0, $00, $02, $84, $14, $00, $18, $FF, $C0, $0F, $01, $84, $15, $FF, $E8, $FF, $C0, $07, $01, $84, $25 ;0x60
-	dc.b	$00, $08, $FF, $E0, $0E, $01, $84, $2D, $FF, $E8, $FF, $E0, $06, $01, $84, $39, $00, $08, $00, $07, $FF, $E8, $0E, $02, $84, $00, $FF, $D8, $FF, $F8, $0D, $02 ;0x80
-	dc.b	$84, $0C, $FF, $F8, $FF, $F0, $00, $02, $84, $14, $00, $18, $FF, $C0, $0F, $01, $84, $43, $FF, $E8, $FF, $C0, $07, $01, $84, $53, $00, $08, $FF, $E0, $0E, $01 ;0xA0
-	dc.b	$84, $5B, $FF, $E8, $FF, $E0, $06, $01, $84, $67, $00, $08, $00, $07, $FF, $E8, $0E, $02, $84, $00, $FF, $D8, $FF, $F8, $0D, $02, $84, $0C, $FF, $F8, $FF, $F0 ;0xC0
-	dc.b	$00, $02, $84, $14, $00, $18, $FF, $C0, $0D, $01, $84, $7B, $FF, $F0, $FF, $D0, $0A, $01, $84, $83, $FF, $F0, $FF, $E8, $0D, $01, $84, $8C, $FF, $F0, $FF, $E8 ;0xE0
-	dc.b	$01, $01, $84, $94, $00, $10, $00, $01, $FF, $C8, $05, $00, $84, $3F, $FF, $F8, $00, $01, $FF, $D0, $04, $00, $84, $6D, $FF, $F8, $00, $01, $FF, $C8, $09, $00 ;0x100
-	dc.b	$84, $6F, $FF, $F0, $00, $01, $FF, $C8, $09, $00, $84, $75, $FF, $F0, $00, $02, $FF, $D0, $02, $01, $84, $96, $FF, $E8, $FF, $D0, $06, $01, $84, $99, $00, $08 ;0x120
-	dc.b	$00, $02, $FF, $D0, $06, $01, $84, $A7, $FF, $E0, $FF, $D0, $06, $01, $84, $99, $00, $08, $00, $02, $FF, $D0, $02, $01, $84, $96, $FF, $E8, $FF, $D0, $06, $01 ;0x140
-	dc.b	$84, $A1, $00, $08, $00, $03, $FF, $D0, $02, $01, $84, $96, $FF, $E8, $FF, $D0, $06, $01, $84, $99, $00, $08, $FF, $C8, $04, $00, $84, $9F, $FF, $F0, $00, $03 ;0x160
-	dc.b	$FF, $D0, $06, $01, $84, $A7, $FF, $E0, $FF, $D0, $06, $01, $84, $99, $00, $08, $FF, $C8, $04, $00, $84, $9F, $FF, $F0, $00, $03, $FF, $D0, $02, $01, $84, $96 ;0x180
-	dc.b	$FF, $E8, $FF, $D0, $06, $01, $84, $A1, $00, $08, $FF, $C8, $04, $00, $84, $9F, $FF, $F0 ;0x1A0
+    dc.l    loc_000122C6
+    dc.l    loc_000122C6
+    dc.l    loc_00012300
+    dc.l    loc_00012300
+    dc.l    loc_00012300
+    dc.l    loc_00012300
+    dc.l    loc_0001233A
+    dc.l    loc_0001233A
+    dc.l    loc_0001233A
+    dc.l    loc_0001233A
+    dc.l    loc_0001233A
+    dc.l    loc_0001233A
+    dc.l    loc_00012374
+    dc.l    loc_0001237E
+    dc.l    loc_00012388
+    dc.l    loc_00012392
+    dc.l    loc_0001239C
+    dc.l    loc_000123AE
+    dc.l    loc_000123C0
+    dc.l    loc_000123D2
+    dc.l    loc_000123EC
+    dc.l    loc_00012406
+loc_000122C6:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $02
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $02
+    dc.b    $84
+    dc.b    $14
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $15
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $25
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2D
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $39
+    dc.b    $00
+    dc.b    $08
+loc_00012300:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $02
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $02
+    dc.b    $84
+    dc.b    $14
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $43
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $53
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5B
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $67
+    dc.b    $00
+    dc.b    $08
+loc_0001233A:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $02
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $0D
+    dc.b    $02
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $00
+    dc.b    $02
+    dc.b    $84
+    dc.b    $14
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $C0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $7B
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $83
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $8C
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $94
+    dc.b    $00
+    dc.b    $10
+loc_00012374:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $05
+    dc.b    $00
+    dc.b    $84
+    dc.b    $3F
+    dc.b    $FF
+    dc.b    $F8
+loc_0001237E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $6D
+    dc.b    $FF
+    dc.b    $F8
+loc_00012388:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $6F
+    dc.b    $FF
+    dc.b    $F0
+loc_00012392:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $75
+    dc.b    $FF
+    dc.b    $F0
+loc_0001239C:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $96
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $00
+    dc.b    $08
+loc_000123AE:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A7
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $00
+    dc.b    $08
+loc_000123C0:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $96
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A1
+    dc.b    $00
+    dc.b    $08
+loc_000123D2:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $96
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9F
+    dc.b    $FF
+    dc.b    $F0
+loc_000123EC:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A7
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9F
+    dc.b    $FF
+    dc.b    $F0
+loc_00012406:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $96
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A1
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9F
+    dc.b    $FF
+    dc.b    $F0
+
 loc_00012420:
-	dc.b	$00, $01, $24, $3C, $00, $01, $24, $5E, $00, $01, $24, $80, $00, $01, $24, $A2, $00, $01, $24, $5E, $00, $01, $24, $C4, $00, $01, $24, $D6, $00, $04, $FF, $D0 ;0x0 (0x00012420-0x000124E8, Entry count: 0xC8) [Unknown data]
-	dc.b	$0F, $00, $84, $00, $FF, $D8, $FF, $F0, $0D, $00, $84, $10, $FF, $D8, $FF, $D0, $0F, $00, $84, $18, $FF, $F8, $FF, $F0, $0D, $00, $84, $28, $FF, $F8, $00, $04 ;0x20
-	dc.b	$FF, $D0, $0F, $00, $84, $30, $FF, $E8, $FF, $F0, $0D, $00, $84, $40, $FF, $E8, $FF, $D0, $07, $00, $84, $48, $00, $08, $FF, $F0, $05, $00, $84, $50, $00, $08 ;0x40
-	dc.b	$00, $04, $FF, $D0, $0F, $00, $84, $54, $FF, $E8, $FF, $F0, $0D, $00, $84, $64, $FF, $E8, $FF, $D0, $07, $00, $84, $6C, $00, $08, $FF, $F0, $05, $00, $84, $74 ;0x60
-	dc.b	$00, $08, $00, $04, $FF, $D0, $0F, $00, $84, $78, $FF, $E8, $FF, $F0, $0D, $00, $84, $88, $FF, $E8, $FF, $D0, $07, $00, $84, $90, $00, $08, $FF, $F0, $05, $00 ;0x80
-	dc.b	$84, $98, $00, $08, $00, $02, $FF, $E0, $0C, $00, $84, $9C, $FF, $E8, $FF, $E0, $04, $00, $84, $A0, $00, $08, $00, $02, $FF, $E0, $0C, $00, $84, $A2, $FF, $E8 ;0xA0
-	dc.b	$FF, $E0, $04, $00, $84, $A6, $00, $08 ;0xC0
+    dc.l    loc_0001243C
+    dc.l    loc_0001245E
+    dc.l    loc_00012480
+    dc.l    loc_000124A2
+    dc.l    loc_0001245E
+    dc.l    loc_000124C4
+    dc.l    loc_000124D6
+loc_0001243C:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $28
+    dc.b    $FF
+    dc.b    $F8
+loc_0001245E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $07
+    dc.b    $00
+    dc.b    $84
+    dc.b    $48
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $00
+    dc.b    $84
+    dc.b    $50
+    dc.b    $00
+    dc.b    $08
+loc_00012480:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $54
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $64
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $07
+    dc.b    $00
+    dc.b    $84
+    dc.b    $6C
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $00
+    dc.b    $84
+    dc.b    $74
+    dc.b    $00
+    dc.b    $08
+loc_000124A2:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $00
+    dc.b    $84
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $84
+    dc.b    $88
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $07
+    dc.b    $00
+    dc.b    $84
+    dc.b    $90
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $00
+    dc.b    $84
+    dc.b    $98
+    dc.b    $00
+    dc.b    $08
+loc_000124C4:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $84
+    dc.b    $9C
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $08
+loc_000124D6:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A2
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A6
+    dc.b    $00
+    dc.b    $08
+
 loc_000124E8:
 	dc.l	loc_00012508
 	dc.l	loc_00012508
@@ -16668,14 +20217,243 @@ loc_00012602:
 loc_0001260C:
 	dc.b	$00, $01, $FF, $E0, $09, $00, $84, $EB, $FF, $E8 ;0x0 (0x0001260C-0x00012616, Entry count: 0xA) [Unknown data]
 loc_00012616:
-	dc.b	$00, $01, $26, $54, $00, $01, $26, $76, $00, $01, $26, $98, $00, $01, $26, $BA, $00, $01, $26, $DC, $00, $01, $26, $32, $00, $01, $26, $FE, $00, $04, $FF, $C8 ;0x0 (0x00012616-0x00012710, Entry count: 0xFA) [Unknown data]
-	dc.b	$0F, $01, $84, $00, $FF, $E8, $FF, $E8, $0E, $01, $84, $78, $FF, $E8, $FF, $C8, $07, $01, $84, $10, $00, $08, $FF, $E8, $06, $01, $84, $84, $00, $08, $00, $04 ;0x20
-	dc.b	$FF, $C8, $0F, $01, $04, $00, $FF, $E8, $FF, $E8, $0E, $01, $04, $78, $FF, $E8, $FF, $C8, $07, $01, $04, $10, $00, $08, $FF, $E8, $06, $01, $04, $84, $00, $08 ;0x40
-	dc.b	$00, $04, $FF, $C8, $0F, $01, $04, $18, $FF, $E8, $FF, $E8, $0E, $01, $04, $8A, $FF, $E8, $FF, $C8, $07, $01, $04, $28, $00, $08, $FF, $E8, $06, $01, $04, $96 ;0x60
-	dc.b	$00, $08, $00, $04, $FF, $C8, $0F, $01, $04, $30, $FF, $E8, $FF, $E8, $0E, $01, $04, $9C, $FF, $E8, $FF, $C8, $07, $01, $04, $40, $00, $08, $FF, $E8, $06, $01 ;0x80
-	dc.b	$04, $A8, $00, $08, $00, $04, $FF, $C8, $0F, $01, $04, $48, $FF, $E8, $FF, $E8, $0E, $01, $04, $AE, $FF, $E8, $FF, $C8, $07, $01, $04, $58, $00, $08, $FF, $E8 ;0xA0
-	dc.b	$06, $01, $04, $BA, $00, $08, $00, $04, $FF, $C8, $0F, $01, $04, $60, $FF, $E8, $FF, $E8, $0E, $01, $04, $C0, $FF, $E8, $FF, $C8, $07, $01, $04, $70, $00, $08 ;0xC0
-	dc.b	$FF, $E8, $06, $01, $04, $CC, $00, $08, $00, $02, $00, $00, $08, $00, $64, $D2, $FF, $E8, $00, $00, $08, $00, $64, $D5, $00, $00 ;0xE0
+    dc.l    loc_00012654
+    dc.l    loc_00012676
+    dc.l    loc_00012698
+    dc.l    loc_000126BA
+    dc.l    loc_000126DC
+    dc.l    loc_00012632
+    dc.l    loc_000126FE
+loc_00012632:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $84
+    dc.b    $00
+    dc.b    $08
+loc_00012654:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $04
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $04
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $04
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $04
+    dc.b    $84
+    dc.b    $00
+    dc.b    $08
+loc_00012676:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $04
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $04
+    dc.b    $8A
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $04
+    dc.b    $28
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $04
+    dc.b    $96
+    dc.b    $00
+    dc.b    $08
+loc_00012698:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $04
+    dc.b    $30
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $04
+    dc.b    $9C
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $04
+    dc.b    $40
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $04
+    dc.b    $A8
+    dc.b    $00
+    dc.b    $08
+loc_000126BA:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $04
+    dc.b    $48
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $04
+    dc.b    $AE
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $04
+    dc.b    $58
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $04
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $08
+loc_000126DC:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $04
+    dc.b    $60
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $04
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $07
+    dc.b    $01
+    dc.b    $04
+    dc.b    $70
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $06
+    dc.b    $01
+    dc.b    $04
+    dc.b    $CC
+    dc.b    $00
+    dc.b    $08
+loc_000126FE:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $64
+    dc.b    $D2
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $00
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $64
+    dc.b    $D5
+    dc.b    $00
+    dc.b    $00
+
 loc_00012710:
 	dc.l	loc_00012744
 	dc.l	loc_00012744
@@ -16713,73 +20491,1624 @@ loc_000127FA:
 loc_0001280C:
 	dc.b	$00, $01, $FF, $D8, $05, $00, $84, $D5, $FF, $F8 ;0x0 (0x0001280C-0x00012816, Entry count: 0xA) [Unknown data]
 loc_00012816:
-	dc.b	$00, $01, $28, $1E, $00, $01, $28, $30, $00, $02, $FF, $E0, $0F, $01, $84, $00, $FF, $E8, $FF, $E0, $03, $01, $84, $10, $00, $08, $00, $02, $FF, $E0, $0F, $01 ;0x0 (0x00012816-0x00012842, Entry count: 0x2C) [Unknown data]
-	dc.b	$84, $14, $FF, $E8, $FF, $E0, $03, $01, $84, $24, $00, $08 ;0x20
+    dc.l    loc_0001281E
+    dc.l    loc_00012830
+loc_0001281E:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+loc_00012830:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $24
+    dc.b    $00
+    dc.b    $08
+
 loc_00012842:
-	dc.b	$00, $01, $28, $5E, $00, $01, $28, $5E, $00, $01, $28, $80, $00, $01, $28, $A2, $00, $01, $28, $A2, $00, $01, $28, $C4, $00, $01, $28, $CE, $00, $04, $FF, $C8 ;0x0 (0x00012842-0x000128D8, Entry count: 0x96) [Unknown data]
-	dc.b	$0F, $01, $84, $00, $FF, $E8, $FF, $E8, $0E, $01, $84, $60, $FF, $E8, $FF, $C8, $0F, $01, $84, $10, $00, $08, $FF, $E8, $0E, $01, $84, $6C, $00, $08, $00, $04 ;0x20
-	dc.b	$FF, $C8, $0F, $01, $84, $20, $FF, $E8, $FF, $E8, $0E, $01, $84, $78, $FF, $E8, $FF, $C8, $0F, $01, $84, $30, $00, $08, $FF, $E8, $0E, $01, $84, $84, $00, $08 ;0x40
-	dc.b	$00, $04, $FF, $C8, $0F, $01, $84, $40, $FF, $E8, $FF, $E8, $0E, $01, $84, $90, $FF, $E8, $FF, $C8, $0F, $01, $84, $50, $00, $08, $FF, $E8, $0E, $01, $84, $9C ;0x60
-	dc.b	$00, $08, $00, $01, $FF, $D8, $09, $00, $84, $A8, $FF, $F0, $00, $01, $FF, $E0, $04, $00, $84, $AE, $FF, $F8 ;0x80
+    dc.l    loc_0001285E
+    dc.l    loc_0001285E
+    dc.l    loc_00012880
+    dc.l    loc_000128A2
+    dc.l    loc_000128A2
+    dc.l    loc_000128C4
+    dc.l    loc_000128CE
+loc_0001285E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $60
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $6C
+    dc.b    $00
+    dc.b    $08
+loc_00012880:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $30
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $84
+    dc.b    $00
+    dc.b    $08
+loc_000128A2:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $40
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $50
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $9C
+    dc.b    $00
+    dc.b    $08
+loc_000128C4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $F0
+loc_000128CE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $AE
+    dc.b    $FF
+    dc.b    $F8
+
 loc_000128D8:
-	dc.b	$00, $01, $29, $04, $00, $01, $29, $04, $00, $01, $29, $04, $00, $01, $29, $04, $00, $01, $29, $3E, $00, $01, $29, $68, $00, $01, $29, $9A, $00, $01, $29, $D4 ;0x0 (0x000128D8-0x00012A1C, Entry count: 0x144) [Unknown data]
-	dc.b	$00, $01, $29, $E6, $00, $01, $29, $F8, $00, $01, $2A, $0A, $00, $07, $FF, $D0, $0D, $01, $84, $00, $FF, $E0, $FF, $E0, $04, $01, $84, $08, $FF, $E0, $FF, $E8 ;0x20
-	dc.b	$0E, $01, $84, $0E, $FF, $E0, $FF, $D0, $0D, $01, $84, $1A, $00, $00, $FF, $E8, $02, $01, $84, $22, $00, $00, $FF, $E0, $02, $01, $84, $2B, $00, $18, $FF, $F8 ;0x40
-	dc.b	$08, $01, $84, $2E, $00, $08, $00, $05, $FF, $D0, $0F, $01, $84, $31, $FF, $D8, $FF, $D0, $0F, $01, $84, $41, $FF, $F8, $FF, $D0, $03, $01, $84, $51, $00, $18 ;0x60
-	dc.b	$FF, $F0, $0D, $01, $84, $55, $FF, $D8, $FF, $F0, $0D, $01, $84, $5D, $FF, $F8, $00, $06, $FF, $D0, $0F, $01, $84, $65, $FF, $E8, $FF, $D0, $0F, $01, $84, $75 ;0x80
-	dc.b	$00, $08, $FF, $D0, $03, $01, $84, $85, $00, $28, $FF, $F0, $0D, $01, $84, $89, $FF, $E8, $FF, $F0, $0D, $01, $84, $91, $00, $08, $FF, $F0, $01, $01, $84, $99 ;0xA0
-	dc.b	$00, $28, $00, $07, $FF, $D0, $0D, $01, $84, $9B, $FF, $E8, $FF, $D0, $09, $01, $84, $A3, $00, $08, $FF, $E0, $0D, $01, $84, $A9, $FF, $D8, $FF, $E0, $0D, $01 ;0xC0
-	dc.b	$84, $B1, $FF, $F8, $FF, $E0, $01, $01, $84, $B9, $00, $18, $FF, $F0, $0D, $01, $84, $BB, $FF, $E8, $FF, $F0, $09, $01, $84, $C3, $00, $08, $00, $02, $FF, $E0 ;0xE0
-	dc.b	$08, $01, $84, $0A, $FF, $F0, $FF, $E0, $06, $01, $84, $25, $00, $08, $00, $02, $FF, $E0, $08, $01, $84, $0A, $FF, $F0, $FF, $E0, $06, $01, $84, $C9, $00, $08 ;0x100
-	dc.b	$00, $02, $FF, $E0, $08, $01, $84, $0A, $FF, $F0, $FF, $E0, $06, $01, $84, $CF, $00, $08, $00, $02, $FF, $E0, $0C, $00, $84, $D5, $FF, $F0, $FF, $E0, $06, $01 ;0x120
-	dc.b	$84, $25, $00, $08 ;0x140
+    dc.l    loc_00012904
+    dc.l    loc_00012904
+    dc.l    loc_00012904
+    dc.l    loc_00012904
+    dc.l    loc_0001293E
+    dc.l    loc_00012968
+    dc.l    loc_0001299A
+    dc.l    loc_000129D4
+    dc.l    loc_000129E6
+    dc.l    loc_000129F8
+    dc.l    loc_00012A0A
+loc_00012904:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $04
+    dc.b    $01
+    dc.b    $84
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0E
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $1A
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $22
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2B
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $08
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2E
+    dc.b    $00
+    dc.b    $08
+loc_0001293E:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $31
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $41
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $51
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $55
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5D
+    dc.b    $FF
+    dc.b    $F8
+loc_00012968:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $65
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $75
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $85
+    dc.b    $00
+    dc.b    $28
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $89
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $91
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $00
+    dc.b    $28
+loc_0001299A:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $9B
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A3
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A9
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B1
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B9
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $BB
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $C3
+    dc.b    $00
+    dc.b    $08
+loc_000129D4:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0A
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $25
+    dc.b    $00
+    dc.b    $08
+loc_000129E6:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0A
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $C9
+    dc.b    $00
+    dc.b    $08
+loc_000129F8:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $08
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0A
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $CF
+    dc.b    $00
+    dc.b    $08
+loc_00012A0A:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $84
+    dc.b    $D5
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $06
+    dc.b    $01
+    dc.b    $84
+    dc.b    $25
+    dc.b    $00
+    dc.b    $08
+
 loc_00012A1C:
-	dc.b	$00, $01, $2A, $68, $00, $01, $2A, $68, $00, $01, $2A, $68, $00, $00, $00, $00, $00, $01, $2A, $8A, $00, $01, $2A, $8A, $00, $01, $2A, $8A, $00, $00, $00, $00 ;0x0 (0x00012A1C-0x00012B1A, Entry count: 0xFE) [Unknown data]
-	dc.b	$00, $01, $2A, $AC, $00, $01, $2A, $B6, $00, $01, $2A, $C0, $00, $01, $2A, $CA, $00, $01, $2A, $D4, $00, $01, $2A, $DE, $00, $01, $2A, $E8, $00, $01, $2A, $F2 ;0x20
-	dc.b	$00, $01, $2A, $FC, $00, $01, $2B, $06, $00, $01, $2B, $10, $00, $04, $FF, $C8, $0F, $01, $84, $00, $FF, $E0, $FF, $C8, $0B, $01, $84, $10, $00, $00, $FF, $E8 ;0x40
-	dc.b	$0E, $01, $84, $38, $FF, $E0, $FF, $E8, $0A, $01, $84, $44, $00, $00, $00, $04, $FF, $C8, $0F, $01, $84, $1C, $FF, $E0, $FF, $C8, $0B, $01, $84, $2C, $00, $00 ;0x60
-	dc.b	$FF, $E8, $0E, $01, $84, $4D, $FF, $E0, $FF, $E8, $0A, $01, $84, $59, $00, $00, $00, $01, $FF, $D8, $01, $00, $84, $62, $FF, $F8, $00, $01, $FF, $D8, $08, $00 ;0x80
-	dc.b	$84, $64, $FF, $F0, $00, $01, $FF, $F8, $05, $00, $04, $E0, $FF, $F8, $00, $01, $FF, $F8, $05, $00, $04, $E4, $FF, $F8, $00, $01, $FF, $F8, $05, $00, $04, $E8 ;0xA0
-	dc.b	$FF, $F8, $00, $01, $FF, $F8, $09, $00, $04, $EC, $FF, $F4, $00, $01, $FF, $F8, $09, $00, $04, $F2, $FF, $F4, $00, $01, $FF, $F8, $05, $03, $C4, $F0, $FF, $F8 ;0xC0
-	dc.b	$00, $01, $FF, $F8, $05, $03, $C4, $F4, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $C4, $F8, $FF, $F8, $00, $01, $FF, $F8, $09, $03, $C4, $D0, $FF, $F4 ;0xE0
+    dc.l    loc_00012A68
+    dc.l    loc_00012A68
+    dc.l    loc_00012A68
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.l    loc_00012A8A
+    dc.l    loc_00012A8A
+    dc.l    loc_00012A8A
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.l    loc_00012AAC
+    dc.l    loc_00012AB6
+    dc.l    loc_00012AC0
+    dc.l    loc_00012ACA
+    dc.l    loc_00012AD4
+    dc.l    loc_00012ADE
+    dc.l    loc_00012AE8
+    dc.l    loc_00012AF2
+    dc.l    loc_00012AFC
+    dc.l    loc_00012B06
+    dc.l    loc_00012B10
+loc_00012A68:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $44
+    dc.b    $00
+    dc.b    $00
+loc_00012A8A:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4D
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $59
+    dc.b    $00
+    dc.b    $00
+loc_00012AAC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $84
+    dc.b    $62
+    dc.b    $FF
+    dc.b    $F8
+loc_00012AB6:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $64
+    dc.b    $FF
+    dc.b    $F0
+loc_00012AC0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $00
+    dc.b    $04
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $F8
+loc_00012ACA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $00
+    dc.b    $04
+    dc.b    $E4
+    dc.b    $FF
+    dc.b    $F8
+loc_00012AD4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $00
+    dc.b    $04
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F8
+loc_00012ADE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $04
+    dc.b    $EC
+    dc.b    $FF
+    dc.b    $F4
+loc_00012AE8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $09
+    dc.b    $00
+    dc.b    $04
+    dc.b    $F2
+    dc.b    $FF
+    dc.b    $F4
+loc_00012AF2:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $C4
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $F8
+loc_00012AFC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $C4
+    dc.b    $F4
+    dc.b    $FF
+    dc.b    $F8
+loc_00012B06:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $C4
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F8
+loc_00012B10:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $09
+    dc.b    $03
+    dc.b    $C4
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $F4
+
 loc_00012B1A:
-	dc.b	$00, $01, $2B, $42, $00, $01, $2B, $42, $00, $01, $2B, $42, $00, $01, $2B, $42, $00, $01, $2B, $6C, $00, $01, $2B, $8E, $00, $01, $2B, $B0, $00, $01, $2B, $BA ;0x0 (0x00012B1A-0x00012BF0, Entry count: 0xD6) [Unknown data]
-	dc.b	$00, $01, $2B, $C4, $00, $01, $2B, $DE, $00, $05, $FF, $C8, $0E, $01, $84, $00, $FF, $E0, $FF, $C8, $0E, $01, $84, $0C, $00, $00, $FF, $E0, $0D, $01, $84, $20 ;0x20
-	dc.b	$00, $00, $FF, $F0, $0D, $01, $84, $28, $FF, $E0, $FF, $F0, $0D, $01, $84, $30, $00, $00, $00, $04, $FF, $C8, $0F, $01, $84, $38, $FF, $E0, $FF, $C8, $0F, $01 ;0x40
-	dc.b	$84, $48, $00, $00, $FF, $E8, $0E, $01, $84, $78, $FF, $E0, $FF, $E8, $0E, $01, $84, $84, $00, $00, $00, $04, $FF, $C8, $0F, $01, $84, $58, $FF, $E0, $FF, $C8 ;0x60
-	dc.b	$0F, $01, $84, $68, $00, $00, $FF, $E8, $0E, $01, $84, $90, $FF, $E0, $FF, $E8, $0E, $01, $84, $9C, $00, $00, $00, $01, $FF, $E0, $0D, $01, $84, $18, $FF, $E0 ;0x80
-	dc.b	$00, $01, $FF, $E0, $0D, $01, $84, $A8, $FF, $E0, $00, $03, $FF, $E0, $0D, $01, $84, $18, $FF, $E0, $FF, $D8, $04, $00, $84, $B0, $FF, $E8, $FF, $D8, $05, $00 ;0xA0
-	dc.b	$84, $B2, $00, $00, $00, $02, $FF, $E0, $0D, $01, $84, $18, $FF, $E0, $FF, $E8, $11, $00, $84, $B6, $FF, $E8 ;0xC0
+    dc.l    loc_00012B42
+    dc.l    loc_00012B42
+    dc.l    loc_00012B42
+    dc.l    loc_00012B42
+    dc.l    loc_00012B6C
+    dc.l    loc_00012B8E
+    dc.l    loc_00012BB0
+    dc.l    loc_00012BBA
+    dc.l    loc_00012BC4
+    dc.l    loc_00012BDE
+loc_00012B42:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $20
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $28
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $30
+    dc.b    $00
+    dc.b    $00
+loc_00012B6C:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $48
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $84
+    dc.b    $00
+    dc.b    $00
+loc_00012B8E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $58
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $68
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $9C
+    dc.b    $00
+    dc.b    $00
+loc_00012BB0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+loc_00012BBA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $E0
+loc_00012BC4:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $B0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $05
+    dc.b    $00
+    dc.b    $84
+    dc.b    $B2
+    dc.b    $00
+    dc.b    $00
+loc_00012BDE:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $11
+    dc.b    $00
+    dc.b    $84
+    dc.b    $B6
+    dc.b    $FF
+    dc.b    $E8
+
 loc_00012BF0:
-	dc.b	$00, $01, $2C, $28, $00, $01, $2C, $28, $00, $01, $2C, $28, $00, $01, $2C, $52, $00, $01, $2C, $74, $00, $01, $2C, $96, $00, $01, $2C, $96, $00, $01, $2C, $96 ;0x0 (0x00012BF0-0x00012D1C, Entry count: 0x12C) [Unknown data]
-	dc.b	$00, $01, $2C, $B8, $00, $01, $2C, $C2, $00, $01, $2C, $CC, $00, $01, $2C, $DE, $00, $01, $2C, $F0, $00, $01, $2D, $02, $00, $05, $FF, $C8, $09, $01, $84, $00 ;0x20
-	dc.b	$FF, $E8, $FF, $D8, $01, $01, $84, $06, $FF, $E8, $FF, $C8, $0F, $01, $84, $0C, $00, $00, $FF, $E8, $0E, $01, $84, $1C, $FF, $E8, $FF, $E8, $0A, $01, $84, $28 ;0x40
-	dc.b	$00, $08, $00, $04, $FF, $C8, $0F, $01, $84, $31, $FF, $E8, $FF, $C8, $0B, $01, $84, $41, $00, $08, $FF, $E8, $0E, $01, $84, $89, $FF, $E8, $FF, $E8, $0A, $01 ;0x60
-	dc.b	$84, $95, $00, $08, $00, $04, $FF, $C8, $0F, $01, $84, $4D, $FF, $E8, $FF, $C8, $0B, $01, $84, $5D, $00, $08, $FF, $E8, $0E, $01, $84, $9E, $FF, $E8, $FF, $E8 ;0x80
-	dc.b	$0A, $01, $84, $AA, $00, $08, $00, $04, $FF, $C8, $0F, $01, $84, $69, $FF, $E8, $FF, $C8, $0F, $01, $84, $79, $00, $08, $FF, $E8, $0A, $01, $84, $B6, $FF, $F0 ;0xA0
-	dc.b	$FF, $E8, $00, $01, $84, $C8, $00, $20, $00, $01, $FF, $D8, $05, $01, $84, $08, $FF, $F0, $00, $01, $FF, $D8, $05, $01, $84, $C9, $FF, $F0, $00, $02, $FF, $D8 ;0xC0
-	dc.b	$05, $01, $84, $08, $FF, $F0, $FF, $D8, $08, $00, $84, $CD, $FF, $F0, $00, $02, $FF, $E8, $02, $01, $84, $B3, $FF, $E8, $FF, $E8, $0A, $01, $84, $BF, $00, $08 ;0xE0
-	dc.b	$00, $02, $FF, $E8, $02, $01, $84, $D1, $FF, $E8, $FF, $E8, $0A, $00, $84, $D4, $00, $08, $00, $03, $FF, $E8, $02, $01, $84, $D1, $FF, $E8, $FF, $E8, $0A, $00 ;0x100
-	dc.b	$84, $D4, $00, $08, $FF, $E0, $00, $00, $84, $D0, $FF, $F8 ;0x120
+    dc.l    loc_00012C28
+    dc.l    loc_00012C28
+    dc.l    loc_00012C28
+    dc.l    loc_00012C52
+    dc.l    loc_00012C74
+    dc.l    loc_00012C96
+    dc.l    loc_00012C96
+    dc.l    loc_00012C96
+    dc.l    loc_00012CB8
+    dc.l    loc_00012CC2
+    dc.l    loc_00012CCC
+    dc.l    loc_00012CDE
+    dc.l    loc_00012CF0
+    dc.l    loc_00012D02
+loc_00012C28:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $09
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $06
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $28
+    dc.b    $00
+    dc.b    $08
+loc_00012C52:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $31
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $41
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $89
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $95
+    dc.b    $00
+    dc.b    $08
+loc_00012C74:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4D
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5D
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $9E
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $AA
+    dc.b    $00
+    dc.b    $08
+loc_00012C96:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $69
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $79
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B6
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $00
+    dc.b    $01
+    dc.b    $84
+    dc.b    $C8
+    dc.b    $00
+    dc.b    $20
+loc_00012CB8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+loc_00012CC2:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $C9
+    dc.b    $FF
+    dc.b    $F0
+loc_00012CCC:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $08
+    dc.b    $00
+    dc.b    $84
+    dc.b    $CD
+    dc.b    $FF
+    dc.b    $F0
+loc_00012CDE:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B3
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $BF
+    dc.b    $00
+    dc.b    $08
+loc_00012CF0:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $D1
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $00
+    dc.b    $84
+    dc.b    $D4
+    dc.b    $00
+    dc.b    $08
+loc_00012D02:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $D1
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $00
+    dc.b    $84
+    dc.b    $D4
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $00
+    dc.b    $00
+    dc.b    $84
+    dc.b    $D0
+    dc.b    $FF
+    dc.b    $F8
+
 loc_00012D1C:
-	dc.b	$00, $01, $2D, $38, $00, $01, $2D, $38, $00, $01, $2D, $62, $00, $01, $2D, $84, $00, $01, $2D, $AE, $00, $01, $2D, $D0, $00, $01, $2D, $DA, $00, $05, $FF, $E0 ;0x0 (0x00012D1C-0x00012DE4, Entry count: 0xC8) [Unknown data]
-	dc.b	$07, $01, $84, $00, $FF, $E0, $FF, $C8, $0D, $01, $84, $08, $FF, $F0, $FF, $F0, $0D, $01, $84, $1C, $FF, $F0, $FF, $C8, $0B, $01, $84, $24, $00, $10, $FF, $E8 ;0x20
-	dc.b	$0E, $01, $84, $30, $00, $10, $00, $04, $FF, $C8, $0F, $01, $84, $3C, $FF, $E8, $FF, $C8, $0F, $01, $84, $4C, $00, $08, $FF, $E8, $0E, $01, $84, $94, $FF, $E0 ;0x40
-	dc.b	$FF, $E8, $0E, $01, $84, $A0, $00, $00, $00, $05, $FF, $C8, $0F, $01, $84, $5C, $FF, $E0, $FF, $C8, $0B, $01, $84, $6C, $00, $00, $FF, $F0, $01, $01, $84, $AC ;0x60
-	dc.b	$FF, $D8, $FF, $E8, $0E, $01, $84, $AE, $FF, $E0, $FF, $E8, $0E, $01, $84, $BA, $00, $00, $00, $04, $FF, $C8, $0F, $01, $84, $78, $FF, $E0, $FF, $C8, $0B, $01 ;0x80
-	dc.b	$84, $88, $00, $00, $FF, $E8, $0E, $01, $84, $C6, $FF, $E0, $FF, $E8, $0A, $01, $84, $D2, $00, $00, $00, $01, $FF, $D8, $0E, $01, $84, $10, $FF, $F0, $00, $01 ;0xA0
-	dc.b	$FF, $D8, $0E, $01, $84, $DB, $FF, $F0 ;0xC0
+    dc.l    loc_00012D38
+    dc.l    loc_00012D38
+    dc.l    loc_00012D62
+    dc.l    loc_00012D84
+    dc.l    loc_00012DAE
+    dc.l    loc_00012DD0
+    dc.l    loc_00012DDA
+loc_00012D38:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $07
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $24
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $30
+    dc.b    $00
+    dc.b    $10
+loc_00012D62:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $4C
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $94
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A0
+    dc.b    $00
+    dc.b    $00
+loc_00012D84:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5C
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $6C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $01
+    dc.b    $01
+    dc.b    $84
+    dc.b    $AC
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $AE
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $00
+loc_00012DAE:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $78
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $88
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $C6
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $D2
+    dc.b    $00
+    dc.b    $00
+loc_00012DD0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $F0
+loc_00012DDA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $DB
+    dc.b    $FF
+    dc.b    $F0
+
 loc_00012DE4:
-	dc.b	$00, $01, $2E, $24, $00, $01, $2E, $24, $00, $01, $2E, $24, $00, $01, $2E, $4E, $00, $01, $2E, $4E, $00, $01, $2E, $4E, $00, $01, $2E, $78, $00, $01, $2E, $78 ;0x0 (0x00012DE4-0x00012F18, Entry count: 0x134) [Unknown data]
-	dc.b	$00, $01, $2E, $78, $00, $01, $2E, $9A, $00, $01, $2E, $BC, $00, $01, $2E, $DE, $00, $01, $2E, $E8, $00, $01, $2E, $F2, $00, $01, $2F, $04, $00, $01, $2F, $0E ;0x20
-	dc.b	$00, $05, $FF, $C8, $0E, $01, $84, $00, $FF, $F0, $FF, $E0, $05, $01, $84, $10, $00, $00, $FF, $F0, $0D, $01, $84, $14, $FF, $F0, $FF, $C8, $03, $01, $84, $1C ;0x40
-	dc.b	$00, $10, $FF, $E8, $02, $01, $84, $20, $00, $10, $00, $05, $FF, $C8, $0E, $01, $84, $23, $FF, $F0, $FF, $E0, $0D, $01, $84, $2F, $FF, $F0, $FF, $F0, $0D, $01 ;0x60
-	dc.b	$84, $37, $FF, $F0, $FF, $C8, $03, $01, $84, $3F, $00, $10, $FF, $E8, $02, $01, $84, $43, $00, $10, $00, $04, $FF, $C8, $0F, $01, $84, $46, $FF, $F0, $FF, $C8 ;0x80
-	dc.b	$03, $01, $84, $56, $00, $10, $FF, $E8, $0E, $01, $84, $8A, $FF, $F0, $FF, $E8, $02, $01, $84, $96, $00, $10, $00, $04, $FF, $C8, $0F, $01, $84, $5A, $FF, $F0 ;0xA0
-	dc.b	$FF, $C8, $03, $01, $84, $6A, $00, $10, $FF, $E8, $0E, $01, $84, $99, $FF, $F0, $FF, $E8, $02, $01, $84, $A5, $00, $10, $00, $04, $FF, $C8, $0F, $01, $84, $6E ;0xC0
-	dc.b	$FF, $E8, $FF, $C8, $0B, $01, $84, $7E, $00, $08, $FF, $E8, $0E, $01, $84, $A8, $FF, $E8, $FF, $E8, $0A, $01, $84, $B4, $00, $08, $00, $01, $FF, $E0, $05, $01 ;0xE0
-	dc.b	$84, $0C, $FF, $F0, $00, $01, $FF, $E0, $05, $01, $84, $2F, $FF, $F0, $00, $02, $FF, $E0, $05, $01, $84, $2F, $FF, $F0, $FF, $D8, $04, $00, $84, $BD, $FF, $F8 ;0x100
-	dc.b	$00, $01, $FF, $D8, $04, $00, $84, $BD, $FF, $F8, $00, $01, $FF, $D0, $09, $00, $84, $BF, $FF, $F8 ;0x120
+    dc.l    loc_00012E24
+    dc.l    loc_00012E24
+    dc.l    loc_00012E24
+    dc.l    loc_00012E4E
+    dc.l    loc_00012E4E
+    dc.l    loc_00012E4E
+    dc.l    loc_00012E78
+    dc.l    loc_00012E78
+    dc.l    loc_00012E78
+    dc.l    loc_00012E9A
+    dc.l    loc_00012EBC
+    dc.l    loc_00012EDE
+    dc.l    loc_00012EE8
+    dc.l    loc_00012EF2
+    dc.l    loc_00012F04
+    dc.l    loc_00012F0E
+loc_00012E24:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $10
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $1C
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $20
+    dc.b    $00
+    dc.b    $10
+loc_00012E4E:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $23
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2F
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0D
+    dc.b    $01
+    dc.b    $84
+    dc.b    $37
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $3F
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $43
+    dc.b    $00
+    dc.b    $10
+loc_00012E78:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $46
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $56
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $8A
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $96
+    dc.b    $00
+    dc.b    $10
+loc_00012E9A:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $5A
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $03
+    dc.b    $01
+    dc.b    $84
+    dc.b    $6A
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $99
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $02
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A5
+    dc.b    $00
+    dc.b    $10
+loc_00012EBC:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $84
+    dc.b    $6E
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $C8
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $84
+    dc.b    $7E
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $84
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0A
+    dc.b    $01
+    dc.b    $84
+    dc.b    $B4
+    dc.b    $00
+    dc.b    $08
+loc_00012EDE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $F0
+loc_00012EE8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2F
+    dc.b    $FF
+    dc.b    $F0
+loc_00012EF2:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $05
+    dc.b    $01
+    dc.b    $84
+    dc.b    $2F
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $BD
+    dc.b    $FF
+    dc.b    $F8
+loc_00012F04:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D8
+    dc.b    $04
+    dc.b    $00
+    dc.b    $84
+    dc.b    $BD
+    dc.b    $FF
+    dc.b    $F8
+loc_00012F0E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $D0
+    dc.b    $09
+    dc.b    $00
+    dc.b    $84
+    dc.b    $BF
+    dc.b    $FF
+    dc.b    $F8
+
 loc_00012F18:
 	dc.l	loc_00012F50
 	dc.l	loc_00012F50	;Predicted
@@ -16819,16 +22148,279 @@ loc_00013046:
 loc_00013058:
 	dc.b	$00, $01, $FF, $D8, $09, $01, $84, $F7, $FF, $F0 ;0x0 (0x00013058-0x00013062, Entry count: 0xA) [Unknown data]
 loc_00013062:
-	dc.b	$00, $01, $30, $F8, $00, $01, $31, $52, $00, $01, $30, $92, $00, $01, $30, $A4, $00, $01, $30, $B6, $00, $01, $30, $7E, $00, $01, $30, $88, $00, $01, $FF, $F8 ;0x0 (0x00013062-0x0001318C, Entry count: 0x12A) [Unknown data]
-	dc.b	$00, $00, $C5, $60, $FF, $F8, $00, $01, $FF, $F8, $00, $00, $AD, $60, $FF, $F8, $00, $02, $00, $01, $0C, $00, $85, $BA, $00, $04, $00, $01, $00, $00, $85, $BE ;0x20
-	dc.b	$00, $24, $00, $02, $00, $01, $0C, $00, $85, $BA, $00, $00, $00, $01, $00, $00, $85, $BF, $00, $20, $00, $08, $FF, $FC, $01, $00, $85, $8A, $FF, $E8, $FF, $FC ;0x40
-	dc.b	$01, $00, $85, $A2, $FF, $F0, $FF, $FC, $01, $00, $85, $88, $FF, $F8, $FF, $FC, $01, $00, $85, $88, $00, $00, $FF, $FC, $01, $00, $85, $9E, $00, $0C, $FF, $FC ;0x60
-	dc.b	$01, $00, $85, $96, $00, $14, $FF, $FC, $01, $00, $85, $80, $00, $1C, $FF, $FC, $01, $00, $85, $B0, $00, $24, $00, $0B, $FF, $FC, $01, $00, $85, $90, $00, $00 ;0x80
-	dc.b	$FF, $FC, $01, $00, $85, $9A, $00, $08, $FF, $FC, $01, $00, $85, $A4, $00, $10, $FF, $FC, $01, $00, $85, $88, $00, $18, $FF, $FC, $01, $00, $85, $A2, $00, $20 ;0xA0
-	dc.b	$FF, $FC, $01, $00, $85, $A6, $00, $28, $FF, $FC, $01, $00, $85, $84, $00, $34, $FF, $FC, $01, $00, $85, $9C, $00, $3C, $FF, $FC, $01, $00, $85, $90, $00, $44 ;0xC0
-	dc.b	$FF, $FC, $01, $00, $85, $9A, $00, $4C, $00, $00, $04, $00, $85, $B8, $00, $54, $00, $07, $FF, $F8, $01, $00, $85, $24, $FF, $E0, $FF, $F8, $01, $00, $85, $3E ;0xE0
-	dc.b	$FF, $E8, $FF, $F8, $01, $00, $85, $38, $FF, $F0, $FF, $F8, $01, $00, $85, $38, $FF, $F8, $FF, $F8, $01, $00, $85, $46, $00, $00, $FF, $F8, $01, $00, $85, $3E ;0x100
-	dc.b	$00, $10, $FF, $F8, $01, $00, $85, $34, $00, $18 ;0x120
+    dc.l    loc_000130F8
+    dc.l    loc_00013152
+    dc.l    loc_00013092
+    dc.l    loc_000130A4
+    dc.l    loc_000130B6
+    dc.l    loc_0001307E
+    dc.l    loc_00013088
+loc_0001307E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C5
+    dc.b    $60
+    dc.b    $FF
+    dc.b    $F8
+loc_00013088:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $00
+    dc.b    $00
+    dc.b    $AD
+    dc.b    $60
+    dc.b    $FF
+    dc.b    $F8
+loc_00013092:
+    dc.b    $00
+    dc.b    $02
+    dc.l    $00010C00
+    dc.b    $85
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $04
+    dc.l    $00010000
+    dc.b    $85
+    dc.b    $BE
+    dc.b    $00
+    dc.b    $24
+loc_000130A4:
+    dc.b    $00
+    dc.b    $02
+    dc.l    $00010C00
+    dc.b    $85
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $00
+    dc.l    $00010000
+    dc.b    $85
+    dc.b    $BF
+    dc.b    $00
+    dc.b    $20
+loc_000130B6:
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $8A
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $A2
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $88
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $88
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $9E
+    dc.b    $00
+    dc.b    $0C
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $96
+    dc.b    $00
+    dc.b    $14
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $80
+    dc.b    $00
+    dc.b    $1C
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $B0
+    dc.b    $00
+    dc.b    $24
+loc_000130F8:
+    dc.b    $00
+    dc.b    $0B
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $90
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $9A
+    dc.b    $00
+    dc.b    $08
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $A4
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $88
+    dc.b    $00
+    dc.b    $18
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $A2
+    dc.b    $00
+    dc.b    $20
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $A6
+    dc.b    $00
+    dc.b    $28
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $84
+    dc.b    $00
+    dc.b    $34
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $9C
+    dc.b    $00
+    dc.b    $3C
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $90
+    dc.b    $00
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $FC
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $9A
+    dc.b    $00
+    dc.b    $4C
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $85
+    dc.b    $B8
+    dc.b    $00
+    dc.b    $54
+loc_00013152:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $24
+    dc.b    $FF
+    dc.b    $E0
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $3E
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $46
+    dc.b    $00
+    dc.b    $00
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $3E
+    dc.b    $00
+    dc.b    $10
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $01
+    dc.b    $00
+    dc.b    $85
+    dc.b    $34
+    dc.b    $00
+    dc.b    $18
+
 loc_0001318C:
 	dc.l	loc_00013198
 	dc.l	loc_000131DA
@@ -17377,34 +22969,721 @@ loc_00013EBE:
 loc_00013EC8:
 	dc.b	$00, $01, $FF, $F8, $05, $00, $8B, $AA, $FF, $F8 ;0x0 (0x00013EC8-0x00013ED2, Entry count: 0xA) [Unknown data]
 loc_00013ED2:
-	dc.b	$00, $01, $3E, $EA, $00, $01, $3E, $F4, $00, $01, $3E, $FE, $00, $01, $3F, $08, $00, $01, $3F, $12, $00, $01, $3F, $1C, $00, $01, $FF, $F0, $0E, $01, $C4, $38 ;0x0 (0x00013ED2-0x00013F26, Entry count: 0x54) [Unknown data]
-	dc.b	$FF, $F0, $00, $01, $FF, $F0, $0E, $01, $C4, $44, $FF, $F0, $00, $01, $FF, $E8, $0F, $01, $C4, $50, $FF, $F0, $00, $01, $FF, $F0, $0E, $01, $44, $38, $FF, $F0 ;0x20
-	dc.b	$00, $01, $FF, $F0, $0E, $01, $44, $44, $FF, $F0, $00, $01, $FF, $E8, $0F, $01, $44, $50, $FF, $F0 ;0x40
+    dc.l    loc_00013EEA
+    dc.l    loc_00013EF4
+    dc.l    loc_00013EFE
+    dc.l    loc_00013F08
+    dc.l    loc_00013F12
+    dc.l    loc_00013F1C
+loc_00013EEA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F0
+loc_00013EF4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $F0
+loc_00013EFE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $50
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F08:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $44
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F12:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $44
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F1C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $44
+    dc.b    $50
+    dc.b    $FF
+    dc.b    $F0
+
 loc_00013F26:
-	dc.b	$00, $01, $3F, $76, $00, $01, $3F, $80, $00, $01, $3F, $8A, $00, $01, $3F, $94, $00, $01, $3F, $9E, $00, $01, $3F, $A8, $00, $01, $3F, $B2, $00, $01, $3F, $BC ;0x0 (0x00013F26-0x0001403E, Entry count: 0x118) [Unknown data]
-	dc.b	$00, $01, $3F, $C6, $00, $01, $3F, $D0, $00, $01, $3F, $DA, $00, $01, $3F, $E4, $00, $01, $3F, $EE, $00, $01, $3F, $F8, $00, $01, $40, $02, $00, $01, $40, $0C ;0x20
-	dc.b	$00, $01, $40, $16, $00, $01, $40, $20, $00, $01, $40, $2A, $00, $01, $40, $34, $00, $01, $FF, $F0, $05, $03, $42, $CE, $FF, $F8, $00, $01, $FF, $F8, $05, $03 ;0x40
-	dc.b	$42, $D2, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $D6, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $DA, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $DE ;0x60
-	dc.b	$FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $E2, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $E6, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $EA, $FF, $F8 ;0x80
-	dc.b	$00, $01, $FF, $F8, $05, $03, $42, $EE, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $42, $F2, $FF, $F8, $00, $01, $FF, $F0, $05, $03, $4A, $CE, $FF, $F8, $00, $01 ;0xA0
-	dc.b	$FF, $F8, $05, $03, $4A, $D2, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $4A, $D6, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $4A, $DA, $FF, $F8, $00, $01, $FF, $F8 ;0xC0
-	dc.b	$05, $03, $4A, $DE, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $4A, $E2, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $52, $E6, $FF, $F8, $00, $01, $FF, $F8, $05, $03 ;0xE0
-	dc.b	$52, $EA, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $52, $EE, $FF, $F8, $00, $01, $FF, $F8, $05, $03, $52, $F2, $FF, $F8 ;0x100
+    dc.l    loc_00013F76
+    dc.l    loc_00013F80
+    dc.l    loc_00013F8A
+    dc.l    loc_00013F94
+    dc.l    loc_00013F9E
+    dc.l    loc_00013FA8
+    dc.l    loc_00013FB2
+    dc.l    loc_00013FBC
+    dc.l    loc_00013FC6
+    dc.l    loc_00013FD0
+    dc.l    loc_00013FDA
+    dc.l    loc_00013FE4
+    dc.l    loc_00013FEE
+    dc.l    loc_00013FF8
+    dc.l    loc_00014002
+    dc.l    loc_0001400C
+    dc.l    loc_00014016
+    dc.l    loc_00014020
+    dc.l    loc_0001402A
+    dc.l    loc_00014034
+loc_00013F76:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $CE
+    dc.b    $FF
+    dc.b    $F8
+loc_00013F80:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D2
+    dc.b    $FF
+    dc.b    $F8
+loc_00013F8A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D6
+    dc.b    $FF
+    dc.b    $F8
+loc_00013F94:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $DA
+    dc.b    $FF
+    dc.b    $F8
+loc_00013F9E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $DE
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FA8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $E2
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FB2:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $E6
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FBC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $EA
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FC6:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FD0:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $42
+    dc.b    $F2
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FDA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $CE
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FE4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $D2
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FEE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $D6
+    dc.b    $FF
+    dc.b    $F8
+loc_00013FF8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $DA
+    dc.b    $FF
+    dc.b    $F8
+loc_00014002:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $DE
+    dc.b    $FF
+    dc.b    $F8
+loc_0001400C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $4A
+    dc.b    $E2
+    dc.b    $FF
+    dc.b    $F8
+loc_00014016:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $52
+    dc.b    $E6
+    dc.b    $FF
+    dc.b    $F8
+loc_00014020:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $52
+    dc.b    $EA
+    dc.b    $FF
+    dc.b    $F8
+loc_0001402A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $52
+    dc.b    $EE
+    dc.b    $FF
+    dc.b    $F8
+loc_00014034:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F8
+    dc.b    $05
+    dc.b    $03
+    dc.b    $52
+    dc.b    $F2
+    dc.b    $FF
+    dc.b    $F8
+
 loc_0001403E:
-	dc.b	$00, $01, $40, $6E, $00, $01, $40, $88, $00, $01, $40, $C2, $00, $01, $41, $14, $00, $01, $41, $7E, $00, $01, $41, $7E, $00, $01, $41, $7E, $00, $01, $41, $7E ;0x0 (0x0001403E-0x000141EA, Entry count: 0x1AC) [Unknown data]
-	dc.b	$00, $01, $41, $D8, $00, $01, $41, $D8, $00, $01, $41, $D8, $00, $01, $41, $D8, $00, $03, $00, $00, $04, $03, $42, $B5, $00, $10, $00, $08, $04, $03, $42, $B7 ;0x20
-	dc.b	$00, $10, $00, $10, $00, $03, $42, $B9, $00, $10, $00, $07, $00, $00, $04, $03, $42, $B5, $00, $10, $00, $08, $04, $03, $42, $B7, $00, $10, $00, $10, $00, $03 ;0x40
-	dc.b	$42, $B9, $00, $10, $00, $18, $08, $03, $42, $BA, $00, $08, $00, $20, $08, $03, $42, $BE, $00, $08, $00, $28, $0C, $03, $42, $C2, $00, $08, $00, $30, $04, $03 ;0x60
-	dc.b	$42, $C7, $00, $00, $00, $0A, $00, $00, $04, $03, $42, $B5, $00, $10, $00, $08, $04, $03, $42, $B7, $00, $10, $00, $10, $00, $03, $42, $B9, $00, $10, $00, $18 ;0x80
-	dc.b	$08, $03, $42, $BA, $00, $08, $00, $20, $08, $03, $42, $BE, $00, $08, $00, $28, $0C, $03, $42, $C2, $00, $08, $00, $30, $04, $03, $42, $C7, $00, $00, $00, $30 ;0xA0
-	dc.b	$08, $03, $42, $C9, $00, $18, $00, $38, $04, $03, $42, $CE, $00, $00, $00, $38, $0C, $03, $42, $D0, $00, $18, $00, $0D, $00, $00, $04, $03, $42, $B5, $00, $10 ;0xC0
-	dc.b	$00, $08, $04, $03, $42, $B7, $00, $10, $00, $10, $00, $03, $42, $B9, $00, $10, $00, $18, $08, $03, $42, $BA, $00, $08, $00, $20, $08, $03, $42, $BE, $00, $08 ;0xE0
-	dc.b	$00, $28, $0C, $03, $42, $C2, $00, $08, $00, $30, $04, $03, $42, $C7, $00, $00, $00, $30, $08, $03, $42, $C9, $00, $18, $00, $38, $04, $03, $42, $CE, $00, $00 ;0x100
-	dc.b	$00, $38, $0C, $03, $42, $D0, $00, $18, $00, $40, $04, $03, $42, $D9, $00, $00, $00, $40, $08, $03, $42, $DB, $00, $20, $00, $48, $04, $03, $42, $E2, $00, $20 ;0x120
-	dc.b	$00, $0B, $00, $00, $00, $03, $42, $C1, $00, $18, $00, $08, $00, $03, $42, $C6, $00, $18, $00, $10, $04, $03, $42, $CC, $00, $10, $00, $18, $00, $03, $42, $C7 ;0x140
-	dc.b	$00, $08, $00, $18, $08, $03, $42, $D4, $00, $10, $00, $20, $00, $03, $42, $DE, $00, $08, $00, $20, $00, $03, $42, $DF, $00, $20, $00, $20, $00, $03, $42, $C3 ;0x160
-	dc.b	$00, $28, $00, $28, $04, $03, $42, $E4, $00, $00, $00, $28, $00, $03, $42, $C3, $00, $20, $00, $28, $00, $03, $5A, $E6, $00, $28, $00, $02, $00, $00, $04, $03 ;0x180
-	dc.b	$42, $D7, $00, $00, $00, $08, $04, $03, $42, $E0, $00, $00 ;0x1A0
+    dc.l    loc_0001406E
+    dc.l    loc_00014088
+    dc.l    loc_000140C2
+    dc.l    loc_00014114
+    dc.l    loc_0001417E
+    dc.l    loc_0001417E
+    dc.l    loc_0001417E
+    dc.l    loc_0001417E
+    dc.l    loc_000141D8
+    dc.l    loc_000141D8
+    dc.l    loc_000141D8
+    dc.l    loc_000141D8
+loc_0001406E:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B5
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B7
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B9
+    dc.b    $00
+    dc.b    $10
+loc_00014088:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B5
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B7
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B9
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $18
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $20
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BE
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $28
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C2
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $30
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C7
+    dc.b    $00
+    dc.b    $00
+loc_000140C2:
+    dc.b    $00
+    dc.b    $0A
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B5
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B7
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B9
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $18
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $20
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BE
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $28
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C2
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $30
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C7
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $30
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C9
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $38
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $CE
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $38
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D0
+    dc.b    $00
+    dc.b    $18
+loc_00014114:
+    dc.b    $00
+    dc.b    $0D
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B5
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $08
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B7
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $B9
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $18
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BA
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $20
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $BE
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $28
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C2
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $30
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C7
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $30
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C9
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $38
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $CE
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $38
+    dc.b    $0C
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D0
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $40
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D9
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $40
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $DB
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $48
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $E2
+    dc.b    $00
+    dc.b    $20
+loc_0001417E:
+    dc.b    $00
+    dc.b    $0B
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C1
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C6
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $10
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $CC
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $18
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C7
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $18
+    dc.b    $08
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D4
+    dc.b    $00
+    dc.b    $10
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $DE
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $DF
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C3
+    dc.b    $00
+    dc.b    $28
+    dc.b    $00
+    dc.b    $28
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $E4
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $28
+    dc.b    $00
+    dc.b    $03
+    dc.b    $42
+    dc.b    $C3
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $28
+    dc.b    $00
+    dc.b    $03
+    dc.b    $5A
+    dc.b    $E6
+    dc.b    $00
+    dc.b    $28
+loc_000141D8:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $D7
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $08
+    dc.b    $04
+    dc.b    $03
+    dc.b    $42
+    dc.b    $E0
+    dc.b    $00
+    dc.b    $00
+
 loc_000141EA:
 	dc.l	loc_0001431E	;Predicted
 	dc.l	loc_0001435A
@@ -17427,7 +23706,7 @@ loc_0001422E:
 	dc.b    $00, $00, $C2, $94
 	dc.b    $E5, $00, $34, $38
 	dc.b    $1E, $3A, $3A, $00
-	dc.b    $06, $34, $00, $3A; THE
+	dc.b    $06, $34, $00, $3A
 	dc.b    $3C, $16, $38, $3C
 	dc.b	$00, $18, $3E, $3C
 	dc.b    $3C, $32, $30, $FF ;0x20
@@ -18880,54 +25159,1374 @@ loc_00015E46:
 	dc.l	loc_00016E4C	;Predicted
 	dc.l	loc_00016F26	;Predicted
 	dc.l	loc_0001705A	;Predicted
-	dc.b	$00, $01, $5E, $8A, $00, $01, $5F, $B4, $00, $01, $61, $14, $00, $01, $63, $38, $00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $5E, $BA, $00, $01, $5E, $C8 ;0x0 (0x00015E7A-0x00016338, Entry count: 0x4BE) [Unknown data]
-	dc.b	$00, $01, $5E, $D6, $00, $01, $5E, $E4, $00, $01, $5E, $F2, $00, $01, $5F, $00, $00, $01, $5F, $0E, $00, $01, $5F, $2C, $00, $01, $5F, $4A, $00, $01, $5F, $68 ;0x20
-	dc.b	$00, $03, $00, $01, $C7, $24, $43, $44, $45, $46, $63, $64, $65, $66, $00, $03, $00, $01, $C7, $24, $0A, $0B, $0C, $0D, $2A, $2B, $2C, $2D, $00, $03, $00, $01 ;0x40
-	dc.b	$C7, $24, $4A, $4B, $4C, $4D, $6A, $6B, $6C, $6D, $00, $03, $00, $01, $C7, $24, $0E, $0F, $10, $11, $2E, $2F, $30, $31, $00, $03, $00, $01, $C7, $24, $4E, $4F ;0x60
-	dc.b	$50, $51, $6E, $6F, $70, $71, $00, $03, $00, $01, $C7, $24, $8E, $8F, $90, $91, $AE, $AF, $B0, $B1, $00, $07, $00, $02, $C7, $20, $41, $42, $8A, $8B, $8C, $8D ;0x80
-	dc.b	$47, $48, $12, $13, $AA, $AB, $AC, $AD, $14, $15, $32, $33, $83, $84, $85, $86, $34, $35, $00, $07, $00, $02, $C7, $20, $41, $42, $CA, $CB, $CC, $CD, $47, $48 ;0xA0
-	dc.b	$52, $53, $EA, $EB, $EC, $ED, $54, $55, $72, $73, $83, $84, $85, $86, $74, $75, $00, $07, $00, $02, $C7, $20, $41, $42, $CA, $CB, $CC, $CD, $47, $48, $92, $93 ;0xC0
-	dc.b	$EA, $EB, $EC, $ED, $94, $95, $B2, $B3, $83, $84, $85, $86, $B4, $B5, $00, $09, $00, $06, $C6, $1E, $16, $17, $18, $19, $1A, $1B, $F6, $F7, $D4, $D5, $36, $37 ;0xE0
-	dc.b	$38, $39, $3A, $3B, $D2, $D3, $F4, $F5, $56, $CE, $CF, $59, $D0, $D1, $F2, $F3, $5E, $5F, $76, $EE, $EF, $79, $F0, $F1, $7C, $7D, $7E, $7F, $96, $97, $98, $99 ;0x100
-	dc.b	$9A, $9B, $9C, $9D, $9E, $9F, $B6, $B7, $B8, $B9, $BA, $BB, $BC, $BD, $BE, $BF, $D6, $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $00, $01, $5D, $AE, $00, $01 ;0x120
-	dc.b	$5D, $FA, $00, $01, $5F, $EC, $00, $01, $60, $02, $00, $01, $60, $18, $00, $01, $60, $4E, $00, $01, $60, $84, $00, $01, $60, $E4, $00, $01, $60, $EC, $00, $01 ;0x140
-	dc.b	$60, $F4, $00, $01, $60, $FC, $00, $01, $61, $04, $00, $01, $61, $0C, $00, $01, $60, $BA, $00, $04, $00, $02, $C6, $A2, $0A, $0B, $0C, $0D, $0E, $2A, $2B, $2C ;0x160
-	dc.b	$2D, $2E, $4A, $4B, $4C, $4D, $4E, $00, $00, $04, $00, $02, $C6, $A2, $22, $6B, $6C, $6D, $6E, $8A, $8B, $8C, $8D, $8E, $AA, $AB, $AC, $AD, $AE, $00, $00, $07 ;0x180
-	dc.b	$00, $05, $C6, $A0, $21, $E0, $E1, $E2, $E3, $E4, $27, $28, $41, $E5, $E6, $E7, $E8, $E9, $47, $48, $61, $EA, $EB, $EC, $ED, $EE, $67, $68, $81, $82, $83, $CE ;0x1A0
-	dc.b	$CF, $86, $87, $88, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A8, $C1, $C2, $C3, $C4, $C5, $C6, $C7, $C8, $00, $07, $00, $05, $C6, $A0, $21, $E0, $E1, $E2, $E3, $E4 ;0x1C0
-	dc.b	$27, $28, $41, $E5, $E6, $E7, $E8, $E9, $47, $48, $61, $EA, $EB, $EC, $ED, $EE, $67, $68, $6F, $70, $83, $CE, $CF, $86, $14, $15, $8F, $90, $A3, $A4, $A5, $A6 ;0x1E0
-	dc.b	$34, $35, $AF, $B0, $C3, $C4, $C5, $C6, $54, $55, $00, $07, $00, $05, $C6, $A0, $21, $E0, $E1, $E2, $E3, $E4, $27, $28, $41, $E5, $E6, $E7, $E8, $E9, $47, $48 ;0x200
-	dc.b	$61, $EA, $EB, $EC, $ED, $EE, $67, $68, $71, $72, $83, $CE, $CF, $86, $74, $75, $91, $92, $A3, $A4, $A5, $A6, $94, $95, $B1, $B2, $C3, $C4, $C5, $C6, $B4, $B5 ;0x220
-	dc.b	$00, $06, $00, $04, $C6, $24, $19, $1A, $0F, $10, $11, $12, $13, $39, $3A, $2F, $30, $31, $32, $33, $59, $5A, $4F, $50, $51, $52, $53, $D4, $D5, $7B, $7C, $7D ;0x240
-	dc.b	$7E, $7F, $F4, $F5, $9B, $9C, $9D, $9E, $9F, $00, $00, $01, $00, $00, $C8, $26, $84, $85, $00, $01, $00, $00, $C8, $26, $CA, $CB, $00, $01, $00, $00, $C8, $26 ;0x260
-	dc.b	$CC, $CD, $00, $01, $00, $00, $C8, $26, $CE, $CF, $00, $01, $00, $00, $C8, $26, $D0, $D1, $00, $01, $00, $00, $C8, $26, $D2, $D3, $00, $01, $5D, $AE, $00, $01 ;0x280
-	dc.b	$5D, $FA, $00, $01, $61, $50, $00, $01, $61, $60, $00, $01, $61, $70, $00, $01, $61, $82, $00, $01, $61, $94, $00, $01, $61, $A6, $00, $01, $61, $E8, $00, $01 ;0x2A0
-	dc.b	$62, $2A, $00, $01, $62, $6C, $00, $01, $62, $AE, $00, $01, $62, $F0, $00, $01, $63, $08, $00, $01, $63, $20, $00, $04, $00, $01, $C8, $22, $AA, $AB, $AC, $AD ;0x2C0
-	dc.b	$AE, $CA, $CB, $CC, $CD, $CE, $00, $04, $00, $01, $C8, $22, $EA, $EB, $EC, $ED, $EE, $E5, $E6, $E7, $E8, $E9, $00, $05, $00, $01, $C8, $22, $E0, $E1, $E2, $E3 ;0x2E0
-	dc.b	$E4, $87, $E5, $E6, $E7, $E8, $E9, $A7, $00, $05, $00, $01, $C8, $22, $E0, $FA, $FB, $FC, $E4, $87, $E5, $E6, $E7, $E8, $E9, $A7, $00, $05, $00, $01, $C8, $22 ;0x300
-	dc.b	$E0, $FD, $FE, $FF, $E4, $87, $E5, $E6, $E7, $E8, $E9, $A7, $00, $09, $00, $05, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $20, $21, $22, $23 ;0x320
-	dc.b	$24, $25, $26, $27, $28, $29, $40, $41, $42, $EF, $44, $F0, $46, $47, $48, $49, $60, $61, $F1, $F2, $64, $F3, $F4, $67, $68, $69, $80, $81, $F5, $F6, $F7, $F8 ;0x340
-	dc.b	$F9, $87, $88, $89, $A0, $A1, $E5, $E6, $E7, $E8, $E9, $A7, $A8, $A9, $00, $09, $00, $05, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07, $14, $15, $20, $91 ;0x360
-	dc.b	$22, $23, $24, $25, $26, $27, $34, $35, $40, $B1, $42, $EF, $44, $F0, $46, $47, $54, $55, $60, $D1, $F1, $F2, $64, $F3, $F4, $67, $74, $75, $80, $81, $F5, $D3 ;0x380
-	dc.b	$D4, $D5, $F9, $87, $88, $89, $A0, $A1, $E5, $E6, $E7, $E8, $E9, $A7, $A8, $A9, $00, $09, $00, $05, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07, $14, $15 ;0x3A0
-	dc.b	$20, $90, $22, $23, $24, $25, $26, $27, $12, $13, $50, $51, $42, $EF, $44, $F0, $46, $47, $32, $33, $70, $71, $F1, $F2, $64, $F3, $F4, $67, $52, $53, $80, $81 ;0x3C0
-	dc.b	$F5, $F6, $F7, $F8, $F9, $87, $88, $89, $A0, $A1, $E5, $E6, $E7, $E8, $E9, $A7, $A8, $A9, $00, $09, $00, $05, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07 ;0x3E0
-	dc.b	$14, $15, $20, $90, $22, $23, $24, $25, $26, $27, $12, $13, $10, $11, $42, $EF, $44, $F0, $46, $47, $94, $95, $30, $31, $F1, $F2, $64, $F3, $F4, $67, $B4, $B5 ;0x400
-	dc.b	$80, $81, $F5, $D3, $D4, $D5, $F9, $87, $88, $89, $A0, $A1, $E5, $E6, $E7, $E8, $E9, $A7, $A8, $A9, $00, $09, $00, $05, $C6, $1E, $00, $01, $02, $03, $04, $05 ;0x420
-	dc.b	$06, $07, $14, $15, $8F, $90, $22, $23, $24, $25, $26, $27, $72, $73, $AF, $B0, $42, $EF, $44, $F0, $46, $47, $92, $93, $CF, $D0, $F1, $F2, $64, $F3, $F4, $67 ;0x440
-	dc.b	$B2, $B3, $80, $81, $F5, $D3, $D4, $D5, $F9, $87, $88, $89, $A0, $A1, $E5, $E6, $E7, $E8, $E9, $A7, $A8, $A9, $00, $05, $00, $02, $C7, $A0, $4C, $4D, $4E, $7A ;0x460
-	dc.b	$7B, $7C, $97, $98, $99, $9A, $0C, $0D, $B7, $B8, $B9, $BA, $2C, $2D, $00, $05, $00, $02, $C7, $A0, $77, $4A, $4B, $7A, $7B, $7C, $97, $6A, $6B, $0A, $0B, $9C ;0x480
-	dc.b	$B7, $B8, $B9, $2A, $2B, $BC, $00, $05, $00, $02, $C7, $A0, $77, $78, $2F, $7A, $7B, $7C, $97, $98, $4F, $0E, $0F, $9C, $B7, $B8, $6F, $2E, $BB, $BC ;0x4A0
+	    dc.l    loc_00015E8A
+    dc.l    loc_00015FB4
+    dc.l    loc_00016114
+    dc.l    loc_00016338
+loc_00015E8A:
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00015EBA
+    dc.l    loc_00015EC8
+    dc.l    loc_00015ED6
+    dc.l    loc_00015EE4
+    dc.l    loc_00015EF2
+    dc.l    loc_00015F00
+    dc.l    loc_00015F0E
+    dc.l    loc_00015F2C
+    dc.l    loc_00015F4A
+    dc.l    loc_00015F68
+loc_00015EBA:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+loc_00015EC8:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+loc_00015ED6:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+loc_00015EE4:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+loc_00015EF2:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+loc_00015F00:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $AE
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+loc_00015F0E:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $20
+    dc.b    $41
+    dc.b    $42
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $47
+    dc.b    $48
+    dc.b    $12
+    dc.b    $13
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $14
+    dc.b    $15
+    dc.b    $32
+    dc.b    $33
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $34
+    dc.b    $35
+loc_00015F2C:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $20
+    dc.b    $41
+    dc.b    $42
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $47
+    dc.b    $48
+    dc.b    $52
+    dc.b    $53
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $54
+    dc.b    $55
+    dc.b    $72
+    dc.b    $73
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $74
+    dc.b    $75
+loc_00015F4A:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $20
+    dc.b    $41
+    dc.b    $42
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $47
+    dc.b    $48
+    dc.b    $92
+    dc.b    $93
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $94
+    dc.b    $95
+    dc.b    $B2
+    dc.b    $B3
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $B4
+    dc.b    $B5
+loc_00015F68:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $06
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $16
+    dc.b    $17
+    dc.b    $18
+    dc.b    $19
+    dc.b    $1A
+    dc.b    $1B
+    dc.b    $F6
+    dc.b    $F7
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $36
+    dc.b    $37
+    dc.b    $38
+    dc.b    $39
+    dc.b    $3A
+    dc.b    $3B
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $56
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $59
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $F2
+    dc.b    $F3
+    dc.b    $5E
+    dc.b    $5F
+    dc.b    $76
+    dc.b    $EE
+    dc.b    $EF
+    dc.b    $79
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $7C
+    dc.b    $7D
+    dc.b    $7E
+    dc.b    $7F
+    dc.b    $96
+    dc.b    $97
+    dc.b    $98
+    dc.b    $99
+    dc.b    $9A
+    dc.b    $9B
+    dc.b    $9C
+    dc.b    $9D
+    dc.b    $9E
+    dc.b    $9F
+    dc.b    $B6
+    dc.b    $B7
+    dc.b    $B8
+    dc.b    $B9
+    dc.b    $BA
+    dc.b    $BB
+    dc.b    $BC
+    dc.b    $BD
+    dc.b    $BE
+    dc.b    $BF
+    dc.b    $D6
+    dc.b    $D7
+    dc.b    $D8
+    dc.b    $D9
+    dc.b    $DA
+    dc.b    $DB
+    dc.b    $DC
+    dc.b    $DD
+    dc.b    $DE
+    dc.b    $DF
+loc_00015FB4:
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00015FEC
+    dc.l    loc_00016002
+    dc.l    loc_00016018
+    dc.l    loc_0001604E
+    dc.l    loc_00016084
+    dc.l    loc_000160E4
+    dc.l    loc_000160EC
+    dc.l    loc_000160F4
+    dc.l    loc_000160FC
+    dc.l    loc_00016104
+    dc.l    loc_0001610C
+    dc.l    loc_000160BA
+loc_00015FEC:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $00
+loc_00016002:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $00
+loc_00016018:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $A0
+    dc.b    $21
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $27
+    dc.b    $28
+    dc.b    $41
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $47
+    dc.b    $48
+    dc.b    $61
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $67
+    dc.b    $68
+    dc.b    $81
+    dc.b    $82
+    dc.b    $83
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $86
+    dc.b    $87
+    dc.b    $88
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $C1
+    dc.b    $C2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $C7
+    dc.b    $C8
+loc_0001604E:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $A0
+    dc.b    $21
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $27
+    dc.b    $28
+    dc.b    $41
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $47
+    dc.b    $48
+    dc.b    $61
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $67
+    dc.b    $68
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $83
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $86
+    dc.b    $14
+    dc.b    $15
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $34
+    dc.b    $35
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $54
+    dc.b    $55
+loc_00016084:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $A0
+    dc.b    $21
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $27
+    dc.b    $28
+    dc.b    $41
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $47
+    dc.b    $48
+    dc.b    $61
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $67
+    dc.b    $68
+    dc.b    $71
+    dc.b    $72
+    dc.b    $83
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $86
+    dc.b    $74
+    dc.b    $75
+    dc.b    $91
+    dc.b    $92
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $94
+    dc.b    $95
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $B4
+    dc.b    $B5
+loc_000160BA:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $04
+    dc.b    $C6
+    dc.b    $24
+    dc.b    $19
+    dc.b    $1A
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $39
+    dc.b    $3A
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $59
+    dc.b    $5A
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $7D
+    dc.b    $7E
+    dc.b    $7F
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $9B
+    dc.b    $9C
+    dc.b    $9D
+    dc.b    $9E
+    dc.b    $9F
+    dc.b    $00
+loc_000160E4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $84
+    dc.b    $85
+loc_000160EC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $CA
+    dc.b    $CB
+loc_000160F4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $CC
+    dc.b    $CD
+loc_000160FC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $CE
+    dc.b    $CF
+loc_00016104:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $D0
+    dc.b    $D1
+loc_0001610C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $D2
+    dc.b    $D3
+loc_00016114:
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016150
+    dc.l    loc_00016160
+    dc.l    loc_00016170
+    dc.l    loc_00016182
+    dc.l    loc_00016194
+    dc.l    loc_000161A6
+    dc.l    loc_000161E8
+    dc.l    loc_0001622A
+    dc.l    loc_0001626C
+    dc.l    loc_000162AE
+    dc.l    loc_000162F0
+    dc.l    loc_00016308
+    dc.l    loc_00016320
+loc_00016150:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $22
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+loc_00016160:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $22
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+loc_00016170:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $22
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $87
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+loc_00016182:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $22
+    dc.b    $E0
+    dc.b    $FA
+    dc.b    $FB
+    dc.b    $FC
+    dc.b    $E4
+    dc.b    $87
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+loc_00016194:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $22
+    dc.b    $E0
+    dc.b    $FD
+    dc.b    $FE
+    dc.b    $FF
+    dc.b    $E4
+    dc.b    $87
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+loc_000161A6:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $08
+    dc.b    $09
+    dc.b    $20
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $28
+    dc.b    $29
+    dc.b    $40
+    dc.b    $41
+    dc.b    $42
+    dc.b    $EF
+    dc.b    $44
+    dc.b    $F0
+    dc.b    $46
+    dc.b    $47
+    dc.b    $48
+    dc.b    $49
+    dc.b    $60
+    dc.b    $61
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $64
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $67
+    dc.b    $68
+    dc.b    $69
+    dc.b    $80
+    dc.b    $81
+    dc.b    $F5
+    dc.b    $F6
+    dc.b    $F7
+    dc.b    $F8
+    dc.b    $F9
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_000161E8:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $14
+    dc.b    $15
+    dc.b    $20
+    dc.b    $91
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $34
+    dc.b    $35
+    dc.b    $40
+    dc.b    $B1
+    dc.b    $42
+    dc.b    $EF
+    dc.b    $44
+    dc.b    $F0
+    dc.b    $46
+    dc.b    $47
+    dc.b    $54
+    dc.b    $55
+    dc.b    $60
+    dc.b    $D1
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $64
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $67
+    dc.b    $74
+    dc.b    $75
+    dc.b    $80
+    dc.b    $81
+    dc.b    $F5
+    dc.b    $D3
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $F9
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_0001622A:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $14
+    dc.b    $15
+    dc.b    $20
+    dc.b    $90
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $12
+    dc.b    $13
+    dc.b    $50
+    dc.b    $51
+    dc.b    $42
+    dc.b    $EF
+    dc.b    $44
+    dc.b    $F0
+    dc.b    $46
+    dc.b    $47
+    dc.b    $32
+    dc.b    $33
+    dc.b    $70
+    dc.b    $71
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $64
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $67
+    dc.b    $52
+    dc.b    $53
+    dc.b    $80
+    dc.b    $81
+    dc.b    $F5
+    dc.b    $F6
+    dc.b    $F7
+    dc.b    $F8
+    dc.b    $F9
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_0001626C:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $14
+    dc.b    $15
+    dc.b    $20
+    dc.b    $90
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $12
+    dc.b    $13
+    dc.b    $10
+    dc.b    $11
+    dc.b    $42
+    dc.b    $EF
+    dc.b    $44
+    dc.b    $F0
+    dc.b    $46
+    dc.b    $47
+    dc.b    $94
+    dc.b    $95
+    dc.b    $30
+    dc.b    $31
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $64
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $67
+    dc.b    $B4
+    dc.b    $B5
+    dc.b    $80
+    dc.b    $81
+    dc.b    $F5
+    dc.b    $D3
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $F9
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_000162AE:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $14
+    dc.b    $15
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $72
+    dc.b    $73
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $42
+    dc.b    $EF
+    dc.b    $44
+    dc.b    $F0
+    dc.b    $46
+    dc.b    $47
+    dc.b    $92
+    dc.b    $93
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $64
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $67
+    dc.b    $B2
+    dc.b    $B3
+    dc.b    $80
+    dc.b    $81
+    dc.b    $F5
+    dc.b    $D3
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $F9
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $E5
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $E9
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_000162F0:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $7A
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $97
+    dc.b    $98
+    dc.b    $99
+    dc.b    $9A
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $B7
+    dc.b    $B8
+    dc.b    $B9
+    dc.b    $BA
+    dc.b    $2C
+    dc.b    $2D
+loc_00016308:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $77
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $7A
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $97
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $9C
+    dc.b    $B7
+    dc.b    $B8
+    dc.b    $B9
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $BC
+loc_00016320:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $77
+    dc.b    $78
+    dc.b    $2F
+    dc.b    $7A
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $97
+    dc.b    $98
+    dc.b    $4F
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $9C
+    dc.b    $B7
+    dc.b    $B8
+    dc.b    $6F
+    dc.b    $2E
+    dc.b    $BB
+    dc.b    $BC
+
 loc_00016338:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $63, $70, $00, $01, $63, $82, $00, $01, $63, $94, $00, $01, $63, $B6, $00, $01, $63, $D8, $00, $01, $63, $FA ;0x0 (0x00016338-0x0001644E, Entry count: 0x116) [Unknown data]
-	dc.b	$00, $01, $64, $06, $00, $01, $64, $12, $00, $01, $64, $1E, $00, $01, $64, $2A, $00, $01, $64, $36, $00, $01, $64, $42, $00, $05, $00, $01, $C7, $24, $43, $44 ;0x20
-	dc.b	$45, $46, $47, $48, $63, $64, $65, $66, $67, $68, $00, $05, $00, $01, $C7, $24, $43, $44, $45, $46, $B4, $B5, $94, $95, $65, $66, $67, $68, $00, $06, $00, $03 ;0x40
-	dc.b	$C7, $A4, $63, $64, $65, $66, $14, $15, $34, $0D, $0E, $0F, $10, $11, $12, $13, $2D, $2E, $2F, $30, $31, $32, $33, $4D, $4E, $4F, $50, $51, $52, $53, $00, $06 ;0x60
-	dc.b	$00, $03, $C7, $A4, $63, $64, $65, $66, $54, $55, $34, $6D, $6E, $6F, $70, $71, $72, $73, $8D, $8E, $8F, $90, $91, $92, $93, $AD, $AE, $AF, $B0, $B1, $B2, $B3 ;0x80
-	dc.b	$00, $06, $00, $03, $C7, $A4, $63, $64, $65, $66, $74, $75, $34, $CD, $CE, $CF, $D0, $D1, $D2, $D3, $ED, $EE, $EF, $F0, $F1, $F2, $F3, $F7, $F8, $F9, $FA, $FB ;0xA0
-	dc.b	$FC, $FD, $00, $02, $00, $01, $C6, $1E, $00, $01, $02, $20, $21, $22, $00, $02, $00, $01, $C6, $1E, $0A, $0B, $0C, $2A, $2B, $2C, $00, $02, $00, $01, $C6, $1E ;0xC0
-	dc.b	$4A, $4B, $4C, $6A, $6B, $6C, $00, $02, $00, $01, $C6, $1E, $8A, $8B, $8C, $AA, $AB, $AC, $00, $02, $00, $01, $C6, $1E, $CA, $CB, $CC, $EA, $EB, $EC, $00, $02 ;0xE0
-	dc.b	$00, $01, $C6, $1E, $E0, $E1, $E2, $E3, $E4, $E5, $00, $02, $00, $01, $C6, $1E, $E6, $E7, $E8, $F4, $F5, $F6 ;0x100
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016370
+    dc.l    loc_00016382
+    dc.l    loc_00016394
+    dc.l    loc_000163B6
+    dc.l    loc_000163D8
+    dc.l    loc_000163FA
+    dc.l    loc_00016406
+    dc.l    loc_00016412
+    dc.l    loc_0001641E
+    dc.l    loc_0001642A
+    dc.l    loc_00016436
+    dc.l    loc_00016442
+loc_00016370:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $48
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $68
+loc_00016382:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $B4
+    dc.b    $B5
+    dc.b    $94
+    dc.b    $95
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $68
+loc_00016394:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $14
+    dc.b    $15
+    dc.b    $34
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+loc_000163B6:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $54
+    dc.b    $55
+    dc.b    $34
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $B3
+loc_000163D8:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $74
+    dc.b    $75
+    dc.b    $34
+    dc.b    $CD
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+    dc.b    $F7
+    dc.b    $F8
+    dc.b    $F9
+    dc.b    $FA
+    dc.b    $FB
+    dc.b    $FC
+    dc.b    $FD
+loc_000163FA:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $00
+    dc.b    $01
+    dc.b    $02
+    dc.b    $20
+    dc.b    $21
+    dc.b    $22
+loc_00016406:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+loc_00016412:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+loc_0001641E:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+loc_0001642A:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+loc_00016436:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $E5
+loc_00016442:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $E6
+    dc.b    $E7
+    dc.b    $E8
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $F6
+
 loc_0001644E:
 	dc.l	loc_00015DAE
 	dc.l	loc_00015DFA	;Predicted
@@ -18959,12 +26558,163 @@ loc_00016502:
 loc_00016520:
 	dc.b	$00, $05, $00, $03, $C7, $A0, $8A, $8B, $8C, $8D, $8E, $8F, $AA, $AB, $AC, $AD, $AE, $AF, $CA, $CB, $CC, $CD, $CE, $CF, $EA, $EB, $EC, $ED, $EE, $EF ;0x0 (0x00016520-0x0001653E, Entry count: 0x1E) [Unknown data]
 loc_0001653E:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $65, $5E, $00, $01, $65, $70, $00, $01, $65, $82, $00, $01, $65, $94, $00, $01, $65, $CC, $00, $01, $65, $DC ;0x0 (0x0001653E-0x000165EC, Entry count: 0xAE) [Unknown data]
-	dc.b	$00, $03, $00, $02, $C7, $A6, $64, $65, $66, $67, $84, $85, $86, $87, $A4, $A5, $A6, $A7, $00, $03, $00, $02, $C7, $A6, $11, $12, $13, $14, $31, $32, $33, $34 ;0x20
-	dc.b	$51, $52, $53, $54, $00, $03, $00, $02, $C7, $A6, $71, $72, $73, $74, $91, $92, $93, $94, $B1, $B2, $B3, $B4, $00, $06, $00, $06, $C6, $24, $0A, $0B, $0C, $0D ;0x40
-	dc.b	$0E, $0F, $10, $2A, $2B, $2C, $2D, $2E, $2F, $30, $4A, $4B, $4C, $4D, $4E, $4F, $50, $6A, $6B, $6C, $6D, $6E, $6F, $70, $8A, $8B, $8C, $8D, $8E, $8F, $90, $AA ;0x60
-	dc.b	$AB, $AC, $AD, $AE, $AF, $B0, $CA, $CB, $CC, $CD, $CE, $CF, $D0, $00, $00, $02, $00, $02, $C7, $A6, $6B, $6C, $6D, $8B, $8C, $8D, $AB, $AC, $AD, $00, $00, $02 ;0x80
-	dc.b	$00, $02, $C7, $A6, $D1, $D2, $D3, $F1, $F2, $F3, $F4, $F5, $F6, $00 ;0xA0
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_0001655E
+    dc.l    loc_00016570
+    dc.l    loc_00016582
+    dc.l    loc_00016594
+    dc.l    loc_000165CC
+    dc.l    loc_000165DC
+loc_0001655E:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $A7
+loc_00016570:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+loc_00016582:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $94
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $B3
+    dc.b    $B4
+loc_00016594:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $06
+    dc.b    $C6
+    dc.b    $24
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $00
+loc_000165CC:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $00
+loc_000165DC:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $F6
+    dc.b    $00
+
 loc_000165EC:
 	dc.l	loc_00015DAE
 	dc.l	loc_00015DFA
@@ -19014,101 +26764,2413 @@ loc_000166FA:
 loc_00016704:
 	dc.b	$00, $01, $00, $01, $C8, $24, $CC, $CD, $EC, $ED ;0x0 (0x00016704-0x0001670E, Entry count: 0xA) [Unknown data]
 loc_0001670E:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $67, $36, $00, $01, $67, $72, $00, $01, $67, $AE, $00, $01, $67, $CC, $00, $01, $68, $2C, $00, $01, $67, $EA ;0x0 (0x0001670E-0x00016878, Entry count: 0x16A) [Unknown data]
-	dc.b	$00, $01, $68, $00, $00, $01, $68, $16, $00, $08, $00, $05, $C6, $A0, $21, $22, $23, $24, $25, $26, $27, $28, $29, $41, $42, $43, $44, $45, $46, $47, $48, $49 ;0x20
-	dc.b	$61, $62, $63, $64, $65, $66, $67, $68, $69, $81, $82, $83, $84, $85, $86, $87, $88, $89, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A8, $A9, $C1, $C2, $C3, $C4, $C5 ;0x40
-	dc.b	$C6, $C7, $C8, $C9, $00, $08, $00, $05, $C6, $A0, $10, $11, $12, $24, $25, $26, $27, $28, $29, $30, $31, $32, $44, $45, $46, $47, $48, $49, $50, $51, $63, $64 ;0x60
-	dc.b	$65, $66, $13, $14, $15, $70, $71, $83, $84, $85, $86, $33, $34, $35, $A1, $A2, $A3, $A4, $A5, $52, $53, $54, $55, $C1, $C2, $C3, $C4, $C5, $72, $73, $74, $75 ;0x80
-	dc.b	$00, $05, $00, $03, $C6, $A2, $22, $E0, $E1, $25, $26, $27, $0A, $0B, $0C, $0D, $0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $82, $83, $84, $4D, $4E, $4F, $00, $05 ;0xA0
-	dc.b	$00, $03, $C6, $A2, $4A, $4B, $4C, $25, $26, $27, $6A, $6B, $6C, $6D, $6E, $6F, $8A, $8B, $8C, $8D, $8E, $8F, $AA, $AB, $AC, $AD, $AE, $AF, $00, $03, $00, $03 ;0xC0
-	dc.b	$C7, $24, $90, $91, $92, $93, $CA, $CB, $CC, $CD, $EA, $EB, $EC, $ED, $F0, $F1, $F2, $F3, $00, $03, $00, $03, $C7, $24, $5B, $5C, $5D, $5E, $7B, $7C, $7D, $7E ;0xE0
-	dc.b	$9B, $9C, $9D, $9E, $BB, $BC, $BD, $BE, $00, $03, $00, $03, $C7, $24, $90, $91, $92, $93, $B0, $B1, $B2, $B3, $D0, $D1, $D2, $D3, $F0, $F1, $F2, $F3, $00, $09 ;0x100
-	dc.b	$00, $06, $C6, $1E, $16, $17, $18, $19, $1A, $1B, $1C, $1D, $1E, $1F, $36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E, $3F, $56, $37, $37, $57, $58, $59, $5A, $37 ;0x120
-	dc.b	$37, $5F, $76, $37, $37, $77, $78, $79, $7A, $37, $37, $7F, $96, $37, $37, $97, $98, $99, $9A, $37, $37, $9F, $B6, $37, $37, $B7, $B8, $B9, $BA, $37, $37, $BF ;0x140
-	dc.b	$D6, $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF ;0x160
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016736
+    dc.l    loc_00016772
+    dc.l    loc_000167AE
+    dc.l    loc_000167CC
+    dc.l    loc_0001682C
+    dc.l    loc_000167EA
+    dc.l    loc_00016800
+    dc.l    loc_00016816
+loc_00016736:
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $A0
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $28
+    dc.b    $29
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $48
+    dc.b    $49
+    dc.b    $61
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $68
+    dc.b    $69
+    dc.b    $81
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+    dc.b    $C1
+    dc.b    $C2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $C7
+    dc.b    $C8
+    dc.b    $C9
+loc_00016772:
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $A0
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $28
+    dc.b    $29
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $48
+    dc.b    $49
+    dc.b    $50
+    dc.b    $51
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $70
+    dc.b    $71
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $C1
+    dc.b    $C2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+loc_000167AE:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+loc_000167CC:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+loc_000167EA:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+loc_00016800:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $5B
+    dc.b    $5C
+    dc.b    $5D
+    dc.b    $5E
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $7D
+    dc.b    $7E
+    dc.b    $9B
+    dc.b    $9C
+    dc.b    $9D
+    dc.b    $9E
+    dc.b    $BB
+    dc.b    $BC
+    dc.b    $BD
+    dc.b    $BE
+loc_00016816:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $B3
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+loc_0001682C:
+    dc.b    $00
+    dc.b    $09
+    dc.b    $00
+    dc.b    $06
+    dc.b    $C6
+    dc.b    $1E
+    dc.b    $16
+    dc.b    $17
+    dc.b    $18
+    dc.b    $19
+    dc.b    $1A
+    dc.b    $1B
+    dc.b    $1C
+    dc.b    $1D
+    dc.b    $1E
+    dc.b    $1F
+    dc.b    $36
+    dc.b    $37
+    dc.b    $38
+    dc.b    $39
+    dc.b    $3A
+    dc.b    $3B
+    dc.b    $3C
+    dc.b    $3D
+    dc.b    $3E
+    dc.b    $3F
+    dc.b    $56
+    dc.b    $37
+    dc.b    $37
+    dc.b    $57
+    dc.b    $58
+    dc.b    $59
+    dc.b    $5A
+    dc.b    $37
+    dc.b    $37
+    dc.b    $5F
+    dc.b    $76
+    dc.b    $37
+    dc.b    $37
+    dc.b    $77
+    dc.b    $78
+    dc.b    $79
+    dc.b    $7A
+    dc.b    $37
+    dc.b    $37
+    dc.b    $7F
+    dc.b    $96
+    dc.b    $37
+    dc.b    $37
+    dc.b    $97
+    dc.b    $98
+    dc.b    $99
+    dc.b    $9A
+    dc.b    $37
+    dc.b    $37
+    dc.b    $9F
+    dc.b    $B6
+    dc.b    $37
+    dc.b    $37
+    dc.b    $B7
+    dc.b    $B8
+    dc.b    $B9
+    dc.b    $BA
+    dc.b    $37
+    dc.b    $37
+    dc.b    $BF
+    dc.b    $D6
+    dc.b    $D7
+    dc.b    $D8
+    dc.b    $D9
+    dc.b    $DA
+    dc.b    $DB
+    dc.b    $DC
+    dc.b    $DD
+    dc.b    $DE
+    dc.b    $DF
+
 loc_00016878:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $68, $BC, $00, $01, $68, $D4, $00, $01, $68, $EC, $00, $01, $69, $04, $00, $01, $69, $0C, $00, $01, $69, $14 ;0x0 (0x00016878-0x00016982, Entry count: 0x10A) [Unknown data]
-	dc.b	$00, $01, $69, $1C, $00, $01, $69, $2E, $00, $01, $69, $40, $00, $01, $69, $52, $00, $01, $69, $5A, $00, $01, $69, $62, $00, $01, $69, $6A, $00, $01, $69, $72 ;0x20
-	dc.b	$00, $01, $69, $7A, $00, $05, $00, $02, $C6, $A2, $22, $23, $24, $25, $26, $27, $42, $43, $44, $45, $46, $47, $62, $63, $64, $65, $66, $67, $00, $05, $00, $02 ;0x40
-	dc.b	$C6, $A2, $0A, $0B, $0C, $0D, $0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $4A, $4B, $4C, $4D, $4E, $4F, $00, $05, $00, $02, $C6, $A2, $6A, $6B, $6C, $6D, $6E, $6F ;0x60
-	dc.b	$8A, $8B, $8C, $8D, $8E, $8F, $AA, $AB, $AC, $AD, $AE, $AF, $00, $01, $00, $00, $C8, $26, $84, $85, $00, $01, $00, $00, $C8, $26, $CA, $CB, $00, $01, $00, $00 ;0x80
-	dc.b	$C8, $26, $EA, $EB, $00, $05, $00, $01, $C7, $22, $10, $11, $12, $13, $14, $15, $30, $31, $32, $33, $34, $35, $00, $05, $00, $01, $C7, $22, $50, $51, $52, $53 ;0xA0
-	dc.b	$54, $55, $70, $71, $72, $73, $74, $75, $00, $05, $00, $01, $C7, $22, $90, $91, $92, $93, $94, $95, $AA, $AB, $AC, $AD, $AE, $AF, $00, $01, $00, $00, $C8, $26 ;0xC0
-	dc.b	$B0, $B1, $00, $01, $00, $00, $C8, $26, $D0, $D1, $00, $01, $00, $00, $C8, $26, $F0, $F1, $00, $01, $00, $00, $C8, $26, $B2, $B3, $00, $01, $00, $00, $C8, $26 ;0xE0
-	dc.b	$D2, $D3, $00, $01, $00, $00, $C8, $26, $F2, $F3 ;0x100
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_000168BC
+    dc.l    loc_000168D4
+    dc.l    loc_000168EC
+    dc.l    loc_00016904
+    dc.l    loc_0001690C
+    dc.l    loc_00016914
+    dc.l    loc_0001691C
+    dc.l    loc_0001692E
+    dc.l    loc_00016940
+    dc.l    loc_00016952
+    dc.l    loc_0001695A
+    dc.l    loc_00016962
+    dc.l    loc_0001696A
+    dc.l    loc_00016972
+    dc.l    loc_0001697A
+loc_000168BC:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+loc_000168D4:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+loc_000168EC:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+loc_00016904:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $84
+    dc.b    $85
+loc_0001690C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $CA
+    dc.b    $CB
+loc_00016914:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $EA
+    dc.b    $EB
+loc_0001691C:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+loc_0001692E:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+loc_00016940:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $94
+    dc.b    $95
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+loc_00016952:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $B0
+    dc.b    $B1
+loc_0001695A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $D0
+    dc.b    $D1
+loc_00016962:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $F0
+    dc.b    $F1
+loc_0001696A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $B2
+    dc.b    $B3
+loc_00016972:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $D2
+    dc.b    $D3
+loc_0001697A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $F2
+    dc.b    $F3
+
 loc_00016982:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $69, $A2, $00, $01, $69, $BA, $00, $01, $69, $D2, $00, $01, $69, $EA, $00, $01, $6A, $0C, $00, $01, $6A, $24 ;0x0 (0x00016982-0x00016A3C, Entry count: 0xBA) [Unknown data]
-	dc.b	$00, $05, $00, $02, $C7, $A0, $61, $62, $63, $64, $65, $66, $81, $82, $83, $84, $85, $86, $A1, $A2, $A3, $A4, $A5, $A6, $00, $05, $00, $02, $C7, $A0, $0A, $0B ;0x20
-	dc.b	$0C, $0D, $0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $4A, $4B, $4C, $4D, $4E, $4F, $00, $05, $00, $02, $C7, $A0, $0A, $0B, $0C, $0D, $0E, $0F, $6A, $6B, $6C, $6D ;0x40
-	dc.b	$6E, $6F, $8A, $8B, $8C, $8D, $8E, $8F, $00, $06, $00, $03, $C7, $A0, $10, $11, $12, $13, $14, $15, $90, $30, $31, $32, $33, $34, $35, $B0, $50, $51, $52, $53 ;0x60
-	dc.b	$54, $55, $D0, $70, $71, $72, $73, $74, $75, $F0, $00, $05, $00, $02, $C7, $A0, $AA, $AB, $AC, $AD, $AE, $AF, $CA, $CB, $CC, $CD, $CE, $CF, $EA, $EB, $EC, $ED ;0x80
-	dc.b	$EE, $EF, $00, $05, $00, $02, $C7, $A0, $AA, $AB, $AC, $AD, $AE, $AF, $6A, $6B, $6C, $6D, $6E, $6F, $8A, $8B, $8C, $8D, $8E, $8F ;0xA0
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_000169A2
+    dc.l    loc_000169BA
+    dc.l    loc_000169D2
+    dc.l    loc_000169EA
+    dc.l    loc_00016A0C
+    dc.l    loc_00016A24
+loc_000169A2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $61
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $81
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+loc_000169BA:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+loc_000169D2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+loc_000169EA:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $90
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+    dc.b    $B0
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $D0
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+    dc.b    $F0
+loc_00016A0C:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $EF
+loc_00016A24:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C7
+    dc.b    $A0
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+
 loc_00016A3C:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $6A, $74, $00, $01, $6A, $86, $00, $01, $6A, $98, $00, $01, $6A, $AA, $00, $01, $6A, $B6, $00, $01, $6A, $C2 ;0x0 (0x00016A3C-0x00016B28, Entry count: 0xEC) [Unknown data]
-	dc.b	$00, $01, $6A, $CE, $00, $01, $6A, $DA, $00, $01, $6A, $E6, $00, $01, $6A, $F2, $00, $01, $6B, $04, $00, $01, $6B, $16, $00, $05, $00, $01, $C7, $24, $43, $44 ;0x20
-	dc.b	$45, $46, $47, $48, $63, $64, $65, $66, $67, $68, $00, $05, $00, $01, $C7, $24, $0A, $0B, $0C, $0D, $0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $00, $05, $00, $01 ;0x40
-	dc.b	$C7, $24, $4A, $4B, $4C, $4D, $4E, $4F, $6A, $6B, $6C, $6D, $6E, $6F, $00, $02, $00, $01, $C8, $26, $84, $85, $86, $A4, $A5, $A6, $00, $02, $00, $01, $C8, $26 ;0x60
-	dc.b	$10, $11, $12, $30, $31, $32, $00, $02, $00, $01, $C8, $26, $50, $51, $52, $70, $71, $72, $00, $02, $00, $01, $C8, $26, $13, $14, $15, $33, $34, $35, $00, $02 ;0x80
-	dc.b	$00, $01, $C8, $26, $53, $54, $55, $73, $74, $75, $00, $02, $00, $01, $C8, $26, $93, $94, $95, $B3, $B4, $B5, $00, $05, $00, $01, $C7, $24, $8A, $8B, $8C, $8D ;0xA0
-	dc.b	$8E, $8F, $AA, $AB, $AC, $AD, $AE, $AF, $00, $05, $00, $01, $C7, $24, $CA, $CB, $CC, $CD, $CE, $CF, $2A, $2B, $2C, $2D, $2E, $2F, $00, $05, $00, $01, $C7, $24 ;0xC0
-	dc.b	$EA, $EB, $EC, $ED, $EE, $EF, $6A, $6B, $6C, $6D, $6E, $6F ;0xE0
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016A74
+    dc.l    loc_00016A86
+    dc.l    loc_00016A98
+    dc.l    loc_00016AAA
+    dc.l    loc_00016AB6
+    dc.l    loc_00016AC2
+    dc.l    loc_00016ACE
+    dc.l    loc_00016ADA
+    dc.l    loc_00016AE6
+    dc.l    loc_00016AF2
+    dc.l    loc_00016B04
+    dc.l    loc_00016B16
+loc_00016A74:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $48
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $68
+loc_00016A86:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+loc_00016A98:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+loc_00016AAA:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+loc_00016AB6:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+loc_00016AC2:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+loc_00016ACE:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+loc_00016ADA:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+loc_00016AE6:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $26
+    dc.b    $93
+    dc.b    $94
+    dc.b    $95
+    dc.b    $B3
+    dc.b    $B4
+    dc.b    $B5
+loc_00016AF2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+loc_00016B04:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+loc_00016B16:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $24
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+    dc.b    $EF
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+
 loc_00016B28:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $6B, $54, $00, $01, $6B, $72, $00, $01, $6B, $90, $00, $01, $6B, $AE, $00, $01, $6B, $D8, $00, $01, $6C, $02 ;0x0 (0x00016B28-0x00016CCE, Entry count: 0x1A6) [Unknown data]
-	dc.b	$00, $01, $6C, $2C, $00, $01, $6C, $62, $00, $01, $6C, $98, $00, $05, $00, $03, $C6, $A2, $22, $23, $24, $25, $26, $27, $42, $43, $44, $45, $46, $47, $62, $63 ;0x20
-	dc.b	$64, $65, $66, $67, $82, $83, $84, $85, $86, $87, $00, $05, $00, $03, $C6, $A2, $22, $23, $24, $0C, $0D, $0E, $42, $43, $44, $2C, $2D, $2E, $0A, $0B, $64, $4C ;0x40
-	dc.b	$4D, $4E, $2A, $2B, $84, $85, $86, $87, $00, $05, $00, $03, $C6, $A2, $22, $23, $24, $6C, $6D, $6E, $42, $43, $44, $8C, $8D, $8E, $4A, $4B, $64, $AC, $AD, $AE ;0x60
-	dc.b	$6A, $6B, $84, $85, $86, $87, $00, $06, $00, $04, $C7, $1E, $40, $41, $42, $43, $44, $45, $46, $60, $61, $62, $63, $64, $65, $66, $80, $81, $82, $83, $84, $85 ;0x80
-	dc.b	$86, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $C0, $C1, $C2, $C3, $C4, $C5, $C6, $00, $00, $06, $00, $04, $C7, $1E, $40, $41, $42, $43, $44, $45, $46, $0F, $10, $11 ;0xA0
-	dc.b	$12, $13, $14, $15, $2F, $30, $31, $32, $33, $34, $35, $4F, $50, $51, $52, $53, $54, $55, $6F, $70, $71, $72, $73, $74, $75, $00, $00, $06, $00, $04, $C7, $1E ;0xC0
-	dc.b	$8F, $90, $91, $92, $93, $94, $95, $AF, $B0, $B1, $B2, $B3, $B4, $B5, $CF, $D0, $D1, $D2, $D3, $D4, $D5, $EF, $F0, $F1, $F2, $F3, $F4, $F5, $F6, $F7, $F8, $F9 ;0xE0
-	dc.b	$FA, $FB, $FC, $00, $00, $07, $00, $05, $C6, $9E, $20, $21, $22, $23, $24, $6C, $6D, $6E, $40, $41, $42, $43, $8A, $8B, $8D, $8E, $60, $61, $62, $63, $AA, $AB ;0x100
-	dc.b	$AD, $AE, $80, $81, $82, $83, $84, $85, $86, $87, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $C0, $C1, $C2, $C3, $C4, $C5, $C6, $C7, $00, $07, $00, $05, $C6, $9E ;0x120
-	dc.b	$20, $21, $22, $23, $24, $6C, $6D, $6E, $40, $41, $42, $43, $8A, $8B, $8D, $8E, $0F, $10, $11, $12, $AA, $AB, $AD, $AE, $2F, $30, $31, $32, $33, $34, $35, $87 ;0x140
-	dc.b	$4F, $50, $51, $52, $53, $54, $55, $A7, $6F, $70, $71, $72, $73, $74, $75, $C7, $00, $07, $00, $05, $C6, $9E, $20, $21, $22, $23, $24, $6C, $6D, $6E, $8F, $90 ;0x160
-	dc.b	$91, $92, $8A, $8B, $8D, $8E, $AF, $B0, $B1, $B2, $AA, $AB, $AD, $AE, $CF, $D0, $D1, $D2, $D3, $D4, $D5, $87, $EF, $F0, $F1, $F2, $F3, $F4, $F5, $A7, $F6, $F7 ;0x180
-	dc.b	$F8, $F9, $FA, $FB, $FC, $C7 ;0x1A0
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016B54
+    dc.l    loc_00016B72
+    dc.l    loc_00016B90
+    dc.l    loc_00016BAE
+    dc.l    loc_00016BD8
+    dc.l    loc_00016C02
+    dc.l    loc_00016C2C
+    dc.l    loc_00016C62
+    dc.l    loc_00016C98
+loc_00016B54:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+loc_00016B72:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $64
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+loc_00016B90:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $64
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+loc_00016BAE:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $04
+    dc.b    $C7
+    dc.b    $1E
+    dc.b    $40
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $60
+    dc.b    $61
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $80
+    dc.b    $81
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $C0
+    dc.b    $C1
+    dc.b    $C2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $00
+loc_00016BD8:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $04
+    dc.b    $C7
+    dc.b    $1E
+    dc.b    $40
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+    dc.b    $00
+loc_00016C02:
+    dc.b    $00
+    dc.b    $06
+    dc.b    $00
+    dc.b    $04
+    dc.b    $C7
+    dc.b    $1E
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $94
+    dc.b    $95
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $B3
+    dc.b    $B4
+    dc.b    $B5
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $F6
+    dc.b    $F7
+    dc.b    $F8
+    dc.b    $F9
+    dc.b    $FA
+    dc.b    $FB
+    dc.b    $FC
+    dc.b    $00
+loc_00016C2C:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $9E
+    dc.b    $20
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $40
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $60
+    dc.b    $61
+    dc.b    $62
+    dc.b    $63
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $80
+    dc.b    $81
+    dc.b    $82
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+    dc.b    $A0
+    dc.b    $A1
+    dc.b    $A2
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $A7
+    dc.b    $C0
+    dc.b    $C1
+    dc.b    $C2
+    dc.b    $C3
+    dc.b    $C4
+    dc.b    $C5
+    dc.b    $C6
+    dc.b    $C7
+loc_00016C62:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $9E
+    dc.b    $20
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $40
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+    dc.b    $87
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $A7
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+    dc.b    $C7
+loc_00016C98:
+    dc.b    $00
+    dc.b    $07
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $9E
+    dc.b    $20
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $87
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+    dc.b    $F4
+    dc.b    $F5
+    dc.b    $A7
+    dc.b    $F6
+    dc.b    $F7
+    dc.b    $F8
+    dc.b    $F9
+    dc.b    $FA
+    dc.b    $FB
+    dc.b    $FC
+    dc.b    $C7
+
 loc_00016CCE:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $6D, $22, $00, $01, $6D, $38, $00, $01, $6D, $4E, $00, $01, $6D, $64, $00, $01, $6D, $7A, $00, $01, $6D, $90 ;0x0 (0x00016CCE-0x00016E4C, Entry count: 0x17E) [Unknown data]
-	dc.b	$00, $01, $6D, $A6, $00, $01, $6D, $BC, $00, $01, $6D, $D2, $00, $01, $6D, $E8, $00, $01, $6D, $F2, $00, $01, $6D, $FC, $00, $01, $6E, $06, $00, $01, $6E, $10 ;0x20
-	dc.b	$00, $01, $6E, $1A, $00, $01, $6E, $24, $00, $01, $6E, $2E, $00, $01, $6E, $38, $00, $01, $6E, $42, $00, $04, $00, $02, $C6, $A2, $22, $23, $24, $25, $26, $42 ;0x40
-	dc.b	$43, $44, $45, $46, $62, $63, $64, $65, $66, $00, $00, $04, $00, $02, $C6, $A2, $0A, $0B, $0C, $0D, $0E, $2A, $2B, $2C, $2D, $2E, $4A, $4B, $4C, $65, $66, $00 ;0x60
-	dc.b	$00, $04, $00, $02, $C6, $A2, $0A, $0B, $0C, $0D, $0E, $6A, $6B, $6C, $6D, $6E, $8A, $8B, $8C, $65, $66, $00, $00, $04, $00, $02, $C6, $A2, $0F, $10, $11, $12 ;0x80
-	dc.b	$13, $2F, $30, $31, $32, $33, $4F, $50, $51, $14, $15, $00, $00, $04, $00, $02, $C6, $A2, $6F, $70, $71, $72, $73, $8F, $90, $91, $92, $93, $AF, $B0, $B1, $14 ;0xA0
-	dc.b	$15, $00, $00, $04, $00, $02, $C6, $A2, $6F, $70, $71, $72, $73, $CF, $D0, $D1, $D2, $D3, $EF, $F0, $F1, $14, $15, $00, $00, $04, $00, $02, $C6, $A2, $0F, $10 ;0xC0
-	dc.b	$11, $12, $13, $2F, $30, $31, $32, $33, $4F, $50, $51, $D4, $D5, $00, $00, $04, $00, $02, $C6, $A2, $6F, $70, $71, $72, $73, $8F, $90, $91, $92, $93, $AF, $B0 ;0xE0
-	dc.b	$B1, $D4, $D5, $00, $00, $04, $00, $02, $C6, $A2, $6F, $70, $71, $72, $73, $CF, $D0, $D1, $D2, $D3, $EF, $F0, $F1, $D4, $D5, $00, $00, $01, $00, $01, $C7, $A8 ;0x100
-	dc.b	$65, $66, $85, $86, $00, $01, $00, $01, $C7, $A8, $AA, $AB, $CA, $CB, $00, $01, $00, $01, $C7, $A8, $AC, $AD, $CC, $CD, $00, $01, $00, $01, $C7, $A8, $14, $15 ;0x120
-	dc.b	$34, $35, $00, $01, $00, $01, $C7, $A8, $54, $55, $74, $75, $00, $01, $00, $01, $C7, $A8, $94, $95, $B4, $B5, $00, $01, $00, $01, $C7, $A8, $D4, $D5, $F4, $F5 ;0x140
-	dc.b	$00, $02, $00, $00, $C7, $A6, $7A, $7B, $7C, $00, $00, $02, $00, $00, $C7, $A6, $E0, $E1, $E2, $00, $00, $02, $00, $00, $C7, $A6, $E3, $E4, $E5, $00 ;0x160
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016D22
+    dc.l    loc_00016D38
+    dc.l    loc_00016D4E
+    dc.l    loc_00016D64
+    dc.l    loc_00016D7A
+    dc.l    loc_00016D90
+    dc.l    loc_00016DA6
+    dc.l    loc_00016DBC
+    dc.l    loc_00016DD2
+    dc.l    loc_00016DE8
+    dc.l    loc_00016DF2
+    dc.l    loc_00016DFC
+    dc.l    loc_00016E06
+    dc.l    loc_00016E10
+    dc.l    loc_00016E1A
+    dc.l    loc_00016E24
+    dc.l    loc_00016E2E
+    dc.l    loc_00016E38
+    dc.l    loc_00016E42
+loc_00016D22:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $00
+loc_00016D38:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $65
+    dc.b    $66
+    dc.b    $00
+loc_00016D4E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $65
+    dc.b    $66
+    dc.b    $00
+loc_00016D64:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $14
+    dc.b    $15
+    dc.b    $00
+loc_00016D7A:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $14
+    dc.b    $15
+    dc.b    $00
+loc_00016D90:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $14
+    dc.b    $15
+    dc.b    $00
+loc_00016DA6:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0F
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $2F
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $4F
+    dc.b    $50
+    dc.b    $51
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $00
+loc_00016DBC:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $8F
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $00
+loc_00016DD2:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $6F
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $00
+loc_00016DE8:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $65
+    dc.b    $66
+    dc.b    $85
+    dc.b    $86
+loc_00016DF2:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $CA
+    dc.b    $CB
+loc_00016DFC:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $CC
+    dc.b    $CD
+loc_00016E06:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $14
+    dc.b    $15
+    dc.b    $34
+    dc.b    $35
+loc_00016E10:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $54
+    dc.b    $55
+    dc.b    $74
+    dc.b    $75
+loc_00016E1A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $94
+    dc.b    $95
+    dc.b    $B4
+    dc.b    $B5
+loc_00016E24:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $D4
+    dc.b    $D5
+    dc.b    $F4
+    dc.b    $F5
+loc_00016E2E:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $7A
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $00
+loc_00016E38:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $E0
+    dc.b    $E1
+    dc.b    $E2
+    dc.b    $00
+loc_00016E42:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $00
+    dc.b    $C7
+    dc.b    $A6
+    dc.b    $E3
+    dc.b    $E4
+    dc.b    $E5
+    dc.b    $00
+
 loc_00016E4C:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $6E, $74, $00, $01, $6E, $80, $00, $01, $6E, $8C, $00, $01, $6E, $98, $00, $01, $6E, $A4, $00, $01, $6E, $BE ;0x0 (0x00016E4C-0x00016F26, Entry count: 0xDA) [Unknown data]
-	dc.b	$00, $01, $6E, $FA, $00, $01, $6F, $10, $00, $01, $00, $02, $C6, $AC, $27, $28, $47, $48, $67, $68, $00, $01, $00, $02, $C6, $AC, $0A, $0B, $2A, $2B, $4A, $4B ;0x20
-	dc.b	$00, $01, $00, $02, $C6, $AC, $0C, $0D, $2C, $2D, $4C, $4D, $00, $01, $00, $02, $C6, $AC, $0E, $0F, $2E, $2F, $4E, $4F, $00, $04, $00, $03, $C7, $A8, $6A, $6B ;0x40
-	dc.b	$6C, $6D, $6E, $8A, $8B, $8C, $8D, $8E, $AA, $AB, $AC, $AD, $AE, $CA, $CB, $CC, $CD, $CE, $00, $08, $00, $05, $C6, $20, $01, $02, $03, $04, $05, $06, $07, $13 ;0x60
-	dc.b	$14, $21, $22, $23, $24, $25, $26, $27, $33, $34, $41, $42, $43, $44, $45, $46, $47, $53, $54, $61, $62, $63, $64, $65, $66, $67, $68, $69, $10, $11, $12, $84 ;0x80
-	dc.b	$85, $86, $87, $88, $89, $30, $31, $32, $A4, $A5, $A6, $A7, $A8, $A9, $00, $03, $00, $03, $C7, $2A, $46, $2E, $2F, $49, $66, $4E, $4F, $69, $86, $87, $88, $89 ;0xA0
-	dc.b	$A6, $A7, $A8, $A9, $00, $03, $00, $03, $C7, $2A, $46, $2E, $71, $72, $66, $4E, $91, $92, $AF, $B0, $B1, $B2, $CF, $D0, $D1, $D2 ;0xC0
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016E74
+    dc.l    loc_00016E80
+    dc.l    loc_00016E8C
+    dc.l    loc_00016E98
+    dc.l    loc_00016EA4
+    dc.l    loc_00016EBE
+    dc.l    loc_00016EFA
+    dc.l    loc_00016F10
+loc_00016E74:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $AC
+    dc.b    $27
+    dc.b    $28
+    dc.b    $47
+    dc.b    $48
+    dc.b    $67
+    dc.b    $68
+loc_00016E80:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $AC
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $4A
+    dc.b    $4B
+loc_00016E8C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $AC
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $4C
+    dc.b    $4D
+loc_00016E98:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $AC
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $4E
+    dc.b    $4F
+loc_00016EA4:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $A8
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+loc_00016EBE:
+    dc.b    $00
+    dc.b    $08
+    dc.b    $00
+    dc.b    $05
+    dc.b    $C6
+    dc.b    $20
+    dc.b    $01
+    dc.b    $02
+    dc.b    $03
+    dc.b    $04
+    dc.b    $05
+    dc.b    $06
+    dc.b    $07
+    dc.b    $13
+    dc.b    $14
+    dc.b    $21
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $33
+    dc.b    $34
+    dc.b    $41
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $53
+    dc.b    $54
+    dc.b    $61
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+    dc.b    $68
+    dc.b    $69
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $84
+    dc.b    $85
+    dc.b    $86
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $A4
+    dc.b    $A5
+    dc.b    $A6
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_00016EFA:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $2A
+    dc.b    $46
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $49
+    dc.b    $66
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $69
+    dc.b    $86
+    dc.b    $87
+    dc.b    $88
+    dc.b    $89
+    dc.b    $A6
+    dc.b    $A7
+    dc.b    $A8
+    dc.b    $A9
+loc_00016F10:
+    dc.b    $00
+    dc.b    $03
+    dc.b    $00
+    dc.b    $03
+    dc.b    $C7
+    dc.b    $2A
+    dc.b    $46
+    dc.b    $2E
+    dc.b    $71
+    dc.b    $72
+    dc.b    $66
+    dc.b    $4E
+    dc.b    $91
+    dc.b    $92
+    dc.b    $AF
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+
 loc_00016F26:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $6F, $6A, $00, $01, $6F, $82, $00, $01, $6F, $9A, $00, $01, $6F, $B2, $00, $01, $6F, $CA, $00, $01, $6F, $E2 ;0x0 (0x00016F26-0x0001705A, Entry count: 0x134) [Unknown data]
-	dc.b	$00, $01, $6F, $FA, $00, $01, $70, $04, $00, $01, $70, $0E, $00, $01, $70, $18, $00, $01, $70, $22, $00, $01, $70, $2C, $00, $01, $70, $36, $00, $01, $70, $42 ;0x20
-	dc.b	$00, $01, $70, $4E, $00, $05, $00, $02, $C6, $A2, $22, $23, $24, $25, $26, $27, $42, $43, $44, $45, $46, $47, $62, $63, $64, $65, $66, $67, $00, $05, $00, $02 ;0x40
-	dc.b	$C6, $A2, $0A, $0B, $0C, $0D, $0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $4A, $4B, $4C, $4D, $4E, $4F, $00, $05, $00, $02, $C6, $A2, $0A, $0B, $0C, $0D, $0E, $0F ;0x60
-	dc.b	$6A, $6B, $6C, $6D, $6E, $6F, $8A, $8B, $8C, $8D, $8E, $8F, $00, $05, $00, $02, $C6, $A2, $10, $11, $12, $13, $14, $15, $30, $31, $32, $33, $34, $35, $50, $51 ;0x80
-	dc.b	$52, $53, $54, $55, $00, $05, $00, $02, $C6, $A2, $10, $11, $12, $13, $14, $15, $70, $71, $72, $73, $74, $75, $4A, $4B, $4C, $4D, $4E, $4F, $00, $05, $00, $02 ;0xA0
-	dc.b	$C6, $A2, $10, $11, $12, $13, $14, $15, $90, $91, $92, $93, $94, $95, $8A, $8B, $8C, $8D, $8E, $8F, $00, $01, $00, $01, $C7, $A4, $63, $64, $83, $84, $00, $01 ;0xC0
-	dc.b	$00, $01, $C7, $A4, $63, $64, $AA, $AB, $00, $01, $00, $01, $C7, $A4, $CA, $CB, $EA, $EB, $00, $01, $00, $01, $C7, $A4, $51, $52, $AC, $AD, $00, $01, $00, $01 ;0xE0
-	dc.b	$C7, $A4, $51, $52, $AE, $AF, $00, $01, $00, $01, $C7, $A4, $CE, $CF, $EE, $EF, $00, $02, $00, $01, $C7, $A4, $51, $52, $53, $CC, $CD, $85, $00, $02, $00, $01 ;0x100
-	dc.b	$C7, $A4, $51, $52, $53, $B0, $B1, $B2, $00, $02, $00, $01, $C7, $A4, $D0, $D1, $D2, $F0, $F1, $F2 ;0x120
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_00016F6A
+    dc.l    loc_00016F82
+    dc.l    loc_00016F9A
+    dc.l    loc_00016FB2
+    dc.l    loc_00016FCA
+    dc.l    loc_00016FE2
+    dc.l    loc_00016FFA
+    dc.l    loc_00017004
+    dc.l    loc_0001700E
+    dc.l    loc_00017018
+    dc.l    loc_00017022
+    dc.l    loc_0001702C
+    dc.l    loc_00017036
+    dc.l    loc_00017042
+    dc.l    loc_0001704E
+loc_00016F6A:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $22
+    dc.b    $23
+    dc.b    $24
+    dc.b    $25
+    dc.b    $26
+    dc.b    $27
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+loc_00016F82:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+loc_00016F9A:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+loc_00016FB2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+loc_00016FCA:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+loc_00016FE2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $02
+    dc.b    $C6
+    dc.b    $A2
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $93
+    dc.b    $94
+    dc.b    $95
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+loc_00016FFA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $63
+    dc.b    $64
+    dc.b    $83
+    dc.b    $84
+loc_00017004:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $63
+    dc.b    $64
+    dc.b    $AA
+    dc.b    $AB
+loc_0001700E:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $EA
+    dc.b    $EB
+loc_00017018:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $51
+    dc.b    $52
+    dc.b    $AC
+    dc.b    $AD
+loc_00017022:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $51
+    dc.b    $52
+    dc.b    $AE
+    dc.b    $AF
+loc_0001702C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $CE
+    dc.b    $CF
+    dc.b    $EE
+    dc.b    $EF
+loc_00017036:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $85
+loc_00017042:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $51
+    dc.b    $52
+    dc.b    $53
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+loc_0001704E:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+
 loc_0001705A:
-	dc.b	$00, $01, $5D, $AE, $00, $01, $5D, $FA, $00, $01, $70, $9E, $00, $01, $70, $B0, $00, $01, $70, $C2, $00, $01, $70, $D4, $00, $01, $70, $E0, $00, $01, $70, $EC ;0x0 (0x0001705A-0x00017170, Entry count: 0x116) [Unknown data]
-	dc.b	$00, $01, $70, $F8, $00, $01, $71, $04, $00, $01, $71, $10, $00, $01, $71, $1C, $00, $01, $71, $28, $00, $01, $71, $34, $00, $01, $71, $40, $00, $01, $71, $50 ;0x20
-	dc.b	$00, $01, $71, $60, $00, $05, $00, $01, $C7, $22, $42, $43, $44, $45, $46, $47, $62, $63, $64, $65, $66, $67, $00, $05, $00, $01, $C7, $22, $0A, $0B, $0C, $0D ;0x40
-	dc.b	$0E, $0F, $2A, $2B, $2C, $2D, $2E, $2F, $00, $05, $00, $01, $C7, $22, $4A, $4B, $4C, $4D, $4E, $4F, $6A, $6B, $6C, $6D, $6E, $6F, $00, $02, $00, $01, $C8, $24 ;0x60
-	dc.b	$83, $84, $85, $A3, $A4, $A5, $00, $02, $00, $01, $C8, $24, $8A, $8B, $8C, $AA, $AB, $AC, $00, $02, $00, $01, $C8, $24, $8D, $8E, $8F, $AD, $AE, $AF, $00, $02 ;0x80
-	dc.b	$00, $01, $C8, $24, $10, $11, $12, $30, $31, $32, $00, $02, $00, $01, $C8, $24, $50, $51, $52, $70, $71, $72, $00, $02, $00, $01, $C8, $24, $90, $91, $92, $B0 ;0xA0
-	dc.b	$B1, $B2, $00, $02, $00, $01, $C8, $24, $13, $14, $15, $33, $34, $35, $00, $02, $00, $01, $C8, $24, $53, $54, $55, $73, $74, $75, $00, $02, $00, $01, $C8, $24 ;0xC0
-	dc.b	$93, $94, $95, $B3, $B4, $B5, $00, $04, $00, $01, $C7, $A4, $79, $7A, $7B, $7C, $7D, $99, $9A, $9B, $9C, $9D, $00, $04, $00, $01, $C7, $A4, $CA, $CB, $CC, $CD ;0xE0
-	dc.b	$CE, $EA, $EB, $EC, $ED, $EE, $00, $04, $00, $01, $C7, $A4, $CF, $D0, $D1, $D2, $D3, $EF, $F0, $F1, $F2, $F3 ;0x100
+    dc.l    loc_00015DAE
+    dc.l    loc_00015DFA
+    dc.l    loc_0001709E
+    dc.l    loc_000170B0
+    dc.l    loc_000170C2
+    dc.l    loc_000170D4
+    dc.l    loc_000170E0
+    dc.l    loc_000170EC
+    dc.l    loc_000170F8
+    dc.l    loc_00017104
+    dc.l    loc_00017110
+    dc.l    loc_0001711C
+    dc.l    loc_00017128
+    dc.l    loc_00017134
+    dc.l    loc_00017140
+    dc.l    loc_00017150
+    dc.l    loc_00017160
+loc_0001709E:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $42
+    dc.b    $43
+    dc.b    $44
+    dc.b    $45
+    dc.b    $46
+    dc.b    $47
+    dc.b    $62
+    dc.b    $63
+    dc.b    $64
+    dc.b    $65
+    dc.b    $66
+    dc.b    $67
+loc_000170B0:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $0A
+    dc.b    $0B
+    dc.b    $0C
+    dc.b    $0D
+    dc.b    $0E
+    dc.b    $0F
+    dc.b    $2A
+    dc.b    $2B
+    dc.b    $2C
+    dc.b    $2D
+    dc.b    $2E
+    dc.b    $2F
+loc_000170C2:
+    dc.b    $00
+    dc.b    $05
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $22
+    dc.b    $4A
+    dc.b    $4B
+    dc.b    $4C
+    dc.b    $4D
+    dc.b    $4E
+    dc.b    $4F
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $6C
+    dc.b    $6D
+    dc.b    $6E
+    dc.b    $6F
+loc_000170D4:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $83
+    dc.b    $84
+    dc.b    $85
+    dc.b    $A3
+    dc.b    $A4
+    dc.b    $A5
+loc_000170E0:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $8A
+    dc.b    $8B
+    dc.b    $8C
+    dc.b    $AA
+    dc.b    $AB
+    dc.b    $AC
+loc_000170EC:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $8D
+    dc.b    $8E
+    dc.b    $8F
+    dc.b    $AD
+    dc.b    $AE
+    dc.b    $AF
+loc_000170F8:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $10
+    dc.b    $11
+    dc.b    $12
+    dc.b    $30
+    dc.b    $31
+    dc.b    $32
+loc_00017104:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $50
+    dc.b    $51
+    dc.b    $52
+    dc.b    $70
+    dc.b    $71
+    dc.b    $72
+loc_00017110:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $90
+    dc.b    $91
+    dc.b    $92
+    dc.b    $B0
+    dc.b    $B1
+    dc.b    $B2
+loc_0001711C:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $13
+    dc.b    $14
+    dc.b    $15
+    dc.b    $33
+    dc.b    $34
+    dc.b    $35
+loc_00017128:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $53
+    dc.b    $54
+    dc.b    $55
+    dc.b    $73
+    dc.b    $74
+    dc.b    $75
+loc_00017134:
+    dc.b    $00
+    dc.b    $02
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C8
+    dc.b    $24
+    dc.b    $93
+    dc.b    $94
+    dc.b    $95
+    dc.b    $B3
+    dc.b    $B4
+    dc.b    $B5
+loc_00017140:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $79
+    dc.b    $7A
+    dc.b    $7B
+    dc.b    $7C
+    dc.b    $7D
+    dc.b    $99
+    dc.b    $9A
+    dc.b    $9B
+    dc.b    $9C
+    dc.b    $9D
+loc_00017150:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $CA
+    dc.b    $CB
+    dc.b    $CC
+    dc.b    $CD
+    dc.b    $CE
+    dc.b    $EA
+    dc.b    $EB
+    dc.b    $EC
+    dc.b    $ED
+    dc.b    $EE
+loc_00017160:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C7
+    dc.b    $A4
+    dc.b    $CF
+    dc.b    $D0
+    dc.b    $D1
+    dc.b    $D2
+    dc.b    $D3
+    dc.b    $EF
+    dc.b    $F0
+    dc.b    $F1
+    dc.b    $F2
+    dc.b    $F3
+
 loc_00017170:
 	dc.l	loc_00017A98
 	dc.l	loc_00017C1C	;Predicted
@@ -20053,104 +30115,277 @@ loc_00017C06:
 	dc.l	loc_00018B10
 	dc.w	$2200
 	
-	
-	
-	; Very corrupted lookup tables ahead :<
-
 loc_00017C12:
-	dc.w    $0002	;Predicted
-	dc.l	loc_00017C78-2	;Predicted
-	dc.l	loc_00017C84-2	;Predicted
+	dc.b    $00
+    dc.b    $02
+    dc.l    loc_00017C76
+    dc.l    loc_00017C82
 loc_00017C1C:
-	dc.l	$000C0001	;Predicted
-	dc.l	$7C5E0001	;Predicted
-	dc.l	$7C6A0001	;Predicted
-	dc.l	$7C760001	;Predicted
-	dc.l	$7C820001	;Predicted
-	dc.l	$7C8E0001	;Predicted
-	dc.l	$7C9A0001	;Predicted
-	dc.l	$7CA60001	;Predicted
-	dc.l	$7CAE0001	;Predicted
-	dc.l	$7CB80001	;Predicted
-	dc.l	$7CC40001	;Predicted
-	dc.l	$7C4E0001	;Predicted
-	dc.l	$7C560000	;Predicted
-	dc.l	$2804C000	;Predicted
-	dc.l	$A1000000	;Predicted
-	dc.l	$2808E000	;Predicted
-	dc.l	$21000004	;Predicted
-	dc.l	$2008DC10	;Predicted
-	dc.l	loc_00018B16	;Predicted
-	dc.l	$A1000004	;Predicted
-	dc.l	$0808DC00	;Predicted
-	dc.l	loc_00018C16	;Predicted
-	dc.l	$A1000004	;Predicted
-loc_00017C78:
-	dc.l	$1514D226	;Predicted
-	dc.l	loc_00018C56	;Predicted
-	dc.l	$A1000004	;Predicted
-loc_00017C84:
-	dc.l	$1314D200	;Predicted
-	dc.l	loc_00018DFA	;Predicted
-	dc.l	$A2000004	;Predicted
-	dc.l	$200CF600	;Predicted
-	dc.l	loc_00018F76	;Predicted
-	dc.l	$62000004	;Predicted
-	dc.l	$080CF640	;Predicted
-	dc.l	loc_000190F6	;Predicted
-	dc.l	$62000000	;Predicted
-	dc.l	$2808FC00	;Predicted
-	dc.l	$62BC0008	;Predicted
-	dc.l	$0A03FABC	;Predicted
-	dc.l	loc_00019156	;Predicted
-	dc.l	loc_00040306	;Predicted
-	dc.l	$D6A60001	;Predicted
-	dc.l	$7CD02100	;Predicted
-	dc.l	loc_00040408	;Predicted
-	dc.l	$D59C0001	;Predicted
-	dc.l	$7CE22200	;Predicted
-	dc.l	$4647006A	;Predicted
-	dc.l	$6B009464	;Predicted
-	dc.l	$00975D00	;Predicted
-	dc.l	$82649BA1	;Predicted
-	dc.l	$6BA20020	;Predicted
-	dc.l	$00000000+$28-1	;Predicted
-	dc.l	$00000000+$2C-1	;Predicted
-	dc.l	$0020002C	;Predicted
-	dc.l	$0027002D	;Predicted
-	dc.l	$002D002D	;Predicted
-	dc.l	$002C0033	;Predicted
-	dc.l	$002D3839	;Predicted
-	dc.w	$002C
+    dc.b    $00
+    dc.b    $0C
+    dc.l    loc_00017C5E
+    dc.l    loc_00017C6A
+    dc.l    loc_00017C76
+    dc.l    loc_00017C82
+    dc.l    loc_00017C8E
+    dc.l    loc_00017C9A
+    dc.l    loc_00017CA6
+    dc.l    loc_00017CAE
+    dc.l    loc_00017CB8
+    dc.l    loc_00017CC4
+    dc.l    loc_00017C4E
+    dc.l    loc_00017C56
+loc_00017C4E:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $28
+    dc.b    $04
+    dc.b    $C0
+    dc.b    $00
+    dc.b    $A1
+    dc.b    $00
+loc_00017C56:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $28
+    dc.b    $08
+    dc.b    $E0
+    dc.b    $00
+    dc.b    $21
+    dc.b    $00
+loc_00017C5E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $20
+    dc.b    $08
+    dc.b    $DC
+    dc.b    $10
+    dc.l    loc_00018B16
+    dc.b    $A1
+    dc.b    $00
+loc_00017C6A:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $08
+    dc.b    $08
+    dc.b    $DC
+    dc.b    $00
+    dc.l    loc_00018C16
+    dc.b    $A1
+    dc.b    $00
+loc_00017C76:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $15
+    dc.b    $14
+    dc.b    $D2
+    dc.b    $26
+    dc.l    loc_00018C56
+    dc.b    $A1
+    dc.b    $00
+loc_00017C82:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $13
+    dc.b    $14
+    dc.b    $D2
+    dc.b    $00
+    dc.l    loc_00018DFA
+    dc.b    $A2
+    dc.b    $00
+loc_00017C8E:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $20
+    dc.b    $0C
+    dc.b    $F6
+    dc.b    $00
+    dc.l    loc_00018F76
+    dc.b    $62
+    dc.b    $00
+loc_00017C9A:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $08
+    dc.b    $0C
+    dc.b    $F6
+    dc.b    $40
+    dc.l    loc_000190F6
+    dc.b    $62
+    dc.b    $00
+loc_00017CA6:
+    dc.b    $00
+    dc.b    $00
+    dc.b    $28
+    dc.b    $08
+    dc.b    $FC
+    dc.b    $00
+    dc.b    $62
+    dc.b    $BC
+loc_00017CAE:
+    dc.b    $00
+    dc.b    $08
+    dc.b    $0A
+    dc.b    $03
+    dc.b    $FA
+    dc.b    $BC
+    dc.l    loc_00019156
+loc_00017CB8:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $03
+    dc.b    $06
+    dc.b    $D6
+    dc.b    $A6
+    dc.l    loc_00017CD0
+    dc.b    $21
+    dc.b    $00
+loc_00017CC4:
+    dc.b    $00
+    dc.b    $04
+    dc.b    $04
+    dc.b    $08
+    dc.b    $D5
+    dc.b    $9C
+    dc.l    loc_00017CE2
+    dc.b    $22
+    dc.b    $00
+loc_00017CD0:
+    dc.b    $46
+    dc.b    $47
+    dc.b    $00
+    dc.b    $6A
+    dc.b    $6B
+    dc.b    $00
+    dc.b    $94
+    dc.b    $64
+    dc.b    $00
+    dc.b    $97
+    dc.b    $5D
+    dc.b    $00
+    dc.b    $82
+    dc.b    $64
+    dc.b    $9B
+    dc.b    $A1
+    dc.b    $6B
+    dc.b    $A2
+loc_00017CE2:
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $27
+    dc.b    $00
+    dc.b    $00
+    dc.b    $00
+    dc.b    $2B
+    dc.b    $00
+    dc.b    $20
+    dc.b    $00
+    dc.b    $2C
+    dc.b    $00
+    dc.b    $27
+    dc.b    $00
+    dc.b    $2D
+    dc.b    $00
+    dc.b    $2D
+    dc.b    $00
+    dc.b    $2D
+    dc.b    $00
+    dc.b    $2C
+    dc.b    $00
+    dc.b    $33
+    dc.b    $00
+    dc.b    $2D
+    dc.b    $38
+    dc.b    $39
+    dc.b    $00
+    dc.b    $2C
+
+	
+	
 loc_00017D02:
-	dc.w    $0007	;Predicted
-	dc.l	loc_00017D20	;Predicted
-	dc.l	loc_00017D28	;Predicted
-	dc.l	loc_00017D34	;Predicted
-	dc.l	loc_00017D40	;Predicted
-	dc.l	loc_00017D4C	;Predicted
-	dc.l	loc_00017D58	;Predicted
-	dc.l	loc_00017D64	;Predicted
+    dc.b    $00
+    dc.b    $07
+    dc.l    loc_00017D20
+    dc.l    loc_00017D28
+    dc.l    loc_00017D34
+    dc.l    loc_00017D40
+    dc.l    loc_00017D4C
+    dc.l    loc_00017D58
+    dc.l    loc_00017D64
 loc_00017D20:
-	dc.l	loc_00004014-6	;Predicted
-	dc.l	$D200A200	;Predicted
+    dc.b    $00
+    dc.b    $00
+    dc.b    $40
+    dc.b    $0E
+    dc.b    $D2
+    dc.b    $00
+    dc.b    $A2
+    dc.b    $00
 loc_00017D28:
-	dc.l	loc_0004200F	;Predicted
-	dc.l	$D8900001	;Predicted
-	dc.l	$9192A100	;Predicted
+    dc.b    $00
+    dc.b    $04
+    dc.b    $20
+    dc.b    $0F
+    dc.b    $D8
+    dc.b    $90
+    dc.l    loc_00019192
+    dc.b    $A1
+    dc.b    $00
 loc_00017D34:
-	dc.l	loc_0004080E	;Predicted
-	dc.l	$D9000001	;Predicted
-	dc.l	$9372A100	;Predicted
+    dc.b    $00
+    dc.b    $04
+    dc.b    $08
+    dc.b    $0E
+    dc.b    $D9
+    dc.b    $00
+    dc.l    loc_00019372
+    dc.b    $A1
+    dc.b    $00
 loc_00017D40:
-	dc.l	loc_0004200E	;Predicted
-	dc.b	$F6, $40, $00, $01, $93, $E2, $22, $00 ;0x0 (0x00017D44-0x00017D4C, Entry count: 0x8) [Unknown data]
+    dc.b    $00
+    dc.b    $04
+    dc.b    $20
+    dc.b    $0E
+    dc.b    $F6
+    dc.b    $40
+    dc.l    loc_000193E2
+    dc.b    $22
+    dc.b    $00
 loc_00017D4C:
-	dc.b	$00, $04, $20, $0E, $F6, $10, $00, $01, $93, $E2, $22, $00 ;0x0 (0x00017D4C-0x00017D58, Entry count: 0xC) [Unknown data]
+    dc.b    $00
+    dc.b    $04
+    dc.b    $20
+    dc.b    $0E
+    dc.b    $F6
+    dc.b    $10
+    dc.l    loc_000193E2
+    dc.b    $22
+    dc.b    $00
 loc_00017D58:
-	dc.b	$00, $04, $08, $0E, $F6, $00, $00, $01, $95, $A2, $22, $00 ;0x0 (0x00017D58-0x00017D64, Entry count: 0xC) [Unknown data]
+    dc.b    $00
+    dc.b    $04
+    dc.b    $08
+    dc.b    $0E
+    dc.b    $F6
+    dc.b    $00
+    dc.l    loc_000195A2
+    dc.b    $22
+    dc.b    $00
 loc_00017D64:
-	dc.b	$00, $00, $40, $06, $FD, $00, $22, $AE ;0x0 (0x00017D64-0x00017D6C, Entry count: 0x8) [Unknown data]
+    dc.b    $00
+    dc.b    $00
+    dc.b    $40
+    dc.b    $06
+    dc.b    $FD
+    dc.b    $00
+    dc.b    $22
+    dc.b    $AE
+
+	
+	
 loc_00017D6C:
 	dc.b	$01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08 ;0x0 (0x00017D6C-0x00017F2C, Entry count: 0x1C0)
 	dc.b	$11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18 ;0x20
@@ -20345,7 +30580,9 @@ loc_000190F6:
 	dc.b	$A1, $A1, $A1, $A1, $A1, $A1, $A1, $A1, $B5, $B4, $B4, $B4, $B4, $B4, $B4, $B4, $C6, $C5, $C4, $C3, $C2, $C2, $C2, $C2, $BC, $BC, $BC, $BC, $CC, $CB, $CA, $C9 ;0x40
 loc_00019156:
 	dc.b	$6A, $B7, $6A, $B6, $6A, $B5, $6A, $B4, $62, $B4, $62, $B4, $62, $B4, $62, $B4, $62, $B4, $62, $B4, $62, $BC, $62, $BC, $6A, $C6, $6A, $C5, $6A, $C4, $6A, $C3 ;0x0 (0x00019156-0x00019612, Entry count: 0x4BC) [Unknown data]
-	dc.b	$62, $C2, $62, $C2, $62, $C2, $62, $C2, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $6A, $CC, $6A, $CB, $6A, $CA, $6A, $C9, $00, $00, $00, $00 ;0x20
+	dc.b	$62, $C2, $62, $C2, $62, $C2, $62, $C2, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $62, $BC, $6A, $CC, $6A, $CB, $6A, $CA, $6A, $C9
+loc_00019192:
+	dc.b    $00, $00, $00, $00 ;0x20
 	dc.b	$00, $00, $00, $00, $00, $00, $01, $02, $00, $00, $00, $00, $00, $00, $03, $04, $00, $00, $00, $05, $00, $00, $00, $00, $00, $00, $00, $00, $06, $07, $08, $06 ;0x40
 	dc.b	$09, $0A, $0B, $0C, $0D, $0E, $0F, $10, $11, $12, $13, $09, $0A, $14, $15, $16, $17, $07, $08, $06, $09, $18, $19, $1A, $0C, $0D, $1B, $0A, $1C, $1D, $1E, $1F ;0x60
 	dc.b	$20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $3A, $3B, $3C, $3D, $3E, $3F ;0x80
@@ -20360,11 +30597,16 @@ loc_00019156:
 	dc.b	$BF, $BD, $BC, $BD, $BD, $BC, $BD, $BD, $BC, $BD, $BD, $BE, $C0, $BD, $BC, $BD, $BD, $BC, $BD, $BD, $BC, $BD, $BD, $BC, $C1, $C2, $BC, $C3, $C4, $C5, $C6, $C3 ;0x1A0
 	dc.b	$C5, $C6, $C4, $C5, $C6, $C4, $C5, $C6, $B5, $C5, $C6, $C4, $C7, $C6, $C4, $C5, $C6, $C4, $B5, $C6, $C8, $C9, $CA, $C4, $C5, $C6, $C4, $C5, $CB, $CC, $CD, $CB ;0x1C0
 	dc.b	$CC, $CD, $CB, $CC, $C8, $C9, $CA, $CD, $CB, $CC, $CD, $CB, $CC, $CD, $B5, $CC, $CD, $CB, $CC, $CD, $CE, $CF, $D0, $CB, $CC, $CD, $CB, $CC, $D1, $D2, $D3, $D4 ;0x1E0
-	dc.b	$D0, $D5, $D1, $D2, $CE, $CF, $D0, $D5, $D1, $D2, $D3, $D4, $C3, $D5, $D1, $D2, $B5, $D4, $D0, $D5, $D1, $D2, $D3, $D4, $D0, $D5, $D1, $7A, $13, $09, $0A, $0B ;0x200
+	dc.b	$D0, $D5, $D1, $D2, $CE, $CF, $D0, $D5, $D1, $D2, $D3, $D4, $C3, $D5, $D1, $D2, $B5, $D4, $D0, $D5, $D1, $D2, $D3, $D4, $D0, $D5, $D1, $7A
+loc_00019372:
+	dc.b    $13, $09, $0A, $0B ;0x200
 	dc.b	$13, $09, $07, $08, $1E, $1C, $D6, $D7, $D8, $1C, $D9, $DA, $DB, $DB, $DC, $DD, $DE, $DF, $E0, $E1, $E2, $E3, $E4, $E2, $E3, $E4, $E2, $E3, $79, $79, $79, $79 ;0x220
 	dc.b	$79, $79, $79, $79, $79, $79, $8C, $79, $79, $79, $8C, $79, $8D, $8D, $8E, $8D, $8D, $8D, $8E, $8D, $A5, $A5, $A6, $A5, $A5, $A5, $A6, $A5, $B2, $B3, $B1, $B2 ;0x240
 	dc.b	$B2, $7A, $B1, $B2, $B8, $7A, $B7, $B8, $B8, $B6, $B7, $B8, $BD, $BC, $BD, $BD, $BD, $BC, $BD, $BD, $C6, $C6, $C4, $C5, $BE, $C0, $C5, $C6, $CD, $CD, $CB, $CC ;0x260
-	dc.b	$C4, $C7, $CC, $CD, $D3, $D3, $B5, $D2, $D3, $D1, $D2, $D3, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $01, $02, $03, $04, $05, $06, $07 ;0x280
+	dc.b	$C4, $C7, $CC, $CD, $D3, $D3, $B5, $D2, $D3, $D1, $D2, $D3
+loc_000193E2:
+	dc.b    $01, $02, $03, $04, $05, $06, $07
+	dc.b    $08, $09, $0A, $0B, $0C, $0D, $01, $02, $03, $04, $05, $06, $07 ;0x280
 	dc.b	$08, $09, $0A, $0B, $0C, $0D, $01, $02, $03, $04, $05, $06, $0E, $0F, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1A, $0E, $0F, $10, $11, $12, $13, $14 ;0x2A0
 	dc.b	$15, $16, $17, $18, $19, $1A, $0E, $0F, $10, $11, $12, $13, $1B, $1C, $1D, $1E, $1F, $20, $21, $22, $23, $24, $25, $26, $27, $1B, $1C, $1D, $1E, $1F, $20, $21 ;0x2C0
 	dc.b	$22, $23, $24, $25, $26, $27, $1B, $1C, $1D, $1E, $1F, $20, $28, $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $33, $34, $28, $29, $2A, $2B, $2C, $2D, $2E ;0x2E0
@@ -20378,7 +30620,9 @@ loc_00019156:
 	dc.b	$7A, $7B, $7C, $7D, $7E, $7F, $80, $81, $82, $83, $7A, $7B, $92, $85, $86, $87, $88, $89, $8A, $8B, $8C, $8D, $8E, $8F, $90, $91, $92, $85, $86, $87, $88, $89 ;0x3E0
 	dc.b	$8A, $8B, $8C, $8D, $8E, $8F, $90, $91, $92, $85, $86, $87, $84, $93, $94, $95, $96, $97, $98, $99, $9A, $9B, $9C, $99, $9D, $9B, $84, $93, $94, $95, $96, $97 ;0x400
 	dc.b	$98, $99, $9A, $9B, $9C, $99, $9D, $9B, $84, $93, $94, $95, $9E, $9F, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A8, $A9, $AA, $AB, $9E, $9F, $A0, $A1, $A2, $A3 ;0x420
-	dc.b	$A4, $A5, $A6, $A7, $A8, $A9, $AA, $AB, $9E, $9F, $A0, $A1, $06, $07, $08, $09, $0A, $0B, $0C, $0D, $13, $14, $15, $16, $17, $18, $19, $1A, $20, $21, $22, $23 ;0x440
+	dc.b	$A4, $A5, $A6, $A7, $A8, $A9, $AA, $AB, $9E, $9F, $A0, $A1
+loc_000195A2:
+	dc.b    $06, $07, $08, $09, $0A, $0B, $0C, $0D, $13, $14, $15, $16, $17, $18, $19, $1A, $20, $21, $22, $23 ;0x440
 	dc.b	$24, $25, $26, $27, $2D, $2E, $2F, $30, $31, $32, $33, $34, $3A, $3B, $3C, $3D, $3E, $3F, $40, $41, $47, $48, $49, $4A, $4B, $4C, $4D, $4E, $54, $55, $56, $57 ;0x460
 	dc.b	$58, $59, $5A, $5B, $5E, $5F, $60, $61, $62, $63, $64, $65, $68, $69, $6A, $6B, $6C, $6D, $6E, $6F, $72, $73, $74, $75, $76, $77, $78, $79, $7C, $7D, $7E, $7F ;0x480
 	dc.b	$80, $81, $82, $83, $8A, $8B, $8C, $8D, $8E, $8F, $90, $91, $98, $99, $9A, $9B, $9C, $99, $9D, $9B, $A4, $A5, $A6, $A7, $A8, $A9, $AA, $AB ;0x4A0
@@ -21924,7 +32168,6 @@ loc_0001DB8A:
 loc_0001DB8E:
 	dc.b	$2C, $2D, $FF, $00 ;0x0 (0x0001DB8E-0x0001DB92, Entry count: 0x4) [Unknown data]
 loc_0001DB92:
-	; Apparently the ROM Checksum function is somewhere in here...
 	dc.b	$07, $B0, $08, $B0, $0A, $B0, $09, $B0, $05, $30, $06, $30, $04, $30, $03, $30, $07, $A4, $08, $A4, $0A, $A4, $09, $A4, $05, $24, $06, $24, $04, $24, $03, $24 ;0x0 (0x0001DB92-0x0001DC02, Entry count: 0x70) [Unknown data]
 getChecksum:
 	move.l #$7FFFF, D0
@@ -29683,5 +39926,7 @@ endOfRom:
 ;   * Arcade (World)
 ;   * Megadrive
 ;   * Sharp X68000
+;   * PC Engine???
+;   * FM Towns???
 ; Note: For completeness sake, I did track down the MacOS 68000 System 7 Port just to check if it's based on
 ;       the arcade version or not.  It's not, it's based on the Windows 3.1 version.

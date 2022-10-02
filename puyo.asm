@@ -97,7 +97,7 @@ checksum:
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
 	;align $10000
-	padding $8000, $FF
+	;padding $8000, $FF
 	;ILLEGAL
 	;ds.w    $0000
 	;padding $100, $FF

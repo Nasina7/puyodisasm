@@ -44,6 +44,13 @@ lookupLoadDataToVram: macro addr, data
 align macro alignment
 	cnop $00,alignment
     endm
+padding macro amount, typePadding
+	i: set amount
+	while (i>0)
+		dc.b    typePadding
+		i: set i-1
+	endw
+	endm
 	
 soundTestText: macro text
 	i: set 0

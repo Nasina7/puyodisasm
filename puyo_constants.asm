@@ -18,3 +18,5 @@ transitionLoadLocation = $00FF0A36
 functionReturnState = $00FF0A3A
 
 SystemStack = $00FFFC00
+
+shiftabilityTest = 0

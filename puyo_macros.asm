@@ -66,3 +66,23 @@ soundTestText: macro text
 	
 	dc.b    $FF
 	endm
+	
+creditsTextboxText: macro vramLocation, text
+	dc.w    strlen(\2)
+	dc.w    vramLocation
+	i: set 0
+	while (strlen(\2)>i)
+		tempChar2: substr i+1,i+1,\2
+		if (strcmp("\tempChar2", " "))
+			dc.b    $00
+		elseif (strcmp("\tempChar2", "-"))
+			dc.b    $4C
+		elseif (strcmp("\tempChar2", "*"))
+			dc.b    $4E
+		else
+			dc.b    ("\tempChar2"-$36)<<1
+		endc
+		i: set i+1
+	endw
+	even
+	endm

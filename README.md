@@ -6,14 +6,17 @@ Any and all content presented in this repository is presented for informational 
 Commercial usage is expressly prohibited.  I do not claim ownership of any code in this repository.
 You assume any and all responsibility for using this content responsibility.  I do not claim any responsibility or warranty.
 ## Building
-Download the Repo from github and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
+Download the Repo and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
 ## Todo (In order of priority):
-- Make the Game Shiftable
-- Document all of the game data
-- Convert Binary ASM includes into binary includes
-- Store Art Data in the repo as uncompressed, and compress the files on build
-- Document Game Code
-- Decompile Sound Driver
+- [x] Make the Game Shiftable
+	- Note: All *known* shiftability issues are fixed.  If you encounter any, please open an issue and let me know.
+- [ ] Fix all instances of "BAD CODE" segments (segments of code that weren't disassembled, and are potentially unused?)
+- [ ] Fix all instances of "MISSING POINTER"
+- [ ] Split game data into binary files (art will stay compressed for now)
+- [ ] Reverse Engineer the art compression format and make tools for it (It seems like it might just be RLE but I haven't checked yet.)
+- [ ] Convert compressed art to uncompressed in the repo for use with existing tools, and compress it on build time.
+- [ ] Document a lot of Game Code.
+- [ ] Decompile and Document the Sound Driver.
 ## Stretch Goals:
 - Allow building the Arcade (Japan) Release
 - Allow building the Arcade (World) Release

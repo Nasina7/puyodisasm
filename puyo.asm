@@ -5,6 +5,12 @@
 ; # Analysis Region: 0x00000000 - 0x00080000
 ; ########################################################################################
 
+; Used to test the shiftability of the rom, should be left to 0
+shiftabilityTest = 0
+
+; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
+fixBugs = 0
+
 startOfRom:
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
@@ -85,7 +91,9 @@ headerBegin:
 	dc.b    "PUYOPUYO                                        " ; Game Title (Overseas)
 	dc.b    "GM G-4082  -00" ; Serial
 checksum:
-	dc.b	$BC, $E7 ; Checksum
+	; Todo: calculate this at buildtime
+	dc.w	$BCE7 ; Checksum
+	
 	dc.b	"J               " ; Device Support
 	dc.l    startOfRom
 	dc.l	endOfRom-1
@@ -96,17 +104,10 @@ checksum:
 	dc.b    "                                        " ; Reserved
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
-	;align $380000
 	if shiftabilityTest == 1
 	padding $370000, $FF
 	endif
-	;ILLEGAL
-	;padding $26F8, $FF
-	;padding $80000, $FF
-	;dc.w    $FFFF
 Reset:
-	;nop
-	;nop
 	TST.l	$00A10008	;Predicted (Offset array entry)
 	BNE.b	loc_0000020F	;Predicted (Code-scan)
 	TST.w	$00A1000C	;Predicted (Code-scan)
@@ -17452,6 +17453,27 @@ loc_0000DEEC:
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.w	#$9100, D0
 	SWAP	D0
+	
+; So, what I once thought was a shiftability issue was actually a game bug
+; This is a shiftability issue that the original devs themselves never caught (to my knowledge).
+; Explanation is as follows:
+; Over at around 0x1680 are a bunch of tables that handle loading data during transitions between game scenes
+; At around loc_00001BF6, there's a function in this table that calls loc_0000D908.
+; The code that they wrote will first read the upper half of this address into the lower half of D0
+; swap the words of D0, and then load the lower half of the address.  That code works perfectly fine, however
+; by the time that *this* function gets called much later on, the upper half of D0 has *never* been cleared.
+; This normally wouldn't be an issue, the upper half of loc_0000D908 is 0000 after all, but when the rom is
+; shifted to extreme amounts, it becomes values that aren't 0000, which causes issues in the below code
+
+; TL:DR
+; D0 here contains the upper half of loc_0000D908, which is normally expected to be 0000.  Shifting the rom
+; beyond a point causes D0 to have a non-zero value, which breaks the below code.
+
+	if fixBugs == 1
+		; Clearing the lower half of D0 fixes the above issue.
+		move.w #$0000, d0
+	endif
+	
 	OR.l	(A2), D0
 	JSR	loc_00000C4C
 	LEA	loc_0000DF2C, A1
@@ -35510,7 +35532,7 @@ loc_0001DB8E:
 loc_0001DB92:
 	dc.b	$07, $B0, $08, $B0, $0A, $B0, $09, $B0, $05, $30, $06, $30, $04, $30, $03, $30, $07, $A4, $08, $A4, $0A, $A4, $09, $A4, $05, $24, $06, $24, $04, $24, $03, $24 ;0x0 (0x0001DB92-0x0001DC02, Entry count: 0x70) [Unknown data]
 getChecksum:
-	move.l #$7FFFF, D0
+	move.l #endOfRom-1, D0
 	addq.l #1, D0
 	lea ($200).w, A0
 	sub.l A0, D0
@@ -35532,11 +35554,7 @@ loc_0001DBCA:
 	nop
 	move.b #0, (functionReturnState).l
 	cmp.w (checksum).w, D1
-	if shiftabilityTest == 1
-	bne.w loc_0001DBFA
-	else
 	beq.w loc_0001DBFA
-	endif
 	move.b #$FF, (functionReturnState).l
 loc_0001DBFA:
 	move.w D1, ($00FF0106).l
@@ -43259,6 +43277,7 @@ loc_00078000:
 	include "sound/PCM/puyo_pcmData2.asm" ; YATANA and PUYOPUYO sound bytes (78000)
 loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	include "art/compressed/puyo_titleScreen.asm"
+	align $80000
 endOfRom:
 
 ; Some interesting things of note:

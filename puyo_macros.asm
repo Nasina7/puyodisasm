@@ -41,6 +41,28 @@ lookupLoadDataToVram: macro addr, data
 	dc.l    data
 	endm
 	
+; Cutscene Macros
+cutscene_endCutscene: macro
+	dc.b    $80
+	endm
+cutscene_MakeTextbox: macro x, y, tWidth, tHeight, opponent
+	dc.b    $81
+	dc.b    ((opponent&1)<<7)|((tHeight&7)<<4)|(tWidth&$F)
+	dc.b    $C0|((y>>1)&$1F)
+	dc.b    ((y&1)<<7)|((x&$3F)<<1)
+	endm
+cutscene_ClearTextbox: macro
+	dc.b	$82
+	endm
+cutscene_PlayArleAnim: macro anim
+	dc.b    $84
+	dc.b	anim
+	endm
+cutscene_PlayOpponentAnim: macro anim
+	dc.b	$85
+	dc.b	anim
+	endm
+	
 align macro alignment
 	cnop $00,alignment
     endm

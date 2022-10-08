@@ -307,10 +307,15 @@ errorTrapLoop:
 	NOP	;Predicted (Code-scan)
 	NOP	;Predicted (Code-scan)
 	BRA.b	errorTrapLoop	;Predicted (Code-scan)
+	
+ ; Checks for inserted coins (Leftover from arcade version)
+ ; Changing ANDI #$FFFE, SR to ORI.w #1, SR will make the 
+ ; game think that there are no coins inserted.
 loc_0000051E:
 	ANDI	#$FFFE, SR
 	RTS
-; 00FF0CE0
+
+
 verticalInterrupt:
 	ORI	#$0700, SR
 	MOVEM.l	A6/A5/A4/A3/A2/A1/A0/D7/D6/D5/D4/D3/D2/D1/D0, -(A7)
@@ -738,6 +743,7 @@ loc_00000CB4:
 	BNE.w	loc_00000CC6
 	ANDI	#$F8FF, SR
 	RTS
+	
 loc_00000CC6:
 	ANDI.w	#$007F, D2
 	SUBQ.w	#1, D2
@@ -754,6 +760,7 @@ loc_00000CE4:
 	ADDQ.b	#1, D0
 	DBF	D2, loc_00000CCC
 	BRA.b	loc_00000CB4
+	
 loc_00000CF0:
 	ANDI.w	#$007F, D2
 	ADDQ.w	#2, D2
@@ -1519,7 +1526,7 @@ loc_000016C0:
 	dc.w	$2103	;Predicted (Code target predicted at 0x2103)
 	dc.w	$0000	;Predicted (Code target predicted at 0x0)
 	dc.w	$0000	;Predicted (Code target predicted at 0x0)
-loc_00001702: ; Lookup Table for loading data and functions on the transition from title screen to menu screen
+loc_00001702:
 
 	lookupJumpFunction loc_000029D6
 	
@@ -9353,7 +9360,7 @@ loc_00007534:
 	MOVE.b	D0, $29(A1)	;Predicted (Code-scan)
 	CLR.w	$1E(A1)	;Predicted (Code-scan)
 	RTS	;Predicted (Code-scan)
-; MISSING POINTER
+loc_00007542:
 	movea.l $2E(a0), a1
 	movem.l a0, -(SP)
 	movea.l a1, a0
@@ -9435,45 +9442,246 @@ loc_000078BA:
 loc_0000790E:
 	dc.b	$FE, $00 ;0x0 (0x0000790E-0x00007910, Entry count: 0x2) [Unknown data]
 loc_00007910:
-; BAD CODE
-	dc.b	$61, $00, $D0, $74, $50, $68, $00, $0A, $11, $7C, $00, $80, $00, $06, $61, $00, $B2, $06, $22, $68, $00, $2E, $08, $29, $00, $00, $00, $07, $67, $00, $CB, $56 ;0x0 (0x00007910-0x00007CBE, Entry count: 0x3AE) [Unknown data]
-	dc.b	$61, $00, $B2, $40, $0C, $68, $00, $03, $00, $1C, $64, $00, $00, $10, $0C, $28, $00, $03, $00, $09, $64, $00, $00, $06, $56, $28, $00, $09, $61, $00, $CC, $5C ;0x20
-	dc.b	$61, $00, $CC, $D2, $65, $00, $00, $0C, $61, $00, $D0, $2C, $50, $68, $00, $0A, $4E, $75, $61, $00, $B1, $C2, $61, $00, $B2, $0A, $65, $00, $00, $1C, $0C, $68 ;0x40
-	dc.b	$00, $03, $00, $1C, $64, $00, $00, $10, $0C, $28, $00, $03, $00, $09, $64, $00, $00, $06, $56, $28, $00, $09, $4E, $75, $61, $00, $D6, $98, $30, $28, $00, $1A ;0x60
-	dc.b	$E3, $48, $42, $72, $00, $00, $42, $72, $00, $02, $42, $72, $00, $0C, $42, $72, $00, $0E, $11, $7C, $00, $00, $00, $09, $0C, $68, $00, $0D, $00, $1C, $65, $00 ;0x80
-	dc.b	$00, $10, $20, $3C, $00, $00, $2E, $E0, $61, $00, $FB, $88, $60, $00, $00, $7A, $30, $28, $00, $1A, $32, $28, $00, $1C, $52, $41, $C2, $FC, $00, $06, $D0, $41 ;0xA0
-	dc.b	$E3, $48, $31, $40, $00, $26, $31, $68, $00, $0E, $00, $36, $42, $68, $00, $1E, $11, $7C, $00, $85, $00, $06, $31, $7C, $1A, $00, $00, $1C, $31, $7C, $FF, $FF ;0xC0
-	dc.b	$00, $20, $61, $00, $B1, $32, $61, $00, $B2, $32, $0C, $68, $00, $06, $00, $16, $65, $00, $00, $0A, $21, $7C, $00, $06, $00, $00, $00, $16, $61, $00, $00, $8E ;0xE0
-	dc.b	$0C, $68, $01, $48, $00, $0E, $64, $00, $00, $04, $4E, $75, $31, $7C, $01, $48, $00, $0E, $21, $7C, $00, $00, $7A, $8A, $00, $32, $31, $7C, $00, $80, $00, $26 ;0x100
-	dc.b	$10, $3C, $00, $5F, $61, $00, $F8, $88, $61, $00, $01, $98, $11, $7C, $00, $B7, $00, $06, $44, $A8, $00, $16, $31, $7C, $34, $00, $00, $1C, $31, $7C, $FF, $FF ;0x120
-	dc.b	$00, $20, $31, $7C, $80, $00, $00, $14, $4A, $28, $00, $2A, $66, $00, $00, $06, $44, $A8, $00, $12, $61, $00, $B0, $C0, $61, $00, $B1, $08, $61, $00, $B1, $BC ;0x140
-	dc.b	$0C, $68, $01, $70, $00, $0E, $64, $00, $00, $04, $4E, $75, $22, $68, $00, $2E, $08, $A9, $00, $00, $00, $07, $60, $00, $B0, $6A
+	BSR.w	loc_00004986
+	ADDQ.w	#8, $A(A0)
+	MOVE.b	#$80, $6(A0)
+	BSR.w	loc_00002B26
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BTST.b	#0, $7(A1)	;Predicted (Code-scan)
+	BEQ.w	loc_00004484	;Predicted (Code-scan)
+	BSR.w	loc_00002B72	;Predicted (Code-scan)
+	CMPI.w	#3, $1C(A0)	;Predicted (Code-scan)
+	BCC.w	loc_0000794C	;Predicted (Code-scan)
+	CMPI.b	#3, $9(A0)	;Predicted (Code-scan)
+	BCC.w	loc_0000794C	;Predicted (Code-scan)
+	ADDQ.b	#3, $9(A0)	;Predicted (Code-scan)
+loc_0000794C:
+	BSR.w	loc_000045AA	;Predicted (Code-scan)
+	BSR.w	loc_00004624	;Predicted (Code-scan)
+	BCS.w	loc_00007962	;Predicted (Code-scan)
+	BSR.w	loc_00004986	;Predicted (Code-scan)
+	ADDQ.w	#8, $A(A0)	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007962:
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	BSR.w	loc_00002B72	;Predicted (Code-scan)
+	BCS.w	loc_00007988	;Predicted (Code-scan)
+	CMPI.w	#3, $1C(A0)	;Predicted (Code-scan)
+	BCC.w	loc_00007986	;Predicted (Code-scan)
+	CMPI.b	#3, $9(A0)	;Predicted (Code-scan)
+	BCC.w	loc_00007986	;Predicted (Code-scan)
+	ADDQ.b	#3, $9(A0)	;Predicted (Code-scan)
+loc_00007986:
+	RTS	;Predicted (Code-scan)
+loc_00007988:
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	MOVE.w	$1A(A0), D0	;Predicted (Code-scan)
+	LSL.w	#1, D0	;Predicted (Code-scan)
+	CLR.w	(A2,D0.w)	;Predicted (Code-scan)
+	CLR.w	$2(A2,D0.w)	;Predicted (Code-scan)
+	CLR.w	$C(A2,D0.w)	;Predicted (Code-scan)
+	CLR.w	$E(A2,D0.w)	;Predicted (Code-scan)
+	MOVE.b	#0, $9(A0)	;Predicted (Code-scan)
+	CMPI.w	#$000D, $1C(A0)	;Predicted (Code-scan)
+	BCS.w	loc_000079C0	;Predicted (Code-scan)
+; TODO: Check if this is a rom pointer
+	MOVE.l	#$00002EE0, D0	;Predicted (Code-scan)
+	BSR.w	loc_00007542	;Predicted (Code-scan)
+	BRA.w	loc_00007A38	;Predicted (Code-scan)
+loc_000079C0:
+	MOVE.w	$1A(A0), D0	;Predicted (Code-scan)
+	MOVE.w	$1C(A0), D1	;Predicted (Code-scan)
+	ADDQ.w	#1, D1	;Predicted (Code-scan)
+	MULU.w	#6, D1	;Predicted (Code-scan)
+	ADD.w	D1, D0	;Predicted (Code-scan)
+	LSL.w	#1, D0	;Predicted (Code-scan)
+	MOVE.w	D0, $26(A0)	;Predicted (Code-scan)
+	MOVE.w	$E(A0), $36(A0)	;Predicted (Code-scan)
+	CLR.w	$1E(A0)	;Predicted (Code-scan)
+	MOVE.b	#$85, $6(A0)	;Predicted (Code-scan)
+	MOVE.w	#$1A00, $1C(A0)	;Predicted (Code-scan)
+	MOVE.w	#$FFFF, $20(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	CMPI.w	#6, $16(A0)	;Predicted (Code-scan)
+	BCS.w	loc_00007A0C	;Predicted (Code-scan)
+; TODO: Check if this is a rom pointer
+	MOVE.l	#$00060000, $16(A0)	;Predicted (Code-scan)
+loc_00007A0C:
+	BSR.w	loc_00007A9C	;Predicted (Code-scan)
+	CMPI.w	#$0148, $E(A0)	;Predicted (Code-scan)
+	BCC.w	loc_00007A1C	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007A1C:
+	MOVE.w	#$0148, $E(A0)	;Predicted (Code-scan)
+	MOVE.l	#loc_00007A8A, $32(A0)	;Predicted (Code-scan)
+	MOVE.w	#$0080, $26(A0)	;Predicted (Code-scan)
+	MOVE.b	#$5F, D0	;Predicted (Code-scan)
+	BSR.w	loc_000072BE	;Predicted (Code-scan)
+loc_00007A38:
+	BSR.w	loc_00007BD2	;Predicted (Code-scan)
+	MOVE.b	#$B7, $6(A0)	;Predicted (Code-scan)
+	NEG.l	$16(A0)	;Predicted (Code-scan)
+	MOVE.w	#$3400, $1C(A0)	;Predicted (Code-scan)
+	MOVE.w	#$FFFF, $20(A0)	;Predicted (Code-scan)
+	MOVE.w	#$8000, $14(A0)	;Predicted (Code-scan)
+	TST.b	$2A(A0)	;Predicted (Code-scan)
+	BNE.w	loc_00007A64	;Predicted (Code-scan)
+	NEG.l	$12(A0)	;Predicted (Code-scan)
+loc_00007A64:
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	BSR.w	loc_00002B72	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	CMPI.w	#$0170, $E(A0)	;Predicted (Code-scan)
+	BCC.w	loc_00007A7C	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007A7C:
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BCLR.b	#0, $7(A1)	;Predicted (Code-scan)
+	BRA.w	loc_00002AF2	;Predicted (Code-scan)
 loc_00007A8A:
-; BAD CODE?
-	dc.b    $02, $01, $01, $00, $03, $02 ;0x160
-	dc.b	$01, $00, $03, $01, $01, $00, $02, $02, $01, $00, $FE, $00, $30, $28, $00, $0E, $90, $68, $00, $36, $E8, $48, $B0, $68, $00, $1E
-; BAD CODE
-; MISSING POINTER?
-	dc.b    $66, $00, $00, $04, $4E, $75 ;0x180
-; BAD CODE
+	dc.b	$02, $01, $01, $00, $03, $02, $01, $00, $03, $01, $01, $00, $02, $02, $01, $00, $FE, $00 ;0x0 (0x00007A8A-0x00007A9C, Entry count: 0x12) [Unknown data]
+loc_00007A9C:
+	MOVE.w	$E(A0), D0	;Predicted (Code-scan)
+	SUB.w	$36(A0), D0	;Predicted (Code-scan)
+	LSR.w	#4, D0	;Predicted (Code-scan)
+	CMP.w	$1E(A0), D0	;Predicted (Code-scan)
+	BNE.w	loc_00007AB0	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007AB0:
+	MOVE.w	D0, $1E(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	MOVE.w	$26(A0), D0	;Predicted (Code-scan)
+	MOVEM.l	D0, -(A7)	;Predicted (Code-scan)
+	BSR.w	loc_00007AEE	;Predicted (Code-scan)
+	MOVEM.l	(A7)+, D0	;Predicted (Code-scan)
+	MOVE.w	#$00FF, (A2,D0.w)	;Predicted (Code-scan)
+	MOVE.w	#$00FF, $2(A2,D0.w)	;Predicted (Code-scan)
+	ADDI.w	#$000C, $26(A0)	;Predicted (Code-scan)
+	ORI	#$0700, SR	;Predicted (Code-scan)
+	BSR.w	loc_00004CCC	;Predicted (Code-scan)
+	ANDI	#$F8FF, SR	;Predicted (Code-scan)
+	MOVE.b	#$62, D0	;Predicted (Code-scan)
+	BRA.w	loc_000072BE	;Predicted (Code-scan)
+loc_00007AEE:
+	MOVE.w	#1, D1	;Predicted (Code-scan)
+	CLR.l	D5	;Predicted (Code-scan)
+	CLR.w	D6	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	MOVE.b	$2B(A1), D6	;Predicted (Code-scan)
+	ADDQ.b	#1, D6	;Predicted (Code-scan)
+	MULU.w	#$000A, D6	;Predicted (Code-scan)
+loc_00007B04:
+	MOVE.b	(A2,D0.w), D2	;Predicted (Code-scan)
+	BPL.w	loc_00007B6E	;Predicted (Code-scan)
+	LSR.b	#4, D2	;Predicted (Code-scan)
+	ANDI.b	#7, D2	;Predicted (Code-scan)
+	CMPI.b	#6, D2	;Predicted (Code-scan)
+	BEQ.w	loc_00007B6E	;Predicted (Code-scan)
+	MOVE.w	#1, D4	;Predicted (Code-scan)
+loc_00007B1E:
+	LEA	loc_00007B8A, A1	;Predicted (Code-scan)
+	BSR.w	loc_00002AB0	;Predicted (Code-scan)
+	BCS.w	loc_00007B68	;Predicted (Code-scan)
+	MOVE.b	$0(A0), $0(A1)	;Predicted (Code-scan)
+	MOVE.b	#$83, $6(A1)	;Predicted (Code-scan)
+	MOVE.b	D2, $8(A1)	;Predicted (Code-scan)
+	MOVE.b	#4, $9(A1)	;Predicted (Code-scan)
+	MOVE.w	$A(A0), $A(A1)	;Predicted (Code-scan)
+	MOVE.w	$E(A0), $E(A1)	;Predicted (Code-scan)
+	MOVE.w	D1, D3	;Predicted (Code-scan)
+	EORI.b	#1, D3	;Predicted (Code-scan)
+	LSL.w	#4, D3	;Predicted (Code-scan)
+	ADD.w	D3, $A(A1)	;Predicted (Code-scan)
+	MOVE.w	#8, $28(A1)	;Predicted (Code-scan)
+	MOVE.l	#loc_00007B7C, $32(A1)	;Predicted (Code-scan)
+loc_00007B68:
+	DBF	D4, loc_00007B1E	;Predicted (Code-scan)
+	ADD.l	D6, D5	;Predicted (Code-scan)
+loc_00007B6E:
+	ADDQ.w	#2, D0	;Predicted (Code-scan)
+	DBF	D1, loc_00007B04	;Predicted (Code-scan)
+	MOVE.l	D5, D0	;Predicted (Code-scan)
+	BSR.w	loc_00007542	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007B7C:
+	dc.b	$03, $04, $01, $05, $02, $06, $01, $05, $FF, $00
+	dc.l    loc_00007B7C
+loc_00007B8A:
+	tst.w $26(a0)
+	bne.w loc_00007BC2
+	tst.w $28(a0)
+	beq.w loc_00002AF2
+	subq.w #1, $28(a0)
+	move.w $28(a0), d1
+	addq.w #1, d1
+	lsl.w #1, d1
+	move.w d1, $26(a0)
+	bsr.w loc_000011D0
+	move.w #$0200, d1
+	bsr.w loc_00001218
+	move.l d2, $12(a0)
+	bsr.w loc_00001214
+	move.l d2, $16(a0)
+loc_00007BC2:
+	subq.w #1, $26(a0)
+	bsr.w loc_00002C2A
+	bcs.w loc_00002AF2
+	bra.w loc_00002B72
+loc_00007BD2:
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	MOVE.w	D0, D1	;Predicted (Code-scan)
+	ANDI.w	#$007F, D1	;Predicted (Code-scan)
+	MOVE.w	$1A(A0), D2	;Predicted (Code-scan)
+	MULU.w	#$000C, D2	;Predicted (Code-scan)
+	MOVE.w	#5, D0	;Predicted (Code-scan)
+loc_00007BE8:
+	LEA	loc_00007C5E, A1	;Predicted (Code-scan)
+	BSR.w	loc_00002A54	;Predicted (Code-scan)
+	BCS.w	loc_00007C18	;Predicted (Code-scan)
+	MOVE.b	$0(A0), $0(A1)	;Predicted (Code-scan)
+	MOVE.b	#$80, $36(A1)	;Predicted (Code-scan)
+	MOVE.w	D1, $26(A1)	;Predicted (Code-scan)
+	MOVE.w	loc_00007C22(PC,D2.w), D3	;Predicted (Code-scan)
+	MOVE.w	$16(A0), D4	;Predicted (Code-scan)
+	LSL.w	#1, D4	;Predicted (Code-scan)
+	ADDQ.w	#4, D4	;Predicted (Code-scan)
+	MULU.w	D4, D3	;Predicted (Code-scan)
+	MOVE.w	D3, $38(A1)	;Predicted (Code-scan)
+loc_00007C18:
+	ADDQ.w	#4, D1	;Predicted (Code-scan)
+	ADDQ.w	#2, D2	;Predicted (Code-scan)
+	DBF	D0, loc_00007BE8	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007C22:
+	dc.b	$01, $00, $01, $00, $00, $80, $00, $40, $00, $00, $00, $00, $00, $80, $01, $00, $01, $00, $00, $80, $00, $40, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00 ;0x0 (0x00007C22-0x00007C5E, Entry count: 0x3C) [Unknown data]
+	dc.b	$00, $80, $00, $40, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00, $00, $80, $00, $00, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00 ;0x20
+loc_00007C5E:
+	move.b $36(a0), d0
+	ori.b #$80, d0
+	move.w $38(a0), d1
+	bsr.w loc_00001218
+	swap d2
+	lea $00FF05D2, a1
+	move.w $26(a0), d0
+	move.w d2, (a1, d0.w)
+	subq.b #4, $36(a0)
+	bcs.w loc_00002AF2
+	rts
 ; MISSING POINTER
-	dc.b	$31, $40, $00, $1E, $61, $00, $D5, $6C, $30, $28, $00, $26, $48, $E7, $80, $00, $61, $00, $00, $2C, $4C, $DF, $00, $01, $35, $BC, $00, $FF, $00, $00, $35, $BC ;0x1A0
-	dc.b	$00, $FF, $00, $02, $06, $68, $00, $0C, $00, $26, $00, $7C, $07, $00, $61, $00, $D1, $EC, $02, $7C, $F8, $FF, $10, $3C, $00, $62, $60, $00, $F7, $D2, $32, $3C ;0x1C0
-	dc.b	$00, $01, $42, $85, $42, $46, $22, $68, $00, $2E, $1C, $29, $00, $2B, $52, $06, $CC, $FC, $00, $0A, $14, $32, $00, $00, $6A, $00, $00, $64, $E8, $0A, $02, $02 ;0x1E0
-	dc.b	$00, $07, $0C, $02, $00, $06, $67, $00, $00, $56, $38, $3C, $00, $01, $43, $F9, $00, $00, $7B, $8A, $61, $00, $AF, $8A, $65, $00, $00, $3E, $13, $68, $00, $00 ;0x200
-	dc.b	$00, $00, $13, $7C, $00, $83, $00, $06, $13, $42, $00, $08, $13, $7C, $00, $04, $00, $09, $33, $68, $00, $0A, $00, $0A, $33, $68, $00, $0E, $00, $0E, $36, $01 ;0x220
-	dc.b	$0A, $03, $00, $01, $E9, $4B, $D7, $69, $00, $0A, $33, $7C, $00, $08, $00, $28, $23, $7C, $00, $00, $7B, $7C, $00, $32, $51, $CC, $FF, $B4, $DA, $86, $54, $40 ;0x240
-	dc.b	$51, $C9, $FF, $92, $20, $05, $61, $00, $F9, $CA, $4E, $75, $03, $04, $01, $05, $02, $06, $01, $05, $FF, $00, $00, $00, $7B, $7C, $4A, $68, $00, $26, $66, $00 ;0x260
-	dc.b	$00, $32, $4A, $68, $00, $28, $67, $00, $AF, $5A, $53, $68, $00, $28, $32, $28, $00, $28, $52, $41, $E3, $49, $31, $41, $00, $26, $61, $00, $96, $24, $32, $3C ;0x280
-	dc.b	$02, $00, $61, $00, $96, $64, $21, $42, $00, $12, $61, $00, $96, $58, $21, $42, $00, $16, $53, $68, $00, $26, $61, $00, $B0, $62, $65, $00, $AF, $26, $60, $00 ;0x2A0
-	dc.b	$AF, $A2, $61, $00, $D4, $4E, $32, $00, $02, $41, $00, $7F, $34, $28, $00, $1A, $C4, $FC, $00, $0C, $30, $3C, $00, $05, $43, $F9, $00, $00, $7C, $5E, $61, $00 ;0x2C0
-	dc.b	$AE, $64, $65, $00, $00, $24, $13, $68, $00, $00, $00, $00, $13, $7C, $00, $80, $00, $36, $33, $41, $00, $26, $36, $3B, $20, $1A, $38, $28, $00, $16, $E3, $4C ;0x2E0
-	dc.b	$58, $44, $C6, $C4, $33, $43, $00, $38, $58, $41, $54, $42, $51, $C8, $FF, $CA, $4E, $75, $01, $00, $01, $00, $00, $80, $00, $40, $00, $00, $00, $00, $00, $80 ;0x300
-	dc.b	$01, $00, $01, $00, $00, $80, $00, $40, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00, $00, $80, $00, $40, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00 ;0x320
-	dc.b	$00, $80, $00, $00, $00, $00, $00, $40, $00, $80, $01, $00, $01, $00, $10, $28, $00, $36, $00, $00, $00, $80, $32, $28, $00, $38, $61, $00, $95, $AC, $48, $42 ;0x340
-	dc.b	$43, $F9, $00, $FF, $05, $D2, $30, $28, $00, $26, $33, $82, $00, $00, $59, $28, $00, $36, $65, $00, $AE, $6E, $4E, $75, $20, $3C, $80, $0E, $00, $00, $4E, $B9 ;0x360
-	dc.b	$00, $00, $0C, $4C, $43, $F9, $00, $00, $7C, $A8, $4E, $B9, $00, $00, $2A, $54, $33, $7C, $02, $58, $00, $26, $4E, $75, $53, $68, $00, $26, $65, $00, $00, $04 ;0x380
-	dc.b	$4E, $75, $42, $39, $00, $FF, $0A, $3B, $4E, $F9, $00, $00, $2A, $F2
+	move.l #$800E0000, d0
+	jsr loc_00000C4C
+	lea loc_00007CA8, a1
+	jsr loc_00002A54
+	move.w #$0258, $26(a1)
+	rts
+loc_00007CA8:
+	subq.w #1, $26(a0)
+	bcs.w loc_00007CB2
+	rts
+loc_00007CB2:
+	clr.b $00FF0A3B
+	jmp loc_00002AF2
 loc_00007CBE:
 	MOVEQ	#0, D2
 loc_00007CC0:
@@ -17736,16 +17944,23 @@ loc_0000E70C:
 loc_0000E778:
 	dc.b	$83, $02
 	
-	dc.b    $81, $94, $D8, $B4
-	dc.b    $85, $03
+	; Creates a textbox at tile coordinates 26,49 in Plane A
+	; with a width of 4 characters, a height of one character
+	; and with the opponent speaking
+	cutscene_MakeTextbox 26, 49, 4, 1, 1
+	
+	cutscene_PlayOpponentAnim 3
 	
 	; お前っ！
 	dc.b	$03, $29, $19, $26
 	
 	dc.b	$83, $04
-	dc.b    $82
-	dc.b    $81, $B9, $D5, $A4
-	dc.b    $85, $01 ;0x0 (0x0000E784-0x0000E78D, Entry count: 0x9)
+	
+	cutscene_ClearTextbox
+	
+	cutscene_MakeTextbox 18, 43, 9, 3, 1
+	
+	cutscene_PlayOpponentAnim 1
 	
 	;Textbox Data
 	dc.b	$07, $07, $17, $2A
@@ -17758,11 +17973,11 @@ loc_0000E778:
 	dc.b    $05, $0D, $08, $01
 	dc.b    $26
 	
-	dc.b	$85, $00
+	cutscene_PlayOpponentAnim 0
 	dc.b    $83, $06
 	dc.b    $82
 	dc.b    $81, $2A, $D7, $04
-	dc.b    $84, $0A
+	cutscene_PlayArleAnim $0A
 	dc.b	$2B, $2C, $27
 	
 	dc.b    $89
@@ -17772,18 +17987,18 @@ loc_0000E778:
 	dc.b    $86
 	dc.b    $83, $01
 	dc.b    $2D, $2E, $2F, $1E, $22, $20, $1F, $21, $26, $27 ;0x0 (0x0000E7B1-0x0000E7C9, Entry count: 0x18) [Unknown data]
-	dc.b	$84, $0B
+	cutscene_PlayArleAnim $0B
 	dc.b    $83, $04
 	dc.b    $82
 	dc.b    $81, $AC, $D7, $18
-	dc.b    $85, $02
+	cutscene_PlayOpponentAnim 2
 	dc.b	$11, $11, $18, $25, $83, $02, $00, $0A, $09, $0F, $2D, $09, $08, $0E
 	dc.b    $83, $01
 	dc.b    $04, $0D, $02, $0C, $03, $13, $19, $0B, $32, $32, $32 ;0x0 (0x0000E7D4-0x0000E7EF, Entry count: 0x1B) [Unknown data]
 	dc.b	$83, $02
 	dc.b    $82
 	dc.b    $81, $B9, $D5, $A4
-	dc.b    $85, $04 ;0x0 (0x0000E7EF-0x0000E7F8, Entry count: 0x9)
+	cutscene_PlayOpponentAnim 4
 	dc.b	$1B, $1A, $0D, $00, $28, $01, $19, $26, $26 ;0x0 (0x0000E7F8-0x0000E801, Entry count: 0x9) [Unknown data]
 	dc.b	$83, $04, $85, $01 ;0x0 (0x0000E801-0x0000E805, Entry count: 0x4)
 	dc.b	$2B, $2C, $10 ;0x0 (0x0000E805-0x0000E808, Entry count: 0x3) [Unknown data]
@@ -17791,11 +18006,11 @@ loc_0000E778:
 	dc.b    $86
 	dc.b    $83, $02 ;0x0 (0x0000E808-0x0000E80C, Entry count: 0x4)
 	dc.b	$1D, $14, $1D, $14, $30, $31, $14, $19, $26 ;0x0 (0x0000E80C-0x0000E815, Entry count: 0x9) [Unknown data]
-	dc.b	$85, $00
+	cutscene_PlayOpponentAnim 0
 	dc.b    $83, $04
 	dc.b    $82
 	
-	dc.b    $80
+	cutscene_endCutscene
 	even
 	
 loc_0000E81C:

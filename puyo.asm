@@ -17454,8 +17454,7 @@ loc_0000DEEC:
 	MOVE.w	#$9100, D0
 	SWAP	D0
 	
-; So, what I once thought was a shiftability issue was actually a game bug
-; This is a shiftability issue that the original devs themselves never caught (to my knowledge).
+; Right here is a bug that the original devs themselves never caught (to my knowledge).
 ; Explanation is as follows:
 ; Over at around 0x1680 are a bunch of tables that handle loading data during transitions between game scenes
 ; At around loc_00001BF6, there's a function in this table that calls loc_0000D908.

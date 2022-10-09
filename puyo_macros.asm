@@ -108,3 +108,15 @@ creditsTextboxText: macro vramLocation, text
 	endw
 	even
 	endm
+	
+padToPowerOfTwo: macro 
+	if (*<=$80000)
+		align $80000
+	elseif (*<=$100000)
+		align $100000
+	elseif (*<=$200000)
+		align $200000
+	elseif (*<=$400000)
+		align $400000
+	endc
+	endm

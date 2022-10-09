@@ -18014,17 +18014,16 @@ loc_0000E778:
 	dc.b    $82
 	dc.b    $81, $2C, $D7, $04
 	cutscene_PlayArleAnim $0A
-	cutsceneTextEnglish "Fight? I-"
+	cutsceneTextEnglish "Fight? C-"
 	;dc.b	$2B, $2C, $27
 	
 	dc.b    $83, $03
 	
-	cutsceneTextEnglish "It couldn't be."
+	cutsceneTextEnglish "Could it be..."
 	dc.b    $86
 	
 	
 	
-	dc.b    $86
 	dc.b    $83, $01
 	cutsceneTextEnglish "A beauty contest!?"
 	
@@ -18054,11 +18053,10 @@ loc_0000E778:
 	dc.b    $86
 	
 	dc.b	$83, $04, $85, $01 
-	cutsceneTextEnglish "Now..."
+	cutsceneTextEnglish "It's a puyo puyo"
 	dc.b	$89
 	dc.b    $86
-	dc.b    $83, $02 
-	cutsceneTextEnglish "Lets Fight!"
+	cutsceneTextEnglish "contest!"
 	cutscene_PlayOpponentAnim 0
 	dc.b    $83, $04
 	dc.b    $82

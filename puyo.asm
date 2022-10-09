@@ -17767,7 +17767,7 @@ loc_0000E26C:
 
 	MOVE.w	$A(A0), D1
 	MOVE.w	$C(A0), D2
-	LSL.w	#1, D1
+	;LSL.w	#1, D1
 	MULU.w	#3, D2
 	ADDQ.w	#1, D1
 	ADDQ.w	#1, D2
@@ -17776,27 +17776,28 @@ loc_0000E26C:
 	MOVE.w	$12(A0), D5
 	ADD.w	D1, D5
 	ADD.w	D2, D5
-	MOVE.w	D0, D1
-	ANDI.b	#$0F, D0
+	
+	;MOVE.w	D0, D1
+	;ANDI.b	#$0F, D0
 	LSL.w	#1, D0
-	ANDI.b	#$F0, D1
-	LSL.w	#2, D1
-	ADD.w	D1, D0
+	;ANDI.b	#$F0, D1
+	;LSL.w	#2, D1
+	;ADD.w	D1, D0
 	ORI.w	#$8000, D0
 	ORI	#$0700, SR
 	
 	BSR.w	loc_000157BA
 	MOVE.w	D0, vdpData1 ; Write top left of letter
 	ADDQ.w	#1, D0
-	MOVE.w	D0, vdpData1 ; Write top right of letter
+	;MOVE.w	D0, vdpData1 ; Write top right of letter
 	ADDI.w	#$0080, D5
 	
 	
 	BSR.w	loc_000157BA
-	ADDI.w	#$001F, D0
+	;ADDI.w	#$001F, D0
 	MOVE.w	D0, vdpData1 ; Write bottom left of letter
-	ADDQ.w	#1, D0
-	MOVE.w	D0, vdpData1 ; Write bottom right of letter
+	;ADDQ.w	#1, D0
+	;MOVE.w	D0, vdpData1 ; Write bottom right of letter
 	ANDI	#$F8FF, SR
 	
 	MOVE.w	#1, $26(A0)
@@ -17805,9 +17806,11 @@ loc_0000E26C:
 loc_0000E2E0:
 ; Check for new line in textbox
 	ADDQ.w	#1, $A(A0)
-	MOVE.w	$A(A0), D0
-	CMP.w	$E(A0), D0
-	BCC.w	loc_0000E186
+	MOVE.w	$E(A0), D0
+	LSL.w #1, d0
+	subq.w #1, d0
+	CMP.w	$A(A0), D0
+	BCS.w	loc_0000E186
 	RTS
 	
 	
@@ -17957,7 +17960,7 @@ loc_0000E70C:
 ; * $83 = Wait for an amount of time (time interval unknown)
 ; * $84 = Play Arle Animation
 ; * $85 = Play Opponent Animation
-; * $86 = Unknown
+; * $86 = New Line
 ; * $87 = Unknown
 ; * $88 = Invalid
 ; * $89 = Add Whitespace Character?
@@ -17977,65 +17980,85 @@ loc_0000E778:
 	; Creates a textbox at tile coordinates 26,49 in Plane A
 	; with a width of 4 characters, a height of one character
 	; and with the opponent speaking
+	
+	; Note that in this branch, the width of 4 is actually 8 characters.
 	cutscene_MakeTextbox 26, 49, 4, 1, 1
 	
 	cutscene_PlayOpponentAnim 3
 	
 	; お前っ！
-	dc.b	$03, $29, $19, $26
+	cutsceneTextEnglish "Hey You!"
+	;dc.b	$03, $29, $19, $26
 	
 	dc.b	$83, $04
 	
 	cutscene_ClearTextbox
 	
-	cutscene_MakeTextbox 18, 43, 9, 3, 1
+	cutscene_MakeTextbox 18, 41, 9, 4, 1
 	
 	cutscene_PlayOpponentAnim 1
 	
 	;Textbox Data
-	dc.b	$07, $07, $17, $2A
-	dc.b    $15, $0A, $06, $16
-	dc.b    $1C
-	dc.b    $83, $03
-	dc.b    $00
-	dc.b    $0A, $09, $0C, $2B
-	dc.b    $2C, $09, $0B, $01
-	dc.b    $05, $0D, $08, $01
-	dc.b    $26
+	cutsceneTextEnglish "If you wanna get"
+	dc.b    $86
+	cutsceneTextEnglish "through here,"
+	dc.b    $86
+	dc.b    $83, $02
+	cutsceneTextEnglish "you'll have to"
+	dc.b    $86
+	cutsceneTextEnglish "fight me first!"
+	
 	
 	cutscene_PlayOpponentAnim 0
 	dc.b    $83, $06
 	dc.b    $82
-	dc.b    $81, $2A, $D7, $04
+	dc.b    $81, $2C, $D7, $04
 	cutscene_PlayArleAnim $0A
-	dc.b	$2B, $2C, $27
+	cutsceneTextEnglish "Fight? I-"
+	;dc.b	$2B, $2C, $27
 	
-	dc.b    $89
-	dc.b    $83, $01
-	dc.b    $12, $25, $12, $08, $04
+	dc.b    $83, $03
+	
+	cutsceneTextEnglish "It couldn't be."
+	dc.b    $86
+	
+	
 	
 	dc.b    $86
 	dc.b    $83, $01
-	dc.b    $2D, $2E, $2F, $1E, $22, $20, $1F, $21, $26, $27 
+	cutsceneTextEnglish "A beauty contest!?"
+	
 	cutscene_PlayArleAnim $0B
 	dc.b    $83, $04
 	dc.b    $82
 	dc.b    $81, $AC, $D7, $18
 	cutscene_PlayOpponentAnim 2
-	dc.b	$11, $11, $18, $25, $83, $02, $00, $0A, $09, $0F, $2D, $09, $08, $0E
+	
+	cutsceneTextEnglish "Fufu~,"
+	
+	dc.b    $83, $02
+	
+	cutsceneTextEnglish "I think you can"
+	dc.b    $86
+	
+	
+	
 	dc.b    $83, $01
-	dc.b    $04, $0D, $02, $0C, $03, $13, $19, $0B, $32, $32, $32 
+	cutsceneTextEnglish "match my beauty..."
 	dc.b	$83, $02
 	dc.b    $82
 	dc.b    $81, $B9, $D5, $A4
 	cutscene_PlayOpponentAnim 4
-	dc.b	$1B, $1A, $0D, $00, $28, $01, $19, $26, $26 
+	
+	cutsceneTextEnglish "NOT!!!"
+	dc.b    $86
+	
 	dc.b	$83, $04, $85, $01 
-	dc.b	$2B, $2C, $10 
+	cutsceneTextEnglish "Now..."
 	dc.b	$89
 	dc.b    $86
 	dc.b    $83, $02 
-	dc.b	$1D, $14, $1D, $14, $30, $31, $14, $19, $26 
+	cutsceneTextEnglish "Lets Fight!"
 	cutscene_PlayOpponentAnim 0
 	dc.b    $83, $04
 	dc.b    $82
@@ -35860,40 +35883,6 @@ loc_000447E0:
 loc_000455C8:
 	incbin "art/compressed/unknown/unknown1.bin"
 	
-; Cutscene Charsets
-art_cutsceneCharset_stage1:
-	incbin "art/compressed/cutscene/stage1/charset.bin"
-loc_0004700E:
-	incbin "art/compressed/cutscene/unkCharset15.bin"
-loc_00047374:
-	incbin "art/compressed/cutscene/unkCharset14.bin"
-loc_000476DC:
-	incbin "art/compressed/cutscene/unkCharset13.bin"
-art_cutsceneCharset_tutorial1:
-	incbin "art/compressed/cutscene/tutorial1/charset.bin"
-loc_000483D6:
-	incbin "art/compressed/cutscene/unkCharset11.bin"
-loc_00048ABC:
-	incbin "art/compressed/cutscene/unkCharset10.bin"
-loc_00048FBA:
-	incbin "art/compressed/cutscene/unkCharset9.bin"
-loc_00049576:
-	incbin "art/compressed/cutscene/unkCharset8.bin"
-loc_00049DE6:
-	incbin "art/compressed/cutscene/unkCharset7.bin"
-loc_0004A13E:
-	incbin "art/compressed/cutscene/unkCharset6.bin"
-loc_0004A9B0:
-	incbin "art/compressed/cutscene/unkCharset5.bin"
-loc_0004B2DE:
-	incbin "art/compressed/cutscene/unkCharset4.bin"
-loc_0004B548:
-	incbin "art/compressed/cutscene/unkCharset3.bin"
-loc_0004B9C8:
-	incbin "art/compressed/cutscene/unkCharset2.bin"
-loc_0004BEF0:
-	incbin "art/compressed/cutscene/unkCharset1.bin"
-	
 ; Portraits
 art_portraitArle:
 	incbin "art/compressed/portrait/arleNadja.bin"
@@ -35970,6 +35959,24 @@ loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 loc_0007E000: ; Uncertain if this is even related to sound, but a pointer to it exists near code that interacts with the z80
 	incbin "sound/unknown.bin"
 	
+art_cutsceneCharset_stage1:
+loc_0004700E:
+loc_00047374:
+loc_000476DC:
+art_cutsceneCharset_tutorial1:
+loc_000483D6:
+loc_00048ABC:
+loc_00048FBA:
+loc_00049576:
+loc_00049DE6:
+loc_0004A13E:
+loc_0004A9B0:
+loc_0004B2DE:
+loc_0004B548:
+loc_0004B9C8:
+loc_0004BEF0:
+cutscene_englishCharset:
+	incbin "art/englishCharset.bin"
 	padToPowerOfTwo
 	even
 endOfRom:

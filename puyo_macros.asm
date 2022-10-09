@@ -63,6 +63,8 @@ cutscene_PlayOpponentAnim: macro anim
 	dc.b	anim
 	endm
 	
+
+	
 align macro alignment
 	cnop $00,alignment
     endm
@@ -107,6 +109,49 @@ creditsTextboxText: macro vramLocation, text
 		i: set i+1
 	endw
 	even
+	endm
+	
+cutsceneTextEnglish: macro text
+	i: set 0
+	while (strlen(\1)>i)
+		tempChar: substr i+1,i+1,\1
+		if (strcmp("\tempChar", " "))
+			dc.b    $00
+		elseif (("\tempChar">=$41)&("\tempChar"<=$5A))
+			dc.b    "\tempChar"-$36
+		elseif (("\tempChar">=$61)&("\tempChar"<=$7A))
+			dc.b    "\tempChar"-$56
+		elseif (("\tempChar">=$30)&("\tempChar"<=$39))
+			dc.b    "\tempChar"-$2F
+		elseif (strcmp("\tempChar", ":"))
+			dc.b    $50>>1
+		elseif (strcmp("\tempChar", "/"))
+			dc.b    $4E>>1
+		elseif (strcmp("\tempChar", ","))
+			dc.b    $4C>>1
+		elseif (strcmp("\tempChar", "."))
+			dc.b    $70>>1
+		elseif (strcmp("\tempChar", ":"))
+			dc.b    $50>>1
+		elseif (strcmp("\tempChar", "#"))
+			dc.b    $52>>1
+		elseif (strcmp("\tempChar", "("))
+			dc.b    $54>>1
+		elseif (strcmp("\tempChar", ")"))
+			dc.b    $56>>1
+		elseif (strcmp("\tempChar", "-"))
+			dc.b    $5C>>1
+		elseif (strcmp("\tempChar", "~"))
+			dc.b    $5E>>1
+		elseif (strcmp("\tempChar", "?"))
+			dc.b    $64>>1
+		elseif (strcmp("\tempChar", "!"))
+			dc.b    $74>>1
+		elseif (strcmp("\tempChar", "'"))
+			dc.b    $72>>1
+		endc
+		i: set i+1
+	endw
 	endm
 	
 padToPowerOfTwo: macro 

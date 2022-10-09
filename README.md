@@ -12,8 +12,10 @@ Download the Repo and run build.bat.  This will build the rom and place it in th
 	- Note: All *known* shiftability issues are fixed.  If you encounter any, please open an issue and let me know.
 - [ ] Fix all instances of "BAD CODE" segments (segments of code that weren't disassembled, and are potentially unused?)
 - [ ] Fix all instances of "MISSING POINTER"
-- [ ] Split game data into binary files (art will stay compressed for now)
-- [ ] Reverse Engineer the art compression format and make tools for it (It seems like it might just be RLE but I haven't checked yet.)
+- [x] Split art data into binary files (it will stay compressed for now)
+- [ ] Document split art data
+- [ ] Find where Palettes, Mappings, etc... are located, and split them into files
+- [ ] Reverse Engineer the art compression format and make tools for it
 - [ ] Convert compressed art to uncompressed in the repo for use with existing tools, and compress it on build time.
 - [ ] Document a lot of Game Code.
 - [ ] Decompile and Document the Sound Driver.

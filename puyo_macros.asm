@@ -41,6 +41,17 @@ lookupLoadDataToVram: macro addr, data
 	dc.l    data
 	endm
 	
+lookupLoadPalette: macro palette, line
+	dc.w    $000D
+	dc.w    (((palette-palLookupTable)&$1FFF)<<3)|(line&$7)
+	endm
+	
+lookupLoadPaletteFade: macro palette, line, fade
+	dc.w    $000E
+	dc.w    (((palette-palLookupTable)&$1FFF)<<3)|(line&$7)
+	dc.w    (fade<<8)|$00
+	endm
+	
 ; Cutscene Macros
 cutscene_endCutscene: macro
 	dc.b    $80

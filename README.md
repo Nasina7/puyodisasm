@@ -10,16 +10,23 @@ Download the Repo and run build.bat.  This will build the rom and place it in th
 ## Todo (In order of priority):
 - [x] Make the Game Shiftable
 	- Note: All *known* shiftability issues are fixed.  If you encounter any, please open an issue and let me know.
-- [ ] Fix all instances of "BAD CODE" segments (segments of code that weren't disassembled, and are potentially unused?)
+- [ ] Find where data is located, and split them into files
+	- [x] Art
+	- [x] Palettes
+	- [ ] BG Mappings
+	- [ ] Sprite Mappings
+	- [ ] etc...
+- [ ] Fix all instances of "BAD CODE" segments
 - [ ] Fix all instances of "MISSING POINTER"
-- [x] Split art data into binary files (it will stay compressed for now)
-- [ ] Document split art data
-- [ ] Find where Palettes, Mappings, etc... are located, and split them into files
+- [ ] Identify "unknown" and "missing" data
+	- [ ] Art
+	- [ ] Palettes
 - [ ] Reverse Engineer the art compression format and make tools for it
 - [ ] Convert compressed art to uncompressed in the repo for use with existing tools, and compress it on build time.
 - [ ] Document a lot of Game Code.
 - [ ] Decompile and Document the Sound Driver.
 ## Stretch Goals:
+- English Translation
 - Allow building the Arcade (Japan) Release
 - Allow building the Arcade (World) Release
 - Allow building the Sharp X68000 Release

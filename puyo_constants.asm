@@ -17,4 +17,9 @@ vdpControl2 = $C00006
 transitionLoadLocation = $00FF0A36
 functionReturnState = $00FF0A3A
 
+debug_CpuPlayer = $00FF1876
+debug_puyoDrop = $00FF1877
+debug_skipStages = $00FF1878
+debug_unknown = $00FF1879
+
 SystemStack = $00FFFC00

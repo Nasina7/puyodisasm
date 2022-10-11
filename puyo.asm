@@ -11,6 +11,10 @@ shiftabilityTest = 0
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
 fixBugs = 0
 
+; BAD CODE = Code that wasn't disassembled during the initial exodus runthrough, nor my runthrough for shiftability.
+; MISSING POINTER = Code or data that is missing a pointer (potentially unused???)
+; UNKNOWN USAGE = Code that was originally BAD CODE, but is now disassembled.  It could potentially be unused.
+
 startOfRom:
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
@@ -1400,11 +1404,12 @@ loc_000015B2:
 	BRA.w	graphicsDecompress
 loc_000015C4:
 	BRA.w	loc_00000BF2
+	
 loc_000015C8:
 	MOVE.b	D0, D1
 	LSR.w	#3, D0
 	ANDI.l	#$00001FFF, D0
-	LEA	loc_00002210, A2
+	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
 	MOVE.b	D1, D0
 	MOVEA.l	transitionLoadLocation, A0
@@ -1412,14 +1417,16 @@ loc_000015C8:
 	MOVE.b	(A0)+, D2
 	MOVE.l	A0, transitionLoadLocation
 	BRA.w	loc_00000E46
+	
 loc_000015F0:
 	MOVE.b	D0, D1
 	LSR.w	#3, D0
 	ANDI.l	#$00001FFF, D0
-	LEA	loc_00002210, A2
+	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
 	MOVE.b	D1, D0
 	BRA.w	loc_00001020
+
 loc_00001608:
 	JMP	loc_000072E6
 loc_0000160E:
@@ -1454,18 +1461,24 @@ loc_0000162C:
 
 ; Type 000B.XXXX.YYYYYYYY = Load Art Data at YYYYYYYY into VRAM address XXXX
 
-; Type 000C - 0013 = ???
+; Type 000C = ???
+
+; Type 000D.XXXX = Load Palette
+
+; Type 000E.XXXX.YYYY = Load Palette with Fade In
+
+; Type 000F - 0013 = ??
 
 ; Type 0014 - FFFF = INVALID
 transition_Bootup: ; Bootup Lookup Table
 
 	lookupJumpFunction loc_00000FB8
 	
-	lookupJumpFunction loc_000021E2
+	lookupJumpFunction initializeDebugFlags
 	
 	lookupJumpFunction getChecksum
 
-	lookupJumpLocationEQ loc_00001682
+	lookupJumpLocationEQ transition_segaScreen
 
 	lookupSetVDPMode $0001
 	
@@ -1475,24 +1488,34 @@ transition_Bootup: ; Bootup Lookup Table
 
 	lookupJumpFunction loc_0001CD34
 
+	dc.b    $00, $01
 	
-	dc.b    $00, $01, $00, $0D, $0C, $00, $00, $0D, $1C, $01, $00, $0D, $15, $02 ;0x20
-	dc.b	$00, $00, $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02, $00, $01 ;0x40
-loc_00001682:
+	lookupLoadPalette pal_optionsTextWhite, 0
+	lookupLoadPalette pal_optionTextRed, 1
+	lookupLoadPalette pal_optionsBackground, 2
+	
+	dc.b	$00, $00
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	
+	dc.b    $00, $01 ;0x40
+transition_segaScreen:
 	lookupJumpFunction loc_00000FB8
 	
 	lookupSetVDPMode $0001
 	
 	lookupLoadDataToVram $A000, loc_00061400
 	
-	lookupJumpFunction loc_0000A49E
+	lookupJumpFunction loadSegaScreen
 	
 	lookupJumpFunction loc_0000C960
 	
 	
-	dc.w	$00000000
-	dc.w	$0000000D
-	dc.w	$00000000
+	dc.w	$0000
+	
+	lookupLoadPalette pal_blank, 0
 	
 	lookupJumpFunction loc_000029D6
 	
@@ -1502,7 +1525,7 @@ loc_00001682:
 	lookupWriteRam $00FF05D2, $0000
 	
 	dc.w    $0001 
-loc_000016C0:
+transition_titleScreen:
 	lookupSetVDPMode $0000
 	
 	lookupLoadDataToVram $0000, loc_0007A300
@@ -1514,34 +1537,20 @@ loc_000016C0:
 	
 	lookupJumpFunction loc_0000CE58
 	
-	dc.w	$000E ;Predicted 
-	dc.w	$0100 
+	lookupLoadPaletteFade pal_00002230, 0, 0
+	lookupLoadPaletteFade pal_titleScreenArle, 1, 0
+	lookupLoadPaletteFade pal_titleScreenBackground, 2, 0
+	lookupLoadPaletteFade pal_titleScreenLogo_cycle, 3, 0
+	
 	dc.w	$0000 
-	dc.w	$000E 
-	dc.w	$1701 
-	dc.w	$0000 
-	dc.w	$000E 
-	dc.w	$1F02 
-	dc.w	$0000 
-	dc.w	$000E 
-	dc.w	$2103 
-	dc.w	$0000 
-	dc.w	$0000 
-loc_00001702:
+transition_mainMenu:
 
 	lookupJumpFunction loc_000029D6
 	
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
 	dc.w	$00000001 
 	
@@ -1558,13 +1567,13 @@ loc_00001702:
 	dc.w    $0012
 	
 	lookupLocationLookup $0004
-	dc.l	loc_0000174C
+	dc.l	transition_mainMenu2
 	dc.l    transition_tutorialDemo
-	dc.l	loc_00001EAC
+	dc.l	transition_unknown6
 	dc.l	transition_normalModeEnding
 	
 	
-loc_0000174C: ; Second half of above transition
+transition_mainMenu2: ; Second half of above transition
 	lookupSetVDPMode $0000
 	
 	lookupLoadDataToVram $A000, loc_00061400
@@ -1573,20 +1582,25 @@ loc_0000174C: ; Second half of above transition
 	
 	lookupLoadDataToVram $0000, loc_0006C400
 	
-	dc.w	$000F, $0004, $000C, $001F, $0001, $000D, $0500, $000D, $0401, $000D, $0B03, $0001
+	dc.w	$000F, $0004, $000C, $001F, $0001
+	
+	lookupLoadPalette pal_000022B0, 0
+	lookupLoadPalette pal_general, 1
+	lookupLoadPalette pal_mainMenuMenus, 3
+	
+	dc.w    $0001
 	
 	lookupJumpFunction loc_0000B0F6
 	
 	dc.w	$00000000 
+	
 	dc.w	$00000011 
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
+
 	dc.w	$00000001 
 	
 	lookupJumpFunction loc_000029D6
@@ -1594,11 +1608,11 @@ loc_0000174C: ; Second half of above transition
 	dc.b	$00, $12
 	
 	lookupLocationLookup $0004
-	dc.l	loc_0000187C
-	dc.l	loc_00001D62
-	dc.l    loc_00001E20 
-	dc.l	loc_000017B6
-loc_000017B6:
+	dc.l	transition_portraitScreen
+	dc.l	transition_unknown2
+	dc.l    transition_unknown5 
+	dc.l	transition_options
+transition_options:
 	lookupSetVDPMode $0001
 	dc.w	$000F, $0004
 	
@@ -1612,40 +1626,30 @@ loc_000017B6:
 	
 	dc.w	$0001
 	
-	dc.w	$000D 
-	dc.w	$1500 
-	
-	dc.w	$000D 
-	dc.w	$1B01 
-	
-	dc.w	$000D 
-	dc.w	$1C02 
-	
-	dc.w	$000D 
-	dc.w	$1D03 
+	lookupLoadPalette pal_optionsBackground, 0
+	lookupLoadPalette pal_optionTextBlue, 1
+	lookupLoadPalette pal_optionTextRed, 2
+	lookupLoadPalette pal_optionTextGreen, 3
 	
 	dc.w	$0001 
 	
 	lookupJumpFunction loc_0001D3A0
 	
 	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
 	lookupJumpFunction loc_000029D6
 	
 	dc.w	$0012, $0001
 	
-	lookupJumpLocationNE loc_00001818
+	lookupJumpLocationNE transition_soundTest
 	
-	lookupJumpLocation loc_000016C0
-loc_00001818:
+	lookupJumpLocation transition_titleScreen
+transition_soundTest:
 	lookupSetVDPMode $0001
 	
 	lookupLoadDataToVram $6000, loc_00034800
@@ -1657,68 +1661,54 @@ loc_00001818:
 	
 	dc.w	$0001 
 	
-	dc.w	$000D 
-	dc.w	$0400 
-	
-	dc.w	$000D 
-	dc.w	$0C01 
-	
-	dc.w	$000D 
-	dc.w	$1502 
-	
-	dc.w	$000D 
-	dc.w	$1D03 
+	lookupLoadPalette pal_general, 0
+	lookupLoadPalette pal_optionsTextWhite, 1
+	lookupLoadPalette pal_optionsBackground, 2
+	lookupLoadPalette pal_optionTextGreen, 3
 	
 	lookupJumpFunction loc_0001CD28
 	
 	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
 	dc.w	$00000001 
 	dc.w	$00000012 
 	
 	lookupJumpFunction loc_000029D6
 	
-	lookupJumpLocation loc_000017B6
-loc_0000187C:
+	lookupJumpLocation transition_options
+transition_portraitScreen:
 	lookupSetVDPMode $0000
-loc_00001880:
+
 	lookupLoadDataToVram $8000, loc_0002CD00
 
 	lookupLoadDataToVram $A000, loc_00061400
-loc_00001890:
+
 	dc.w	$000C 
-loc_00001892: ; Loads Portrait Screen
+
 	dc.b	$00, $1E
 	dc.b    $00, $01
 	
 	lookupJumpFunction loc_0000C162
 	
 	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$0300 
-	dc.w	$0000000D 
-	dc.w	$0401 
-	dc.w	$0000000D 
-	dc.w	$1402 
-	dc.w	$0000000D 
-	dc.w	$1903 
+	
+	lookupLoadPalette pal_00002270, 0
+	lookupLoadPalette pal_general, 1
+	lookupLoadPalette pal_portraitDefeated, 2
+	lookupLoadPalette pal_portraitScreenBackground, 3
+
 	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
+	
 	dc.w	$00000001 
 	
 	lookupJumpFunction loc_000029D6
@@ -1744,10 +1734,7 @@ loc_00001892: ; Loads Portrait Screen
 	
 	lookupJumpFunction loc_0000A2F4
 	
-	
-	dc.w	$0000000E 
-	dc.w	$0400 
-	dc.w	$00000000 
+	lookupLoadPaletteFade pal_general, 0, 0
 	
 	lookupJumpFunction loc_00002128
 	
@@ -1755,17 +1742,15 @@ loc_00001892: ; Loads Portrait Screen
 	
 	lookupJumpFunction loc_00002204
 	
-	lookupJumpLocationEQ loc_0000195C
+	lookupJumpLocationEQ transition_unknown1
 	
 	dc.w	$00000003 
-	dc.w	$0000000D 
-	dc.w	$00000000 
-	dc.w	$0000000D 
-	dc.w	$00000001 
-	dc.w	$0000000D 
-	dc.w	$00000002 
-	dc.w	$0000000D 
-	dc.w	$00000003 
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
+	
 	dc.w	$00000001 
 	dc.w	$00000012 
 	
@@ -1776,11 +1761,11 @@ loc_00001892: ; Loads Portrait Screen
 	
 	lookupJumpFunction loc_00002FB8
 	
-	lookupJumpLocationEQ loc_0000187C
+	lookupJumpLocationEQ transition_portraitScreen
 	
-	lookupJumpLocation loc_00001682
+	lookupJumpLocation transition_segaScreen
 	
-loc_0000195C:
+transition_unknown1:
 	dc.w	$00000003 
 	dc.w	$00000001 
 	
@@ -1825,18 +1810,11 @@ loc_0000195C:
 	lookupWriteRam $00FF1108, $1003
 	
 	dc.w	$00000011 
-	dc.w	$0000000E 
-	dc.w	$00000000 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$00000000+1 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$00000000+2 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$00000000+3 
-	dc.w	$00000000 
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	lookupLoadPaletteFade pal_blank, 3, 0
 	
 	dc.w	$00000000+3 
 	
@@ -1844,15 +1822,15 @@ loc_0000195C:
 	
 	dc.w	$00000012 
 	
-	lookupJumpLocationNE loc_00001A14
+	lookupJumpLocationNE transition_gameOver
 	
 	lookupJumpFunction loc_00002FB8
 	
 	lookupLocationLookup $0003
-	dc.l	loc_0000187C 
+	dc.l	transition_portraitScreen 
 	dc.l	transition_normalModeEnding 
 	dc.l	transition_easyModeEnding 
-loc_00001A14:
+transition_gameOver:
 	lookupSetVDPMode $0001
 	
 	lookupJumpFunction loc_00000BDC
@@ -1868,19 +1846,10 @@ loc_00001A14:
 	
 	lookupJumpFunction loc_0000C652
 	
-	dc.w	$0000000E 
-	dc.w	$0400 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$0401 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$0D02 
-	dc.w	$00000000 
-	dc.w	$0000000E 
-	dc.w	$0103 
-	
-	dc.w	$00000000 
+	lookupLoadPaletteFade pal_general, 0, 0
+	lookupLoadPaletteFade pal_general, 1, 0
+	lookupLoadPaletteFade pal_gameOverSky, 2, 0
+	lookupLoadPaletteFade pal_00002230, 3, 0
 	
 	dc.w	$00000003 
 	
@@ -1888,20 +1857,14 @@ loc_00001A14:
 	
 	dc.w	$00000000 
 	
-	dc.w	$00000000+$14-3 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000+1 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000+2 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000+3 
-	dc.w	$00000000 
-	dc.w	$00000000+3 
+	dc.w	$0011
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	lookupLoadPaletteFade pal_blank, 3, 0
+	
+	dc.w	$00000003 
 	
 	dc.w	$00000012 
 	
@@ -1909,11 +1872,11 @@ loc_00001A14:
 	
 	lookupJumpFunction loc_000029D6
 	
-	lookupJumpLocationEQ loc_0000187C
+	lookupJumpLocationEQ transition_portraitScreen
 	
 	lookupWriteRam $00FF1890, $0000
 	
-	lookupJumpLocation loc_00001CEC
+	lookupJumpLocation transition_recordScreen1PlayerOnly
 	
 ; Loads Easy Mode Ending
 transition_easyModeEnding:
@@ -1936,12 +1899,19 @@ transition_easyModeEnding:
 	
 	lookupJumpFunction loc_0000A2F4
 	
-	dc.b	$00, $0E, $04, $00, $00, $00
-	dc.b    $00, $0E, $03, $02, $00, $00
-	dc.b    $00, $0E, $04, $03, $00, $00
+	lookupLoadPaletteFade pal_general, 0, 0
+	lookupLoadPaletteFade pal_00002270, 2, 0
+	lookupLoadPaletteFade pal_general, 3, 0
+	
 	dc.b    $00, $00
-	dc.b    $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00, $00 
-	dc.b	$03
+	dc.b    $00, $11
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	lookupLoadPaletteFade pal_blank, 3, 0
+	
+	dc.w    $0003
 	
 	lookupJumpFunction loc_000029D6
 	
@@ -1949,7 +1919,7 @@ transition_easyModeEnding:
 	
 	lookupWriteRam $00FF1890, $0000
 	
-	lookupJumpLocation loc_00001CEC
+	lookupJumpLocation transition_recordScreen1PlayerOnly
 transition_normalModeEnding:
 	lookupWriteRam $00FFFC02, $FFFF
 	
@@ -1967,21 +1937,35 @@ transition_normalModeEnding:
 	
 	lookupJumpFunction loc_0000D908
 	
-	dc.b    $00, $0E, $0F, $00, $00, $00, $00, $0E, $10, $01, $00, $00, $00, $0E, $01, $02 ;0x20
-	dc.b	$00, $00, $00, $00
+	lookupLoadPaletteFade pal_000023F0, 0, 0
+	lookupLoadPaletteFade pal_endingArle, 1, 0
+	lookupLoadPaletteFade pal_00002230, 2, 0
 	
-	lookupJumpLocationEQ loc_00001B9E
+	dc.b    $00, $00
 	
-	dc.b    $00, $0D, $00, $00, $00, $0D, $00, $01, $00, $0D, $00, $02
+	lookupJumpLocationEQ transition_credits
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	
 	lookupJumpFunction loc_000029D6
+	
 	dc.b    $00, $12, $00, $01 ;0x40
 	
-	lookupJumpLocation loc_00001BBC
-loc_00001B9E:
-	dc.b    $00, $0E, $00, $01, $04, $00, $00, $0E, $00, $02, $04, $00, $00, $02, $00, $50, $00, $03
+	lookupJumpLocation transition_credits2
+transition_credits:
+	
+	lookupLoadPaletteFade pal_blank, 1, 4
+	lookupLoadPaletteFade pal_blank, 2, 4
+
+	dc.b    $00, $02, $00, $50
+	dc.b    $00, $03
+	
+	
 	lookupJumpFunction loc_000029D6
 	dc.b    $00, $12, $00, $02, $00, $C0
-loc_00001BBC:
+transition_credits2:
 	dc.b    $00, $02, $00, $80 
 	
 	lookupSetVDPMode $0001
@@ -1993,68 +1977,84 @@ loc_00001BBC:
 	lookupLoadDataToVram $6000, loc_00034800
 	lookupLoadDataToVram $A000, loc_00061DD0
 	lookupWriteRam $00FF0112, $0000
-loc_00001BF6:
+transition_credits3:
 	lookupJumpFunction loc_0000DAF4
 	lookupJumpFunction loc_0000D908
-loc_00001C02:
+
 	dc.b	$00, $00
 	dc.b	$00, $01
 	
 	lookupLocationLookup $0003
-	dc.l	loc_00001C36
-	dc.l	loc_00001BF6
-	dc.l	loc_00001C16
-loc_00001C16:
-	dc.b	$00, $0D, $00, $00, $00, $0D
-	dc.b	$00, $01, $00, $0D, $00, $02 
-	dc.b	$00, $0D, $00, $03
+	dc.l	transition_staff2
+	dc.l	transition_credits3
+	dc.l	transition_staff
+transition_staff:
+
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
 	lookupJumpFunction loc_000029D6
 	
 	dc.b	$00, $12, $00, $01
 	
-	lookupJumpLocation loc_00001C62
-loc_00001C36:
-	dc.b	$00, $11, $00, $0E, $00, $00, $06, $00, $00, $0E
-	dc.b	$00, $01, $06, $00
-	dc.b	$00, $0E, $00, $02, $06, $00
-	dc.b	$00, $0E, $00, $03, $06, $00
-	dc.b	$00, $02, $00, $70, $00, $03
+	lookupJumpLocation transition_staff3
+	
+transition_staff2:
+	dc.b	$00, $11
+	
+	lookupLoadPaletteFade pal_blank, 0, 6
+	lookupLoadPaletteFade pal_blank, 1, 6
+	lookupLoadPaletteFade pal_blank, 2, 6
+	lookupLoadPaletteFade pal_blank, 3, 6
+	
+	dc.b	$00, $02, $00, $70
+	dc.b    $00, $03
 	lookupJumpFunction loc_000029D6
-	dc.b	$00, $02, $00, $80, $00, $12 ;0x40
-loc_00001C62:
+	dc.b	$00, $02, $00, $80
+	dc.b    $00, $12 ;0x40
+transition_staff3:
 	lookupSetVDPMode $0001
 	dc.b	$00, $0F, $00, $0A
 	
 	lookupLoadDataToVram $0000, loc_0002FC00
 	lookupLoadDataToVram $A000, art_optionsCharset
 	
-	dc.b	$00, $0C, $00, $0A, $00, $01, $00, $0E ;0x60
-	dc.b	$0F, $00, $00, $00, $00, $0E, $1A, $01, $00, $00, $00, $03
+	dc.b	$00, $0C, $00, $0A, $00, $01
+	
+	lookupLoadPaletteFade pal_000023F0, 0, 0
+	lookupLoadPaletteFade pal_00002550, 1, 0
+	
+	dc.b    $00, $03
 	
 	lookupJumpFunction loc_0000BE0E
 	lookupJumpFunction loc_0000D908
 	
 	dc.b	$00, $00
 	
-	lookupJumpLocationEQ loc_00001CC2
+	lookupJumpLocationEQ transition_recordScreen
 	
-	dc.b	$00, $0D, $00, $00, $00, $0D, $00, $01
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	
 	
 	lookupJumpFunction loc_000029D6
 	dc.b	$00, $01, $00, $12
 	lookupWriteRam $00FF1890, $0000
-	lookupJumpLocation loc_00001CEC
-loc_00001CC2:
+	lookupJumpLocation transition_recordScreen1PlayerOnly
+transition_recordScreen:
 	dc.b	$00, $11
 	lookupJumpFunction loc_000029D6
-	dc.b	$00, $0E, $00, $00, $00, $00
-	dc.b	$00, $0E, $00, $01, $00, $00
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	
 	dc.b	$00, $02, $00, $10, $00, $03
 	lookupJumpFunction loc_000029D6
 	dc.b	$00, $12
 	lookupWriteRam $00FF1890, $0000
-loc_00001CEC:
+transition_recordScreen1PlayerOnly:
 
 	lookupSetVDPMode $0000
 	
@@ -2074,36 +2074,29 @@ loc_00001CEC:
 	
 	lookupJumpFunction loc_0000BB0E
 	
-	dc.w	$00000000+$10-2 
-	dc.w	$1200 
+	lookupLoadPaletteFade pal_recordScreenMain, 0, 0
+	lookupLoadPaletteFade pal_00002250, 1, 0
+	lookupLoadPaletteFade pal_00002270, 2, 0
+	
 	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$0201 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$0302
-	dc.w	$00000000 
-	dc.w	$00000000 
-	dc.w	$00000000+$14-3 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000+1 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-2 
-	dc.w	$00000000+2 
-	dc.w	$00000000 
+	
+	dc.w	$00000011
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	
 	dc.w	$00000000+2 
 	dc.w	$00000000+$10 
+	
 	dc.w	$00000000+3 
 	
 	lookupJumpFunction loc_000029D6
 	
 	dc.b	$00, $12
 	
-	lookupJumpLocation loc_00001682
-loc_00001D62:
+	lookupJumpLocation transition_segaScreen
+transition_unknown2:
 	lookupWriteRam $00FF0128, $0000
 	lookupJumpFunction loc_00007F00
 
@@ -2112,13 +2105,18 @@ loc_00001D62:
 	lookupLoadDataToVram $0000, loc_00069300
 	lookupLoadDataToVram $A000, loc_00061400
 	
-	dc.b	$00, $0C, $00, $04, $00, $01, $00, $0F, $00, $06, $00, $0D, $01, $00, $00, $0D, $02, $01, $00, $0D, $03, $02, $00, $0D, $0E, $03
+	dc.b	$00, $0C, $00, $04, $00, $01, $00, $0F, $00, $06
+	
+	lookupLoadPalette pal_00002230, 0
+	lookupLoadPalette pal_00002250, 1
+	lookupLoadPalette pal_00002270, 2
+	lookupLoadPalette pal_000023D0, 3
 	
 	lookupWriteRam $00FF1108, $0802
-loc_00001DA6:
+transition_unknown3:
 	lookupWriteRam $00FF0112, $0000
 	
-	dc.b	$00, $0D, $01, $00
+	lookupLoadPalette pal_00002230, 0
 	
 	lookupLoadDataToVram $2000, loc_00064000
 	lookupJumpFunction loc_00007F9C
@@ -2127,25 +2125,31 @@ loc_00001DA6:
 	
 	dc.b	$00, $00
 	
-	lookupJumpLocationNE loc_00001DE6
+	lookupJumpLocationNE transition_recordScreen3
 	lookupJumpFunction loc_000029D6
 	
 	dc.b	$00, $0C, $00, $04, $00, $01
 	
-	lookupJumpLocation loc_00001DA6
-loc_00001DE6:
+	lookupJumpLocation transition_unknown3
+transition_recordScreen3:
 	lookupWriteRam $00FF1108, $1003
 	
-	dc.b	$00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00 ;0x80
-	dc.b	$00, $0E, $00, $03, $00, $00, $00, $03
+	dc.b	$00, $11
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	lookupLoadPaletteFade pal_blank, 3, 0
+	
+	dc.b    $00, $03
 	
 	lookupJumpFunction loc_000029D6
 	
 	dc.b	$00, $12
 	
 	lookupWriteRam $00FF1890, $00FF
-	lookupJumpLocation loc_00001CEC
-loc_00001E20:
+	lookupJumpLocation transition_recordScreen1PlayerOnly
+transition_unknown5:
 
 	lookupSetVDPMode $0001
 	
@@ -2155,7 +2159,12 @@ loc_00001E20:
 	
 	dc.b    $00, $0C, $00, $16
 	dc.b    $00, $01
-	dc.b    $00, $0F, $00, $05, $00, $0E, $01, $00, $00, $00, $00, $0E, $02, $01, $00, $00, $00, $0E, $15, $02, $00, $00, $00, $0E, $18, $03, $00, $00
+	dc.b    $00, $0F, $00, $05
+	
+	lookupLoadPaletteFade pal_00002230, 0, 0
+	lookupLoadPaletteFade pal_00002250, 1, 0
+	lookupLoadPaletteFade pal_optionsBackground, 2, 0
+	lookupLoadPaletteFade pal_00002510, 3, 0
 	
 	lookupWriteRam $00FF1108, $0802
 	
@@ -2165,7 +2174,13 @@ loc_00001E20:
 	
 	lookupWriteRam $00FF1108, $1003
 	
-	dc.b    $00, $11, $00, $0E, $00, $00, $00, $00, $00, $0E, $00, $01, $00, $00, $00, $0E, $00, $02, $00, $00, $00, $0E, $00, $03, $00, $00
+	dc.b    $00, $11
+	
+	lookupLoadPaletteFade pal_blank, 0, 0
+	lookupLoadPaletteFade pal_blank, 1, 0
+	lookupLoadPaletteFade pal_blank, 2, 0
+	lookupLoadPaletteFade pal_blank, 3, 0
+	
 	dc.b    $00, $02
 	dc.b    $00, $10, $00, $03
 	
@@ -2175,8 +2190,8 @@ loc_00001E20:
 	
 	lookupWriteRam $00FF1890, $0100
 	
-	lookupJumpLocation loc_00001CEC
-loc_00001EAC:
+	lookupJumpLocation transition_recordScreen1PlayerOnly
+transition_unknown6:
 	lookupWriteRam $00FF1882, $0400
 
 	lookupSetVDPMode $0001
@@ -2189,17 +2204,20 @@ loc_00001EAC:
 	
 	lookupLoadDataToVram $A000, loc_00061400
 	
-	dc.w	$000D, $0100, $000D, $0201, $000D, $0302, $000D, $0403
+	lookupLoadPalette pal_00002230, 0
+	lookupLoadPalette pal_00002250, 1
+	lookupLoadPalette pal_00002270, 2
+	lookupLoadPalette pal_general, 3
 	
 	lookupJumpFunction loc_0000C9BA
 	lookupJumpFunction loc_00002EBA
 	lookupJumpFunction loc_00003056
 	
-	dc.w	$00000000+1 
+	dc.w	$00000001 
 	
 	lookupJumpFunction loc_000055A4
 	
-	dc.w	$00000000+1 
+	dc.w	$00000001 
 	
 	lookupJumpFunction loc_0000C14A
 	lookupJumpFunction loc_0000C946
@@ -2208,10 +2226,15 @@ loc_00001EAC:
 	
 	lookupJumpFunction loc_000029D6
 	
-	dc.w	$000D, $0000, $000D, $0001, $000D, $0002, $000D, $0003, $0001
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
-	lookupJumpLocationNE loc_000016C0
-	lookupJumpLocation loc_00001FC8
+	dc.w    $0001
+	
+	lookupJumpLocationNE transition_titleScreen
+	lookupJumpLocation transition_recordScreen4
 ; Loads Tutorial Demo
 transition_tutorialDemo:
 	lookupWriteRam $00FF1882, $0400
@@ -2232,27 +2255,19 @@ transition_tutorialDemo:
 	
 	dc.w	$00000000+1 
 	
-	dc.w	$00000000+$10-3 
-	dc.w	$0100 
-	dc.w	$00000000+$10-3 
-	dc.w	$0201 
-	dc.w	$00000000+$10-3 
-	dc.w	$0302
-	dc.w	$00000000+$10-3 
-	dc.w	$1E03 
-	
+	lookupLoadPalette pal_00002230, 0
+	lookupLoadPalette pal_00002250, 1
+	lookupLoadPalette pal_00002270, 2
+	lookupLoadPalette pal_tutorialDemoBGJoystick, 3
+
 	lookupJumpFunction loc_0000C960
 	
 	dc.w	$00000000 
 	
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000+1 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000+2 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000+3 
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2
+	lookupLoadPalette pal_blank, 3
 	
 	dc.w	$00000000+1 
 	
@@ -2260,9 +2275,9 @@ transition_tutorialDemo:
 	
 	dc.w	$00000000+$14-2 
 	
-	lookupJumpLocationNE loc_000016C0
-	lookupJumpLocation loc_00001FC8
-loc_00001FC8:
+	lookupJumpLocationNE transition_titleScreen
+	lookupJumpLocation transition_recordScreen4
+transition_recordScreen4:
 	lookupSetVDPMode $0000
 	
 	lookupJumpFunction loc_00000BC6
@@ -2283,24 +2298,19 @@ loc_00001FC8:
 	lookupJumpFunction loc_0000C9BA
 	lookupJumpFunction loc_0000BB0E
 
-	dc.w	$00000000+$10-3 
-	dc.w	$1200
-	dc.w	$00000000+$10-3 
-	dc.w	$0201 
-	dc.w	$00000000+$10-3 
-	dc.w	$0302
+	lookupLoadPalette pal_recordScreenMain, 0
+	lookupLoadPalette pal_00002250, 1
+	lookupLoadPalette pal_00002270, 2
 	
 	dc.w	$00000000 
 	
 	lookupJumpFunction loc_000029D6
 	
-	dc.w	$00000000+$14-3 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000+1 
-	dc.w	$00000000+$10-3 
-	dc.w	$00000000+2 
+	dc.w	$00000011
+	
+	lookupLoadPalette pal_blank, 0
+	lookupLoadPalette pal_blank, 1
+	lookupLoadPalette pal_blank, 2 
 	
 	dc.w	$00000000+1 
 	
@@ -2308,9 +2318,9 @@ loc_00001FC8:
 	
 	dc.b	$00, $12
 	
-	lookupJumpLocationNE loc_000016C0
+	lookupJumpLocationNE transition_titleScreen
 	
-	lookupJumpLocation loc_00001682
+	lookupJumpLocation transition_segaScreen
 	
 	; The end of the loading lookup tables
 loc_0000204E:
@@ -2396,23 +2406,23 @@ loc_00002138:
 	dc.l    loc_000021A4
 loc_00002178:
 	MOVE.b	#2, D0
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000060, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_00002270-palLookupTable), A2
 	JMP	loc_00001020
 loc_0000218E:
 	MOVE.b  #2, D0
-	LEA loc_00002210, A2
-	ADDA.l  #$000004E0, A2
+	LEA palLookupTable, A2
+	ADDA.l  #(pal_000026F0-palLookupTable), A2
 	JMP loc_00001020
 loc_000021A4:
 	MOVE.b  #2, D0
-	LEA loc_00002210, A2
-	ADDA.l  #$00000500, A2
+	LEA palLookupTable, A2
+	ADDA.l  #(pal_00002710-palLookupTable), A2
 	JMP loc_00001020
 loc_000021BA:
 	MOVE.b  #2, D0
-	LEA loc_00002210, A2
-	ADDA.l  #$000002A0, A2
+	LEA palLookupTable, A2
+	ADDA.l  #(pal_optionsBackground-palLookupTable), A2
 	JMP loc_00001020
 loc_000021D0:
 	CMPI.b	#3, $00FF0112
@@ -2420,485 +2430,95 @@ loc_000021D0:
 	BSR.w	loc_00000FB8
 loc_000021E0:
 	RTS
-loc_000021E2:
-	move.b #-1, ($00FF1876).l
-	move.b #0, ($00FF1877).l
-	move.b #0, ($00FF1878).l
-	move.b #0, ($00FF1879).l
+initializeDebugFlags:
+	move.b #-1, (debug_CpuPlayer).l
+	move.b #0, (debug_puyoDrop).l
+	move.b #0, (debug_skipStages).l
+	move.b #0, (debug_unknown).l
 	rts
 loc_00002204:
-	MOVE.b	$00FF1878, functionReturnState
+	MOVE.b	debug_skipStages, functionReturnState
 	RTS
-loc_00002210:
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0408
-	dc.w	$002A
-	dc.w	$044C
-	dc.w	$064E
-	dc.w	$088E
-	dc.w	$0CE4
-	dc.w	$046C
-	dc.w	$008E
-	dc.w	$00AE
-	dc.w	$00EE
-	dc.w	$08EE
-	dc.w	$0E0E
-	dc.w	$0E0E
-	dc.w	$0EEE
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0840
-	dc.w	$0A44
-	dc.w	$0E62
-	dc.w	$0EA0
-	dc.w	$0AEA
-	dc.w	$0E0E
-	dc.w	$0804
-	dc.w	$0A06
-	dc.w	$0806
-	dc.w	$0C08
-	dc.w	$0E4A
-	dc.w	$0846
-	dc.w	$0E6A
-	dc.w	$0EEE
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0060
-	dc.w	$0080
-	dc.w	$00A4
-	dc.w	$00E4
-	dc.w	$0AEA
-	dc.w	$0422
-	dc.w	$0664
-	dc.w	$0684
-	dc.w	$08A4
-	dc.w	$0CE4
-	dc.w	$06C8
-	dc.w	$0044
-	dc.w	$0688
-	dc.w	$0EEE
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$08AE
-	dc.w	$002E
-	dc.w	$000C
-	dc.w	$0228
-	dc.w	$0EC6
-	dc.w	$0A66
-	dc.w	$048E
-	dc.w	$00CE
-	dc.w	$0880
-	dc.w	$00E6
-	dc.w	$006E
-	dc.w	$0466
-	dc.w	$0ACA
-	dc.w	$0EEE
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$0228
-	dc.w	$0E40
-	dc.w	$0E62
-	dc.w	$0E84
-	dc.w	$0EC6
-	dc.w	$08CE
-	dc.w	$048E
-	dc.w	$004C
-	dc.w	$0280
-	dc.w	$00C4
-	dc.w	$006A
-	dc.w	$0EEA
-	dc.w	$0EEC
-	dc.w	$0EEE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$08 
-	dc.b	$CE
-	dc.b	$0E 
-	dc.b	$40
-	dc.b	$00 
-	dc.b	$4C
-	dc.b	$02 
-	dc.b	$28
-	dc.b	$00 
-	dc.b	$40
-	dc.b	$00 
-	dc.b	$80
-	dc.b	$04 
-	dc.b	$8E
-	dc.b	$06 
-	dc.b	$EA
-	dc.b	$00 
-	dc.b	$A0
-	dc.b	$00 
-	dc.b	$C0
-	dc.b	$00 
-	dc.b	$6C
-	dc.b	$00 
-	dc.b	$E0
-	dc.b	$0E 
-	dc.b	$0E
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00, $00, $02, $20, $02, $40, $02, $60, $00, $82, $02, $42, $0C, $40, $00, $8E, $0E, $AE, $0A, $AA, $08, $86, $06, $64, $04, $42, $02, $20, $02, $00, $0C, $CC 
-	dc.b	$00, $00, $0A, $46, $0C, $46, $0E, $46, $0E, $66, $0E, $86, $0E, $84, $0C, $82, $0E, $A8, $0C, $86, $0A, $64, $0A, $42, $08, $20, $06, $00, $00, $00, $0C, $CE ;0x20
-	dc.b	$00, $00, $04, $00, $04, $00, $06, $00, $08, $00, $0A, $00, $0C, $00, $0E, $00, $04, $2E, $02, $02, $02, $04, $02, $06, $02, $08, $02, $0C, $02, $00, $0E, $EE ;0x40
-	dc.b	$00, $00, $04, $44, $04, $44, $06, $66, $08, $88, $0A, $AA, $0C, $CC, $0E, $EE, $0E, $EE, $02, $22, $0C, $CC, $06, $66, $08, $88, $0C, $CC, $02, $22, $0E, $EE ;0x60
-	dc.w	$0000, $0000, $046A, $000A, $0008, $0004, $0ACA, $0EEE, $004A, $008A, $0006, $0040, $002A, $0022, $0082, $0060 
-	dc.b	$00 
-	dc.b	$00
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.w	$0EEE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$0E 
-	dc.b	$C6
-	dc.b	$0E 
-	dc.b	$A4
-	dc.b	$0E 
-	dc.b	$82
-	dc.b	$0E 
-	dc.b	$60
-	dc.b	$0E 
-	dc.b	$40
-	dc.b	$0E 
-	dc.b	$20
-	dc.b	$0E 
-	dc.b	$00
-	dc.b	$0C 
-	dc.b	$00
-	dc.b	$0A 
-	dc.b	$00
-	dc.b	$08 
-	dc.b	$00
-	dc.b	$06 
-	dc.b	$00
-	dc.b	$04 
-	dc.b	$00
-	dc.b	$02 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00, $00, $00, $00, $04, $6A, $00, $0A, $00, $08, $00, $04, $0A, $CA, $0E, $EE, $00, $4A, $00, $8A, $00, $06, $00, $02, $00, $2A, $00, $22, $00, $00, $00, $60 
-	dc.b	$00, $00, $00, $00, $06, $04, $04, $06, $00, $08, $00, $0A, $00, $2C, $00, $4E, $00, $6E, $00, $8E, $00, $AE, $00, $CE, $06, $EE, $0E, $0E, $0E, $0E, $0E, $EE ;0x20
-	dc.b	$00, $00, $00, $00, $08, $AE, $00, $2E, $00, $0C, $02, $28, $0E, $E6, $0A, $66, $04, $8E, $00, $CE, $08, $46, $0E, $A0, $00, $6E, $04, $66, $08, $AA, $0E, $EE ;0x40
-	dc.b	$00, $00, $00, $00, $00, $00, $04, $00, $06, $00, $08, $20, $0A, $42, $00, $00, $0C, $44, $0E, $66, $0E, $88, $0E, $AA, $0E, $CC, $08, $00, $0A, $64, $0E, $EE ;0x60
-	dc.w	$0000
-	dc.w	$0000
-	dc.w	$08CE
-	dc.w	$0E0E
-	dc.w	$006A
-	dc.w	$0008
-	dc.w	$0E0E
-	dc.w	$0E0E
-	dc.w	$00AE
-	dc.w	$00EE
-	dc.w	$0E0E
-	dc.w	$0E0E
-	dc.w	$008C
-	dc.w	$0E0E
-	dc.w	$0A64
-	dc.w	$0EEE
-	dc.b	$00, $00, $00, $00, $08, $AE, $00, $2E, $00, $0C, $02, $28, $0E, $E6, $0A, $66, $04, $8E, $00, $CE, $08, $46, $0E, $A0, $00, $6E, $04, $66, $08, $AA, $0E, $EE 
-	dc.w	$0000, $0000, $046A, $000A, $0008, $0004, $0A82, $0622, $004A, $008A, $0440, $00A2, $002A, $0022, $0686, $0AAA, $0000, $0000, $0060, $0080, $00A4, $00E4, $0AEA, $0400, $0664, $0684, $08A4, $0CE4, $06C8, $0200, $0620, $0EEE 
-	dc.b	$0E, $EE, $0E, $EE, $08, $88, $08, $88, $0A, $AA, $0A, $AA, $04, $44, $08, $88, $04, $44, $02, $22, $0A, $AA, $04, $44, $06, $66, $08, $88, $04, $44, $00, $00 
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$08 
-	dc.b	$AE
-	dc.b	$00 
-	dc.b	$2E
-	dc.b	$00 
-	dc.b	$0C
-	dc.b	$02 
-	dc.b	$28
-	dc.b	$0E 
-	dc.b	$E6
-	dc.b	$0A 
-	dc.b	$66
-	dc.b	$04 
-	dc.b	$8E
-	dc.b	$00 
-	dc.b	$CE
-	dc.b	$08 
-	dc.b	$46
-	dc.b	$0E 
-	dc.b	$A0
-	dc.b	$00 
-	dc.b	$6E
-	dc.b	$04 
-	dc.b	$66
-	dc.b	$08 
-	dc.b	$AA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00, $00, $00, $00, $08, $AE, $00, $2E, $00, $0C, $02, $28, $0A, $CA, $0E, $EE, $04, $AE, $00, $CE, $04, $00, $02, $00, $00, $6E, $04, $66, $02, $00, $06, $20 
-	dc.w	$0000, $0000, $0446, $0E0E, $0024, $0224, $0E0E, $0E0E, $0046, $00CE, $0E0E, $0E0E, $0046, $0E0E, $0A64, $0068 
-	dc.b	$00, $00, $02, $22, $04, $44, $06, $66, $08, $88, $0A, $AA, $0C, $CC, $0E, $EE, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $04, $EA, $0E, $EE 
-	dc.w	$0000, $0200, $0400, $0600, $0800, $0A00, $0C00, $0E00, $0000, $0000, $0000, $0000, $0000, $0000, $04EA, $0C22, $0000, $0002, $0004, $0006, $0008, $000A, $000C, $000E, $0000, $0000, $0000, $0000, $0000, $0000, $04EA, $022C 
-	dc.w	$0000, $0020, $0040, $0060, $0080, $00A0, $00C0, $00E0, $0000, $0000, $0000, $0000, $0000, $0000, $04EA, $02C2, $0000, $0000, $08EE, $00AE, $004A, $0028, $0006, $0EEE, $006C, $00CE, $0000, $0200, $0666, $0AAA, $0000, $0000 ;0x20
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$04 
-	dc.b	$22
-	dc.b	$02 
-	dc.b	$44
-	dc.b	$02 
-	dc.b	$46
-	dc.b	$02 
-	dc.b	$66
-	dc.b	$04 
-	dc.b	$44
-	dc.b	$02 
-	dc.b	$68
-	dc.b	$06 
-	dc.b	$68
-	dc.b	$06 
-	dc.b	$86
-	dc.b	$06 
-	dc.b	$88
-	dc.b	$06 
-	dc.b	$8A
-	dc.b	$06 
-	dc.b	$AA
-	dc.b	$06 
-	dc.b	$AC
-	dc.b	$02 
-	dc.b	$20
-	dc.b	$0A 
-	dc.b	$CE
-	dc.b	$0C 
-	dc.b	$CC
-	dc.b	$00, $00, $00, $00, $0A, $CE, $02, $0E, $02, $6C, $02, $4A, $0E, $C0, $0E, $A2, $08, $AE, $02, $AE, $0A, $42, $0E, $64, $04, $8C, $08, $86, $0C, $CA, $0C, $EE 
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$06 
-	dc.b	$00
-	dc.b	$08 
-	dc.b	$00
-	dc.b	$0A 
-	dc.b	$00
-	dc.b	$0C 
-	dc.b	$00
-	dc.b	$0E 
-	dc.b	$20
-	dc.b	$0E 
-	dc.b	$40
-	dc.b	$0E 
-	dc.b	$40
-	dc.b	$0E 
-	dc.b	$60
-	dc.b	$0E 
-	dc.b	$82
-	dc.b	$0E 
-	dc.b	$A4
-	dc.b	$0E 
-	dc.b	$C6
-	dc.b	$0E 
-	dc.b	$EA
-	dc.b	$0C 
-	dc.b	$CA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$40
-	dc.b	$00 
-	dc.b	$60
-	dc.b	$00 
-	dc.b	$80
-	dc.b	$00 
-	dc.b	$A0
-	dc.b	$00 
-	dc.b	$A0
-	dc.b	$00 
-	dc.b	$C0
-	dc.b	$00 
-	dc.b	$C0
-	dc.b	$02 
-	dc.b	$C0
-	dc.b	$04 
-	dc.b	$C0
-	dc.b	$06 
-	dc.b	$E0
-	dc.b	$08 
-	dc.b	$E4
-	dc.b	$0C 
-	dc.b	$EA
-	dc.b	$0C 
-	dc.b	$CA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$06
-	dc.b	$00 
-	dc.b	$08
-	dc.b	$00 
-	dc.b	$0A
-	dc.b	$00 
-	dc.b	$0C
-	dc.b	$00 
-	dc.b	$0C
-	dc.b	$00 
-	dc.b	$0E
-	dc.b	$02 
-	dc.b	$0E
-	dc.b	$02 
-	dc.b	$2E
-	dc.b	$04 
-	dc.b	$4E
-	dc.b	$06 
-	dc.b	$6E
-	dc.b	$08 
-	dc.b	$AE
-	dc.b	$0C 
-	dc.b	$CE
-	dc.b	$0C 
-	dc.b	$CA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$48
-	dc.b	$00 
-	dc.b	$48
-	dc.b	$00 
-	dc.b	$6C
-	dc.b	$00 
-	dc.b	$8A
-	dc.b	$00 
-	dc.b	$AE
-	dc.b	$00 
-	dc.b	$CE
-	dc.b	$00 
-	dc.b	$CE
-	dc.b	$02 
-	dc.b	$CE
-	dc.b	$04 
-	dc.b	$EE
-	dc.b	$06 
-	dc.b	$EE
-	dc.b	$06 
-	dc.b	$EE
-	dc.b	$08 
-	dc.b	$EE
-	dc.b	$0C 
-	dc.b	$CC
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$08 
-	dc.b	$62
-	dc.b	$08 
-	dc.b	$62
-	dc.b	$0A 
-	dc.b	$80
-	dc.b	$0C 
-	dc.b	$A0
-	dc.b	$0E 
-	dc.b	$C0
-	dc.b	$0E 
-	dc.b	$C0
-	dc.b	$0E 
-	dc.b	$E0
-	dc.b	$0E 
-	dc.b	$E2
-	dc.b	$0E 
-	dc.b	$E6
-	dc.b	$0E 
-	dc.b	$E8
-	dc.b	$0E 
-	dc.b	$EC
-	dc.b	$0E 
-	dc.b	$EC
-	dc.b	$0C 
-	dc.b	$CA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$06 
-	dc.b	$06
-	dc.b	$06 
-	dc.b	$06
-	dc.b	$08 
-	dc.b	$08
-	dc.b	$0A 
-	dc.b	$0A
-	dc.b	$0E 
-	dc.b	$0C
-	dc.b	$0E 
-	dc.b	$2E
-	dc.b	$0E 
-	dc.b	$4E
-	dc.b	$0E 
-	dc.b	$6E
-	dc.b	$0E 
-	dc.b	$8E
-	dc.b	$0E 
-	dc.b	$AE
-	dc.b	$0E 
-	dc.b	$CE
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$0C 
-	dc.b	$CA
-	dc.b	$0E 
-	dc.b	$EE
-	dc.b	$00, $00, $00, $00, $00, $60, $00, $80, $00, $A4, $00, $E4, $0A, $EA, $04, $40, $06, $66, $06, $88, $08, $AA, $0A, $CC, $0C, $EE, $04, $00, $04, $44, $0E, $EE 
-	dc.b	$00, $00, $00, $00, $00, $60, $00, $80, $00, $A4, $00, $E4, $0A, $EA, $04, $40, $04, $46, $06, $68, $08, $8A, $0A, $AC, $0C, $CE, $04, $00, $02, $24, $0E, $EE ;0x20
+palLookupTable:
+pal_blank:
+	incbin "art/palettes/blank.bin"
+pal_00002230:
+	incbin "art/palettes/unknown/unknown1.bin"
+pal_00002250:
+	incbin "art/palettes/unknown/unknown2.bin"
+pal_00002270:
+	incbin "art/palettes/unknown/unknown3.bin"
+pal_general:
+	incbin "art/palettes/general.bin"
+pal_000022B0:
+	incbin "art/palettes/unknown/unknown4.bin"
+pal_000022D0:
+	incbin "art/palettes/unknown/unknown5.bin"
+pal_000022F0:
+	incbin "art/palettes/unknown/unknown6.bin"
+pal_00002310:
+	incbin "art/palettes/unknown/unknown7.bin"
+pal_00002330:
+	incbin "art/palettes/unknown/unknown8.bin"
+; MISSING POINTER (Palette)
+	incbin "art/palettes/missing/missing1.bin"
+pal_mainMenuMenus:
+	incbin "art/palettes/mainMenu/menus.bin"
+pal_optionsTextWhite:
+	incbin "art/palettes/soundTest/textWhite.bin"
+pal_gameOverSky:
+	incbin "art/palettes/gameOver/sky.bin"
+pal_000023D0:
+	incbin "art/palettes/unknown/unknown9.bin"
+pal_000023F0:
+	incbin "art/palettes/unknown/unknown10.bin"
+pal_endingArle:
+	incbin "art/palettes/ending/arle.bin"
+pal_00002430:
+	incbin "art/palettes/unknown/unknown11.bin"
+pal_recordScreenMain:
+	incbin "art/palettes/record/main.bin"
+; MISSING POINTER (Palette)
+	incbin "art/palettes/missing/missing2.bin"
+pal_portraitDefeated:
+	incbin "art/palettes/portrait/defeated.bin"
+pal_optionsBackground:
+	incbin "art/palettes/options/background.bin"
+; MISSING POINTER (Palette)
+	incbin "art/palettes/missing/missing3.bin"
+pal_titleScreenArle:
+	incbin "art/palettes/title/arle.bin"
+pal_00002510:
+	incbin "art/palettes/unknown/unknown12.bin"
+pal_portraitScreenBackground:
+	incbin "art/palettes/portraitScreen/background.bin"
+pal_00002550:
+	incbin "art/palettes/unknown/unknown13.bin"
+pal_optionTextBlue:
+	incbin "art/palettes/options/textBlue.bin"
+pal_optionTextRed:
+	incbin "art/palettes/options/textRed.bin"
+pal_optionTextGreen:
+	incbin "art/palettes/options/textGreen.bin"
+pal_tutorialDemoBGJoystick:
+	incbin "art/palettes/demo/bgJoystick.bin"
+pal_titleScreenBackground:
+	incbin "art/palettes/title/background.bin"
+; MISSING POINTER (Palette)
+	incbin "art/palettes/missing/missing4.bin"
+pal_titleScreenLogo_cycle:
+	incbin "art/palettes/title/logoBlue.bin"
+	incbin "art/palettes/title/logoGreen.bin"
+	incbin "art/palettes/title/logoRed.bin"
+	incbin "art/palettes/title/logoYellow.bin"
+	incbin "art/palettes/title/logoLightBlue.bin"
+	incbin "art/palettes/title/logoPurple.bin"
+pal_000026F0:
+	incbin "art/palettes/unknown/unknown14.bin"
+pal_00002710:
+	incbin "art/palettes/unknown/unknown15.bin"
+
+
 ; These values relate to when a battle begins (when carbuncle pops the baloon)
 loc_00002730:
 	dc.b	$06
@@ -3973,12 +3593,12 @@ loc_00003234:
 	LEA	$00FF1C28, A1
 	CLR.b	(A1,D0.w)
 	JSR	loc_0000F9E8
-	TST.b	$00FF1877
+	TST.b	debug_puyoDrop
 	BEQ.w	loc_00003296
 	JSR	loc_0000F872
 loc_00003296:
 	BSR.w	loc_00002B26
-	TST.b	$00FF1877
+	TST.b	debug_puyoDrop
 	BEQ.w	loc_000032B2
 	BSR.w	loc_00004C0A
 	BTST.l	#5, D0
@@ -5876,7 +5496,7 @@ loc_00004C0A:
 	LSL.b	#1, D2
 	OR.b	$2A(A0), D2
 	EORI.b	#1, D2
-	AND.b	$00FF1876, D2
+	AND.b	debug_CpuPlayer, D2
 	BNE.w	loc_00004C56
 loc_00004C50:
 	JSR	loc_0001009C
@@ -5890,7 +5510,7 @@ loc_00004C5C:
 	LSL.b	#1, D2
 	OR.b	$2A(A0), D2
 	EORI.b	#1, D2
-	AND.b	$00FF1876, D2
+	AND.b	debug_CpuPlayer, D2
 	BEQ.w	loc_00004CC2
 	MOVEM.l	A3/A2, -(A7)
 	CLR.w	D1
@@ -6442,7 +6062,6 @@ loc_0000540C:
 	move.b $9(a0), $9(a1)
 	rts
 loc_0000542C:
-; BAD CODE???
 	dc.b	$14, $2B, $16, $2C, $18, $2B, $12, $2C, $15, $2B, $17, $2C, $FF, $00
 	dc.l    loc_0000542C
 loc_0000543E:
@@ -8571,8 +8190,8 @@ loc_00006B64:
 	MOVE.w	#$0017, D0
 	JSR	loc_00000BF2
 	BSR.w	loc_00002B26
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	MOVE.b	#0, D0
 	JSR	loc_00001020
 	BSR.w	loc_00002B26
@@ -10796,8 +10415,8 @@ loc_00008DA6:
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
 	MOVE.b	#1, D2
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00000E28
 	LEA	loc_00008E02, A1
 	BSR.w	loc_00002A54
@@ -10830,8 +10449,8 @@ loc_00008E30:
 	bsr.w loc_00002B26
 	move.b #3, d0
 	move.b #6, d1
-	lea loc_00002210, a2
-	adda.l #$80, a2
+	lea palLookupTable, a2
+	adda.l #(pal_general-palLookupTable), a2
 	jsr loc_00000E46
 	move.w #$40, d0
 	bsr.w loc_00002B1C
@@ -12239,15 +11858,15 @@ loc_0000A0C8:
 	move.w (a1)+, d0
 	bmi.w loc_0000A14E
 	move.l a1, $32(a0)
-	lea (loc_00002210).l, a2
+	lea (palLookupTable).l, a2
 	adda.l d0, a2
 	move.b #1, d0
 	jmp loc_00001020
 loc_0000A14E:
 	move.b #1, d0
 	move.b #1, d1
-	lea (loc_00002210).l, a2
-	adda.l #$120, a2
+	lea (palLookupTable).l, a2
+	adda.l #(pal_00002330-palLookupTable), a2
 	jsr loc_00001020
 	move.b #0, $6(a0)
 	tst.b ($00FF1886).l
@@ -12365,14 +11984,14 @@ loc_0000A316:
 loc_0000A334:
 	MOVE.b	#1, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$000000A0, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_000022B0-palLookupTable), A2
 	JSR	loc_00000E46
 loc_0000A34E:
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$000000C0, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_000022D0-palLookupTable), A2
 	JMP	loc_00000E46
 	
 loc_0000A368:
@@ -12385,13 +12004,13 @@ loc_0000A368:
 loc_0000A382:
 	move.b #1, d0
 	move.b #0, d1
-	lea (loc_00002210), a2
-	adda.l #$e0, a2
+	lea (palLookupTable), a2
+	adda.l #(pal_000022F0-palLookupTable), a2
 	jsr loc_00000E46
 	move.b #3, d0
 	move.b #0, d1
-	lea (loc_00002210).l, a2
-	adda.l #$100, a2
+	lea (palLookupTable).l, a2
+	adda.l #(pal_00002310-palLookupTable), a2
 	jmp loc_00000E46
 loc_0000A3B6:
 	lea (loc_00025400).l, a0
@@ -12404,8 +12023,8 @@ loc_0000A3B6:
 loc_0000A3DA:
 	move.b #1, d0
 	move.b #0, d1
-	lea (loc_00002210).l, a2
-	adda.l #$120, a2
+	lea (palLookupTable).l, a2
+	adda.l #(pal_00002330-palLookupTable), a2
 	jmp loc_00000E46
 loc_0000A3F4:
 	MOVE.w	#$8B00, D0
@@ -12462,7 +12081,7 @@ loc_0000A49A:
 	dc.b	$2F
 	dc.b	$FF
 	dc.b	$00 
-loc_0000A49E:
+loadSegaScreen:
 	LEA	loc_0000A4AA, A1
 	JMP	loc_00002A54
 loc_0000A4AA:
@@ -12475,6 +12094,7 @@ loc_0000A4C8:
 	MOVE.w	(A1)+, vdpData1
 	DBF	D0, loc_0000A4C8
 	ANDI	#$F8FF, SR
+	
 	JSR	loc_00002B26
 	MOVE.w	#$0023, D0
 	JSR	loc_00000BF2
@@ -12547,39 +12167,11 @@ loc_0000A5D2:
 	EORI.b	#1, $00FF013B
 	RTS
 loc_0000A5F0:
-	dc.w	$0000
-	dc.w	$0EEE
+	incbin "art/palettes/sega/logoPart1.bin"
 loc_0000A5F4:
-	dc.b	$0E, $C0, $0E, $A0, $0E, $80, $0E, $60, $0E, $40, $0E, $20, $0E, $00, $0C, $00, $0A, $00, $08, $00, $06, $00, $08, $00, $0A, $00, $0C, $00, $0E, $00, $0E, $20 
-	dc.b	$0E, $40, $0E, $60, $0E, $80, $0E, $A0, $0E, $C0, $0E, $A0, $0E, $80, $0E, $60, $0E, $40, $0E, $20, $0E, $00, $0C, $00, $0A, $00, $08, $00, $06, $00 ;0x20
+	incbin "art/palettes/sega/logoPart2.bin"
 loc_0000A632:
-	dc.w	$0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0111, $0001, $1667, $0015, $6666, $0155, $6666, $0155, $5666, $1555, $5661, $1455, $5516 
-	dc.w	$0000, $0000, $1111, $1111, $7778, $8889, $7777, $8888, $7777, $8888, $6777, $7888, $1111, $1111, $6677, $7788, $0000, $0000, $1111, $1100, $999A, $A100, $9999, $A101, $9999, $A115, $8999, $9115, $1111, $1155, $8899, $9155 ;0x20
-	dc.w	$0000, $0000, $0011, $1111, $1166, $7777, $6666, $7777, $5666, $6777, $5666, $6777, $5566, $6111, $5566, $1677, $0000, $0000, $1111, $1111, $8888, $9999, $8888, $9999, $7888, $8999, $7888, $8999, $1111, $1111, $7788, $8899 ;0x40
-	dc.w	$0000, $0000, $1111, $0000, $AAA1, $0011, $AAA1, $0166, $9AA1, $1566, $9AA1, $1566, $1111, $5556, $99A1, $5556, $0000, $0000, $1111, $1111, $6777, $7888, $6777, $7888, $6677, $7788, $6677, $7788, $6661, $1111, $6117, $7778 ;0x60
-	dc.w	$0000, $0000, $1111, $1111, $8999, $9AAA, $8999, $9AAA, $8899, $99AA, $8899, $99AA, $1111, $1111, $8889, $999A, $0000, $0000, $1100, $0000, $A100, $0000, $A100, $0000, $A100, $0000, $A100, $0000, $1100, $0000, $A100, $0001 ;0x80
-	dc.w	$0000, $0000, $0000, $0111, $0001, $1888, $0017, $7888, $0177, $7888, $1677, $7788, $1677, $7788, $6667, $7711, $0000, $0000, $1000, $0000, $9110, $0000, $8991, $0000, $8999, $1000, $8899, $9100, $8899, $9100, $8889, $9910 ;0xA0
-	dc.w	$1455, $5166, $1445, $5156, $1445, $5156, $1444, $5155, $1444, $5155, $1444, $4155, $1444, $4155, $1344, $4415, $6677, $7788, $6667, $7778, $6667, $7778, $6611, $1111, $6666, $7777, $5666, $6777, $5666, $6777, $5566, $6677 ;0xC0
-	dc.w	$8899, $9145, $8889, $9145, $8889, $9144, $1111, $1144, $1111, $1144, $7811, $1144, $7881, $1144, $7788, $1144, $5551, $6667, $5551, $6667, $5551, $6666, $5551, $6661, $4551, $5666, $4551, $5666, $4451, $5566, $4451, $5566 ;0xE0
-	dc.w	$7778, $8889, $7778, $8889, $7777, $8888, $1111, $1111, $6777, $7888, $6777, $7888, $6677, $7788, $6677, $7788, $9991, $5555, $9991, $4555, $9991, $4555, $1111, $4455, $8111, $4455, $8111, $4445, $8111, $4445, $8111, $4444 ;0x100
-	dc.w	$1666, $7777, $1666, $6777, $1666, $6777, $1566, $6111, $1566, $6177, $1556, $6167, $1556, $6167, $1555, $6166, $8888, $9999, $7888, $9999, $7888, $8999, $1111, $1111, $7788, $8899, $7778, $8899, $7778, $8889, $7777, $8889 ;0x120
-	dc.w	$A100, $0001, $A100, $0001, $9100, $0015, $1100, $0015, $9100, $0015, $9100, $0155, $9100, $0155, $9100, $0145, $6667, $7711, $6666, $7177, $6666, $7177, $5666, $6177, $5666, $1777, $5566, $1677, $5566, $1677, $5551, $6667 ;0x140
-	dc.w	$8889, $9910, $1888, $9910, $1888, $9991, $1888, $8991, $7188, $8991, $7188, $8899, $7188, $8899, $7718, $8889, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $1000, $0000, $1000, $0000, $1000, $0000 ;0x160
-	dc.w	$0144, $4451, $0134, $4445, $0014, $4445, $0013, $4444, $0001, $1144, $1111, $1111, $1333, $3444, $1333, $3344, $1111, $1117, $5556, $6661, $5556, $6667, $5555, $6666, $5555, $6666, $1111, $5666, $4555, $5666, $4455, $5566 ;0x180
-	dc.w	$7788, $1134, $7778, $8134, $1778, $8133, $1777, $8133, $1777, $8133, $1777, $7133, $1777, $7133, $1677, $7133, $4441, $1111, $4441, $5556, $4441, $5555, $4441, $5555, $3441, $4555, $3441, $4551, $3341, $4455, $3341, $4455 ;0x1A0
-	dc.w	$1111, $1111, $6667, $7778, $6666, $7777, $6666, $7777, $5666, $6777, $1111, $1111, $5566, $6677, $5566, $6677, $1111, $4444, $8111, $3444, $8111, $3444, $8111, $3344, $7111, $3344, $1111, $3334, $7781, $3334, $7781, $3333 ;0x1C0
-	dc.w	$1555, $6111, $1555, $5166, $1555, $5166, $1455, $5166, $1455, $5166, $1445, $5111, $1445, $5556, $1444, $5555, $1111, $1888, $6777, $1888, $6777, $1888, $6677, $1788, $6677, $1788, $6667, $1778, $6667, $1778, $6666, $1777 ;0x1E0
-	dc.w	$9100, $1445, $9100, $1444, $8100, $1444, $8101, $3444, $8101, $3444, $8101, $3344, $8113, $3344, $8113, $3334, $5551, $6667, $5551, $6666, $5515, $6666, $4515, $5666, $4515, $5611, $4155, $5511, $4155, $5566, $4145, $5556 ;0x200
-	dc.w	$7718, $8889, $7717, $8888, $7771, $8888, $6771, $7888, $6771, $7888, $6677, $1788, $6677, $1788, $6667, $1778, $9100, $0000, $9100, $0000, $9100, $0000, $8910, $0000, $8910, $0000, $8810, $0000, $8891, $0000, $8881, $0000 ;0x220
-	dc.w	$1233, $3344, $1223, $3334, $1111, $1111, $1222, $3333, $1222, $3333, $1222, $2333, $1222, $2333, $1111, $1111, $4455, $5566, $4445, $5551, $1111, $1116, $4444, $5555, $4444, $5555, $3444, $4555, $3444, $4555, $1111, $1111 ;0x240
-	dc.w	$1677, $7123, $6667, $7123, $6667, $7122, $6666, $1012, $6666, $1012, $5661, $0001, $5110, $0000, $1000, $0000, $3331, $4445, $3334, $1445, $3333, $4111, $3333, $4444, $2333, $3444, $2333, $3444, $1133, $3344, $0011, $1111 ;0x260
-	dc.w	$5556, $6667, $5556, $6667, $1111, $1111, $5555, $6666, $4555, $5666, $4555, $5666, $4455, $5566, $1111, $1111, $7771, $2333, $7771, $2333, $1111, $1233, $7771, $1233, $6771, $1223, $6771, $0123, $6671, $0011, $1111, $0000 ;0x280
-	dc.w	$1444, $5555, $3114, $4555, $3341, $1111, $3344, $4455, $3334, $4445, $3334, $4445, $3333, $4444, $1111, $1111, $6666, $1777, $5666, $1777, $1111, $1677, $5566, $6677, $5556, $6667, $5556, $6667, $5555, $6666, $1111, $1111 ;0x2A0
-	dc.w	$8123, $3334, $7122, $3333, $7722, $3333, $7722, $2331, $7722, $2331, $7722, $2231, $7722, $2231, $1111, $1111, $1445, $5556, $1444, $5555, $1444, $1111, $3444, $1555, $3441, $1555, $3341, $1455, $3311, $1455, $1111, $1111 ;0x2C0
-	dc.w	$6667, $7178, $6666, $7177, $1111, $1177, $5666, $6777, $5666, $6777, $5566, $6677, $5566, $6677, $1111, $1111, $8881, $0000, $8888, $1000, $8888, $1000, $7888, $1000, $7888, $8100, $7788, $8100, $7788, $8100, $1111, $1100 ;0x2E0
-	dc.b	$80, $01, $80, $02, $80, $03, $80, $04, $80, $05, $80, $06, $80, $07, $80, $08, $80, $09, $80, $0A, $80, $0B, $80, $00, $80, $0C, $80, $0D, $80, $0E, $80, $0F 
-	dc.b	$80, $10, $80, $11, $80, $12, $80, $13, $80, $14, $80, $15, $80, $16, $80, $17, $80, $18, $80, $19, $80, $1A, $80, $1B, $80, $1C, $80, $1D, $80, $1E, $80, $1F ;0x20
-	dc.b	$80, $20, $80, $21, $80, $22, $80, $23, $80, $24, $80, $25, $80, $26, $80, $27, $80, $28, $80, $29, $80, $2A, $80, $2B, $80, $2C, $80, $2D, $80, $2E, $80, $2F ;0x40
+	incbin "art/uncompressed/segaLogo.bin"
 loc_0000AC92:
 	MOVE.b	#$FF, $7(A0)
 	MOVE.l	#loc_0000AECA, $32(A0)
@@ -13232,8 +12824,8 @@ loc_0000B0F6:
 	MOVE.b	#2, D0
 	MOVE.b	#0, D1
 	MOVE.b	#2, D2
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00000E28
 	LEA	loc_0000B160, A1
 	JSR	loc_00002A54
@@ -14243,7 +13835,7 @@ loc_0000BE38:
 	bsr.w    loc_0000D1DA
 	move.b   #0, d0
 	move.b   #4, d2
-	lea 	 (loc_00002210).l, a2
+	lea 	 (palLookupTable).l, a2
 	jsr      loc_00000E28
 	move.w   #$80, $28(a1)
 loc_0000BE70:
@@ -14261,7 +13853,7 @@ loc_0000BE70:
 loc_0000BEAA:
 	clr.b  d0
 	move.b #4, d1
-	lea (loc_00002210).l, a2
+	lea (palLookupTable).l, a2
 	jsr loc_00000E46
 	move.w  #$80, d0
 	jsr  loc_00002B1C
@@ -14271,8 +13863,8 @@ loc_0000BEAA:
 	jsr  loc_00000BF2
 	clr.b  d0
 	move.b  #4, d1
-	lea (loc_00002210).l, a2
-	adda.l    #$220, a2
+	lea (palLookupTable).l, a2
+	adda.l    #(pal_00002430-palLookupTable), a2
 	jsr loc_00000E46
 	move.w   #$40, d0
 	jsr  loc_00002B1C
@@ -14354,15 +13946,18 @@ loc_0000C00E:
 	move.w #$c0, d0
 	jsr loc_00002B1C
 	jsr loc_00002B26
+	
 	move.b #0, d0
 	move.b #4, d1
-	lea (loc_00002210).l, a2
+	lea (palLookupTable).l, a2
 	jsr loc_00000E46
+	
 	move.b #1, d0
 	move.b #8, d1
 	move.b #4, d2
-	lea (loc_00002210).l, a2
+	lea (palLookupTable).l, a2
 	jsr loc_00000E28
+	
 	move.w #$40, d0
 	jsr loc_00002B1C
 	jsr loc_00002B26
@@ -17398,8 +16993,8 @@ loc_0000DDD2:
 	MOVEM.l	(A7)+, A0
 	MOVE.b	#0, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000020, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_00002230-palLookupTable), A2
 	CMPI.b	#$11, $00FF0112
 	BEQ.w	loc_0000DE26
 	ADDA.l	#$00000060, A2
@@ -17407,8 +17002,8 @@ loc_0000DE26:
 	JSR	loc_00000E46
 	MOVE.b	#2, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00000E46
 loc_0000DE46:
 	RTS
@@ -17457,7 +17052,7 @@ loc_0000DEEC:
 ; Right here is a bug that the original devs of the game never caught (to my knowledge).
 ; Explanation is as follows:
 ; Over at around 0x1680 are a bunch of tables that handle loading data during transitions between game scenes
-; At around loc_00001BF6, there's a function in this table that calls loc_0000D908.
+; At around transition_credits3, there's a function in this table that calls loc_0000D908.
 ; The code that they wrote will first read the upper half of this address into the lower half of D0
 ; swap the words of D0, and then load the lower half of the address.  That code works perfectly fine, however
 ; by the time that *this* function gets called much later on, the upper half of D0 has *never* been cleared.
@@ -18606,8 +18201,8 @@ loc_0000F5B6:
 loc_0000F5DE:
 	ADDQ.w	#1, $00FF0C5C
 	MOVE.b	#3, D0
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00001020
 	JMP	loc_00002AF2
 loc_0000F600:
@@ -18617,8 +18212,8 @@ loc_0000F600:
 	BNE.w	loc_0000F67A
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000080, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
 	JMP	loc_00000E46
 loc_0000F62A:
 	MOVE.w	$00FF2286, D0
@@ -18636,8 +18231,8 @@ loc_0000F63E:
 	MOVE.b	#3, D0
 	MOVE.b	#1, D1
 	MOVE.b	#3, D2
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000180, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_optionsTextWhite-palLookupTable), A2
 	JSR	loc_00000E28
 	MOVE.w	#$0026, $2A(A0)
 loc_0000F67A:
@@ -18802,7 +18397,7 @@ loc_0000F874:
 	LSL.b	#1, D0
 	OR.b	$2A(A0), D0
 	EORI.b	#1, D0
-	AND.b	$00FF1876, D0
+	AND.b	debug_CpuPlayer, D0
 	BEQ.w	loc_0000F89C
 	ANDI	#$FFFE, SR
 	RTS
@@ -20343,7 +19938,7 @@ loc_00010B8A:
 	CLR.b	$00FF188B
 loc_00010BA2:
 	MOVE.b	#1, D1
-	BSR.w	loc_00010C5C
+	BSR.w	titleScreen_fadeLogoToColor
 	MOVE.w	#$0010, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
@@ -20369,8 +19964,8 @@ loc_00010BFA:
 	BEQ.w	loc_00010C56
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
-	LEA	loc_00002210, A2
-	ADDA.l	#$00000180, A2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_optionsTextWhite-palLookupTable), A2
 	JSR	loc_00000E46
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
@@ -20378,7 +19973,7 @@ loc_00010BFA:
 	TST.b	$00FF0A3B
 	BEQ.w	loc_00010C56
 	MOVE.b	#0, D1
-	BSR.w	loc_00010C5C
+	BSR.w	titleScreen_fadeLogoToColor
 	MOVE.w	#$000E, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
@@ -20386,12 +19981,16 @@ loc_00010BFA:
 	BNE.b	loc_00010BFA
 loc_00010C56:
 	JMP	loc_00002AF2
-loc_00010C5C:
+titleScreen_fadeLogoToColor:
 	CLR.l	D0
 	MOVE.b	$00FF188B, D0
-	ADDI.b	#$21, D0
+	
+	
+	ADDI.b	#(((pal_titleScreenLogo_cycle)-palLookupTable)>>5), D0
+	
+	
 	LSL.w	#5, D0
-	LEA	loc_00002210, A2
+	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
 	MOVE.b	#3, D0
 	JMP	loc_00000E46
@@ -28267,8 +27866,10 @@ loc_00015714:
 	MOVE.w	D6, vdpData1
 	RTS
 loc_0001571C:
-; BAD CODE
-	dc.b	$28, $5B, $2A, $5B, $3C, $1B 
+; UNKNOWN USAGE
+	movea.l (A3)+, A4
+	movea.l (A3)+, A5
+	move.w (A3)+, D6
 loc_00015722:
 	CLR.b	D2
 loc_00015724:

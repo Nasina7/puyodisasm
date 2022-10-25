@@ -10,7 +10,7 @@ Download the Repo and run build.bat.  This will build the rom and place it in th
 ## Todo (In order of priority):
 - [x] Make the Game Shiftable
 	- Note: All *known* shiftability issues are fixed.  If you encounter any, please open an issue and let me know.
-- [ ] Find where data is located, and split them into files
+- [ ] Find where data is located, and split it into files
 	- [x] Art
 	- [x] Palettes
 	- [ ] BG Mappings

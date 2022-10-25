@@ -65,6 +65,10 @@ cutscene_MakeTextbox: macro x, y, tWidth, tHeight, opponent
 cutscene_ClearTextbox: macro
 	dc.b	$82
 	endm
+cutscene_WaitTime: macro time
+	dc.b	$83
+	dc.b    time
+	endm
 cutscene_PlayArleAnim: macro anim
 	dc.b    $84
 	dc.b	anim
@@ -72,6 +76,9 @@ cutscene_PlayArleAnim: macro anim
 cutscene_PlayOpponentAnim: macro anim
 	dc.b	$85
 	dc.b	anim
+	endm
+cutscene_AddWhitespace: macro
+	dc.b    $89
 	endm
 	
 align macro alignment

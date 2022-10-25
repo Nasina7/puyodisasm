@@ -95,7 +95,6 @@ headerBegin:
 	dc.b    "PUYOPUYO                                        " ; Game Title (Overseas)
 	dc.b    "GM G-4082  -00" ; Serial
 checksum:
-	; Todo: calculate this at buildtime
 	dc.w	$BCE7 ; Checksum
 	
 	dc.b	"J               " ; Device Support
@@ -196,21 +195,22 @@ loc_00000305:
 	BSR.w	loc_00000454
 	ANDI	#$F8FF, SR
 mainLoop:
-	BSR.w	loc_0000032D
+	BSR.w	waitForVint
 	BSR.w	loc_00007CBE
 	BSR.w	loc_00001096
 	BSR.w	loc_000013F0
 	BSR.w	loc_00002A00
 	JSR	loc_0000EF7A
 	BRA.b	mainLoop
-loc_0000032D:
+
+waitForVint:
 	LEA	$00FF05C6, A0
-loc_00000332:
 	MOVE.w	(A0), D0
-loc_00000335:
+waitForVintLoop:
 	CMP.w	(A0), D0
-	BEQ.b	loc_00000335
+	BEQ.b	waitForVintLoop
 	RTS
+	
 loc_0000033B:
 	LEA	loc_00000353, A1
 	LEA	$00FFFC04, A2
@@ -240,7 +240,6 @@ loc_00000402:
 	RTS
 loc_0000043C:
 	NOP
-loc_0000043E:
 	NOP
 	NOP
 	NOP
@@ -290,7 +289,7 @@ loc_000004C8:
 	MOVE.l	D0, (A0)+
 loc_000004CA:
 	DBF	D1, loc_000004C8
-	BSR.w	loc_00000D24
+	BSR.w	init_initVDP
 	BSR.w	loc_000013D8
 	JSR	loc_0000EF6C
 	JSR	z80Load_Begin
@@ -304,9 +303,10 @@ loc_000004CA:
 	MOVE.b	(A0), D0
 	MOVE.w	D0, vdpControl1
 	RTS
+
 errorTrap:
 	ORI	#$0700, SR
-	BSR.w	loc_00001008
+	BSR.w	invertPalette
 	BSR.w	loc_0000075A
 errorTrapLoop:
 	NOP
@@ -316,7 +316,7 @@ errorTrapLoop:
  ; Checks for inserted coins (Leftover from arcade version)
  ; Changing ANDI #$FFFE, SR to ORI.w #1, SR will make the 
  ; game think that there are no coins inserted.
-loc_0000051E:
+arcade_checkCoins:
 	ANDI	#$FFFE, SR
 	RTS
 
@@ -342,6 +342,7 @@ loc_00000568:
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/D6/D7/A0/A1/A2/A3/A4/A5/A6
 	ANDI	#$F8FF, SR
 	RTR
+
 loc_00000572:
 	TST.w	$00FF0134
 	BNE.w	loc_000005E0
@@ -633,7 +634,8 @@ loc_00000A14:
 	DBF	D0, loc_00000A14
 	RTS
 ; There is code here, but it might be unused.
-; BAD CODE?
+; I thought it might be a leftover from the arcade version, but some of the code here accesses the z80...
+; BAD CODE
 ; MISSING POINTER
 	dc.b	$4A, $39, $00, $FF, $01, $38, $66, $00, $00, $04, $4E, $75, $42, $39, $00, $FF, $01, $38, $33, $FC, $01, $00, $00, $A1, $11, $00, $08, $39, $00, $00, $00, $A1 
 	dc.b	$11, $00, $66, $F6, $41, $F9, $00, $C0, $00, $04, $30, $3C, $81, $00, $10, $39, $00, $FF, $0A, $23, $00, $00, $00, $10, $30, $80, $30, $BC, $94, $04, $30, $BC ;0x20
@@ -790,15 +792,15 @@ loc_00000D16:
 	
 
 
-loc_00000D24:
+init_initVDP:
 	CLR.w	D0
-loc_00000D26:
-	BSR.w	loc_00000D54
+	BSR.w	vdp_setVdpState
 	BSR.w	loc_00000FC6
 	RTS
+
 loc_00000D30:
 	ORI	#$0700, SR
-	BSR.w	loc_00000D54
+	BSR.w	vdp_setVdpState
 	LEA	$00FF0A23, A0
 	ORI.b	#$40, (A0)
 	MOVE.w	#$8100, D0
@@ -806,10 +808,11 @@ loc_00000D30:
 	MOVE.w	D0, vdpControl1
 	ANDI	#$F8FF, SR
 	RTS
-loc_00000D54:
+
+vdp_setVdpState:
 	LSL.w	#2, D0
 loc_00000D56:
-	MOVEA.l	loc_00000D80(PC,D0.w), A2
+	MOVEA.l	vdp_vdpRegTable(PC,D0.w), A2
 	LEA	$00FF0A22, A3
 	MOVE.w	#$0012, D0
 loc_00000D64:
@@ -821,13 +824,12 @@ loc_00000D66:
 	CLR.l	$00FF05D2
 	CLR.l	$00FF0622
 	RTS
-loc_00000D80:
-	dc.l	loc_00000D90
-loc_00000D84:
+vdp_vdpRegTable:
+	dc.l	init_initVDPValues
 	dc.l	loc_00000DB6
 	dc.l	loc_00000DDC
 	dc.l	loc_00000E02
-loc_00000D90:
+init_initVDPValues:
 	dc.w	$8004, $8124, $8230, $833C, $8407, $855E, $8600, $8700, $8800, $8900, $8A00, $8B03, $8C81, $8D2E, $8E00, $8F02, $9003, $9100, $9200 
 loc_00000DB6:
 	dc.w	$8004, $8124, $8230, $833C, $8407, $855E, $8600, $8700, $8800, $8900, $8A00, $8B00, $8C89, $8D2E, $8E00, $8F02, $9011, $9100, $9200 
@@ -995,7 +997,8 @@ loc_00000FD8:
 	MOVE.w	#$FFFF, (A2)+
 	MOVE.l	#$00FF0AB6, (A2)+
 	RTS
-loc_00001008:
+	
+invertPalette:
 	LEA	$00FF0A56, A2
 	MOVE.w	#$003F, D0
 loc_00001012:
@@ -1004,6 +1007,7 @@ loc_00001012:
 	MOVE.w	D1, (A2)+
 	DBF	D0, loc_00001012
 	BRA.b	loc_00000FD8
+
 loc_00001020:
 	MOVEM.l	A3/D1, -(A7)
 	ANDI.w	#3, D0
@@ -1652,7 +1656,7 @@ transition_options:
 transition_soundTest:
 	lookupSetVDPMode $0001
 	
-	lookupLoadDataToVram $6000, loc_00034800
+	lookupLoadDataToVram $6000, art_cutsceneArle
 	lookupLoadDataToVram $8000, loc_00041D38
 	lookupLoadDataToVram $0000, loc_00069B00
 	lookupLoadDataToVram $A000, art_optionsCharset
@@ -1717,7 +1721,7 @@ transition_portraitScreen:
 	
 	lookupJumpFunction loc_00000BDC
 	
-	lookupLoadDataToVram $6000, loc_00034800
+	lookupLoadDataToVram $6000, art_cutsceneArle
 	
 	lookupWriteRam $00FF05D2, $FF20
 	lookupWriteRam $00FF05D4, $FF60
@@ -1886,7 +1890,7 @@ transition_easyModeEnding:
 	
 	lookupJumpFunction loc_00000BDC 
 	
-	lookupLoadDataToVram $6000, loc_00034800
+	lookupLoadDataToVram $6000, art_cutsceneArle
 	
 	lookupWriteRam $00FF05D2, $FF20
 	lookupWriteRam $00FF05D4, $FF60
@@ -1974,7 +1978,7 @@ transition_credits2:
 	lookupWriteRam $00FF05D4, $FF60
 	
 	dc.b    $00, $0F, $00, $11
-	lookupLoadDataToVram $6000, loc_00034800
+	lookupLoadDataToVram $6000, art_cutsceneArle
 	lookupLoadDataToVram $A000, loc_00061DD0
 	lookupWriteRam $00FF0112, $0000
 transition_credits3:
@@ -3092,14 +3096,16 @@ loc_00002B68:
 	CLR.w	$24(A0)
 	MOVE.l	(A7)+, $2(A0)
 	RTS
-loc_00002B72:
+	
+;loc_00002B72
+func_updateCutsceneAnimation:
 	TST.b	$22(A0)
 	BEQ.w	loc_00002B80
 	SUBQ.b	#1, $22(A0)
 	RTS
 loc_00002B80:
 	MOVEA.l	$32(A0), A2
-	CMPI.b	#$FE, (A2)
+	CMPI.b	#$FE, (A2) ; Check if Anim has ended
 	BCS.w	loc_00002BA6
 	BNE.w	loc_00002B96
 	ORI	#1, SR
@@ -3439,7 +3445,7 @@ loc_00003010:
 	MOVE.b	#$FF, $8(A0)
 	MOVE.l	#loc_00003048, $32(A0)
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
 	BNE.w	loc_00003034
@@ -4210,7 +4216,7 @@ loc_00003B2A:
 	BCS.w	loc_00003B48
 	MOVE.b	#0, $6(A0)
 loc_00003B48:
-	BRA.w	loc_00002B72
+	BRA.w	func_updateCutsceneAnimation
 loc_00003B4C:
 	MOVE.l	#loc_00003B78, $32(A0)
 	CMPI.b	#$19, $8(A0)
@@ -4639,7 +4645,7 @@ loc_000040BC:
 	BSR.w	loc_00002B26
 	BSR.w	loc_000040DC
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00002AF2
 	RTS
 loc_000040D2:
@@ -4786,7 +4792,7 @@ loc_000042BE:
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B26
 	MOVE.b	#$87, $6(A0)
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00002AF2
 	BSR.w	loc_00002C2A
 	BCS.w	loc_00002AF2
@@ -4805,7 +4811,7 @@ loc_000042E2:
 	dc.b	$FE
 	dc.b	$00 
 loc_000042EE:
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00002AF2
 	RTS
 loc_000042F8:
@@ -4949,7 +4955,7 @@ loc_00004450:
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00004484
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BSR.w	loc_000045AA
 	BSR.w	loc_000048CE
 	BSR.w	loc_00004624
@@ -4984,7 +4990,7 @@ loc_000044DE:
 loc_000044EA:
 	CLR.b	$22(A0)
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_000044FC
 	RTS
 loc_000044FC:
@@ -5358,7 +5364,7 @@ loc_000049BE:
 	BSR.w	loc_00004A9C
 	MOVE.b	#$80, $6(A0)
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BSR.w	loc_00004A7A
 	BSR.w	loc_00004A9C
 	MOVEA.l	$2E(A0), A1
@@ -5395,7 +5401,7 @@ loc_00004A4E:
 	MOVE.l	#loc_0000441E, $32(A0)
 loc_00004A5A:
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00004A68
 	RTS
 loc_00004A68:
@@ -5932,7 +5938,7 @@ loc_00005124:
 	RTS
 loc_0000514A:
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_000051A0
 	MOVE.b	$00FF110A, D0
 	OR.b	$00FF1110, D0
@@ -5966,7 +5972,7 @@ loc_000051B4:
 	AND.b	$00FF0145, D0
 	BMI.w	loc_000053DC
 	BSR.w	loc_000054C4
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCC.w	loc_00005218
 	TST.w	$26(A0)
 	BEQ.w	loc_000051F6
@@ -6057,7 +6063,7 @@ loc_0000540C:
 	move.b ($00FF0144).l, d0
 	and.b ($00FF0145).l, d0
 	bpl.w loc_00002AF2
-	bsr.w loc_00002B72
+	bsr.w func_updateCutsceneAnimation
 	movea.l $2e(a0), a1
 	move.b $9(a0), $9(a1)
 	rts
@@ -6244,7 +6250,7 @@ loc_0000568A:
 	MOVE.l	D1, $32(A0)
 	CLR.b	$22(A0)
 loc_000056C6:
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	MOVE.w	$2A(A0), D0
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -7416,7 +7422,7 @@ loc_00005FE8:
 loc_00005FEE:
 	BSR.w	loc_00002C2A
 	BCS.w	loc_00002AF2
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00002AF2
 	RTS
 loc_00006000:
@@ -7503,10 +7509,10 @@ loc_0000613C:
 	DBF	D0, loc_000060CE
 	RTS
 loc_00006142:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.b	#$80, $6(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.b	$36(A0), D0
 	MOVE.w	$38(A0), D1
 	JSR	loc_00001218
@@ -7596,7 +7602,7 @@ loc_00006238:
 	MOVE.l	#loc_00006F22, $32(A0)
 	MOVE.w	$20(A0), $E(A0)
 	BSR.w	loc_00002B26
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_0000625C:
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#2, $7(A1)
@@ -8073,7 +8079,7 @@ loc_000069A4:
 	MOVE.w	#$0138, $E(A0)
 	TST.b	$2A(A0)
 	BEQ.w	loc_00006A74
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BSR.w	loc_00002B26
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#3, $7(A1)
@@ -8084,7 +8090,7 @@ loc_000069CC:
 	MOVEA.l	$2E(A0), A1
 	MOVE.w	$28(A1), D0
 	BEQ.w	loc_000069E2
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_000069E2:
 	MOVE.b	#$95, $6(A0)
 	MOVE.w	#$1800, $1C(A0)
@@ -8093,7 +8099,7 @@ loc_000069E2:
 	JSR	loc_00002C2A
 	CMPI.w	#$01B0, $E(A0)
 	BCC.w	loc_00006A0E
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_00006A0E:
 	MOVE.w	#$0018, D0
 	BSR.w	loc_00002B1C
@@ -8123,12 +8129,12 @@ loc_00006A40:
 ; MISSING POINTER
 	dc.b	$60, $00, $C0, $80 
 loc_00006A74:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BSR.w	loc_00002B26
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_00006A84:
 	MOVEM.l	A0, -(A7)
-	LEA	loc_00034800, A0
+	LEA	art_cutsceneArle, A0
 	MOVE.w	#$6000, D0
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
@@ -8231,7 +8237,7 @@ loc_00006B64:
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006C5E
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCS.w	loc_00006C5E
 	BRA.w	loc_00006CD2
 loc_00006C5E:
@@ -8244,7 +8250,7 @@ loc_00006C5E:
 loc_00006C78:
 	BSR.w	loc_00006000
 	MOVE.w	#$8008, D0
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCS.w	loc_00006C8E
 	MOVE.w	#$8009, D0
 loc_00006C8E:
@@ -8305,7 +8311,7 @@ loc_00006D56:
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006D88
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCS.w	loc_00006D88
 	BRA.w	loc_00006DC8
 loc_00006D88:
@@ -8318,7 +8324,7 @@ loc_00006D88:
 loc_00006DA2:
 	BSR.w	loc_00006000
 	MOVE.w	#$8009, D0
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCC.w	loc_00006DB8
 	MOVE.b	#7, D0
 loc_00006DB8:
@@ -8418,7 +8424,7 @@ loc_00006EFA:
 	MOVEM.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	MOVE.w	$20(A0), D0
 	CMP.w	$E(A0), D0
 	BCS.w	loc_00006F1C
@@ -8469,7 +8475,7 @@ loc_00006F22:
 	dc.b	$01, $00, $00, $01, $01, $02, $02, $01, $01, $FF, $00
 	dc.l    loc_00006F22
 loc_00006F58:
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00006F88
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -8602,7 +8608,7 @@ loc_000070F0:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	MOVE.w	$A(A1), $A(A0)
 	MOVE.w	$E(A1), $E(A0)
 	RTS
@@ -9069,7 +9075,7 @@ loc_00007910:
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00004484
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	CMPI.w	#3, $1C(A0)
 	BCC.w	loc_0000794C
 	CMPI.b	#3, $9(A0)
@@ -9084,7 +9090,7 @@ loc_0000794C:
 	RTS
 loc_00007962:
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00007988
 	CMPI.w	#3, $1C(A0)
 	BCC.w	loc_00007986
@@ -9150,7 +9156,7 @@ loc_00007A38:
 	NEG.l	$12(A0)
 loc_00007A64:
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BSR.w	loc_00002C2A
 	CMPI.w	#$0170, $E(A0)
 	BCC.w	loc_00007A7C
@@ -9247,7 +9253,7 @@ loc_00007BC2:
 	subq.w #1, $26(a0)
 	bsr.w loc_00002C2A
 	bcs.w loc_00002AF2
-	bra.w loc_00002B72
+	bra.w func_updateCutsceneAnimation
 loc_00007BD2:
 	BSR.w	loc_00005022
 	MOVE.w	D0, D1
@@ -9354,7 +9360,7 @@ loc_00007D68:
 loc_00007D6C:
 	BSR.w	loc_00007DE2
 	ANDI	#$F8FF, SR
-	JSR	loc_0000032D
+	JSR	waitForVint
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_00007DBA
 	MOVE.b	#$7A, D0
@@ -9364,7 +9370,7 @@ loc_00007D90:
 loc_00007D94:
 	BSR.w	loc_00007E38
 	ANDI	#$F8FF, SR
-	JSR	loc_0000032D NASINA
+	JSR	waitForVint NASINA
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_00007DCE
 	MOVE.b	#$7A, D0
@@ -10573,7 +10579,7 @@ loc_0000900E:
 	MOVE.b	$7(A0), D0
 	AND.b	$7(A1), D0
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	BCC.w	loc_0000902E
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00002AF2
@@ -10600,7 +10606,7 @@ loc_0000907E:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002B72
+	BSR.w	func_updateCutsceneAnimation
 	MOVE.b	$9(A1), D0
 	ANDI.b	#3, D0
 	OR.b	$9(A0), D0
@@ -10906,16 +10912,16 @@ loc_000094F2:
 loc_00009504:
 	dc.l	art_cutsceneSkeletonT
 	dc.l	loc_000385C8
-	dc.l	loc_00037238
-	dc.l	loc_00035EB0
+	dc.l	art_cutsceneZombie
+	dc.l	art_cutsceneDraco
 	dc.l	art_cutsceneNasuGrave
-	dc.l	loc_0003DD58
+	dc.l	art_cutsceneWitch
 	dc.l	loc_0003CA34
 	dc.l	art_cutsceneHarpy
 	dc.l	loc_00039914
 	dc.l	loc_00040960
 	dc.l	loc_0003B60C
-	dc.l	loc_0003EC9A
+	dc.l	art_cutsceneRulue
 	dc.l	loc_00041D38
 	dc.l	loc_00043802
 	dc.l	loc_000447E0
@@ -10952,7 +10958,8 @@ loc_0000958C:
 	ANDI.b	#$7F, D0
 	LSL.w	#2, D0
 	MOVEA.l	(A1,D0.w), A2
-	JMP	(A2) (Uncertain target!)
+	JMP	(A2) 
+	
 loc_000095CC:
 	CLR.w	D1
 	MOVE.b	$00FF0113, D1
@@ -10963,7 +10970,8 @@ loc_000095CC:
 	MOVE.l	(A2,D0.w), $32(A0)
 	CLR.w	$22(A0)
 loc_000095EC:
-	BRA.w	loc_00002B72
+	BRA.w	func_updateCutsceneAnimation
+	
 loc_000095F0:
 	CLR.b	$7(A0)
 	BSR.w	loc_00002B26
@@ -11195,6 +11203,9 @@ loc_000098F0:
 	dc.b    $04, $00, $03, $04, $FF, $00
 	
 	dc.l    loc_000098F0
+	
+	
+; This is the animation data for draco centauros
 loc_000098FA:
 	dc.l	loc_0000990E, loc_00009918, loc_00009922, loc_0000992C, loc_00009932 
 loc_0000990E:
@@ -11238,6 +11249,10 @@ loc_00009932:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_0000990E
+; Draco centauros anim end
+	
+	
+
 loc_0000993E:
 	dc.l    loc_00009942
 loc_00009942:
@@ -11449,14 +11464,14 @@ loc_00009BDA:
 	LSL.w	#2, D0
 	LEA	loc_00009C90, A1
 	MOVEA.l	(A1,D0.w), A2
-	JMP	(A2) (Uncertain target!)
+	JMP	(A2) 
 loc_00009C1A:
 	LSL.w	#2, D0
 	LEA	loc_00009D66, A1
 	MOVE.l	(A1,D0.w), $32(A0)
 	CLR.w	$22(A0)
 loc_00009C2C:
-	BRA.w	loc_00002B72
+	BRA.w	func_updateCutsceneAnimation
 loc_00009C30:
 	CLR.b	$7(A0)
 	BSR.w	loc_00002B26
@@ -11740,7 +11755,7 @@ loc_00009F7C:
 	dbf d2, loc_00009F16
 	rts
 loc_00009F82:
-	bsr.w loc_00002B72
+	bsr.w func_updateCutsceneAnimation
 	move.b #$BA, $6(a0)
 loc_00009F8C:
 	btst.b #3, $9(a0)
@@ -11788,7 +11803,7 @@ loc_0000A028:
 	dbf d2, loc_00009FC6
 	rts
 loc_0000A02E:
-	bsr.w loc_00002B72
+	bsr.w func_updateCutsceneAnimation
 	move.b #$B2, $6(a0)
 loc_0000A038:
 	btst.b #2, $9(a0)
@@ -12851,7 +12866,7 @@ loc_0000B160:
 	BSR.b	loc_0000B152
 	JSR	loc_00002B26
 	BSR.w	loc_0000B1CC
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BSR.w	loc_00004BF2
 	MOVE.b	D0, D1
 	ANDI.b	#$F0, D0
@@ -13378,7 +13393,7 @@ loc_0000B85A:
 loc_0000B864:
 	MOVE.l	#loc_0000B99E, $32(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCS.w	loc_0000B880
 	BRA.w	loc_0000B9B2
 loc_0000B880:
@@ -13434,7 +13449,7 @@ loc_0000B936:
 loc_0000B940:
 	MOVE.l	#loc_0000B9A8, $32(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCS.w	loc_0000B95C
 	BRA.w	loc_0000B9B2
 loc_0000B95C:
@@ -13566,7 +13581,7 @@ loc_0000BADA:
 	BCS.w	loc_0000BAF2
 	MOVE.b	#0, $6(A0)
 loc_0000BAF2:
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_0000BAF8:
 	dc.b	$F0
 	dc.b	$00 
@@ -14367,7 +14382,7 @@ loc_0000C6FC:
 	BSR.w	loc_00004BF2
 	BTST.l	#7, D0
 	BEQ.w	loc_0000C716
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCS.w	loc_0000C716
 	BRA.w	loc_0000C764
 loc_0000C716:
@@ -14499,7 +14514,7 @@ loc_0000C89C:
 	RTS
 loc_0000C8E2:
 	JSR	loc_00002B26
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$1800, D1
@@ -14559,7 +14574,7 @@ loc_0000C9CC:
 	MOVE.w	loc_0000CA14(PC,D0.w), $E(A1)
 	RTS
 loc_0000C9F0:
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCS.w	loc_0000CA00
 	JMP	loc_00002AF2
 loc_0000CA00:
@@ -14598,7 +14613,7 @@ loc_0000CA86:
 	MOVE.w	$00FF05D2, D0
 	ADDI.w	#$0160, D0
 	MOVE.w	D0, $E(A0)
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	TST.b	$9(A0)
 	BMI.w	loc_0000CAA4
 	RTS
@@ -14962,7 +14977,7 @@ loc_0000CF48:
 loc_0000CF98:
 	RTS
 loc_0000CF9A:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	CLR.w	D0
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -14999,13 +15014,13 @@ loc_0000CFE0:
 	OR.b	$00FF1111, D0
 	BTST.l	#7, D0
 	BEQ.w	loc_0000D014
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCC.w	loc_0000D0A6
 loc_0000D014:
 	BRA.w	loc_0000D018
 loc_0000D018:
 	MOVE.b	#4, D0
-	JSR	loc_0000051E
+	JSR	arcade_checkCoins
 	BCC.w	loc_0000D02A
 	MOVE.b	#3, D0
 loc_0000D02A:
@@ -15138,7 +15153,7 @@ loc_0000D1C0:
 	MOVE.b	#$55, D0
 	BSR.w	loc_000072BE
 	JSR	loc_00002B26
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
 	MOVE.b	$00FF0A2D, D0
@@ -16731,7 +16746,7 @@ loc_0000D9F8:
 	MOVE.b	D1, $8(A1)
 	RTS
 loc_0000DA02:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	JSR	loc_00002B26
 	MOVE.w	$1E(A0), D0
 	ADD.w	D0, $A(A0)
@@ -16740,7 +16755,7 @@ loc_0000DA02:
 	RTS
 loc_0000DA20:
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_0000DA3A
@@ -16934,7 +16949,7 @@ loc_0000DD20:
 	JSR	loc_00002B26
 	MOVE.w	$1E(A0), $E(A0)
 	JSR	loc_00002C2A
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.w	$E(A0), $1E(A0)
 	ADDI.w	#$FF90, $E(A0)
 	CMPI.w	#$00C0, $1E(A0)
@@ -16945,7 +16960,7 @@ loc_0000DD92:
 	MOVE.b	#$55, D0
 	BSR.w	loc_000072BE
 	JSR	loc_00002B26
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_0000DDAE:
 	dc.b	$08
 	dc.b	$09 
@@ -17475,8 +17490,8 @@ cutsceneLookupTable:
 	dc.l   	loc_0000E60C;
 	dc.l   	loc_0000E6AC;
 	dc.l   	loc_0000E70C;
-	dc.l   	loc_0000E778;
-	dc.l   	loc_0000E81C;
+	dc.l   	cutscene_Draco;
+	dc.l   	cutscene_Nazu;
 	dc.l   	loc_0000E87A;
 	dc.l   	loc_0000E904;
 	dc.l   	loc_0000E986;
@@ -17562,86 +17577,174 @@ loc_0000E70C:
 ; Draco's animations are from $00 to $04
 
 ; 110Y YYYY YXXX XXX0
-;
-;
-;
 
-loc_0000E778:
-	dc.b	$83, $02
+cutscene_Draco:
+	cutscene_WaitTime 2
 	
 	; Creates a textbox at tile coordinates 26,49 in Plane A
 	; with a width of 4 characters, a height of one character
 	; and with the opponent speaking
 	cutscene_MakeTextbox 26, 49, 4, 1, 1
 	
-	cutscene_PlayOpponentAnim 3
+	cutscene_PlayOpponentAnim draco_AnimPointUp
 	
 	; お前っ！
 	dc.b	$03, $29, $19, $26
 	
-	dc.b	$83, $04
+	cutscene_WaitTime 4
 	
 	cutscene_ClearTextbox
 	
 	cutscene_MakeTextbox 18, 43, 9, 3, 1
 	
-	cutscene_PlayOpponentAnim 1
+	cutscene_PlayOpponentAnim draco_AnimIdleTalk
 	
 	;Textbox Data
 	dc.b	$07, $07, $17, $2A
 	dc.b    $15, $0A, $06, $16
 	dc.b    $1C
-	dc.b    $83, $03
+	
+	cutscene_WaitTime 3
+	
 	dc.b    $00
 	dc.b    $0A, $09, $0C, $2B
 	dc.b    $2C, $09, $0B, $01
 	dc.b    $05, $0D, $08, $01
 	dc.b    $26
 	
-	cutscene_PlayOpponentAnim 0
-	dc.b    $83, $06
-	dc.b    $82
-	dc.b    $81, $2A, $D7, $04
-	cutscene_PlayArleAnim $0A
+	cutscene_PlayOpponentAnim draco_AnimIdle
+	
+	cutscene_WaitTime 6
+	
+	cutscene_ClearTextbox
+	
+	cutscene_MakeTextbox 2, 46, 10, 2, 0
+	
+	cutscene_PlayArleAnim arle_AnimStanceTalk
+	
 	dc.b	$2B, $2C, $27
 	
-	dc.b    $89
-	dc.b    $83, $01
+	cutscene_AddWhitespace
+	
+	cutscene_WaitTime 1
+	
 	dc.b    $12, $25, $12, $08, $04
 	
 	dc.b    $86
-	dc.b    $83, $01
+	
+	cutscene_WaitTime 1
+	
 	dc.b    $2D, $2E, $2F, $1E, $22, $20, $1F, $21, $26, $27 
-	cutscene_PlayArleAnim $0B
-	dc.b    $83, $04
-	dc.b    $82
-	dc.b    $81, $AC, $D7, $18
-	cutscene_PlayOpponentAnim 2
+	
+	cutscene_PlayArleAnim arle_AnimStanceIdle
+	
+	cutscene_WaitTime 4
+	
+	cutscene_ClearTextbox
+	
+	cutscene_MakeTextbox 12, 46, 12, 2, 1
+	
+	cutscene_PlayOpponentAnim draco_AnimGloatTalk
+	
 	dc.b	$11, $11, $18, $25, $83, $02, $00, $0A, $09, $0F, $2D, $09, $08, $0E
-	dc.b    $83, $01
+	
+	cutscene_WaitTime 1
+	
 	dc.b    $04, $0D, $02, $0C, $03, $13, $19, $0B, $32, $32, $32 
-	dc.b	$83, $02
-	dc.b    $82
-	dc.b    $81, $B9, $D5, $A4
-	cutscene_PlayOpponentAnim 4
+	
+	cutscene_WaitTime 2
+	
+	cutscene_ClearTextbox
+	
+	cutscene_MakeTextbox 18, 43, 9, 3, 1
+	
+	cutscene_PlayOpponentAnim draco_AnimAnger
+	
 	dc.b	$1B, $1A, $0D, $00, $28, $01, $19, $26, $26 
-	dc.b	$83, $04, $85, $01 
-	dc.b	$2B, $2C, $10 
-	dc.b	$89
+	
+	cutscene_WaitTime 4
+	
+	cutscene_PlayOpponentAnim draco_AnimIdleTalk
+	
+	dc.b	$2B, $2C, $10
+	
+	cutscene_AddWhitespace
+	
 	dc.b    $86
-	dc.b    $83, $02 
+	
+	cutscene_WaitTime 2
+	
 	dc.b	$1D, $14, $1D, $14, $30, $31, $14, $19, $26 
-	cutscene_PlayOpponentAnim 0
-	dc.b    $83, $04
-	dc.b    $82
+	
+	cutscene_PlayOpponentAnim draco_AnimIdle
+	
+	cutscene_WaitTime 4
+	
+	cutscene_ClearTextbox
 	
 	cutscene_endCutscene
 	even
 	
-loc_0000E81C:
-	dc.b	$85, $84, $84, $06, $83, $03, $81, $16, $D8, $88, $84, $05, $02, $03, $0B, $0B, $0B, $0D, $84, $06, $83, $04, $82, $83, $04, $81, $28, $D7, $06, $84, $06, $0F 
-	dc.b	$0D, $0B, $0B, $0B, $84, $05, $83, $04, $86, $84, $08, $02, $07, $02, $04, $05, $08, $0C, $0D, $84, $07, $83, $04, $82, $83, $03, $85, $83, $84, $03, $83, $08 ;0x20
-	dc.b	$81, $97, $D8, $AC, $02, $0E, $0E, $0E, $01, $08, $0C, $83, $04, $82, $83, $02, $81, $15, $D8, $8A, $06, $00, $00, $08, $0C, $83, $04, $82, $80, $00
+cutscene_Nazu:
+	; ??????
+	; Wouldn't $85, $84 be invalid???
+	dc.b	$85
+	dc.b    $84
+	
+	cutscene_PlayArleAnim arle_AnimCuriousIdle
+	
+	cutscene_WaitTime 3
+	
+	dc.b    $81, $16, $D8, $88
+	
+	cutscene_PlayArleAnim arle_AnimCuriousTalk
+	
+	dc.b    $02, $03, $0B, $0B, $0B, $0D
+	
+	cutscene_PlayArleAnim arle_AnimCuriousIdle
+	cutscene_WaitTime 4
+	cutscene_ClearTextbox
+	cutscene_WaitTime 4
+	
+	dc.b    $81, $28, $D7, $06
+	
+	cutscene_PlayArleAnim arle_AnimCuriousIdle
+	
+	dc.b    $0F, $0D, $0B, $0B, $0B
+	
+	cutscene_PlayArleAnim arle_AnimCuriousTalk
+	cutscene_WaitTime 4
+	
+	dc.b    $86
+	
+	cutscene_PlayArleAnim arle_AnimCuriousAngerTalk
+	
+	dc.b    $02, $07, $02, $04, $05, $08, $0C, $0D
+	
+	cutscene_PlayArleAnim arle_AnimCuriousAnger
+	cutscene_WaitTime 4
+	cutscene_ClearTextbox
+	cutscene_WaitTime 3
+	
+	dc.b    $85, $83
+	
+	cutscene_PlayArleAnim arle_AnimSurprise
+	cutscene_WaitTime 8
+	
+	dc.b	$81, $97, $D8, $AC
+	dc.b    $02, $0E, $0E, $0E, $01, $08, $0C
+	
+	cutscene_WaitTime 4
+	cutscene_ClearTextbox
+	cutscene_WaitTime 2
+	
+	dc.b    $81, $15, $D8, $8A
+	dc.b    $06, $00, $00, $08, $0C
+	
+	cutscene_WaitTime 4
+	cutscene_ClearTextbox
+	cutscene_endCutscene
+	even
 loc_0000E87A:
 	dc.b    $81, $C9 ;0x40
 	dc.b	$D4, $20, $11, $27, $27, $27, $11, $11, $11, $83, $02, $86, $05, $1A, $0C, $0B, $05, $18, $10, $13, $1B, $0A, $04, $16, $0C, $1A, $0A, $25, $83, $03, $86, $84 ;0x60
@@ -18160,7 +18263,7 @@ loc_0000F542:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_0000F576
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.b	#0, $6(A0)
 	TST.b	$2D(A1)
 	BEQ.w	loc_0000F574
@@ -18297,17 +18400,17 @@ loc_0000F744:
 	dc.b	$FE
 	dc.b	$00 
 loc_0000F74A:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.b	#$87, $6(A0)
 	JSR	loc_00002B26
 	JSR	loc_00002C2A
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCS.w	loc_0000F76E
 	RTS
 loc_0000F76E:
 	MOVE.l	#loc_0000F744, $32(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCS.w	loc_0000F788
 	RTS
 loc_0000F788:
@@ -19505,7 +19608,7 @@ loc_000104A4:
 	MOVE.l	loc_000104F0(PC,D0.w), $32(A0)
 	CLR.b	$00FF1C2B
 loc_000104E6:
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_000104EC:
 	dc.b	$00, $02 
 	dc.b	$FE
@@ -19538,7 +19641,7 @@ loc_00010514:
 	MOVE.l	#loc_00010558, $32(A0)
 	CLR.b	$00FF1C2A
 loc_00010552:
-	JMP	loc_00002B72
+	JMP	func_updateCutsceneAnimation
 loc_00010558:
 	dc.b	$01
 	dc.b	$00 
@@ -19731,7 +19834,7 @@ loc_000108A6:
 	MOVE.l	#loc_000108D0, $32(A1)
 	RTS
 loc_000108B4:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCC.w	loc_000108C4
 	JMP	loc_00002AF2
 loc_000108C4:
@@ -19770,7 +19873,7 @@ loc_000108FC:
 	MOVE.l	#loc_00010926, $32(A1)
 	RTS
 loc_0001090A:
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCC.w	loc_0001091A
 	JMP	loc_00002AF2
 loc_0001091A:
@@ -20419,11 +20522,11 @@ loc_0001126E:
 	dc.l	loc_00013770
 	dc.l	loc_00013816
 	dc.l	loc_00011A5A
-	dc.l	loc_00011CDA
+	dc.l	sprMappings_arle
 	dc.l	loc_00012420
 	dc.l	loc_000124E8
 	dc.l	loc_00012616
-	dc.l	loc_00012710
+	dc.l	sprMappings_draco ; Draco?
 	dc.l	loc_00012816
 	dc.l	loc_00012842
 	dc.l	loc_000128D8
@@ -21777,114 +21880,8 @@ loc_00011CD0:
     dc.b    $00
     dc.b    $00
 
-	
-	
-loc_00011CDA:
-	dc.l	loc_00011D92
-	dc.l	loc_00011D92
-	dc.l	loc_00011D92
-	dc.l	loc_00011D92
-	dc.l	loc_00011D92
-	dc.l	loc_00011DB4
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011DD6
-	dc.l	loc_00011E00
-	dc.l	loc_00011E22
-	dc.l	loc_00011E22
-	dc.l	loc_00011E22
-	dc.l	loc_00011E22
-	dc.l	loc_00011E22
-	dc.l	loc_00011E44
-	dc.l	loc_00011E4E
-	dc.l	loc_00011E58
-	dc.l	loc_00011E62
-	dc.l	loc_00011E74
-	dc.l	loc_00011E86
-	dc.l	loc_00011EA0
-	dc.l	loc_00011EBA
-	dc.l	loc_00011ED4
-	dc.l	loc_00011EEE
-	dc.l	loc_00011F00
-	dc.l	loc_00011F1A
-	dc.l	loc_00011F2C
-	dc.l	loc_00011F46
-	dc.l	loc_00011F60
-	dc.l	loc_00011F7A
-	dc.l	loc_00011F94
-	dc.l	loc_00011FAE
-	dc.l	loc_00011FB8
-	dc.l	loc_00011FC2
-	dc.l	loc_00011FCC
-loc_00011D92:
-	dc.b	$00, $04, $FF, $C8, $0F, $02, $83, $00, $FF, $E8, $FF, $C8, $03, $02, $83, $10, $00, $08, $FF, $E8, $0E, $02, $83, $14, $FF, $E8, $FF, $E8, $02, $02, $83, $20 
-	dc.b	$00, $08 ;0x20
-loc_00011DB4:
-	dc.b	$00, $04, $FF, $C8, $0B, $02, $83, $23, $FF, $D8, $FF, $C8, $0B, $02, $83, $2F, $FF, $F0, $FF, $E8, $00, $02, $83, $3B, $FF, $E8, $FF, $E8, $0E, $02, $83, $3C 
-	dc.b	$FF, $F0 ;0x20
-loc_00011DD6:
-	dc.b	$00, $05, $FF, $C8, $0E, $02, $83, $A6, $FF, $E0, $FF, $C8, $02, $02, $83, $B2, $00, $00, $FF, $E0, $02, $02, $83, $B5, $FF, $E0, $FF, $F8, $08, $02, $83, $C4 
-	dc.b	$FF, $E0, $FF, $F0, $09, $02, $83, $C7, $FF, $F8 ;0x20
-loc_00011E00:
-	dc.b	$00, $04, $FF, $C8, $0F, $02, $83, $6B, $FF, $E0, $FF, $C8, $07, $02, $83, $7B, $00, $00, $FF, $E8, $0E, $02, $83, $83, $FF, $E0, $FF, $E8, $06, $02, $83, $8F 
-	dc.b	$00, $00 ;0x20
-loc_00011E22:
-	dc.b	$00, $04, $FF, $C8, $0F, $02, $83, $48, $FF, $E8, $FF, $C8, $07, $02, $83, $58, $00, $08, $FF, $E8, $0D, $02, $83, $60, $FF, $F0, $FF, $F8, $08, $02, $83, $68 
-	dc.b	$FF, $F0 ;0x20
-loc_00011E44:
-	dc.b	$00, $01, $FF, $D8, $01, $01, $83, $97, $00, $00 
-loc_00011E4E:
-	dc.b	$00, $01, $FF, $D8, $04, $01, $83, $99, $FF, $F8 
-loc_00011E58:
-	dc.b	$00, $01, $FF, $D8, $04, $01, $83, $9B, $FF, $F8 
-loc_00011E62:
-	dc.b	$00, $02, $FF, $D8, $01, $00, $83, $95, $00, $00, $FF, $D8, $00, $01, $83, $9B, $FF, $F8 
-loc_00011E74:
-	dc.b	$00, $02, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $BE, $FF, $F8 
-loc_00011E86:
-	dc.b	$00, $03, $FF, $E0, $00, $01, $83, $F2, $FF, $F8, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $BE, $FF, $F8 
-loc_00011EA0:
-	dc.b	$00, $03, $FF, $D8, $04, $01, $83, $E3, $FF, $F0, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $BE, $FF, $F8 
-loc_00011EBA:
-	dc.b	$00, $03, $FF, $D8, $09, $01, $83, $D7, $FF, $F0, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $BE, $FF, $F8 
-loc_00011ED4:
-	dc.b	$00, $03, $FF, $D8, $09, $01, $83, $DD, $FF, $F0, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $BE, $FF, $F8 
-loc_00011EEE:
-	dc.b	$00, $02, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $EB, $FF, $F8 
-loc_00011F00:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $EB, $FF, $F8, $FF, $E0, $00, $01, $83, $F1, $FF, $F8 
-loc_00011F1A:
-	dc.b	$00, $02, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $E5, $FF, $F8 
-loc_00011F2C:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $E5, $FF, $F8, $FF, $E0, $00, $01, $83, $F1, $FF, $F8 
-loc_00011F46:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $EB, $FF, $F8, $FF, $D8, $04, $01, $83, $E3, $FF, $F0 
-loc_00011F60:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $E5, $FF, $F8, $FF, $D8, $04, $01, $83, $E3, $FF, $F0 
-loc_00011F7A:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $B8, $FF, $E8, $FF, $E0, $09, $02, $83, $EB, $FF, $F8, $FF, $D8, $05, $01, $83, $CD, $FF, $F0 
-loc_00011F94:
-	dc.b	$00, $03, $FF, $E0, $06, $02, $83, $D1, $FF, $E8, $FF, $E0, $09, $02, $83, $EB, $FF, $F8, $FF, $D8, $05, $01, $83, $CD, $FF, $F0 
-loc_00011FAE:
-	dc.b	$00, $01, $FF, $D8, $01, $01, $83, $A3, $00, $00 
-loc_00011FB8:
-	dc.b	$00, $01, $FF, $D8, $08, $01, $83, $A0, $FF, $F8 
-loc_00011FC2:
-	dc.b	$00, $01, $FF, $D8, $08, $01, $83, $9D, $FF, $F8 
-loc_00011FCC:
-	dc.b	$00, $02, $FF, $D8, $01, $01, $83, $A3, $00, $00, $FF, $D8, $00, $00, $83, $A5, $00, $00 
-	
-	
+sprMappings_arle:
+	include "art/mappings/sprite/arle.asm"
 	
 loc_00011FDE:
     dc.l    loc_00012016
@@ -23305,42 +23302,9 @@ loc_000126FE:
     dc.b    $00
     dc.b    $00
 
-loc_00012710:
-	dc.l	loc_00012744
-	dc.l	loc_00012744
-	dc.l	loc_00012744
-	dc.l	loc_00012744
-	dc.l	loc_0001276E
-	dc.l	loc_0001276E
-	dc.l	loc_00012790
-	dc.l	loc_000127B2
-	dc.l	loc_000127D4
-	dc.l	loc_000127DE
-	dc.l	loc_000127E8
-	dc.l	loc_000127FA
-	dc.l	loc_0001280C
-loc_00012744:
-	dc.b	$00, $05, $FF, $C8, $0D, $01, $84, $00, $FF, $E8, $FF, $D8, $02, $01, $84, $11, $00, $00, $FF, $F0, $0D, $01, $84, $14, $FF, $E8, $FF, $C8, $07, $01, $84, $1C 
-	dc.b	$00, $08, $FF, $E8, $06, $01, $84, $24, $00, $08 ;0x20
-loc_0001276E:
-	dc.b	$00, $04, $FF, $C8, $0F, $01, $84, $2A, $FF, $E8, $FF, $E8, $0E, $01, $84, $82, $FF, $E8, $FF, $C8, $0B, $01, $84, $3A, $00, $08, $FF, $E8, $0A, $01, $84, $8E 
-	dc.b	$00, $08 ;0x20
-loc_00012790:
-	dc.b	$00, $04, $FF, $C8, $0F, $01, $84, $46, $FF, $E0, $FF, $E8, $0E, $01, $84, $97, $FF, $E0, $FF, $C8, $0F, $01, $84, $56, $00, $00, $FF, $E8, $0E, $01, $84, $A3 
-	dc.b	$00, $00 ;0x20
-loc_000127B2:
-	dc.b	$00, $04, $FF, $C8, $0F, $01, $84, $66, $FF, $E0, $FF, $E8, $0E, $01, $84, $AF, $FF, $E0, $FF, $C8, $0B, $01, $84, $76, $00, $00, $FF, $E8, $0A, $01, $84, $BB 
-	dc.b	$00, $00 ;0x20
-loc_000127D4:
-	dc.b	$00, $01, $FF, $D8, $0A, $01, $84, $08, $FF, $E8 
-loc_000127DE:
-	dc.b	$00, $01, $FF, $D8, $0A, $01, $84, $C4, $FF, $E8 
-loc_000127E8:
-	dc.b	$00, $02, $FF, $D8, $0A, $01, $84, $08, $FF, $E8, $FF, $D8, $05, $00, $84, $CD, $FF, $F8 
-loc_000127FA:
-	dc.b	$00, $02, $FF, $D8, $0A, $01, $84, $08, $FF, $E8, $FF, $D8, $05, $00, $84, $D1, $FF, $F8 
-loc_0001280C:
-	dc.b	$00, $01, $FF, $D8, $05, $00, $84, $D5, $FF, $F8 
+sprMappings_draco:
+	include "art/mappings/sprite/draco.asm"
+	
 loc_00012816:
     dc.l    loc_0001281E
     dc.l    loc_00012830
@@ -32682,6 +32646,7 @@ loc_0001781C:
 	
 ; Lookup End
 
+; This lookup contains data for two player bg mappings
 loc_00017828:
 	dc.w    $0004
 	dc.l    loc_0001783A
@@ -32725,7 +32690,6 @@ loc_0001786A:
 	dc.l   loc_00017792 ; ???
 	dc.l   loc_0001779A ; ???
 	
-	; Todo: Pick up where I left off from here and add the rom pointers for entries of type $0004 (and $0010?)?  Just fix rom pointers lol
 loc_0001789C:
 	dc.b    $00, $04, $20, $0E, $C0, $00
 	dc.l    loc_0001A95E
@@ -33316,6 +33280,8 @@ loc_00017D64:
     dc.b    $22
     dc.b    $AE
 	
+; I think this entire section is bg mappings
+
 loc_00017D6C:
 	dc.b	$01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $07, $08 
 	dc.b	$11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16, $17, $18 ;0x20
@@ -34142,7 +34108,7 @@ loc_0001CDF4:
 	MOVE.b	#$15, $8(A0)
 	MOVE.l	#loc_0001CE26, $32(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	JMP	loc_00002C2A
 loc_0001CE26:
 	dc.b	$F1
@@ -34166,7 +34132,7 @@ loc_0001CE40:
 	MOVE.b	#8, $8(A0)
 	MOVE.l	#loc_0001CE72, $32(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	JMP	loc_00002C2A
 loc_0001CE72:
 	dc.b	$F1
@@ -35219,12 +35185,12 @@ loc_0001DCB4:
 loc_0001DCB6:
 	TST.b	$2B(A0)
 	BEQ.w	loc_0001DDAA
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.b	#$83, $6(A0)
 	JSR	loc_00002B26
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	JSR	loc_00002B26
 	MOVE.w	#$001F, $26(A0)
 	MOVE.l	#$01800000, D0
@@ -35241,7 +35207,7 @@ loc_0001DD02:
 	MOVE.l	D0, $16(A0)
 	MOVE.w	$A(A0), $1E(A0)
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	MOVE.w	$1E(A0), $A(A0)
 	JSR	loc_00002C2A
 	MOVE.w	$A(A0), $1E(A0)
@@ -35282,7 +35248,7 @@ loc_0001DDAA:
 	JSR	loc_00008432
 	MOVEM.l	(A7)+, A0
 	JSR	loc_00002B26
-	JSR	loc_00002B72
+	JSR	func_updateCutsceneAnimation
 	BCS.w	loc_0001DDD0
 	RTS
 loc_0001DDD0:
@@ -35418,11 +35384,11 @@ loc_0002CD00:
 	incbin "art/compressed/record/recordScreen.bin"
 loc_0002FC00:
 	incbin "art/compressed/unknown/unknown19.bin"
-loc_00034800:
-	incbin "art/compressed/unknown/unknown18.bin"
-loc_00035EB0:
-	incbin "art/compressed/unknown/unknown17.bin"
-loc_00037238:
+art_cutsceneArle:
+	incbin "art/compressed/cutscene/general/arle.bin"
+art_cutsceneDraco:
+	incbin "art/compressed/cutscene/stage1/draco.bin"
+art_cutsceneZombie:
 	incbin "art/compressed/unknown/unknown16.bin"
 loc_000385C8:
 	incbin "art/compressed/unknown/unknown15.bin"
@@ -35434,9 +35400,9 @@ loc_0003B60C:
 	incbin "art/compressed/unknown/unknown13.bin"
 loc_0003CA34:
 	incbin "art/compressed/unknown/unknown12.bin"
-loc_0003DD58:
+art_cutsceneWitch:
 	incbin "art/compressed/unknown/unknown11.bin"
-loc_0003EC9A:
+art_cutsceneRulue:
 	incbin "art/compressed/unknown/unknown10.bin"
 ; Despite being a duplicate copy of the harpy data, it seems to be missing some data.
 	incbin "art/compressed/cutscene/stage4/harpy_duplicate.bin"

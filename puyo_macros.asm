@@ -85,15 +85,15 @@ align macro alignment
 	cnop $00,alignment
     endm
 padding macro amount, typePadding
-	i: set amount
+	i: = amount
 	while (i>0)
 		dc.b    typePadding
-		i: set i-1
+		i: = i-1
 	endw
 	endm
 	
 soundTestText: macro text
-	i: set 0
+	i: = 0
 	while (strlen(\1)>i)
 		tempChar: substr i+1,i+1,\1
 		if (strcmp("\tempChar", " "))
@@ -101,7 +101,7 @@ soundTestText: macro text
 		else
 			dc.b    "\tempChar"-$36
 		endc
-		i: set i+1
+		i: = i+1
 	endw
 	
 	dc.b    $FF
@@ -110,7 +110,7 @@ soundTestText: macro text
 creditsTextboxText: macro vramLocation, text
 	dc.w    strlen(\2)
 	dc.w    vramLocation
-	i: set 0
+	i: = 0
 	while (strlen(\2)>i)
 		tempChar2: substr i+1,i+1,\2
 		if (strcmp("\tempChar2", " "))
@@ -122,7 +122,7 @@ creditsTextboxText: macro vramLocation, text
 		else
 			dc.b    ("\tempChar2"-$36)<<1
 		endc
-		i: set i+1
+		i: = i+1
 	endw
 	even
 	endm

@@ -15,6 +15,8 @@ fixBugs = 0
 ; MISSING POINTER = Code or data that is missing a pointer (potentially unused???)
 ; UNKNOWN USAGE = Code that was originally BAD CODE, but is now disassembled.  It could potentially be unused.
 
+; Credits to AURORA*FIELDS for making LANG.ASM
+
 startOfRom:
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
@@ -9370,7 +9372,7 @@ loc_00007D90:
 loc_00007D94:
 	BSR.w	loc_00007E38
 	ANDI	#$F8FF, SR
-	JSR	waitForVint NASINA
+	JSR	waitForVint
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_00007DCE
 	MOVE.b	#$7A, D0
@@ -21881,7 +21883,7 @@ loc_00011CD0:
     dc.b    $00
 
 sprMappings_arle:
-	include "art/mappings/sprite/arle.asm"
+	include "art/spriteMappings/arle.asm"
 	
 loc_00011FDE:
     dc.l    loc_00012016
@@ -23064,6 +23066,8 @@ loc_00012602:
 	dc.b	$00, $01, $FF, $E0, $09, $00, $84, $06, $FF, $E8 
 loc_0001260C:
 	dc.b	$00, $01, $FF, $E0, $09, $00, $84, $EB, $FF, $E8 
+	
+	
 loc_00012616:
     dc.l    loc_00012654
     dc.l    loc_00012676
@@ -23303,7 +23307,7 @@ loc_000126FE:
     dc.b    $00
 
 sprMappings_draco:
-	include "art/mappings/sprite/draco.asm"
+	include "art/spriteMappings/draco.asm"
 	
 loc_00012816:
     dc.l    loc_0001281E
@@ -24653,277 +24657,8 @@ loc_00012DDA:
     dc.b    $F0
 
 loc_00012DE4:
-    dc.l    loc_00012E24
-    dc.l    loc_00012E24
-    dc.l    loc_00012E24
-    dc.l    loc_00012E4E
-    dc.l    loc_00012E4E
-    dc.l    loc_00012E4E
-    dc.l    loc_00012E78
-    dc.l    loc_00012E78
-    dc.l    loc_00012E78
-    dc.l    loc_00012E9A
-    dc.l    loc_00012EBC
-    dc.l    loc_00012EDE
-    dc.l    loc_00012EE8
-    dc.l    loc_00012EF2
-    dc.l    loc_00012F04
-    dc.l    loc_00012F0E
-loc_00012E24:
-    dc.b    $00
-    dc.b    $05
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0E
-    dc.b    $01
-    dc.b    $84
-    dc.b    $00
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $E0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $84
-    dc.b    $10
-    dc.b    $00
-    dc.b    $00
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $0D
-    dc.b    $01
-    dc.b    $84
-    dc.b    $14
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $03
-    dc.b    $01
-    dc.b    $84
-    dc.b    $1C
-    dc.b    $00
-    dc.b    $10
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $02
-    dc.b    $01
-    dc.b    $84
-    dc.b    $20
-    dc.b    $00
-    dc.b    $10
-loc_00012E4E:
-    dc.b    $00
-    dc.b    $05
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0E
-    dc.b    $01
-    dc.b    $84
-    dc.b    $23
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $E0
-    dc.b    $0D
-    dc.b    $01
-    dc.b    $84
-    dc.b    $2F
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $0D
-    dc.b    $01
-    dc.b    $84
-    dc.b    $37
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $03
-    dc.b    $01
-    dc.b    $84
-    dc.b    $3F
-    dc.b    $00
-    dc.b    $10
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $02
-    dc.b    $01
-    dc.b    $84
-    dc.b    $43
-    dc.b    $00
-    dc.b    $10
-loc_00012E78:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0F
-    dc.b    $01
-    dc.b    $84
-    dc.b    $46
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $03
-    dc.b    $01
-    dc.b    $84
-    dc.b    $56
-    dc.b    $00
-    dc.b    $10
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $0E
-    dc.b    $01
-    dc.b    $84
-    dc.b    $8A
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $02
-    dc.b    $01
-    dc.b    $84
-    dc.b    $96
-    dc.b    $00
-    dc.b    $10
-loc_00012E9A:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0F
-    dc.b    $01
-    dc.b    $84
-    dc.b    $5A
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $03
-    dc.b    $01
-    dc.b    $84
-    dc.b    $6A
-    dc.b    $00
-    dc.b    $10
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $0E
-    dc.b    $01
-    dc.b    $84
-    dc.b    $99
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $02
-    dc.b    $01
-    dc.b    $84
-    dc.b    $A5
-    dc.b    $00
-    dc.b    $10
-loc_00012EBC:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0F
-    dc.b    $01
-    dc.b    $84
-    dc.b    $6E
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $FF
-    dc.b    $C8
-    dc.b    $0B
-    dc.b    $01
-    dc.b    $84
-    dc.b    $7E
-    dc.b    $00
-    dc.b    $08
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $0E
-    dc.b    $01
-    dc.b    $84
-    dc.b    $A8
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $FF
-    dc.b    $E8
-    dc.b    $0A
-    dc.b    $01
-    dc.b    $84
-    dc.b    $B4
-    dc.b    $00
-    dc.b    $08
-loc_00012EDE:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FF
-    dc.b    $E0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $84
-    dc.b    $0C
-    dc.b    $FF
-    dc.b    $F0
-loc_00012EE8:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FF
-    dc.b    $E0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $84
-    dc.b    $2F
-    dc.b    $FF
-    dc.b    $F0
-loc_00012EF2:
-    dc.b    $00
-    dc.b    $02
-    dc.b    $FF
-    dc.b    $E0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $84
-    dc.b    $2F
-    dc.b    $FF
-    dc.b    $F0
-    dc.b    $FF
-    dc.b    $D8
-    dc.b    $04
-    dc.b    $00
-    dc.b    $84
-    dc.b    $BD
-    dc.b    $FF
-    dc.b    $F8
-loc_00012F04:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FF
-    dc.b    $D8
-    dc.b    $04
-    dc.b    $00
-    dc.b    $84
-    dc.b    $BD
-    dc.b    $FF
-    dc.b    $F8
-loc_00012F0E:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FF
-    dc.b    $D0
-    dc.b    $09
-    dc.b    $00
-    dc.b    $84
-    dc.b    $BF
-    dc.b    $FF
-    dc.b    $F8
-
+	include "art/spriteMappings/rulue.asm"
+	
 loc_00012F18:
 	dc.l	loc_00012F50
 	dc.l	loc_00012F50
@@ -25424,6 +25159,7 @@ loc_000136AE:
 	dc.b	$00, $01, $FF, $FE, $05, $03, $62, $48, $FF, $FE 
 loc_000136B8:
 	dc.b	$00, $02, $FF, $F8, $05, $01, $42, $4C, $FF, $F8, $FF, $FE, $05, $03, $62, $48, $FF, $FE 
+
 loc_000136CA:
 	dc.l	loc_000136EE
 	dc.l	loc_00013700
@@ -25452,6 +25188,7 @@ loc_00013754:
 	dc.b	$00, $01, $FF, $FE, $05, $03, $62, $9C, $FF, $FE 
 loc_0001375E:
 	dc.b	$00, $02, $FF, $F8, $05, $01, $22, $A0, $FF, $F8, $FF, $FE, $05, $03, $62, $9C, $FF, $FE 
+
 loc_00013770:
 	dc.l	loc_00013794
 	dc.l	loc_000137A6
@@ -25480,6 +25217,7 @@ loc_000137FA:
 	dc.b	$00, $01, $FF, $FE, $05, $03, $62, $F0, $FF, $FE 
 loc_00013804:
 	dc.b	$00, $02, $FF, $F8, $05, $01, $22, $F4, $FF, $F8, $FF, $FE, $05, $03, $62, $F0, $FF, $FE 
+
 loc_00013816:
 	dc.l	loc_00013A88
 	dc.l	loc_00013A9A
@@ -25584,6 +25322,7 @@ loc_00013B16:
 	dc.b	$00, $01, $FF, $FC, $00, $03, $83, $2A, $FF, $FC 
 loc_00013B20:
 	dc.b	$00, $01, $FF, $FC, $00, $03, $03, $2A, $FF, $FC 
+	
 loc_00013B2A:
 	dc.l	loc_00013C4C
 	dc.l	loc_00013C56
@@ -35403,7 +35142,7 @@ loc_0003CA34:
 art_cutsceneWitch:
 	incbin "art/compressed/unknown/unknown11.bin"
 art_cutsceneRulue:
-	incbin "art/compressed/unknown/unknown10.bin"
+	incbin "art/compressed/cutscene/stage12/rulue.bin"
 ; Despite being a duplicate copy of the harpy data, it seems to be missing some data.
 	incbin "art/compressed/cutscene/stage4/harpy_duplicate.bin"
 loc_00040306:
@@ -35526,7 +35265,7 @@ loc_0006C400: ; Menu Screen Graphics
 sound_chunk1: ; Music Data? + HAIYAH
 	incbin "sound/musicAndPCM1.bin"
 z80SoundDriver: ; Sound Driver
-	incbin "sound/soundDriver.bin"
+	incbin "sound/driver/sound.bin"
 	align $8000
 sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	incbin "sound/PCM2.bin"

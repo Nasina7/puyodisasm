@@ -39,7 +39,7 @@
 
 ; Type 0014 - FFFF = INVALID
 
-	include "system/bytecode/bytecode_macros.asm"
+	include "game/bytecode/bytecode_macros.asm"
 	
 BC_Bootup: ; Bootup Lookup Table
 

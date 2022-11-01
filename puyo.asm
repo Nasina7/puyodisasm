@@ -179,7 +179,7 @@ loc_0000028F:
 	dc.w	$0100
 	
 	dc.l    Z80Ram
-	dc.l    z80BusReq
+	dc.l    Z80BusReq
 	dc.l	Z80Reset
 	dc.l    vdpData1
 	dc.l    vdpControl1
@@ -1251,8 +1251,8 @@ loc_000013B0:
 	rts
 	rts
 
-	include "system/bytecode/bytecode.asm"
-	include "system/bytecode/bytecode_table.asm"
+	include "game/bytecode/bytecode.asm"
+	include "game/bytecode/bytecode_table.asm"
 
 loc_0000204E:
 	CLR.w	D1

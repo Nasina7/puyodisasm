@@ -6,7 +6,7 @@ Any and all content presented in this repository is presented for informational 
 Commercial usage is expressly prohibited.  I do not claim ownership of any code in this repository.
 You assume any and all responsibility for using this content responsibility.  I do not claim any responsibility or warranty.
 ## Building
-Download the Repo and run build.bat.  This will build the rom and place it in the repo as puyobuilt.bin
+Download the Repo and run build.bat.  This will build the rom and place it in the repo at out/puyobuilt.bin
 ## Todo:
 [Todo List](https://github.com/Nasina7/puyodisasm/wiki/Todo)
 ## Stretch Goals:

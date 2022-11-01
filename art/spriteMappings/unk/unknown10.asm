@@ -1,0 +1,96 @@
+    dc.l    loc_00011BFE-0
+    dc.l    loc_00011C08-0
+    dc.l    loc_00011C12-0
+    dc.l    loc_00011C1C-0
+    dc.l    loc_00011C26-0
+    dc.l    loc_00011C30-0
+    dc.l    loc_00011C3A-0
+    dc.l    loc_00011C44-0
+loc_00011BFE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $00
+    dc.b    $81
+    dc.b    $90
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C08:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $81
+    dc.b    $9C
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C12:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $81
+    dc.b    $A8
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C1C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $03
+    dc.b    $81
+    dc.b    $B4
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C26:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $00
+    dc.b    $01
+    dc.b    $C0
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C30:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $01
+    dc.b    $01
+    dc.b    $CC
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C3A:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $02
+    dc.b    $01
+    dc.b    $D8
+    dc.b    $FF
+    dc.b    $F4
+loc_00011C44:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0B
+    dc.b    $03
+    dc.b    $01
+    dc.b    $E4
+    dc.b    $FF
+    dc.b    $F4

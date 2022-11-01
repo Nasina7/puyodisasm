@@ -1,0 +1,72 @@
+    dc.l    loc_00013EEA-0
+    dc.l    loc_00013EF4-0
+    dc.l    loc_00013EFE-0
+    dc.l    loc_00013F08-0
+    dc.l    loc_00013F12-0
+    dc.l    loc_00013F1C-0
+loc_00013EEA:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F0
+loc_00013EF4:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $F0
+loc_00013EFE:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $C4
+    dc.b    $50
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F08:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $44
+    dc.b    $38
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F12:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $F0
+    dc.b    $0E
+    dc.b    $01
+    dc.b    $44
+    dc.b    $44
+    dc.b    $FF
+    dc.b    $F0
+loc_00013F1C:
+    dc.b    $00
+    dc.b    $01
+    dc.b    $FF
+    dc.b    $E8
+    dc.b    $0F
+    dc.b    $01
+    dc.b    $44
+    dc.b    $50
+    dc.b    $FF
+    dc.b    $F0

@@ -2,35 +2,27 @@
 	include "tools/LANG.ASM"
 	z80prog 0
 	org 0
-l0000h:
+loc_0000h:
 	di	
-	jp l114ah
+	jp loc_114ah
 	znop	
 	znop	
-l0006h:
+loc_0006h:
 	znop	
 	znop	
-l0008h:
-	znop	
-	znop	
-	znop	
-l000bh:
+loc_0008h:
 	znop	
 	znop	
 	znop	
-	znop	
-	znop	
-l0010h:
-	znop	
-l0011h:
+loc_000bh:
 	znop	
 	znop	
 	znop	
 	znop	
 	znop	
+loc_0010h:
 	znop	
-	znop	
-l0018h:
+loc_0011h:
 	znop	
 	znop	
 	znop	
@@ -38,38 +30,46 @@ l0018h:
 	znop	
 	znop	
 	znop	
+loc_0018h:
 	znop	
-l0020h:
 	znop	
-l0021h:
 	znop	
-l0022h:
 	znop	
-l0023h:
 	znop	
-l0024h:
+	znop	
+	znop	
+	znop	
+loc_0020h:
+	znop	
+loc_0021h:
+	znop	
+loc_0022h:
+	znop	
+loc_0023h:
+	znop	
+loc_0024h:
 	ld bc,00101h
-l0027h:
-	ld bc,l0000h
-l002ah:
+loc_0027h:
+	ld bc,loc_0000h
+loc_002ah:
 	znop	
 	znop	
-l002ch:
+loc_002ch:
 	znop	
-l002dh:
+loc_002dh:
 	znop	
-l002eh:
+loc_002eh:
 	znop	
-l002fh:
+loc_002fh:
 	znop	
-l0030h:
+loc_0030h:
 	znop	
-l0031h:
+loc_0031h:
 	znop	
 	znop	
 	znop	
 	di	
-	jp l114ah
+	jp loc_114ah
 	push af	
 	push bc	
 	push de	
@@ -83,199 +83,199 @@ l0031h:
 	ld hl,(01f50h)
 	push hl	
 	ld hl,(01f00h)
-	call zsub_0f96h
-	call zsub_0eadh
-	call zsub_09bbh
-	ld hl,l0021h
+	call sub_0f96h
+	call sub_0eadh
+	call sub_09bbh
+	ld hl,loc_0021h
 	ld a,(hl)	
 	zand 001h
-	jp z,l006ch
+	jp z,loc_006ch
 	ld a,(01f59h)
 	cp 0fah
 	ld a,002h
 	jp nz,00068h
 	ld a,003h
 	ld (01f25h),a
-l006ch:
+loc_006ch:
 	bit 1,(hl)
-	jp nz,l0078h
+	jp nz,loc_0078h
 	ld a,(01e40h)
 	zand a	
-	jp z,l0080h
-l0078h:
+	jp z,loc_0080h
+loc_0078h:
 	ld b,08ch
 	ld ix,01e40h
-	jr l0086h
-l0080h:
+	jr loc_0086h
+loc_0080h:
 	ld b,00bh
 	ld ix,01e10h
-l0086h:
+loc_0086h:
 	zsub a	
 	ld (01f68h),a
 	ld d,(ix+000h)
 	cp d	
-	jp z,l0149h
+	jp z,loc_0149h
 	ld e,(ix+00bh)
 	ld c,(ix+00ch)
 	exx	
 	ld a,(ix+005h)
 	zand a	
-	jr z,l00a7h
+	jr z,loc_00a7h
 	zadd a,(ix+00fh)
 	ld (ix+00fh),a
-	jp nc,l00e0h
-l00a7h:
+	jp nc,loc_00e0h
+loc_00a7h:
 	ld b,(ix+00dh)
 	exx	
 	bit 4,d
-	jr nz,l00d4h
+	jr nz,loc_00d4h
 	bit 2,e
-	jr z,l00d4h
+	jr z,loc_00d4h
 	exx	
 	ld a,(ix+015h)
 	zand a	
-	jr z,l00d5h
+	jr z,loc_00d5h
 	cp b	
-	jr z,l00c0h
-	jp nc,l00d5h
-l00c0h:
+	jr z,loc_00c0h
+	jp nc,loc_00d5h
+loc_00c0h:
 	exx	
 	zand 014h
-	jr nz,l00d2h
+	jr nz,loc_00d2h
 	ld a,(01f68h)
 	zor 004h
 	ld (01f68h),a
 	zset 4,c
 	ld (ix+00ch),c
-l00d2h:
+loc_00d2h:
 	res 2,e
-l00d4h:
+loc_00d4h:
 	exx	
-l00d5h:
+loc_00d5h:
 	inc b	
 	ld (ix+00dh),b
 	ld a,b	
 	cp (ix+00eh)
-	jp z,l028bh
-l00e0h:
+	jp z,loc_028bh
+loc_00e0h:
 	ld b,(ix+001h)
 	ld a,(ix+002h)
 	zadd a,a	
-	jp nz,l00eeh
+	jp nz,loc_00eeh
 	ld a,b	
-	jp l00f1h
-l00eeh:
-	call zsub_06f4h
-l00f1h:
+	jp loc_00f1h
+loc_00eeh:
+	call sub_06f4h
+loc_00f1h:
 	ld (01f69h),a
 	exx	
 	bit 7,e
 	exx	
-	call nz,zsub_0757h
+	call nz,sub_0757h
 	exx	
 	bit 3,c
 	exx	
-	call nz,zsub_08b1h
+	call nz,sub_08b1h
 	ld a,(ix+003h)
 	zand 03fh
 	zadd a,a	
-	call nz,zsub_07cfh
+	call nz,sub_07cfh
 	ld a,(ix+022h)
 	zadd a,a	
-l010fh:
-	call nz,zsub_098ah
-	call zsub_09e9h
+loc_010fh:
+	call nz,sub_098ah
+	call sub_09e9h
 	exx	
 	bit 5,e
-	jp z,l0142h
+	jp z,loc_0142h
 	ld a,(ix+018h)
 	zadd a,(ix+019h)
 	ld (ix+019h),a
-	jr nc,l0142h
+	jr nc,loc_0142h
 	ld a,(ix+001h)
 	cp (ix+01ah)
-	jp nz,l0134h
+	jp nz,loc_0134h
 	zset 1,e
-	jp l0142h
-l0134h:
+	jp loc_0142h
+loc_0134h:
 	res 1,e
 	bit 4,e
-	jr nz,l013eh
+	jr nz,loc_013eh
 	inc a	
-	jp l013fh
-l013eh:
+	jp loc_013fh
+loc_013eh:
 	dec a	
-l013fh:
+loc_013fh:
 	ld (ix+001h),a
-l0142h:
+loc_0142h:
 	ld (ix+00bh),e
 	bit 5,d
-	jr nz,l015bh
-l0149h:
+	jr nz,loc_015bh
+loc_0149h:
 	ld de,0ffd0h
 	zadd ix,de
 	dec b	
-	jp p,l0086h
+	jp p,loc_0086h
 	inc b	
-	jp z,l016fh
+	jp z,loc_016fh
 	res 7,b
-	jp l0167h
-l015bh:
+	jp loc_0167h
+loc_015bh:
 	res 7,b
 	dec b	
-	jp m,l016fh
+	jp m,loc_016fh
 	ld de,0ffd0h
 	inc b	
 	zadd ix,de
-l0167h:
+loc_0167h:
 	zset 6,(ix+00ch)
 	zadd ix,de
-	djnz l0167h
-l016fh:
-	ld hl,l0021h
+	djnz loc_0167h
+loc_016fh:
+	ld hl,loc_0021h
 	bit 5,(hl)
-	jr z,l01a5h
-	ld de,(l002dh)
-	ld a,(l002ch)
+	jr z,loc_01a5h
+	ld de,(loc_002dh)
+	ld a,(loc_002ch)
 	zadd a,e	
-	ld (l002dh),a
-	jr nc,l01a5h
+	ld (loc_002dh),a
+	jr nc,loc_01a5h
 	bit 4,(hl)
-	jr nz,l019ah
-	ld a,(l002fh)
+	jr nz,loc_019ah
+	ld a,(loc_002fh)
 	cp d	
-	jr z,l0195h
+	jr z,loc_0195h
 	inc a	
-	ld (l002fh),a
+	ld (loc_002fh),a
 	cp d	
-	jp nz,l01a5h
-l0195h:
-	call zsub_0f80h
-	jr l01a5h
-l019ah:
-	ld a,(l002fh)
+	jp nz,loc_01a5h
+loc_0195h:
+	call sub_0f80h
+	jr loc_01a5h
+loc_019ah:
+	ld a,(loc_002fh)
 	cp d	
-	jp z,l01a5h
+	jp z,loc_01a5h
 	dec a	
-	ld (l002fh),a
-l01a5h:
-	ld a,(l0021h)
+	ld (loc_002fh),a
+loc_01a5h:
+	ld a,(loc_0021h)
 	zand 001h
-	jp z,l01c3h
+	jp z,loc_01c3h
 	ld a,(01f25h)
 	cp 002h
-	jp c,l01c3h
+	jp c,loc_01c3h
 	cp 003h
-	jp z,l01bfh
+	jp z,loc_01bfh
 	ld a,003h
-	ld (l0027h),a
-l01bfh:
+	ld (loc_0027h),a
+loc_01bfh:
 	zsub a	
 	ld (01f25h),a
-l01c3h:
-	call zsub_01d8h
+loc_01c3h:
+	call sub_01d8h
 	pop hl	
-	call zsub_0f96h
+	call sub_0f96h
 	pop iy
 	pop ix
 	pop hl	
@@ -288,10 +288,10 @@ l01c3h:
 	pop af	
 	ei	
 	ret	
-zsub_01d8h:
+sub_01d8h:
 	ld hl,01f70h
 	ld b,080h
-l01ddh:
+loc_01ddh:
 	inc l	
 	ld a,(hl)	
 	zand 00fh
@@ -315,18 +315,18 @@ l01ddh:
 	zadd a,010h
 	ld b,a	
 	cp 0e0h
-	jp nz,l01ddh
+	jp nz,loc_01ddh
 	inc l	
-	ld a,(l0031h)
+	ld a,(loc_0031h)
 	cp (hl)	
 	res 3,a
 	ld (hl),a	
-	ld (l0031h),a
-	jp z,l0218h
+	ld (loc_0031h),a
+	jp z,loc_0218h
 	zand 007h
 	zor 0e0h
 	ld (07f11h),a
-l0218h:
+loc_0218h:
 	inc l	
 	ld a,(hl)	
 	cpl	
@@ -337,95 +337,95 @@ l0218h:
 	ld e,000h
 	ld d,07fh
 	ld hl,04000h
-l022dh:
+loc_022dh:
 	ld a,(ix+000h)
 	zand a	
-	jp z,l023bh
+	jp z,loc_023bh
 	ld (ix+012h),001h
-	jp l0275h
-l023bh:
+	jp loc_0275h
+loc_023bh:
 	cp (ix+012h)
-	jp z,l0275h
+	jp z,loc_0275h
 	ld (ix+012h),000h
 	exx	
 	ld e,(ix+006h)
 	ld d,000h
-	ld hl,l0fd4h
+	ld hl,loc_0fd4h
 	zadd hl,de	
 	ld a,(hl)	
 	exx	
 	ld b,a	
 	ld a,c	
 	zadd a,040h
-l0255h:
+loc_0255h:
 	sla b
-	jp nc,l0262h
+	jp nc,loc_0262h
 	ld (hl),a	
 	inc l	
 	ld (hl),d	
 	dec l	
-	call zsub_0fceh
+	call sub_0fceh
 	znop	
-l0262h:
+loc_0262h:
 	zadd a,004h
 	cp 050h
-	jp c,l0255h
+	jp c,loc_0255h
 	zsub 050h
 	ld c,a	
 	ld a,028h
 	ld (04000h),a
 	ld a,e	
 	ld (04001h),a
-l0275h:
+loc_0275h:
 	inc c	
 	inc e	
 	inc ix
 	ld a,c	
 	cp 003h
-	jp nz,l022dh
+	jp nz,loc_022dh
 	bit 2,e
 	ret nz	
 	ld c,000h
 	ld e,004h
 	ld l,002h
-	jp l022dh
-l028bh:
+	jp loc_022dh
+loc_028bh:
 	exx	
 	bit 0,c
-	jp z,l02b7h
+	jp z,loc_02b7h
 	res 0,c
 	ld (ix+00ch),c
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zand 001h
-	jr z,l02b7h
+	jr z,loc_02b7h
 	ld a,(01f59h)
 	cp (ix+014h)
-	jp nz,l0008h
+	jp nz,loc_0008h
 	ld a,02bh
 	ld (04000h),a
 	zsub a	
 	ld (04000h),a
 	ld (01f25h),a
-l02b2h:
+loc_02b2h:
 	ld a,003h
-	ld (l0027h),a
-l02b7h:
+	ld (loc_0027h),a
+loc_02b7h:
 	exx	
 	ld e,(ix+007h)
 	ld d,(ix+008h)
-	jp l02c2h
-l02c1h:
+	jp loc_02c2h
+loc_02c1h:
 	inc de	
-l02c2h:
+loc_02c2h:
 	ld a,(de)	
 	zand a	
-	jp p,l05f8h
+	jp p,loc_05f8h
 	cp 0c0h
-	jp nc,l058fh
+	jp nc,loc_058fh
 	inc de	
-	ld hl,l02c1h
+	ld hl,loc_02c1h
 	push hl	
-	ld hl,l02dfh
+	ld hl,loc_02dfh
 	ld b,000h
 	zadd a,a	
 	ld c,a	
@@ -436,7 +436,7 @@ l02c2h:
 	ld l,a	
 	ld a,(de)	
 	jp (hl)	
-l02dfh:
+loc_02dfh:
 	ld sp,03803h
 	inc bc	
 	ld a,(hl)	
@@ -514,7 +514,7 @@ l02dfh:
 	inc b	
 	ld c,h	
 	dec b	
-l0331h:
+loc_0331h:
 	ld l,a	
 	inc de	
 	ld a,(de)	
@@ -524,30 +524,30 @@ l0331h:
 	ret	
 	inc de	
 	cp 011h
-	jr z,l0346h
+	jr z,loc_0346h
 	dec (ix+010h)
 	ld a,(de)	
-	jp nz,l0331h
+	jp nz,loc_0331h
 	inc de	
 	ret	
-l0346h:
+loc_0346h:
 	dec (ix+011h)
 	ld a,(de)	
-	jp nz,l0331h
+	jp nz,loc_0331h
 	inc de	
 	ret	
 	inc de	
 	cp 011h
-	jr z,l035dh
+	jr z,loc_035dh
 	dec (ix+010h)
 	ld a,(de)	
-	jp z,l0331h
+	jp z,loc_0331h
 	inc de	
 	ret	
-l035dh:
+loc_035dh:
 	dec (ix+011h)
 	ld a,(de)	
-	jp z,l0331h
+	jp z,loc_0331h
 	inc de	
 	ret	
 	ld c,a	
@@ -559,25 +559,25 @@ l035dh:
 	ld (hl),a	
 	ret	
 	ld a,001h
-	ld (l0024h),a
+	ld (loc_0024h),a
 	ld a,(ix+014h)
-	ld (l0020h),a
+	ld (loc_0020h),a
 	zsub a	
-	ld (l0024h),a
+	ld (loc_0024h),a
 	ld (ix+000h),000h
 	pop hl	
 	exx	
-	jp l0149h
+	jp loc_0149h
 	ld (ix+003h),a
 	ret	
 	ld (ix+002h),a
 	ret	
 	cp 080h
-	jr z,l039ah
+	jr z,loc_039ah
 	zadd a,(ix+004h)
 	ld (ix+004h),a
 	ret	
-l039ah:
+loc_039ah:
 	ld (ix+004h),000h
 	ret	
 	ld (ix+000h),a
@@ -587,29 +587,29 @@ l039ah:
 	ret	
 	ld c,(ix+001h)
 	zand a	
-	jp p,l03b5h
+	jp p,loc_03b5h
 	zadd a,c	
-	jr c,l03bch
+	jr c,loc_03bch
 	ld (ix+001h),000h
 	ret	
-l03b5h:
+loc_03b5h:
 	zadd a,c	
 	cp 020h
-	jr c,l03bch
+	jr c,loc_03bch
 	ld a,01fh
-l03bch:
+loc_03bch:
 	ld (ix+001h),a
 	ret	
 	exx	
 	zand a	
-	jr z,l03d2h
+	jr z,loc_03d2h
 	ld (ix+020h),a
 	zset 3,c
 	ld (ix+00ch),c
 	ld (ix+013h),000h
 	exx	
 	ret	
-l03d2h:
+loc_03d2h:
 	res 3,c
 	ld (ix+00ch),c
 	exx	
@@ -617,15 +617,15 @@ l03d2h:
 	inc de	
 	ld b,a	
 	ld a,001h
-	ld (l0024h+2),a
-	ld a,(l0022h)
+	ld (loc_0024h+2),a
+	ld a,(loc_0022h)
 	cp 008h
-	jr nc,l0400h
+	jr nc,loc_0400h
 	ld l,a	
 	ld h,000h
 	ld (hl),b	
 	inc a	
-	ld (l0022h),a
+	ld (loc_0022h),a
 	zadd a,007h
 	ld l,a	
 	zadd a,008h
@@ -637,19 +637,19 @@ l03d2h:
 	ld a,(de)	
 	ld (hl),a	
 	zsub a	
-	ld (l0024h+2),a
+	ld (loc_0024h+2),a
 	ret	
-l0400h:
+loc_0400h:
 	inc de	
 	ret	
 	ld b,a	
 	ld a,001h
-	ld (l0024h),a
-	ld hl,l0020h
+	ld (loc_0024h),a
+	ld hl,loc_0020h
 	zor (hl)	
 	ld (hl),b	
 	zsub a	
-	ld (l0024h),a
+	ld (loc_0024h),a
 	ret	
 	zsub (ix+010h)
 	ld c,a	
@@ -668,9 +668,9 @@ l0400h:
 	res 1,e
 	res 4,e
 	zand a	
-	jp p,l0430h
+	jp p,loc_0430h
 	zset 4,e
-l0430h:
+loc_0430h:
 	zand 01fh
 	ld (ix+01ah),a
 	exx	
@@ -681,38 +681,38 @@ l0430h:
 	exx	
 	zset 5,e
 	zand a	
-	jr nz,l0446h
+	jr nz,loc_0446h
 	res 5,e
-l0446h:
+loc_0446h:
 	exx	
 	ret	
-zsub_0448h:
+sub_0448h:
 	exx	
 	res 6,e
 	zand a	
-	jp p,l0451h
+	jp p,loc_0451h
 	zset 6,e
-l0451h:
+loc_0451h:
 	zset 7,e
 	zand 07fh
-	jr z,l045ch
+	jr z,loc_045ch
 	ld (ix+021h),a
 	exx	
 	ret	
-l045ch:
+loc_045ch:
 	res 7,e
 	exx	
 	ret	
 	exx	
 	bit 1,e
 	exx	
-	jp z,l0331h
+	jp z,loc_0331h
 	inc de	
 	ret	
 	exx	
 	bit 5,c
 	exx	
-	jp nz,l0331h
+	jp nz,loc_0331h
 	inc de	
 	ret	
 	ld (ix+005h),a
@@ -726,19 +726,19 @@ l045ch:
 	ld (ix+000h),a
 	exx	
 	zand 010h
-	jr z,l048fh
-l0487h:
+	jr z,loc_048fh
+loc_0487h:
 	ld a,(01f68h)
 	zor 008h
 	ld (01f68h),a
-l048fh:
+loc_048fh:
 	dec de	
 	ret	
 	exx	
 	zset 4,d
 	ld (ix+000h),d
 	exx	
-	jp l0487h
+	jp loc_0487h
 	exx	
 	res 4,d
 	ld (ix+000h),d
@@ -750,21 +750,21 @@ l048fh:
 	ld (ix+015h),a
 	ret	
 	zand a	
-	jr z,l04b2h
+	jr z,loc_04b2h
 	zadd a,(ix+012h)
-l04b2h:
+loc_04b2h:
 	ld (ix+012h),a
 	ret	
 	cp (ix+006h)
-	jr z,l04bdh
+	jr z,loc_04bdh
 	inc de	
 	inc de	
-l04bdh:
+loc_04bdh:
 	ret	
 	inc de	
 	cp (ix+006h)
 	ld a,(de)	
-	jp z,l0331h
+	jp z,loc_0331h
 	inc de	
 	ret	
 	ld (ix+022h),a
@@ -793,20 +793,20 @@ l04bdh:
 	ld (04001h),a
 	ret	
 	zand a	
-	jp m,l0545h
+	jp m,loc_0545h
 	ld b,001h
-l04ffh:
+loc_04ffh:
 	ld c,a	
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zand 001h
-	jp z,l0514h
+	jp z,loc_0514h
 	ld a,(01f58h)
 	exx	
 	cp b	
 	exx	
-	jp c,l0514h
-	jp nz,l053bh
-l0514h:
+	jp c,loc_0514h
+	jp nz,loc_053bh
+loc_0514h:
 	ld a,(ix+009h)
 	ld (01f57h),a
 	exx	
@@ -816,39 +816,39 @@ l0514h:
 	ld a,c	
 	ld (01f55h),a
 	ld a,b	
-	ld (l0027h),a
+	ld (loc_0027h),a
 	ld a,(ix+014h)
 	ld (01f59h),a
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zor 001h
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ld a,002h
 	ld (01f25h),a
-l053bh:
+loc_053bh:
 	exx	
 	zset 0,c
 	ld (ix+00ch),c
 	exx	
-	jp l0578h
-l0545h:
+	jp loc_0578h
+loc_0545h:
 	zand 07fh
 	ld b,002h
-	jp l04ffh
+	jp loc_04ffh
 	ld b,a	
 	ld a,001h
-	ld (l0024h+2),a
-	ld a,(l0022h)
+	ld (loc_0024h+2),a
+	ld a,(loc_0022h)
 	cp 008h
-	jr nc,l0578h
+	jr nc,loc_0578h
 	ld l,a	
 	ld h,000h
 	ld (hl),0fch
 	inc a	
-	ld (l0022h),a
+	ld (loc_0022h),a
 	zadd a,007h
 	ld l,a	
 	ld (hl),b	
-l0566h:
+loc_0566h:
 	zadd a,008h
 	ld l,a	
 	ld b,(ix+001h)
@@ -858,8 +858,8 @@ l0566h:
 	ld b,(ix+004h)
 	ld (hl),b	
 	zsub a	
-	ld (l0024h+2),a
-l0578h:
+	ld (loc_0024h+2),a
+loc_0578h:
 	ld hl,01f68h
 	zset 6,(hl)
 	ld a,(ix+013h)
@@ -869,17 +869,17 @@ l0578h:
 	ld (ix+013h),001h
 	inc de	
 	pop hl	
-	jp l0628h
-l058fh:
+	jp loc_0628h
+loc_058fh:
 	cp 0deh
-	jp nc,l05eeh
+	jp nc,loc_05eeh
 	zsub 0c0h
 	zadd a,a	
 	zadd a,a	
 	zadd a,a	
 	ld c,a	
 	ld b,000h
-	ld hl,(l002ah)
+	ld hl,(loc_002ah)
 	zadd hl,bc	
 	ld a,(hl)	
 	ld (ix+00ah),a
@@ -913,16 +913,16 @@ l058fh:
 	ld (ix+000h),a
 	exx	
 	bit 7,(hl)
-	jr nz,l05dah
+	jr nz,loc_05dah
 	exx	
 	res 7,e
 	exx	
-	jp l05e0h
-l05dah:
+	jp loc_05e0h
+loc_05dah:
 	ld a,c	
-	call zsub_0448h
+	call sub_0448h
 	ld c,000h
-l05e0h:
+loc_05e0h:
 	ld (ix+003h),c
 	inc hl	
 	ld a,(hl)	
@@ -930,141 +930,141 @@ l05e0h:
 	inc hl	
 	ld a,(hl)	
 	zand a	
-	jp l05f8h
-l05eeh:
+	jp loc_05f8h
+loc_05eeh:
 	ld a,(ix+013h)
 	ld c,a	
 	zand a	
 	ex af,af	
 	ld a,c	
-	jp l0602h
-l05f8h:
+	jp loc_0602h
+loc_05f8h:
 	inc de	
 	ex af,af	
 	ld a,(ix+013h)
 	zand a	
 	ex af,af	
 	ld (ix+013h),a
-l0602h:
-	call zsub_06bbh
+loc_0602h:
+	call sub_06bbh
 	exx	
 	bit 3,c
 	exx	
-	jp z,l0622h
+	jp z,loc_0622h
 	ld a,(ix+013h)
 	zand a	
-	jp z,l0622h
+	jp z,loc_0622h
 	ld (ix+01dh),b
 	ld (ix+01ch),c
 	ex af,af	
-	jp z,l0621h
+	jp z,loc_0621h
 	ex af,af	
-	jp l0628h
-l0621h:
+	jp loc_0628h
+loc_0621h:
 	ex af,af	
-l0622h:
+loc_0622h:
 	ld (ix+016h),c
 	ld (ix+017h),b
-l0628h:
+loc_0628h:
 	ld a,(de)	
 	zsub 0efh
-	jp c,l064ah
-	jp nz,l0636h
+	jp c,loc_064ah
+	jp nz,loc_0636h
 	inc de	
 	ld a,(de)	
-	jp l063eh
-l0636h:
+	jp loc_063eh
+loc_0636h:
 	ld hl,(08002h)
 	ld c,a	
 	ld b,000h
 	zadd hl,bc	
 	ld a,(hl)	
-l063eh:
+loc_063eh:
 	inc de	
 	ld (ix+00eh),a
 	ld a,(de)	
 	ld (ix+015h),a
 	inc de	
-	jp l0665h
-l064ah:
+	jp loc_0665h
+loc_064ah:
 	zsub 0efh
-	jr z,l0654h
-	jp nc,l0659h
-	jp l0665h
-l0654h:
+	jr z,loc_0654h
+	jp nc,loc_0659h
+	jp loc_0665h
+loc_0654h:
 	inc de	
 	ld a,(de)	
-	jp l0661h
-l0659h:
+	jp loc_0661h
+loc_0659h:
 	ld hl,(08002h)
 	ld c,a	
 	ld b,000h
 	zadd hl,bc	
 	ld a,(hl)	
-l0661h:
+loc_0661h:
 	inc de	
 	ld (ix+00eh),a
-l0665h:
+loc_0665h:
 	zsub a	
 	ld (ix+00dh),a
 	exx	
 	ld hl,01f68h
 	ex af,af	
-	jr z,l0691h
+	jr z,loc_0691h
 	bit 4,d
-	jr z,l0682h
+	jr z,loc_0682h
 	bit 3,(hl)
-	jp nz,l0682h
+	jp nz,loc_0682h
 	bit 6,c
-	jr z,l06a0h
+	jr z,loc_06a0h
 	zset 5,(hl)
-	jp l06a0h
-l0682h:
+	jp loc_06a0h
+loc_0682h:
 	bit 2,d
-	jp z,l0691h
+	jp z,loc_0691h
 	bit 4,(hl)
-	jp nz,l0691h
+	jp nz,loc_0691h
 	bit 6,c
-	jp z,l0693h
-l0691h:
+	jp z,loc_0693h
+loc_0691h:
 	zset 5,(hl)
-l0693h:
+loc_0693h:
 	zsub a	
 	ld (ix+01eh),a
 	ld (ix+01fh),a
 	ld (ix+023h),000h
 	zset 2,e
-l06a0h:
+loc_06a0h:
 	bit 6,(hl)
-	jp z,l06aah
+	jp z,loc_06aah
 	zset 6,c
-	jp l06ach
-l06aah:
+	jp loc_06ach
+loc_06aah:
 	res 6,c
-l06ach:
+loc_06ach:
 	ld (ix+00ch),c
 	zset 7,(hl)
 	exx	
 	ld (ix+008h),d
 	ld (ix+007h),e
-	jp l00e0h
-zsub_06bbh:
-	ld bc,l0000h
+	jp loc_00e0h
+sub_06bbh:
+	ld bc,loc_0000h
 	zand a	
 	ret z	
 	exx	
 	bit 3,d
 	exx	
-	jr nz,l06ech
+	jr nz,loc_06ech
 	zadd a,(ix+004h)
 	zadd a,a	
 	ld c,a	
 	ld a,(ix+00ah)
 	zand a	
 	ld hl,00d21h
-	jp nz,l06d8h
-	ld hl,l0db9h
-l06d8h:
+	jp nz,loc_06d8h
+	ld hl,loc_0db9h
+loc_06d8h:
 	zadd hl,bc	
 	ld c,(hl)	
 	inc hl	
@@ -1073,20 +1073,20 @@ l06d8h:
 	zand a	
 	ret z	
 	ld h,000h
-	jp p,l06e7h
+	jp p,loc_06e7h
 	dec h	
-l06e7h:
+loc_06e7h:
 	ld l,a	
 	zadd hl,bc	
 	ld c,l	
 	ld b,h	
 	ret	
-l06ech:
+loc_06ech:
 	ld c,a	
 	zadd a,(ix+004h)
 	ld (ix+024h),a
 	ret	
-zsub_06f4h:
+sub_06f4h:
 	ld hl,(08004h)
 	ld e,a	
 	ld d,000h
@@ -1099,27 +1099,27 @@ zsub_06f4h:
 	zadd hl,de	
 	ld a,(hl)	
 	zand a	
-	jp p,l0714h
+	jp p,loc_0714h
 	cp 080h
-	jr nz,l0711h
+	jr nz,loc_0711h
 	dec hl	
 	ld a,(hl)	
-	jp l0718h
-l0711h:
-	call zsub_071eh
-l0714h:
+	jp loc_0718h
+loc_0711h:
+	call sub_071eh
+loc_0714h:
 	inc e	
 	ld (ix+01eh),e
-l0718h:
+loc_0718h:
 	zadd a,b	
 	zsub 01fh
 	ret nc	
 	zsub a	
 	ret	
-zsub_071eh:
+sub_071eh:
 	cp 081h
-	jp nz,l072dh
-l0723h:
+	jp nz,loc_072dh
+loc_0723h:
 	inc hl	
 	ld a,e	
 	ld e,(hl)	
@@ -1129,80 +1129,80 @@ l0723h:
 	dec hl	
 	ld a,(hl)	
 	ret	
-l072dh:
+loc_072dh:
 	cp 082h
-	jp nz,l0738h
+	jp nz,loc_0738h
 	sbc hl,de
 	ld a,(hl)	
 	ld e,000h
 	ret	
-l0738h:
+loc_0738h:
 	cp 083h
-	jp nz,l074bh
+	jp nz,loc_074bh
 	exx	
 	bit 2,e
 	exx	
-	jr z,l0747h
+	jr z,loc_0747h
 	dec hl	
 	ld a,(hl)	
 	dec e	
 	ret	
-l0747h:
+loc_0747h:
 	inc e	
 	inc hl	
 	ld a,(hl)	
 	ret	
-l074bh:
+loc_074bh:
 	exx	
 	bit 2,e
 	exx	
-	jr nz,l0723h
+	jr nz,loc_0723h
 	inc e	
 	inc e	
 	inc hl	
 	inc hl	
 	ld a,(hl)	
 	ret	
-zsub_0757h:
+sub_0757h:
 	ld c,(ix+021h)
 	ld a,(01f68h)
 	bit 7,a
-	jr z,l076eh
+	jr z,loc_076eh
 	ld a,(ix+013h)
 	zand a	
-	jr z,l076ah
+	jr z,loc_076ah
 	zadd a,(ix+004h)
-l076ah:
+loc_076ah:
 	ld (ix+01bh),a
 	ret	
-l076eh:
+loc_076eh:
 	ld a,(ix+01bh)
 	zand a	
 	ret z	
 	exx	
 	bit 6,e
 	exx	
-	jr nz,l077ch
+	jr nz,loc_077ch
 	zsub c	
-	jr l077dh
-l077ch:
+	jr loc_077dh
+loc_077ch:
 	zadd a,c	
-l077dh:
-	jr z,l07c5h
+loc_077dh:
+	jr z,loc_07c5h
 	ld c,(ix+00ah)
 	rlc c
-	jp nz,l0795h
+	jp nz,loc_0795h
 	cp 016h
-	jr c,l07c4h
+	jr c,loc_07c4h
 	cp 07ah
-	jr nc,l07c4h
-	ld hl,l0db9h
-	jp l079ch
-l0795h:
+	jr nc,loc_07c4h
+	ld hl,loc_0db9h
+	jp loc_079ch
+loc_0795h:
 	cp 062h
-	jr nc,l07c4h
+	jr nc,loc_07c4h
 	ld hl,00d21h
-l079ch:
+loc_079ch:
 	ld (ix+01bh),a
 	zadd a,a	
 	ld c,a	
@@ -1213,28 +1213,28 @@ l079ch:
 	ld b,(hl)	
 	ld a,(ix+012h)
 	zand a	
-	jp z,l07bdh
+	jp z,loc_07bdh
 	ld h,000h
-	jp p,l07b4h
+	jp p,loc_07b4h
 	dec h	
-l07b4h:
+loc_07b4h:
 	ld l,a	
 	zadd hl,bc	
 	ld (ix+016h),l
 	ld (ix+017h),h
 	ret	
-l07bdh:
+loc_07bdh:
 	ld (ix+016h),c
 	ld (ix+017h),b
 	ret	
-l07c4h:
+loc_07c4h:
 	zsub a	
-l07c5h:
+loc_07c5h:
 	ld (ix+01bh),a
 	ld (ix+016h),a
 	ld (ix+017h),a
 	ret	
-zsub_07cfh:
+sub_07cfh:
 	ld hl,(08006h)
 	ld e,a	
 	ld d,000h
@@ -1247,25 +1247,25 @@ zsub_07cfh:
 	zadd hl,de	
 	ld a,(hl)	
 	zand a	
-	jp p,l07ebh
+	jp p,loc_07ebh
 	cp 085h
-	jp nc,l07ebh
-	call zsub_071eh
-l07ebh:
+	jp nc,loc_07ebh
+	call sub_071eh
+loc_07ebh:
 	inc e	
 	ld (ix+01fh),e
 	ld c,(ix+003h)
 	bit 7,c
-	jp z,l07f9h
+	jp z,loc_07f9h
 	cpl	
 	inc a	
-l07f9h:
+loc_07f9h:
 	zand a	
 	ret z	
 	ld e,a	
-	jp p,l0800h
+	jp p,loc_0800h
 	dec d	
-l0800h:
+loc_0800h:
 	ld l,(ix+016h)
 	ld h,(ix+017h)
 	ld a,h	
@@ -1273,28 +1273,28 @@ l0800h:
 	ret z	
 	ld a,(ix+00ah)
 	zand a	
-	jp nz,l0835h
+	jp nz,loc_0835h
 	sbc hl,de
 	bit 7,d
-	jp z,l082ch
+	jp z,loc_082ch
 	ld a,h	
 	cp 004h
-	jr nc,l0823h
+	jr nc,loc_0823h
 	ld (ix+016h),l
 	ld (ix+017h),h
 	ret	
-l0823h:
+loc_0823h:
 	ld (ix+016h),000h
 	ld (ix+017h),000h
 	ret	
-l082ch:
-	jr c,l0823h
+loc_082ch:
+	jr c,loc_0823h
 	ld (ix+016h),l
 	ld (ix+017h),h
 	ret	
-l0835h:
+loc_0835h:
 	bit 6,c
-	jp nz,l0897h
+	jp nz,loc_0897h
 	ld a,h	
 	zand 038h
 	ld b,a	
@@ -1304,68 +1304,68 @@ l0835h:
 	zadd hl,de	
 	push hl	
 	bit 7,d
-	jp nz,l0870h
-	ld de,l0566h
+	jp nz,loc_0870h
+	ld de,loc_0566h
 	sbc hl,de
-	jp nc,l085bh
+	jp nc,loc_085bh
 	pop hl	
 	ld (ix+016h),l
 	ld a,h	
 	zor b	
 	ld (ix+017h),a
 	ret	
-l085bh:
+loc_085bh:
 	pop de	
-	ld de,l02b2h
+	ld de,loc_02b2h
 	zadd hl,de	
 	ld (ix+016h),l
 	ld a,b	
 	zadd a,008h
 	cp 040h
-	jp nc,l0823h
+	jp nc,loc_0823h
 	zor h	
 	ld (ix+017h),a
 	ret	
-l0870h:
-	ld de,l02b2h
+loc_0870h:
+	ld de,loc_02b2h
 	zand a	
 	sbc hl,de
-	jp c,l0883h
+	jp c,loc_0883h
 	pop hl	
 	ld (ix+016h),l
 	ld a,h	
 	zor b	
 	ld (ix+017h),a
 	ret	
-l0883h:
+loc_0883h:
 	pop de	
-	ld de,l0566h
+	ld de,loc_0566h
 	zadd hl,de	
 	ld (ix+016h),l
 	ld a,b	
 	zand a	
-	jp z,l0823h
+	jp z,loc_0823h
 	zsub 008h
 	zor h	
 	ld (ix+017h),a
 	ret	
-l0897h:
+loc_0897h:
 	ld a,h	
 	zadd hl,de	
 	cp h	
-	jr z,l08aah
+	jr z,loc_08aah
 	bit 7,d
-	jr nz,l08a5h
+	jr nz,loc_08a5h
 	ld (ix+016h),0ffh
 	ret	
-l08a5h:
+loc_08a5h:
 	ld (ix+016h),000h
 	ret	
-l08aah:
+loc_08aah:
 	ld (ix+016h),l
 	ld (ix+017h),h
 	ret	
-zsub_08b1h:
+sub_08b1h:
 	ld l,(ix+016h)
 	ld h,(ix+017h)
 	ld a,l	
@@ -1375,78 +1375,78 @@ zsub_08b1h:
 	ld c,(ix+01ch)
 	ld a,(ix+00ah)
 	zand a	
-	jp nz,l08ffh
-l08c7h:
+	jp nz,loc_08ffh
+loc_08c7h:
 	push hl	
 	sbc hl,bc
 	pop hl	
 	ret z	
-	jr c,l08d9h
+	jr c,loc_08d9h
 	ld a,l	
 	zsub (ix+020h)
 	ld l,a	
-	jr nc,l08f1h
+	jr nc,loc_08f1h
 	dec h	
-	jp l08f1h
-l08d9h:
+	jp loc_08f1h
+loc_08d9h:
 	ld a,l	
 	zadd a,(ix+020h)
 	ld l,a	
-	jr nc,l08e1h
+	jr nc,loc_08e1h
 	inc h	
-l08e1h:
+loc_08e1h:
 	push hl	
 	zand a	
 	sbc hl,bc
 	pop hl	
-	jr z,l08f8h
-	jr c,l08f8h
-l08eah:
+	jr z,loc_08f8h
+	jr c,loc_08f8h
+loc_08eah:
 	ld (ix+016h),c
 	ld (ix+017h),b
 	ret	
-l08f1h:
+loc_08f1h:
 	push hl	
 	zand a	
 	sbc hl,bc
 	pop hl	
-	jr c,l08eah
-l08f8h:
+	jr c,loc_08eah
+loc_08f8h:
 	ld (ix+016h),l
 	ld (ix+017h),h
-l08feh:
+loc_08feh:
 	ret	
-l08ffh:
+loc_08ffh:
 	ld a,h	
 	cp b	
-	jr nz,l0921h
+	jr nz,loc_0921h
 	ld a,l	
 	cp c	
-	jr z,l08feh
-	jr c,l0915h
+	jr z,loc_08feh
+	jr c,loc_0915h
 	zsub (ix+020h)
-	jr c,l0911h
+	jr c,loc_0911h
 	cp c	
-	jr nc,l091dh
-l0911h:
+	jr nc,loc_091dh
+loc_0911h:
 	ld (ix+016h),c
 	ret	
-l0915h:
+loc_0915h:
 	zadd a,(ix+020h)
-	jr c,l0911h
+	jr c,loc_0911h
 	cp c	
-	jr nc,l0911h
-l091dh:
+	jr nc,loc_0911h
+loc_091dh:
 	ld (ix+016h),a
 	ret	
-l0921h:
+loc_0921h:
 	zand 038h
 	ld e,a	
 	ld a,b	
 	zand 038h
 	cp e	
-	jp z,l08c7h
-	jp nc,l095dh
+	jp z,loc_08c7h
+	jp nc,loc_095dh
 	ld a,h	
 	zand 007h
 	ld h,a	
@@ -1454,18 +1454,18 @@ l0921h:
 	ld b,000h
 	zand a	
 	sbc hl,bc
-	ld bc,l02b2h
+	ld bc,loc_02b2h
 	push hl	
 	sbc hl,bc
-	jp c,l094dh
+	jp c,loc_094dh
 	pop hl	
 	ld (ix+016h),l
 	ld a,h	
 	zor e	
 	ld (ix+017h),a
 	ret	
-l094dh:
-	ld bc,l0566h
+loc_094dh:
+	ld bc,loc_0566h
 	zadd hl,bc	
 	ld (ix+016h),l
 	ld a,e	
@@ -1474,25 +1474,25 @@ l094dh:
 	ld (ix+017h),a
 	pop hl	
 	ret	
-l095dh:
+loc_095dh:
 	ld a,h	
 	zand 007h
 	ld h,a	
 	ld c,(ix+020h)
 	ld b,000h
 	zadd hl,bc	
-	ld bc,l0566h
+	ld bc,loc_0566h
 	push hl	
 	sbc hl,bc
-	jp nc,l097ah
+	jp nc,loc_097ah
 	pop hl	
 	ld (ix+016h),l
 	ld a,h	
 	zor e	
 	ld (ix+017h),a
 	ret	
-l097ah:
-	ld bc,l02b2h
+loc_097ah:
+	ld bc,loc_02b2h
 	zadd hl,bc	
 	ld (ix+016h),l
 	ld a,e	
@@ -1501,7 +1501,7 @@ l097ah:
 	ld (ix+017h),a
 	pop hl	
 	ret	
-zsub_098ah:
+sub_098ah:
 	ld e,a	
 	ld d,000h
 	ld hl,(08008h)
@@ -1514,18 +1514,18 @@ zsub_098ah:
 	zadd hl,de	
 	ld a,(hl)	
 	zand a	
-	jp p,l09aah
+	jp p,loc_09aah
 	cp 080h
-	jr nz,l09a7h
+	jr nz,loc_09a7h
 	dec hl	
 	ld a,(hl)	
-	jp l09aeh
-l09a7h:
-	call zsub_071eh
-l09aah:
+	jp loc_09aeh
+loc_09a7h:
+	call sub_071eh
+loc_09aah:
 	inc e	
 	ld (ix+023h),e
-l09aeh:
+loc_09aeh:
 	zand 03fh
 	ld c,a	
 	ld a,(ix+009h)
@@ -1533,129 +1533,129 @@ l09aeh:
 	zor c	
 	ld (ix+009h),a
 	ret	
-zsub_09bbh:
+sub_09bbh:
 	ld a,080h
 	ld (01f73h),a
 	ld (01f77h),a
 	ld (01f7bh),a
 	ld (01f7eh),a
 	ld a,0ffh
-	ld (l0030h),a
+	ld (loc_0030h),a
 	ld a,0ffh
 	ld (01f70h),a
 	ld (01f74h),a
 	ld (01f78h),a
 	ld (01f7ch),a
-	ld hl,l0000h
+	ld hl,loc_0000h
 	ld (01f20h),hl
 	ld (01f22h),hl
 	ld (01f24h),hl
 	ret	
-zsub_09e9h:
+sub_09e9h:
 	exx	
 	ld a,e	
 	ex af,af	
 	ld a,d	
 	bit 6,c
-	jp z,l0a15h
+	jp z,loc_0a15h
 	bit 0,c
 	exx	
 	ret z	
 	ld a,(01f25h)
 	cp 002h
-	jp nz,l0a0dh
+	jp nz,loc_0a0dh
 	ld a,(01f59h)
 	cp (ix+014h)
-	jp nz,l0a0dh
+	jp nz,loc_0a0dh
 	ld a,003h
 	ld (01f25h),a
 	ret	
-l0a0dh:
+loc_0a0dh:
 	exx	
 	res 0,c
 	ld (ix+00ch),c
 	exx	
 	ret	
-l0a15h:
+loc_0a15h:
 	exx	
 	ld b,a	
 	ex af,af	
 	bit 3,a
-	jr z,l0a3ch
-	ld a,(l0021h)
+	jr z,loc_0a3ch
+	ld a,(loc_0021h)
 	bit 5,a
-	jp nz,l0a2dh
+	jp nz,loc_0a2dh
 	exx	
 	res 3,e
 	ld (ix+00bh),e
 	exx	
-	jr l0a3ch
-l0a2dh:
-	ld hl,(l002fh)
+	jr loc_0a3ch
+loc_0a2dh:
+	ld hl,(loc_002fh)
 	ld a,(01f69h)
 	zadd a,l	
 	zsub 01fh
-	jr nc,l0a39h
+	jr nc,loc_0a39h
 	zsub a	
-l0a39h:
+loc_0a39h:
 	ld (01f69h),a
-l0a3ch:
+loc_0a3ch:
 	ld e,(ix+016h)
 	ld d,(ix+017h)
 	ld c,(ix+006h)
 	ld a,(ix+00ah)
 	zand a	
-	jp nz,l0acdh
+	jp nz,loc_0acdh
 	ld a,e	
 	zor d	
 	ret z	
 	bit 1,b
-	jp z,l0a8ch
+	jp z,loc_0a8ch
 	ld a,(01f7ch)
 	zand a	
-	jp z,l0a7ah
+	jp z,loc_0a7ah
 	zsub a	
 	ld (01f7ch),a
 	ld a,(01f68h)
 	zand 080h
 	ld a,(ix+024h)
-	jr nz,l0a6bh
+	jr nz,loc_0a6bh
 	res 3,a
-l0a6bh:
-	ld (l0031h),a
+loc_0a6bh:
+	ld (loc_0031h),a
 	ld a,(01f69h)
 	srl a
 	ld (01f7eh),a
 	ld a,c	
-	ld (l0030h),a
-l0a7ah:
+	ld (loc_0030h),a
+loc_0a7ah:
 	bit 0,b
-	jp nz,l0a9eh
+	jp nz,loc_0a9eh
 	ld a,c	
 	cp 002h
 	ret nz	
 	zsub a	
 	ld (01f69h),a
 	ld c,008h
-	jp l0aa5h
-l0a8ch:
-	ld a,(l0030h)
+	jp loc_0aa5h
+loc_0a8ch:
+	ld a,(loc_0030h)
 	cp c	
-	jr nz,l0a9eh
+	jr nz,loc_0a9eh
 	cp 002h
-	jr nz,l0a9eh
-	ld a,(l0031h)
+	jr nz,loc_0a9eh
+	ld a,(loc_0031h)
 	zand 003h
 	cp 003h
 	ret z	
-l0a9eh:
+loc_0a9eh:
 	ld a,c	
 	cp 003h
 	ret z	
 	zadd a,a	
 	zadd a,a	
 	ld c,a	
-l0aa5h:
+loc_0aa5h:
 	ld b,000h
 	ld hl,01f70h
 	zadd hl,bc	
@@ -1681,36 +1681,36 @@ l0aa5h:
 	srl a
 	ld (hl),a	
 	ret	
-l0acdh:
+loc_0acdh:
 	ld a,e	
 	zor d	
-	jp nz,l0adah
+	jp nz,loc_0adah
 	exx	
 	zset 6,c
 	ld (ix+00ch),c
 	exx	
 	ret	
-l0adah:
+loc_0adah:
 	bit 1,b
-	jp z,l0b06h
+	jp z,loc_0b06h
 	ld a,(01f7ch)
 	zand a	
-	jp z,l0b06h
+	jp z,loc_0b06h
 	zsub a	
 	ld (01f7ch),a
 	ld a,(01f68h)
 	zand 080h
 	ld a,(ix+024h)
-	jr nz,l0af6h
+	jr nz,loc_0af6h
 	res 3,a
-l0af6h:
-	ld (l0031h),a
+loc_0af6h:
+	ld (loc_0031h),a
 	ld a,(01f69h)
 	srl a
 	ld (01f7eh),a
 	ld a,004h
-	ld (l0030h),a
-l0b06h:
+	ld (loc_0030h),a
+loc_0b06h:
 	bit 0,b
 	ret z	
 	ld b,000h
@@ -1718,28 +1718,28 @@ l0b06h:
 	zadd hl,bc	
 	ld a,(hl)	
 	zand a	
-	jp z,l0b1ch
+	jp z,loc_0b1ch
 	exx	
 	zset 6,c
 	ld (ix+00ch),c
 	exx	
 	ret	
-l0b1ch:
+loc_0b1ch:
 	ld (hl),001h
 	ld a,(01f68h)
 	bit 7,a
-	jp z,l0be5h
+	jp z,loc_0be5h
 	ld hl,01f2ch
 	zadd hl,bc	
 	ld a,(ix+00ah)
 	cp (hl)	
-	jp nz,l0b3ch
+	jp nz,loc_0b3ch
 	ld hl,01f26h
 	zadd hl,bc	
 	ld a,(hl)	
 	ld (01f66h),a
-	jp l0bbch
-l0b3ch:
+	jp loc_0bbch
+loc_0b3ch:
 	ld (hl),a	
 	ld l,a	
 	ld h,000h
@@ -1755,11 +1755,11 @@ l0b3ch:
 	ld a,c	
 	ld hl,04000h
 	cp 003h
-	jr c,l0b5bh
+	jr c,loc_0b5bh
 	zsub 003h
 	ld c,a	
 	ld l,002h
-l0b5bh:
+loc_0b5bh:
 	inc de	
 	inc de	
 	zadd a,0b0h
@@ -1776,7 +1776,7 @@ l0b5bh:
 	pop iy
 	ld a,c	
 	zadd a,030h
-l0b71h:
+loc_0b71h:
 	ld c,a	
 	ld (hl),a	
 	ld a,(de)	
@@ -1787,15 +1787,15 @@ l0b71h:
 	ld a,c	
 	zadd a,010h
 	cp 0ach
-	jp nc,l0b8fh
+	jp nc,loc_0b8fh
 	cp 0a0h
-	jp nc,l0b8ah
+	jp nc,loc_0b8ah
 	cp 000h
-	jp l0b71h
-l0b8ah:
+	jp loc_0b71h
+loc_0b8ah:
 	zsub 06ch
-	jp l0b71h
-l0b8fh:
+	jp loc_0b71h
+loc_0b8fh:
 	ld c,(ix+006h)
 	ld b,000h
 	ld hl,01f26h
@@ -1819,56 +1819,56 @@ l0b8fh:
 	ld (hl),a	
 	ld e,(ix+016h)
 	ld d,(ix+017h)
-l0bbch:
-	call zsub_0c03h
+loc_0bbch:
+	call sub_0c03h
 	ld hl,01f68h
 	ld c,(ix+006h)
 	ld a,028h
 	ld (04000h),a
 	ld a,c	
 	cp 003h
-	jr c,l0bd0h
+	jr c,loc_0bd0h
 	inc a	
-l0bd0h:
+loc_0bd0h:
 	bit 5,(hl)
-	jp z,l0bdch
+	jp z,loc_0bdch
 	ld (04001h),a
-	call zsub_0fd1h
+	call sub_0fd1h
 	znop	
-l0bdch:
+loc_0bdch:
 	ld c,(ix+006h)
 	zor 0f0h
 	ld (04001h),a
 	ret	
-l0be5h:
+loc_0be5h:
 	ld hl,01f26h
 	zadd hl,bc	
 	bit 2,a
-	jp z,l0bffh
+	jp z,loc_0bffh
 	ld a,028h
 	ld (04000h),a
 	ld a,c	
 	cp 003h
-	jr c,l0bf9h
+	jr c,loc_0bf9h
 	inc a	
-l0bf9h:
+loc_0bf9h:
 	ld (04001h),a
 	ld c,(ix+006h)
-l0bffh:
+loc_0bffh:
 	ld a,(hl)	
 	ld (01f66h),a
-zsub_0c03h:
+sub_0c03h:
 	ld b,000h
 	ld iy,01f38h
 	zadd iy,bc
 	ld hl,04000h
 	ld a,c	
 	cp 003h
-	jp c,l0c19h
+	jp c,loc_0c19h
 	ld l,002h
 	zsub 003h
 	ld c,a	
-l0c19h:
+loc_0c19h:
 	ld a,c	
 	zadd a,0a4h
 	ld (hl),a	
@@ -1884,10 +1884,10 @@ l0c19h:
 	ld (hl),b	
 	dec l	
 	ld d,000h
-	ld hl,l0fdch
+	ld hl,loc_0fdch
 	zadd hl,de	
 	ld b,(hl)	
-	ld hl,l0fd4h
+	ld hl,loc_0fd4h
 	ld a,(01f66h)
 	ld e,a	
 	zadd hl,de	
@@ -1895,28 +1895,28 @@ l0c19h:
 	pop hl	
 	ld a,c	
 	zadd a,040h
-l0c40h:
+loc_0c40h:
 	sla d
-	jp nc,l0c54h
+	jp nc,loc_0c54h
 	ld (hl),a	
 	inc l	
 	ld c,a	
 	ld a,(iy+000h)
 	zadd a,b	
-	jp p,l0c51h
+	jp p,loc_0c51h
 	ld a,07fh
-l0c51h:
+loc_0c51h:
 	ld (hl),a	
 	dec l	
 	ld a,c	
-l0c54h:
+loc_0c54h:
 	push bc	
-	ld bc,l0006h
+	ld bc,loc_0006h
 	zadd iy,bc
 	pop bc	
 	zadd a,004h
 	cp 050h
-	jp c,l0c40h
+	jp c,loc_0c40h
 	zand 003h
 	zadd a,0b4h
 	ld (hl),a	
@@ -1924,7 +1924,7 @@ l0c54h:
 	ld a,(ix+009h)
 	ld (hl),a	
 	ret	
-zsub_0c6dh:
+sub_0c6dh:
 	ld c,a	
 	zadd a,a	
 	ld e,a	
@@ -1937,14 +1937,14 @@ zsub_0c6dh:
 	ex de,hl	
 	ld b,(hl)	
 	inc hl	
-l0c7ch:
+loc_0c7ch:
 	ld a,(hl)	
 	inc hl	
 	push hl	
 	zadd a,a	
 	ld e,a	
 	ld d,000h
-	ld hl,l0d05h
+	ld hl,loc_0d05h
 	zadd hl,de	
 	ld e,(hl)	
 	inc hl	
@@ -1952,7 +1952,7 @@ l0c7ch:
 	pop hl	
 	ld a,(hl)	
 	zand a	
-	jr z,l0cfeh
+	jr z,loc_0cfeh
 	ld a,(de)	
 	bit 6,a
 	ret nz	
@@ -1960,17 +1960,17 @@ l0c7ch:
 	pop ix
 	ld (ix+00ch),000h
 	zand a	
-	jr z,l0caah
+	jr z,loc_0caah
 	ld a,c	
 	cp (ix+014h)
-	jr nz,l0caah
+	jr nz,loc_0caah
 	zset 5,(ix+00ch)
-	jp l0cadh
-l0caah:
+	jp loc_0cadh
+loc_0caah:
 	ld (ix+014h),c
-l0cadh:
+loc_0cadh:
 	push bc	
-	ld bc,l000bh
+	ld bc,loc_000bh
 	ldir
 	pop bc	
 	ld a,(ix+005h)
@@ -1990,31 +1990,31 @@ l0cadh:
 	ld a,(01f68h)
 	zand a	
 	ld a,(0800fh)
-	jp z,l0cf3h
+	jp z,loc_0cf3h
 	ld a,(01f66h)
 	zadd a,(ix+001h)
 	zsub 01fh
-	jp nc,l0cedh
+	jp nc,loc_0cedh
 	zsub a	
-l0cedh:
+loc_0cedh:
 	ld (ix+001h),a
 	ld a,(01f67h)
-l0cf3h:
+loc_0cf3h:
 	zadd a,(ix+004h)
 	ld (ix+004h),a
 	dec b	
-	jp nz,l0c7ch
+	jp nz,loc_0c7ch
 	ret	
-l0cfeh:
+loc_0cfeh:
 	ld (de),a	
 	inc hl	
 	dec b	
-	jp nz,l0c7ch
+	jp nz,loc_0c7ch
 	ret	
-l0d05h:
+loc_0d05h:
 	znop	
 	inc e	
-	jr nc,l0d25h
+	jr nc,loc_0d25h
 	ld h,b	
 	inc e	
 	zsub b	
@@ -2023,7 +2023,7 @@ l0d05h:
 	inc e	
 	ret p	
 	inc e	
-	jr nz,l0d30h
+	jr nz,loc_0d30h
 	ld d,b	
 	dec e	
 	zadd a,b	
@@ -2038,7 +2038,7 @@ l0d05h:
 	ld e,0a0h
 	ld e,08bh
 	ld (bc),a	
-l0d25h:
+loc_0d25h:
 	zor d	
 	ld (bc),a	
 	in a,(002h)
@@ -2048,7 +2048,7 @@ l0d25h:
 	ld h,l	
 	inc bc	
 	sbc a,c	
-l0d30h:
+loc_0d30h:
 	inc bc	
 	rst 8	
 	inc bc	
@@ -2160,7 +2160,7 @@ l0d30h:
 	dec l	
 	zor d	
 	ld (032dbh),a
-l0db9h:
+loc_0db9h:
 	ld b,033h
 	inc (hl)	
 	inc sp	
@@ -2223,17 +2223,17 @@ l0db9h:
 	ex (sp),hl	
 	ld bc,001c8h
 	xor a	
-	ld bc,l0195h+1
+	ld bc,loc_0195h+1
 	zadd a,b	
-	ld bc,l0167h+3
+	ld bc,loc_0167h+3
 	ld d,(hl)	
-	ld bc,l0142h+1
-	jr nc,l0e12h
+	ld bc,loc_0142h+1
+	jr nc,loc_0e12h
 	rra	
-l0e12h:
-	ld bc,l010fh
+loc_0e12h:
+	ld bc,loc_010fh
 	znop	
-	ld bc,l00f1h+1
+	ld bc,loc_00f1h+1
 	call po,0d700h
 	znop	
 	rlc b
@@ -2284,14 +2284,14 @@ l0e12h:
 	ld (hl),000h
 	inc sp	
 	znop	
-	jr nc,l0e51h
-l0e51h:
+	jr nc,loc_0e51h
+loc_0e51h:
 	dec l	
 	znop	
 	dec hl	
 	znop	
-	jr z,l0e57h
-l0e57h:
+	jr z,loc_0e57h
+loc_0e57h:
 	ld h,000h
 	inc h	
 	znop	
@@ -2304,8 +2304,8 @@ l0e57h:
 	znop	
 	zadd hl,de	
 	znop	
-	jr l0e69h
-l0e69h:
+	jr loc_0e69h
+loc_0e69h:
 	ld d,000h
 	dec d	
 	znop	
@@ -2367,17 +2367,17 @@ l0e69h:
 	znop	
 	inc bc	
 	znop	
-zsub_0eadh:
-	ld a,(l0022h)
+sub_0eadh:
+	ld a,(loc_0022h)
 	zand a	
-	jr z,l0ef1h
+	jr z,loc_0ef1h
 	zsub a	
 	ld (01f68h),a
-	ld bc,l0000h
-l0ebah:
+	ld bc,loc_0000h
+loc_0ebah:
 	ld a,(bc)	
 	cp 0f0h
-	jp c,l0ed1h
+	jp c,loc_0ed1h
 	zadd a,a	
 	ld e,a	
 	ld d,000h
@@ -2387,67 +2387,67 @@ l0ebah:
 	inc hl	
 	ld d,(hl)	
 	ex de,hl	
-	call zsub_0ef2h
-	jr l0ed6h
-l0ed1h:
+	call sub_0ef2h
+	jr loc_0ed6h
+loc_0ed1h:
 	push bc	
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
-l0ed6h:
+loc_0ed6h:
 	inc c	
 	ld a,001h
-	ld (l0024h+2),a
-	ld a,(l0022h)
+	ld (loc_0024h+2),a
+	ld a,(loc_0022h)
 	cp c	
-	jp z,l0eeah
+	jp z,loc_0eeah
 	zsub a	
-	ld (l0024h+2),a
-	jp l0ebah
-l0eeah:
+	ld (loc_0024h+2),a
+	jp loc_0ebah
+loc_0eeah:
 	zsub a	
-	ld (l0022h),a
-	ld (l0024h+2),a
-l0ef1h:
+	ld (loc_0022h),a
+	ld (loc_0024h+2),a
+loc_0ef1h:
 	ret	
-zsub_0ef2h:
+sub_0ef2h:
 	jp (hl)	
-zsub_0ef3h:
+sub_0ef3h:
 	zsub a	
-	ld (l0021h),a
-	ld (l0031h),a
+	ld (loc_0021h),a
+	ld (loc_0031h),a
 	dec a	
 	ld (01f7dh),a
 	ld a,027h
 	ld (04000h),a
 	ld a,030h
 	ld (04001h),a
-zsub_0f08h:
+sub_0f08h:
 	ld hl,01c00h
-	ld de,l0030h
+	ld de,loc_0030h
 	ld b,00dh
 	zsub a	
-l0f11h:
+loc_0f11h:
 	ld (hl),a	
 	zadd hl,de	
-	djnz l0f11h
-	ld a,(l0021h)
+	djnz loc_0f11h
+	ld a,(loc_0021h)
 	res 5,a
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ld a,01fh
-	ld (l002fh),a
+	ld (loc_002fh),a
 	ld a,022h
 	ld (04000h),a
 	ld a,(0800eh)
 	ld (04001h),a
 	ld hl,(08002h)
-	ld bc,l0011h
+	ld bc,loc_0011h
 	zadd hl,bc	
-	ld (l002ah),hl
-	ld a,(l0021h)
+	ld (loc_002ah),hl
+	ld a,(loc_0021h)
 	zand 0feh
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ld a,003h
-	ld (l0027h),a
+	ld (loc_0027h),a
 	ld hl,(0800ch)
 	ld c,(hl)	
 	ld b,000h
@@ -2458,7 +2458,7 @@ l0f11h:
 	ld (04000h),a
 	zsub a	
 	ld (04001h),a
-	call zsub_09bbh
+	call sub_09bbh
 	ld hl,00707h
 	ld (01f26h),hl
 	ld (01f28h),hl
@@ -2470,36 +2470,36 @@ l0f11h:
 	ld (01f32h),hl
 	ld (01f34h),hl
 	ld (01f36h),hl
-	call zsub_01d8h
+	call sub_01d8h
 	ret	
-zsub_0f80h:
+sub_0f80h:
 	res 5,(hl)
 	ld a,01fh
-	ld (l002fh),a
-	ld bc,l0030h
+	ld (loc_002fh),a
+	ld bc,loc_0030h
 	ld hl,01c0bh
 	ld a,00ch
-l0f8fh:
+loc_0f8fh:
 	res 3,(hl)
 	zadd hl,bc	
 	dec a	
-	jr nz,l0f8fh
+	jr nz,loc_0f8fh
 	ret	
-zsub_0f96h:
+sub_0f96h:
 	ld a,(01f51h)
 	cp h	
-	jr nz,l0fa1h
+	jr nz,loc_0fa1h
 	ld a,(01f50h)
 	cp l	
 	ret z	
-l0fa1h:
+loc_0fa1h:
 	ld a,l	
 	rlca	
 	ld (06000h),a
 	ld a,h	
 	ld (06000h),a
 	rrca	
-l0fabh:
+loc_0fabh:
 	ld (06000h),a
 	rrca	
 	ld (06000h),a
@@ -2510,7 +2510,7 @@ l0fabh:
 	rrca	
 	ld (06000h),a
 	rrca	
-l0fbfh:
+loc_0fbfh:
 	ld (06000h),a
 	rrca	
 	ld (06000h),a
@@ -2518,21 +2518,21 @@ l0fbfh:
 	ret	
 	push ix
 	pop ix
-zsub_0fceh:
+sub_0fceh:
 	ret	
 	push hl	
 	pop hl	
-zsub_0fd1h:
+sub_0fd1h:
 	push hl	
 	pop hl	
 	ret	
-l0fd4h:
+loc_0fd4h:
 	djnz *+18
 	djnz *+18
-	jr nc,l104ah
+	jr nc,loc_104ah
 	ld (hl),b	
 	ret p	
-l0fdch:
+loc_0fdch:
 	ld a,a	
 	ld e,b	
 	ld d,h	
@@ -2542,16 +2542,16 @@ l0fdch:
 	ld b,h	
 	ld b,b	
 	inc a	
-	jr c,l101bh
-	jr nc,l1015h
-	jr z,l100fh
-	jr nz,l100bh
+	jr c,loc_101bh
+	jr nc,loc_1015h
+	jr z,loc_100fh
+	jr nz,loc_100bh
 	inc e	
 	ld a,(de)	
-	jr l1007h
+	jr loc_1007h
 	inc d	
 	ld (de),a	
-	djnz l1003h
+	djnz loc_1003h
 	inc c	
 	ld a,(bc)	
 	ex af,af	
@@ -2560,218 +2560,218 @@ l0fdch:
 	znop	
 	inc e	
 	djnz *+31
-	djnz l1024h
-	djnz l102ch
-l1003h:
-	djnz l1047h
+	djnz loc_1024h
+	djnz loc_102ch
+loc_1003h:
+	djnz loc_1047h
 	djnz *+92
-l1007h:
-	djnz l0fabh
-	djnz l0fbfh
-l100bh:
-	djnz l1029h
+loc_1007h:
+	djnz loc_0fabh
+	djnz loc_0fbfh
+loc_100bh:
+	djnz loc_1029h
 	djnz *+30
-l100fh:
+loc_100fh:
 	djnz *-56
 	djnz *-56
-	djnz l1036h
-l1015h:
-	ld de,l101bh+1
+	djnz loc_1036h
+loc_1015h:
+	ld de,loc_101bh+1
 	inc e	
 	djnz *+30
-l101bh:
+loc_101bh:
 	djnz *-53
 	push bc	
-	call zsub_0ef3h
+	call sub_0ef3h
 	pop bc	
 	ret	
 	push bc	
-l1024h:
-	call zsub_0f08h
+loc_1024h:
+	call sub_0f08h
 	pop bc	
 	ret	
-l1029h:
-	call zsub_1070h
-l102ch:
+loc_1029h:
+	call sub_1070h
+loc_102ch:
 	ld a,01fh
-	ld (l002fh),a
-	ld hl,l0010h
+	ld (loc_002fh),a
+	ld hl,loc_0010h
 	zadd hl,bc	
 	ld a,(hl)	
-l1036h:
-	ld (l002eh),a
-	ld a,(l0021h)
+loc_1036h:
+	ld (loc_002eh),a
+	ld a,(loc_0021h)
 	zor 030h
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ret	
 	zsub a	
 	ld (01f68h),a
 	push bc	
-l1047h:
-	ld hl,l0010h
-l104ah:
+loc_1047h:
+	ld hl,loc_0010h
+loc_104ah:
 	zadd hl,bc	
 	ld a,(hl)	
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
 	zsub a	
-	ld (l002fh),a
-	ld a,(l0021h)
-	jp l1060h
-	ld a,(l0021h)
+	ld (loc_002fh),a
+	ld a,(loc_0021h)
+	jp loc_1060h
+	ld a,(loc_0021h)
 	bit 5,a
 	ret z	
-l1060h:
+loc_1060h:
 	zand 0efh
 	zor 020h
-	ld (l0021h),a
-	call zsub_1070h
+	ld (loc_0021h),a
+	call sub_1070h
 	ld a,01fh
-	ld (l002eh),a
+	ld (loc_002eh),a
 	ret	
-zsub_1070h:
-	ld hl,l0008h
+sub_1070h:
+	ld hl,loc_0008h
 	zadd hl,bc	
 	ld a,(hl)	
-	ld (l002ch),a
+	ld (loc_002ch),a
 	ld a,0ffh
-	ld (l002dh),a
+	ld (loc_002dh),a
 	push ix
-	ld de,l0030h
+	ld de,loc_0030h
 	ld h,00bh
 	ld ix,01c00h
-l1088h:
+loc_1088h:
 	ld a,(ix+000h)
 	zand a	
-	jr z,l1099h
-	jp m,l1099h
+	jr z,loc_1099h
+	jp m,loc_1099h
 	ld a,(ix+00bh)
 	zor 008h
 	ld (ix+00bh),a
-l1099h:
+loc_1099h:
 	zadd ix,de
 	dec h	
-	jp p,l1088h
+	jp p,loc_1088h
 	pop ix
 	ret	
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zor 002h
-	ld (l0021h),a
+	ld (loc_0021h),a
 	push bc	
 	zsub a	
 	ld (01f68h),a
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
 	ret	
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zand 0fdh
-	ld (l0021h),a
+	ld (loc_0021h),a
 	push bc	
 	zsub a	
 	ld (01f68h),a
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
 	ret	
-	ld hl,l0008h
+	ld hl,loc_0008h
 	zadd hl,bc	
 	ld a,(hl)	
 	zand a	
-	jp m,l1110h
+	jp m,loc_1110h
 	ld d,001h
-l10d1h:
+loc_10d1h:
 	ld e,a	
-	ld hl,l0010h
+	ld hl,loc_0010h
 	zadd hl,bc	
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zand 001h
 	ld a,(hl)	
-	jp z,l10e4h
+	jp z,loc_10e4h
 	ld hl,01f58h
 	cp (hl)	
 	ret c	
-l10e4h:
+loc_10e4h:
 	ld (01f58h),a
 	ld a,(bc)	
 	cp 0fah
 	ld a,0c0h
-	jp z,l10f4h
-	ld hl,l0018h
+	jp z,loc_10f4h
+	ld hl,loc_0018h
 	zadd hl,bc	
 	ld a,(hl)	
-l10f4h:
+loc_10f4h:
 	ld (01f57h),a
 	ld a,e	
 	ld (01f55h),a
 	ld a,d	
-	ld (l0027h),a
+	ld (loc_0027h),a
 	cp 003h
 	ret z	
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zor 001h
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ld a,0fah
 	ld (01f59h),a
 	ret	
-l1110h:
+loc_1110h:
 	cp 0ffh
-	jp z,l111ch
+	jp z,loc_111ch
 	zand 07fh
 	ld d,002h
-	jp l10d1h
-l111ch:
+	jp loc_10d1h
+loc_111ch:
 	ld d,003h
-	jp l10d1h
+	jp loc_10d1h
 	ld a,001h
 	ld (01f68h),a
-	ld hl,l0010h
+	ld hl,loc_0010h
 	zadd hl,bc	
 	ld a,(hl)	
 	ld (01f66h),a
-	ld hl,l0018h
+	ld hl,loc_0018h
 	zadd hl,bc	
 	ld a,(hl)	
 	ld (01f67h),a
 	ld a,001h
 	ld (01f68h),a
-	ld hl,l0008h
+	ld hl,loc_0008h
 	zadd hl,bc	
 	ld a,(hl)	
 	push bc	
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
 	zsub a	
 	ld (01f68h),a
 	ret	
-l114ah:
+loc_114ah:
 	di	
 	im 1
 	ld sp,02000h
 	ld hl,0ffffh
 	ld (01f50h),hl
 	ld hl,(01f00h)
-	call zsub_0f96h
+	call sub_0f96h
 	zsub a	
-	ld (l0022h),a
-	ld (l0023h),a
-	ld (l0020h),a
-	ld (l0024h+2),a
-	ld (l0024h),a
-	call zsub_0ef3h
-l116fh:
+	ld (loc_0022h),a
+	ld (loc_0023h),a
+	ld (loc_0020h),a
+	ld (loc_0024h+2),a
+	ld (loc_0024h),a
+	call sub_0ef3h
+loc_116fh:
 	ei	
 	znop	
 	di	
-	ld a,(l0027h)
+	ld a,(loc_0027h)
 	zand a	
-	jr z,l116fh
-l1178h:
+	jr z,loc_116fh
+loc_1178h:
 	zor 080h
-	ld (l0027h),a
+	ld (loc_0027h),a
 	ei	
 	zadd a,a	
 	ld e,a	
 	ld d,000h
-	ld hl,l118fh
+	ld hl,loc_118fh
 	zadd hl,de	
 	ld a,d	
 	ld (01f6dh),a
@@ -2780,101 +2780,103 @@ l1178h:
 	ld d,(hl)	
 	ex de,hl	
 	jp (hl)	
-l118fh:
+loc_118fh:
 	ld h,012h
 	zsub a	
-	ld de,l1197h
+	ld de,loc_1197h
 	ld h,012h
-l1197h:
+loc_1197h:
 	di	
 	ld a,02bh
 	ld (04000h),a
 	ld a,080h
 	ld (04001h),a
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zor 001h
-	ld (l0021h),a
-	call zsub_09bbh
+	ld (loc_0021h),a
+	call sub_09bbh
 	ld hl,0ffffh
 	ld (01f32h),hl
 	ld (01f34h),hl
 	ld (01f36h),hl
-	call zsub_01d8h
+	call sub_01d8h
 	ld hl,01c0ch
-	ld de,l0030h
+	ld de,loc_0030h
 	ld b,00dh
-l11c4h:
+loc_11c4h:
 	zset 6,(hl)
 	zadd hl,de	
-	djnz l11c4h
+	djnz loc_11c4h
 	ld a,0b6h
 	ld (04002h),a
 	ld a,(01f57h)
 	ld (04003h),a
 	ld hl,(01f00h)
-	call zsub_0f96h
-	call zsub_12a8h
-	call zsub_0f96h
-	call zsub_12cdh
-l11e3h:
+	call sub_0f96h
+	call sub_12a8h
+	call sub_0f96h
+	call sub_12cdh
+loc_11e3h:
 	ld a,02ah
 	ld (04000h),a
 	ld a,h	
 	zand a	
 	ld a,080h
-	jr z,l11f1h
+	jr z,loc_11f1h
 	ld a,(hl)	
 	zand 0f0h
-l11f1h:
+loc_11f1h:
 	ld (04001h),a
-	call zsub_1247h
+	call sub_1247h
 	ld a,02ah
 	ld (04000h),a
 	ld a,h	
 	zand a	
 	ld a,080h
-	jr z,l1207h
+	jr z,loc_1207h
 	ld a,(hl)	
 	zadd a,a	
 	zadd a,a	
 	zadd a,a	
 	zadd a,a	
-l1207h:
+loc_1207h:
 	ld (04001h),a
-	call zsub_1247h
-	ld a,(l0027h)
+	call sub_1247h
+	ld a,(loc_0027h)
 	zand a	
-	jp p,l1178h
+	jp p,loc_1178h
 	ld a,h	
 	zand a	
-	jp z,l121ah
+	jp z,loc_121ah
 	inc hl	
-l121ah:
+loc_121ah:
+
 	dec bc	
 	ld a,c	
 	zor b	
-	jp nz,l11e3h
-	call zsub_12f3h
-	jp nz,l11e3h
-	di	
-	ld a,(l0027h)
+	jp nz,loc_11e3h
+	call sub_12f3h
+	jp nz,loc_11e3h
+	di		
+	ld a,(loc_0027h)
 	zand a	
-	jp p,l1178h
+	jp p,loc_1178h
 	zsub a	
-	ld (l0027h),a
+	ld (loc_0027h),a
 	ld a,02bh
 	ld (04000h),a
 	zsub a	
 	ld (04001h),a
-	ld a,(l0021h)
+	ld a,(loc_0021h)
 	zand 0feh
-	ld (l0021h),a
+	ld (loc_0021h),a
 	ei	
-	jp l116fh
-zsub_1247h:
-	ld a,(l0022h)
+	jp loc_116fh
+	
+sub_1247h:
+	ld a,(loc_0022h)
 	zand a	
-	jp z,l12a0h
+	jp z,loc_12a0h
 	zsub a	
 	ld (01f68h),a
 	push bc	
@@ -2882,12 +2884,12 @@ zsub_1247h:
 	ld hl,(01f50h)
 	push hl	
 	ld hl,(01f00h)
-	call zsub_0f96h
-	ld bc,l0000h
-l1261h:
+	call sub_0f96h
+	ld bc,loc_0000h
+loc_1261h:
 	ld a,(bc)	
 	cp 0f0h
-	jp c,l1278h
+	jp c,loc_1278h
 	zadd a,a	
 	ld e,a	
 	ld d,000h
@@ -2897,42 +2899,42 @@ l1261h:
 	inc hl	
 	ld d,(hl)	
 	ex de,hl	
-	call zsub_129fh
-	jr l127dh
-l1278h:
+	call sub_129fh
+	jr loc_127dh
+loc_1278h:
 	push bc	
-	call zsub_0c6dh
+	call sub_0c6dh
 	pop bc	
-l127dh:
+loc_127dh:
 	inc c	
 	ld a,001h
-	ld (l0024h+2),a
-	ld a,(l0022h)
+	ld (loc_0024h+2),a
+	ld a,(loc_0022h)
 	cp c	
-	jp z,l1291h
+	jp z,loc_1291h
 	zsub a	
-	ld (l0024h+2),a
-	jp l1261h
-l1291h:
+	ld (loc_0024h+2),a
+	jp loc_1261h
+loc_1291h:
 	zsub a	
-	ld (l0022h),a
-	ld (l0024h+2),a
+	ld (loc_0022h),a
+	ld (loc_0024h+2),a
 	pop hl	
-	call zsub_0f96h
+	call sub_0f96h
 	pop hl	
 	pop bc	
 	ret	
-zsub_129fh:
+sub_129fh:
 	jp (hl)	
-l12a0h:
+loc_12a0h:
 	ld a,(01f54h)
-l12a3h:
+loc_12a3h:
 	dec a	
-	jp nz,l12a3h
+	jp nz,loc_12a3h
 	ret	
-zsub_12a8h:
+sub_12a8h:
 	ld a,(01f55h)
-zsub_12abh:
+sub_12abh:
 	zadd a,a	
 	ld c,a	
 	ld b,000h
@@ -2956,7 +2958,7 @@ zsub_12abh:
 	ld h,(hl)	
 	ld l,a	
 	ret	
-zsub_12cdh:
+sub_12cdh:
 	ld d,000h
 	ld hl,(01f5ah)
 	zadd hl,de	
@@ -2970,11 +2972,11 @@ zsub_12cdh:
 	inc hl	
 	zand a	
 	ld d,a	
-	jr nz,l12e4h
+	jr nz,loc_12e4h
 	ld a,e	
 	zand a	
-	jp p,l1312h
-l12e4h:
+	jp p,loc_1312h
+loc_12e4h:
 	ld c,(hl)	
 	inc hl	
 	ld b,(hl)	
@@ -2986,7 +2988,7 @@ l12e4h:
 	ld (01f52h),hl
 	ex de,hl	
 	ret	
-zsub_12f3h:
+sub_12f3h:
 	ld hl,(01f52h)
 	ld e,(hl)	
 	inc hl	
@@ -2994,11 +2996,11 @@ zsub_12f3h:
 	inc hl	
 	zand a	
 	ld d,a	
-	jr nz,l1303h
+	jr nz,loc_1303h
 	ld a,e	
 	zand a	
-	jp p,l1312h
-l1303h:
+	jp p,loc_1312h
+loc_1303h:
 	ld c,(hl)	
 	inc hl	
 	ld b,(hl)	
@@ -3010,18 +3012,18 @@ l1303h:
 	ld (01f52h),hl
 	ex de,hl	
 	ret	
-l1312h:
-	jr z,l132dh
+loc_1312h:
+	jr z,loc_132dh
 	ld (01f6ch),hl
 	ld hl,(01f50h)
 	ld (01f6eh),hl
 	ld hl,(01f00h)
-	call zsub_0f96h
+	call sub_0f96h
 	ld a,e	
-	call zsub_12abh
-	call zsub_0f96h
-	jp zsub_12cdh
-l132dh:
+	call sub_12abh
+	call sub_0f96h
+	jp sub_12cdh
+loc_132dh:
 	ld hl,(01f6ch)
 	ld a,h	
 	zand a	
@@ -3030,8 +3032,8 @@ l132dh:
 	ld (01f6dh),a
 	ld (01f52h),hl
 	ld hl,(01f6eh)
-	call zsub_0f96h
-	jp zsub_12f3h
+	call sub_0f96h
+	jp sub_12f3h
 	rst 38h	
 	rst 38h	
 	rst 38h	

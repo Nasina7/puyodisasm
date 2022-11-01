@@ -14,13 +14,16 @@ vdpData2 = $C00002
 vdpControl1 = $C00004
 vdpControl2 = $C00006
 
-transitionLoadLocation = $00FF0A36
-functionReturnState = $00FF0A3A
 
-debug_CpuPlayer = $00FF1876
-debug_puyoDrop = $00FF1877
-debug_skipStages = $00FF1878
-debug_unknown = $00FF1879
+BC_programCounter = $00FF0A36 ; Long
+BC_returnState = $00FF0A3A ; Byte
+BC_stopRunning = $00FF0A3B ; Byte
+BC_stopBytecodeLoop = $00FF0A3C ; Byte
+
+debug_CpuPlayer = $00FF1876 ; Byte
+debug_puyoDrop = $00FF1877 ; Byte
+debug_skipStages = $00FF1878 ; Byte
+debug_unknown = $00FF1879 ; Byte
 
 SystemStack = $00FFFC00
 

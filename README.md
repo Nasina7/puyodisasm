@@ -9,8 +9,3 @@ You assume any and all responsibility for using this content responsibility.  I 
 Download the Repo and run build.bat.  This will build the rom and place it in the repo at out/puyobuilt.bin
 ## Todo:
 [Todo List](https://github.com/Nasina7/puyodisasm/wiki/Todo)
-## Stretch Goals:
-- English Translation
-- Allow building the Arcade (Japan) Release
-- Allow building the Arcade (World) Release
-- Allow building the Sharp X68000 Release

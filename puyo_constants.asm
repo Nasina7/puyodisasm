@@ -14,6 +14,7 @@ vdpData2 = $C00002
 vdpControl1 = $C00004
 vdpControl2 = $C00006
 
+mus_curSong = $00FF012F ; Byte
 
 BC_programCounter = $00FF0A36 ; Long
 BC_returnState = $00FF0A3A ; Byte
@@ -29,7 +30,7 @@ SystemStack = $00FFFC00
 
 
 
-; Non-Ram Related Constants
+; Cutscene Constants (Todo: Move these into their own file)
 arle_AnimIdle = 0
 arle_AnimIdleTalk = 1
 arle_AnimAngerTalk = 2
@@ -59,3 +60,22 @@ draco_AnimIdleTalk = 1
 draco_AnimGloatTalk = 2
 draco_AnimPointUp = 3
 draco_AnimAnger = 4
+
+; Music / SFX Constants:
+musID_Final = 1
+musID_Theme = 2
+musID_Baroque = 3
+musID_Cooking = 4
+musID_Morning = 5
+musID_Toy = 6
+musID_Sorrow = 7
+musID_Sticker = 8
+musID_Sunset = $A
+musID_Rejection = $B
+musID_Memories = $C
+musID_HarpyTheme = $D
+musID_Warning = $E
+musID_SatanTheme = $F
+musID_Brave = $10
+musID_Ondo = $11
+musID_Victory = $12

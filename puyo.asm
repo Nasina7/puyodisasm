@@ -11,9 +11,8 @@ shiftabilityTest = 0
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
 fixBugs = 0
 
-; BAD CODE = Code that wasn't disassembled during the initial exodus runthrough, nor my runthrough for shiftability.
-; MISSING POINTER = Code or data that is missing a pointer (potentially unused???)
-; UNKNOWN USAGE = Code that was originally BAD CODE, but is now disassembled.  It could potentially be unused.
+; MISSING POINTER = Code or data that is missing a pointer
+; UNKNOWN USAGE = Code that was originally not disassembled during the initial runthrough, but is now disassembled.  Probably unused.
 
 ; Credits to AURORA*FIELDS for making LANG.ASM
 
@@ -97,7 +96,7 @@ headerBegin:
 	dc.b    "PUYOPUYO                                        " ; Game Title (Overseas)
 	dc.b    "GM G-4082  -00" ; Serial
 checksum:
-	dc.w	$BCE7 ; Checksum
+	dc.w	$BCE7 ; Checksum (This will get patched later)
 	
 	dc.b	"J               " ; Device Support
 	dc.l    startOfRom
@@ -1247,7 +1246,7 @@ loc_0000204E:
 	CLR.w	D1
 	MOVE.b	$00FF0112, D1
 	MOVE.b	loc_00002078(PC,D1.w), D0
-	JSR	loc_000072E6
+	JSR	playSoundID
 	CMPI.b	#7, $00FF0113
 	BEQ.w	loc_0000206E
 	RTS
@@ -2013,7 +2012,7 @@ loc_00002B68:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
 	
-;loc_00002B72
+;loc_00002b72
 func_updateCutsceneAnimation:
 	TST.b	$22(A0)
 	BEQ.w	loc_00002B80
@@ -2226,16 +2225,16 @@ loc_00002E1C:
 loc_00002E26:
 	CMPI.b	#$0C, $00FF0113
 	BEQ.w	loc_00002E70
-	CMPI.b	#$0E, $00FF111A
+	CMPI.b	#musID_Warning, $00FF111A
 	BEQ.w	loc_00002E62
 	CMPI.w	#$003C, $00FF1F1C
-	BCC.w	loc_00002E4C
+	BCC.w	mus_triggerWarningMusic
 	RTS
-loc_00002E4C:
-	MOVE.b	#$0E, D0
+mus_triggerWarningMusic:
+	MOVE.b	#musID_Warning, D0
 	MOVE.b	D0, $00FF111A
 	JSR	loc_00007308
-	JMP	loc_000072E6
+	JMP	playSoundID
 loc_00002E62:
 	CMPI.w	#$0036, $00FF1F1C
 	BCS.w	loc_00002E70
@@ -2243,19 +2242,34 @@ loc_00002E62:
 loc_00002E70:
 	CLR.w	D1
 	MOVE.b	$00FF0112, D1
-	MOVE.b	loc_00002E9A(PC,D1.w), D0
+	MOVE.b	mus_stageMusicLookup(PC,D1.w), D0
 	CMP.b	$00FF111A, D0
 	BNE.w	loc_00002E88
 	RTS
 loc_00002E88:
 	MOVE.b	D0, $00FF111A
 	JSR	loc_00007308
-	JMP	loc_000072E6
-loc_00002E9A:
-	dc.b	$05, $05, $05 
-	dc.b	$02
-	dc.b	$02
-	dc.b	$02, $02, $02, $02, $02, $02, $08, $08, $08, $08, $01 
+	JMP	playSoundID
+mus_stageMusicLookup:
+	dc.b    musID_Morning
+	dc.b    musID_Morning
+	dc.b    musID_Morning
+	
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	dc.b    musID_Theme
+	
+	dc.b    musID_Sticker
+	dc.b    musID_Sticker
+	dc.b    musID_Sticker
+	dc.b    musID_Sticker
+	
+	dc.b    musID_Final
 loc_00002EAA:
 	dc.b	$04, $04, $04 
 	dc.b	$05
@@ -4953,18 +4967,70 @@ loc_000052A4:
 	TST.b	$00FF18C7
 	BEQ.w	loc_000051B4
 	RTS
+	
 loc_000052BA:
-; BAD CODE
-	dc.b	$21, $7C, $00, $00, $53, $D2, $00, $32, $61, $00, $D8, $62, $22, $68, $00, $2E, $61, $00, $D8, $A6, $65, $00, $00, $0A, $13, $68, $00, $09, $00, $09, $4E, $75 
-	dc.b	$11, $7C, $00, $05, $00, $06, $31, $69, $00, $0A, $00, $0A, $31, $69, $00, $0A, $00, $36, $31, $69, $00, $0E, $00, $0E, $31, $69, $00, $0E, $00, $38, $31, $7C ;0x20
-	dc.b	$FF, $FF, $00, $16, $31, $7C, $0A, $00, $00, $1A, $31, $7C, $18, $00, $00, $1C, $10, $3C, $00, $75, $4E, $B9, $00, $00, $72, $BE, $61, $00, $D8, $10, $22, $68 ;0x40
-	dc.b	$00, $2E, $61, $00, $D9, $0C, $65, $00, $00, $10, $33, $68, $00, $0A, $00, $0A, $33, $68, $00, $0E, $00, $0E, $4E, $75, $42, $39, $00, $FF, $18, $C7, $61, $00 ;0x60
-	dc.b	$D7, $EC, $4A, $39, $00, $FF, $18, $C7, $66, $00, $00, $04, $4E, $75, $11, $7C, $00, $05, $00, $06, $31, $68, $00, $36, $00, $0A, $42, $A8, $00, $16, $31, $7C ;0x80
-	dc.b	$FF, $FF, $00, $20, $31, $7C, $18, $00, $00, $1C, $21, $7C, $00, $00, $53, $C4, $00, $32, $61, $00, $D7, $B8, $22, $68, $00, $2E, $61, $00, $D8, $B4, $61, $00 ;0xA0
-	dc.b	$D7, $F8, $13, $68, $00, $09, $00, $09, $33, $68, $00, $0A, $00, $0A, $30, $28, $00, $0E, $33, $40, $00, $0E, $B0, $68, $00, $38, $64, $00, $00, $04, $4E, $75 ;0xC0
-	dc.b	$13, $7C, $00, $0D, $00, $09, $33, $68, $00, $36, $00, $0A, $33, $68, $00, $38, $00, $0E, $13, $7C, $00, $FF, $00, $36, $42, $79, $00, $FF, $18, $C6, $10, $3C ;0xE0
-	dc.b	$00, $55, $61, $00, $1F, $00, $60, $00, $D7, $30, $01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00, $00, $00, $53, $C4, $08, $09, $12, $0C, $02, $0B, $01, $0D ;0x100
-	dc.b	$FE, $00 ;0x120
+	MOVE.l	#$000053D2, $32(A0)
+	BSR.w	loc_00002B26
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	BCS.w	loc_000052DA	;Predicted (Code-scan)
+	MOVE.b	$9(A0), $9(A1)	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_000052DA:
+	MOVE.b	#5, $6(A0)	;Predicted (Code-scan)
+	MOVE.w	$A(A1), $A(A0)	;Predicted (Code-scan)
+	MOVE.w	$A(A1), $36(A0)	;Predicted (Code-scan)
+	MOVE.w	$E(A1), $E(A0)	;Predicted (Code-scan)
+	MOVE.w	$E(A1), $38(A0)	;Predicted (Code-scan)
+	MOVE.w	#$FFFF, $16(A0)	;Predicted (Code-scan)
+	MOVE.w	#$0A00, $1A(A0)	;Predicted (Code-scan)
+	MOVE.w	#$1800, $1C(A0)	;Predicted (Code-scan)
+	MOVE.b	#$75, D0	;Predicted (Code-scan)
+	JSR	loc_000072BE	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	BCS.w	loc_00005332	;Predicted (Code-scan)
+	MOVE.w	$A(A0), $A(A1)	;Predicted (Code-scan)
+	MOVE.w	$E(A0), $E(A1)	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00005332:
+	CLR.b	$00FF18C7	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	TST.b	$00FF18C7	;Predicted (Code-scan)
+	BNE.w	loc_00005348	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00005348:
+	MOVE.b	#5, $6(A0)	;Predicted (Code-scan)
+	MOVE.w	$36(A0), $A(A0)	;Predicted (Code-scan)
+	CLR.l	$16(A0)	;Predicted (Code-scan)
+	MOVE.w	#$FFFF, $20(A0)	;Predicted (Code-scan)
+	MOVE.w	#$1800, $1C(A0)	;Predicted (Code-scan)
+	MOVE.l	#$000053C4, $32(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	MOVE.b	$9(A0), $9(A1)	;Predicted (Code-scan)
+	MOVE.w	$A(A0), $A(A1)	;Predicted (Code-scan)
+	MOVE.w	$E(A0), D0	;Predicted (Code-scan)
+	MOVE.w	D0, $E(A1)	;Predicted (Code-scan)
+	CMP.w	$38(A0), D0	;Predicted (Code-scan)
+	BCC.w	loc_0000539A	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_0000539A:
+	MOVE.b	#$0D, $9(A1)	;Predicted (Code-scan)
+	MOVE.w	$36(A0), $A(A1)	;Predicted (Code-scan)
+	MOVE.w	$38(A0), $E(A1)	;Predicted (Code-scan)
+	MOVE.b	#$FF, $36(A1)	;Predicted (Code-scan)
+	CLR.w	$00FF18C6	;Predicted (Code-scan)
+	MOVE.b	#$55, D0	;Predicted (Code-scan)
+	BSR.w	loc_000072BE	;Predicted (Code-scan)
+	BRA.w	loc_00002AF2	;Predicted (Code-scan)
+loc_000053C4:
+	dc.b	$01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00
+	dc.l    loc_000053C4
+	dc.b    $08, $09, $12, $0C, $02, $0B, $01, $0D, $FE, $00
 loc_000053DC:
 	LEA	loc_0000540C, A1
 	BSR.w	loc_00002A54
@@ -5085,8 +5151,12 @@ loc_00005582:
 	SUBQ.w	#1, $26(A0)
 	RTS
 ; MISSING POINTER
-; BAD CODE
-	dc.b	$11, $7C, $00, $87, $00, $06, $61, $00, $D5, $8E, $61, $00, $D6, $8E, $65, $00, $D5, $52, $4E, $75 
+; UNKNOWN USAGE
+	MOVE.b	#$87, $6(A0)
+	BSR.w	loc_00002B26
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	BCS.w	loc_00002AF2	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
 loc_000055A4:
 	MOVE.w	#$8000, D1
 	MOVE.w	#$8500, D2
@@ -6776,7 +6846,7 @@ loc_00006630:
 	BSR.w	loc_00006010
 	BSR.w	loc_00005E06
 	MOVE.b	#$13, D0
-	JMP	loc_000072E6
+	JMP	playSoundID
 loc_00006646:
 	MOVEM.l	A1/A0, -(A7)
 	MOVEA.l	A1, A0
@@ -6794,7 +6864,7 @@ loc_00006668:
 	movea.l $2E(a0), a1
 	bsr.w loc_00002AFC
 	move.b #$61, d0
-	jsr loc_000072E6
+	jsr playSoundID
 	bsr.w loc_000066C8
 	clr.w d0
 	move.b $2a(a0), d0
@@ -7753,8 +7823,8 @@ loc_000072DC:
 loc_000072E0:
 	MOVEM.l	(A7)+, D1/A2
 	RTS
-loc_000072E6:
-	MOVE.b	D0, $00FF012F
+playSoundID:
+	MOVE.b	D0, mus_curSong
 	RTS
 loc_000072EE:
 	MOVE.b	#$F3, $00FF012C
@@ -7828,7 +7898,7 @@ loc_00007420:
 	BCS.w	loc_0000742E
 	RTS
 loc_0000742E:
-	TST.b	$00FF012F
+	TST.b	mus_curSong
 	BNE.w	loc_0000743A
 	RTS
 loc_0000743A:
@@ -7836,8 +7906,8 @@ loc_0000743A:
 	MOVE.b	$00A00022, D0
 	ADDQ.b	#1, $00A00022
 	LEA	Z80Ram, A2
-	MOVE.b	$00FF012F, (A2,D0.w)
-	CLR.b	$00FF012F
+	MOVE.b	mus_curSong, (A2,D0.w)
+	CLR.b	mus_curSong
 	RTS
 loc_0000745E:
 	LEA	$00FF0130, A2
@@ -7941,31 +8011,196 @@ loc_000075C2:
 	
 	dc.l    loc_000075C2
 loc_000075D0:
-; BAD CODE
-	dc.b	$61, $00, $D3, $B4, $11, $7C, $00, $80, $00, $06, $4A, $39, $00, $FF, $18, $C6, $66, $00, $00, $34, $10, $28, $00, $2A, $00, $00, $00, $80, $13, $C0, $00, $FF 
-	dc.b	$18, $C6, $13, $FC, $00, $FF, $00, $FF, $18, $C7, $61, $00, $B5, $2A, $4A, $39, $00, $FF, $18, $C7, $67, $00, $00, $04, $4E, $75, $30, $3C, $00, $10, $61, $00 ;0x20
-	dc.b	$B5, $0C, $61, $00, $B5, $12, $61, $00, $B5, $0E, $22, $68, $00, $2E, $08, $29, $00, $00, $00, $07, $67, $00, $CE, $5E, $61, $00, $B5, $48, $0C, $68, $00, $03 ;0x40
-	dc.b	$00, $1C, $64, $00, $00, $08, $11, $7C, $00, $45, $00, $09, $61, $00, $CF, $6C, $61, $00, $CF, $E2, $65, $00, $00, $06, $60, $00, $D3, $3C, $10, $3C, $00, $55 ;0x60
-	dc.b	$61, $00, $FC, $6C, $61, $00, $D9, $CC, $30, $28, $00, $1A, $52, $68, $00, $1C, $32, $28, $00, $1C, $0C, $41, $00, $0E, $64, $00, $00, $F2, $C2, $FC, $00, $06 ;0x80
-	dc.b	$D0, $41, $E3, $48, $31, $40, $00, $26, $12, $32, $00, $00, $02, $01, $00, $F0, $0C, $01, $00, $E0, $65, $00, $00, $06, $12, $3C, $00, $80, $11, $41, $00, $36 ;0xA0
-	dc.b	$31, $7C, $00, $01, $00, $16, $31, $7C, $00, $10, $00, $28, $61, $00, $B4, $88, $10, $28, $00, $29, $02, $00, $00, $03, $66, $00, $00, $0A, $10, $3C, $00, $5E ;0xC0
-	dc.b	$61, $00, $FC, $0C, $61, $00, $B4, $BC, $30, $28, $00, $12, $D1, $68, $00, $0A, $30, $28, $00, $16, $D1, $68, $00, $0E, $53, $68, $00, $28, $67, $00, $00, $04 ;0xE0
-	dc.b	$4E, $75, $61, $00, $D9, $4E, $30, $28, $00, $26, $15, $A8, $00, $36, $00, $00, $00, $7C, $07, $00, $61, $00, $D5, $E6, $02, $7C, $F8, $FF, $61, $00, $01, $10 ;0x100
-	dc.b	$64, $A4, $22, $68, $00, $2E, $08, $A9, $00, $00, $00, $07, $11, $7C, $00, $AF, $00, $06, $21, $7C, $00, $00, $77, $4E, $00, $32, $31, $7C, $00, $03, $00, $12 ;0x120
-	dc.b	$31, $7C, $00, $00, $00, $16, $31, $7C, $1A, $00, $00, $1A, $31, $7C, $08, $00, $00, $1C, $31, $68, $00, $0A, $00, $1E, $31, $7C, $00, $00, $00, $20, $4A, $28 ;0x140
-	dc.b	$00, $2A, $67, $00, $00, $08, $31, $7C, $FF, $FE, $00, $12, $61, $00, $B3, $E8, $61, $00, $B4, $30, $61, $00, $B4, $E4, $65, $00, $00, $96, $4E, $75, $01, $0D ;0x160
-	dc.b	$01, $24, $01, $26, $01, $25, $FF, $00, $00, $00, $77, $4E, $11, $7C, $00, $82, $00, $06, $31, $7C, $FF, $FF, $00, $12, $21, $7C, $00, $00, $77, $D4, $00, $32 ;0x180
-	dc.b	$4A, $28, $00, $2A, $67, $00, $00, $10, $31, $7C, $00, $01, $00, $12, $21, $7C, $00, $00, $77, $C8, $00, $32, $22, $68, $00, $2E, $08, $A9, $00, $00, $00, $07 ;0x1A0
-	dc.b	$20, $3C, $00, $00, $27, $10, $61, $00, $FD, $AA, $61, $00, $B3, $8A, $61, $00, $B3, $D2, $0C, $28, $00, $43, $00, $09, $64, $00, $00, $04, $4E, $75, $30, $28 ;0x1C0
-	dc.b	$00, $12, $D1, $68, $00, $0A, $30, $28, $00, $0A, $04, $40, $00, $78, $0C, $40, $01, $50, $64, $00, $00, $1C, $4E, $75, $08, $37, $08, $38, $06, $44, $FF, $00 ;0x1E0
-	dc.b	$00, $00, $77, $C8, $08, $3B, $08, $3C, $08, $43, $FF, $00, $00, $00, $77, $D4, $10, $28, $00, $2A, $00, $00, $00, $80, $B0, $39, $00, $FF, $18, $C6, $66, $00 ;0x200
-	dc.b	$B3, $02, $13, $FC, $00, $FF, $00, $FF, $18, $C7, $60, $00, $B2, $F6, $61, $00, $D8, $22, $43, $F9, $00, $00, $78, $A6, $0A, $28, $00, $80, $00, $07, $61, $00 ;0x220
-	dc.b	$99, $C0, $02, $40, $00, $01, $61, $00, $00, $3C, $65, $00, $00, $04, $4E, $75, $0C, $68, $00, $0D, $00, $1C, $64, $00, $00, $26, $52, $68, $00, $1C, $06, $68 ;0x240
-	dc.b	$00, $0C, $00, $26, $31, $7C, $00, $00, $00, $12, $31, $7C, $00, $01, $00, $16, $21, $7C, $00, $00, $75, $A6, $00, $32, $02, $7C, $FF, $FE, $4E, $75, $00, $7C ;0x260
-	dc.b	$00, $01, $4E, $75, $32, $00, $C2, $FC, $00, $0A, $34, $28, $00, $1A, $D4, $71, $10, $00, $0C, $42, $00, $06, $64, $E6, $36, $28, $00, $26, $D6, $71, $10, $04 ;0x280
-	dc.b	$18, $32, $30, $00, $6A, $D8, $02, $04, $00, $F0, $B8, $28, $00, $36, $67, $CE, $31, $42, $00, $1A, $31, $43, $00, $26, $31, $71, $10, $00, $00, $12, $31, $71 ;0x2A0
-	dc.b	$10, $02, $00, $16, $21, $71, $10, $06, $00, $32, $02, $7C, $FF, $FE, $4E, $75, $00, $7C, $00, $01, $4E, $75, $FF, $FF, $00, $00, $FF, $FE, $00, $00, $75, $B4 ;0x2C0
-	dc.b	$00, $01, $00, $00, $00, $02, $00, $00, $75, $C2 ;0x2E0
+; UNKNOWN USAGE
+	BSR.w	loc_00004986
+	MOVE.b	#$80, $6(A0)
+	TST.b	$00FF18C6
+	BNE.w	loc_00007616
+	MOVE.b	$2A(A0), D0
+	ORI.b	#$80, D0
+	MOVE.b	D0, $00FF18C6
+	MOVE.b	#$FF, $00FF18C7
+	BSR.w	loc_00002B26
+	TST.b	$00FF18C7	;Predicted (Code-scan)
+	BEQ.w	loc_0000760A	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_0000760A:
+	MOVE.w	#$0010, D0	;Predicted (Code-scan)
+	BSR.w	loc_00002B1C	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+loc_00007616:
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BTST.b	#0, $7(A1)	;Predicted (Code-scan)
+	BEQ.w	loc_00004484	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	CMPI.w	#3, $1C(A0)	;Predicted (Code-scan)
+	BCC.w	loc_0000763C	;Predicted (Code-scan)
+	MOVE.b	#$45, $9(A0)	;Predicted (Code-scan)
+loc_0000763C:
+	BSR.w	loc_000045AA	;Predicted (Code-scan)
+	BSR.w	loc_00004624	;Predicted (Code-scan)
+	BCS.w	loc_0000764C	;Predicted (Code-scan)
+	BRA.w	loc_00004986	;Predicted (Code-scan)
+loc_0000764C:
+	MOVE.b	#$55, D0	;Predicted (Code-scan)
+	BSR.w	loc_000072BE	;Predicted (Code-scan)
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	MOVE.w	$1A(A0), D0	;Predicted (Code-scan)
+	ADDQ.w	#1, $1C(A0)	;Predicted (Code-scan)
+	MOVE.w	$1C(A0), D1	;Predicted (Code-scan)
+	CMPI.w	#$000E, D1	;Predicted (Code-scan)
+	BCC.w	loc_0000775C	;Predicted (Code-scan)
+	MULU.w	#6, D1	;Predicted (Code-scan)
+	ADD.w	D1, D0	;Predicted (Code-scan)
+	LSL.w	#1, D0	;Predicted (Code-scan)
+	MOVE.w	D0, $26(A0)	;Predicted (Code-scan)
+	MOVE.b	(A2,D0.w), D1	;Predicted (Code-scan)
+	ANDI.b	#$F0, D1	;Predicted (Code-scan)
+	CMPI.b	#$E0, D1	;Predicted (Code-scan)
+	BCS.w	loc_0000768C	;Predicted (Code-scan)
+	MOVE.b	#$80, D1	;Predicted (Code-scan)
+loc_0000768C:
+	MOVE.b	D1, $36(A0)	;Predicted (Code-scan)
+	MOVE.w	#1, $16(A0)	;Predicted (Code-scan)
+loc_00007696:
+	MOVE.w	#$0010, $28(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	MOVE.b	$29(A0), D0	;Predicted (Code-scan)
+	ANDI.b	#3, D0	;Predicted (Code-scan)
+	BNE.w	loc_000076B4	;Predicted (Code-scan)
+	MOVE.b	#$5E, D0	;Predicted (Code-scan)
+	BSR.w	loc_000072BE	;Predicted (Code-scan)
+loc_000076B4:
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	MOVE.w	$12(A0), D0	;Predicted (Code-scan)
+	ADD.w	D0, $A(A0)	;Predicted (Code-scan)
+	MOVE.w	$16(A0), D0	;Predicted (Code-scan)
+	ADD.w	D0, $E(A0)	;Predicted (Code-scan)
+	SUBQ.w	#1, $28(A0)	;Predicted (Code-scan)
+	BEQ.w	loc_000076D2	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_000076D2:
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	MOVE.w	$26(A0), D0	;Predicted (Code-scan)
+	MOVE.b	$36(A0), (A2,D0.w)	;Predicted (Code-scan)
+	ORI	#$0700, SR	;Predicted (Code-scan)
+	BSR.w	loc_00004CCC	;Predicted (Code-scan)
+	ANDI	#$F8FF, SR	;Predicted (Code-scan)
+	BSR.w	loc_000077FE	;Predicted (Code-scan)
+	BCC.b	loc_00007696	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BCLR.b	#0, $7(A1)	;Predicted (Code-scan)
+	MOVE.b	#$AF, $6(A0)	;Predicted (Code-scan)
+	MOVE.l	#$0000774E, $32(A0)	;Predicted (Code-scan)
+	MOVE.w	#3, $12(A0)	;Predicted (Code-scan)
+	MOVE.w	#0, $16(A0)	;Predicted (Code-scan)
+	MOVE.w	#$1A00, $1A(A0)	;Predicted (Code-scan)
+	MOVE.w	#$0800, $1C(A0)	;Predicted (Code-scan)
+	MOVE.w	$A(A0), $1E(A0)	;Predicted (Code-scan)
+	MOVE.w	#0, $20(A0)	;Predicted (Code-scan)
+	TST.b	$2A(A0)	;Predicted (Code-scan)
+	BEQ.w	loc_0000773C	;Predicted (Code-scan)
+	MOVE.w	#$FFFE, $12(A0)	;Predicted (Code-scan)
+loc_0000773C:
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	;Predicted (Code-scan)
+	BCS.w	loc_000077E0	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_0000774E:
+	dc.b	$01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00
+	dc.l    loc_0000774E
+loc_0000775C:
+	MOVE.b	#$82, $6(A0)	;Predicted (Code-scan)
+	MOVE.w	#$FFFF, $12(A0)	;Predicted (Code-scan)
+	MOVE.l	#$000077D4, $32(A0)	;Predicted (Code-scan)
+	TST.b	$2A(A0)	;Predicted (Code-scan)
+	BEQ.w	loc_00007786	;Predicted (Code-scan)
+	MOVE.w	#1, $12(A0)	;Predicted (Code-scan)
+	MOVE.l	#$000077C8, $32(A0)	;Predicted (Code-scan)
+loc_00007786:
+	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
+	BCLR.b	#0, $7(A1)	;Predicted (Code-scan)
+	MOVE.l	#$00002710, D0	;Predicted (Code-scan)
+	BSR.w	loc_00007542	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
+	CMPI.b	#$43, $9(A0)	;Predicted (Code-scan)
+	BCC.w	loc_000077AE	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_000077AE:
+	MOVE.w	$12(A0), D0	;Predicted (Code-scan)
+	ADD.w	D0, $A(A0)	;Predicted (Code-scan)
+	MOVE.w	$A(A0), D0	;Predicted (Code-scan)
+	SUBI.w	#$0078, D0	;Predicted (Code-scan)
+	CMPI.w	#$0150, D0	;Predicted (Code-scan)
+	BCC.w	loc_000077E0	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_000077C8:
+	dc.b	$08, $37, $08, $38, $06, $44, $FF, $00
+	dc.l    loc_000077C8
+loc_000077D4:
+	dc.b    $08, $3B, $08, $3C, $08, $43, $FF, $00
+	dc.l    loc_000077D4
+loc_000077E0:
+	MOVE.b	$2A(A0), D0	;Predicted (Code-scan)
+	ORI.b	#$80, D0	;Predicted (Code-scan)
+	CMP.b	$00FF18C6, D0	;Predicted (Code-scan)
+	BNE.w	loc_00002AF2	;Predicted (Code-scan)
+	MOVE.b	#$FF, $00FF18C7	;Predicted (Code-scan)
+	BRA.w	loc_00002AF2	;Predicted (Code-scan)
+loc_000077FE:
+	BSR.w	loc_00005022	;Predicted (Code-scan)
+	LEA	loc_000078A6, A1	;Predicted (Code-scan)
+	EORI.b	#$80, $7(A0)	;Predicted (Code-scan)
+	BSR.w	loc_000011D0	;Predicted (Code-scan)
+	ANDI.w	#1, D0	;Predicted (Code-scan)
+	BSR.w	loc_00007854	;Predicted (Code-scan)
+	BCS.w	loc_00007820	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007820:
+	CMPI.w	#$000D, $1C(A0)	;Predicted (Code-scan)
+	BCC.w	loc_0000784E	;Predicted (Code-scan)
+	ADDQ.w	#1, $1C(A0)	;Predicted (Code-scan)
+	ADDI.w	#$000C, $26(A0)	;Predicted (Code-scan)
+	MOVE.w	#0, $12(A0)	;Predicted (Code-scan)
+	MOVE.w	#1, $16(A0)	;Predicted (Code-scan)
+	MOVE.l	#$000075A6, $32(A0)	;Predicted (Code-scan)
+	ANDI	#$FFFE, SR	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_0000784E:
+	ORI	#1, SR	;Predicted (Code-scan)
+	RTS	;Predicted (Code-scan)
+loc_00007854:
+	MOVE.w	D0, D1	;Predicted (Code-scan)
+	MULU.w	#$000A, D1	;Predicted (Code-scan)
+	MOVE.w	$1A(A0), D2	;Predicted (Code-scan)
+	ADD.w	(A1,D1.w), D2	;Predicted (Code-scan)
+	CMPI.w	#6, D2	;Predicted (Code-scan)
+	BCC.b	loc_0000784E	;Predicted (Code-scan)
+	MOVE.w	$26(A0), D3	;Predicted (Code-scan)
+	ADD.w	$4(A1,D1.w), D3	;Predicted (Code-scan)
+	MOVE.b	(A2,D3.w), D4	;Predicted (Code-scan)
+	BPL.b	loc_0000784E	;Predicted (Code-scan)
+	ANDI.b	#$F0, D4	;Predicted (Code-scan)
+	CMP.b	$36(A0), D4	;Predicted (Code-scan)
+	BEQ.b	loc_0000784E	;Predicted (Code-scan)
+	MOVE.w	D2, $1A(A0)	;Predicted (Code-scan)
+	MOVE.w	D3, $26(A0)	;Predicted (Code-scan)
+	MOVE.w	(A1,D1.w), $12(A0)	;Predicted (Code-scan)
+	MOVE.w	$2(A1,D1.w), $16(A0)	;Predicted (Code-scan)
+	MOVE.l	$6(A1,D1.w), $32(A0)	;Predicted (Code-scan)
+	ANDI	#$FFFE, SR	;Predicted (Code-scan)
+	RTS
+	; ????
+	ori     #1, SR
+	rts
+loc_000078A6:
+	dc.b	$FF, $FF, $00, $00, $FF, $FE
+	dc.l    loc_000075B4
+	dc.b    $00, $01, $00, $00, $00, $02
+	dc.l    loc_000075C2
 loc_000078BA:
 	LEA	loc_00007910, A1
 	BSR.w	loc_00002A54
@@ -8048,7 +8283,6 @@ loc_000079C0:
 	BSR.w	loc_00002C2A
 	CMPI.w	#6, $16(A0)
 	BCS.w	loc_00007A0C
-; TODO: Check if this is a rom pointer
 	MOVE.l	#$00060000, $16(A0)
 loc_00007A0C:
 	BSR.w	loc_00007A9C
@@ -13442,9 +13676,20 @@ loc_0000C8E2:
 	ADDQ.b	#2, $36(A0)
 	RTS
 ; MISSING POINTER
-; BAD CODE?
-	dc.b	$4A, $28, $00, $09, $67, $00, $00, $08, $4E, $F9, $00, $00, $2A, $F2, $11, $7C, $00, $00, $00, $06, $4E, $B9, $00, $00, $2B, $26, $20, $3C, $80, $0B, $0F, $00 
-	dc.b	$4A, $39, $00, $FF, $18, $84, $67, $00, $00, $08, $20, $3C, $80, $10, $0F, $00, $4E, $F9, $00, $00, $0C, $4C ;0x20
+; UNKNOWN USAGE
+	TST.b	$9(A0)
+	BEQ.w	loc_0000C91E
+	JMP	loc_00002AF2
+loc_0000C91E:
+	MOVE.b	#0, $6(A0)	;Predicted (Code-scan)
+	JSR	loc_00002B26	;Predicted (Code-scan)
+	MOVE.l	#$800B0F00, D0	;Predicted (Code-scan)
+	TST.b	$00FF1884	;Predicted (Code-scan)
+	BEQ.w	loc_0000C940	;Predicted (Code-scan)
+	MOVE.l	#$80100F00, D0	;Predicted (Code-scan)
+loc_0000C940:
+	JMP	loc_00000C4C	;Predicted (Code-scan)
+
 loc_0000C946:
 	LEA	loc_0000C96C, A1
 	JSR	loc_00002A54
@@ -27244,7 +27489,7 @@ loc_0001CFA8:
 	dc.l	loc_0001CFC6
 loc_0001CFB4:
 	JSR	loc_00007308
-	JMP	loc_000072E6
+	JMP	playSoundID
 loc_0001CFC0:
 	JMP	loc_00007360
 loc_0001CFC6:
@@ -27410,8 +27655,7 @@ soundTest_StickerOfPuyoPuyo:
 	
 ; It's worth noting that the game is missing an ID between 08 and 0A.
 ; I tried playing song 09 and it just points to 0A.
-; My guess is that it was removed at some point, and the pointer to it
-; in the sound driver was never removed.
+; My guess is that it was removed at some point, and the song id's were never updated
 
 soundTest_SunsetOfPuyoPuyo:
 	dc.b	$0A

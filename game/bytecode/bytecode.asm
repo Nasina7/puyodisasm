@@ -181,7 +181,7 @@ loc_000015A0:
 	BRA.w	loc_00001020
 
 .playSound:
-	JMP	loc_000072E6
+	JMP	playSoundID
 	
 .playSoundCheckSample:
 	JMP	loc_000072BE

@@ -120,7 +120,7 @@ cutsceneTextEnglish: macro text
 		elseif (("\tempChar">=$41)&("\tempChar"<=$5A))
 			dc.b    "\tempChar"-$36
 		elseif (("\tempChar">=$61)&("\tempChar"<=$7A))
-			dc.b    "\tempChar"-$56
+			dc.b    "\tempChar"-$25
 		elseif (("\tempChar">=$30)&("\tempChar"<=$39))
 			dc.b    "\tempChar"-$2F
 		elseif (strcmp("\tempChar", ":"))
@@ -130,7 +130,7 @@ cutsceneTextEnglish: macro text
 		elseif (strcmp("\tempChar", ","))
 			dc.b    $4C>>1
 		elseif (strcmp("\tempChar", "."))
-			dc.b    $70>>1
+			dc.b    $4A>>1
 		elseif (strcmp("\tempChar", ":"))
 			dc.b    $50>>1
 		elseif (strcmp("\tempChar", "#"))

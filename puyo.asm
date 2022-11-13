@@ -17663,9 +17663,9 @@ loc_0000E186:
 	CLR.w	$A(A0)
 	ADDQ.w	#1, $C(A0)
 	MOVE.w	$C(A0), D0
-	CMP.w	$10(A0), D0
-	BCS.w	loc_0000E19E
-	CLR.w	$C(A0)
+	;CMP.w	$10(A0), D0
+	;BCS.w	loc_0000E19E
+	;CLR.w	$C(A0)
 loc_0000E19E:
 	RTS
 loc_0000E1A0:
@@ -17704,7 +17704,7 @@ loc_0000E1BC:
 	; Store updated pointer
 	MOVE.l	A2, $32(A0)
 	
-	; ?
+	; Reset Textbox Cursor to 0,0
 	CLR.w	$A(A0)
 	CLR.w	$C(A0)
 	
@@ -17768,7 +17768,7 @@ loc_0000E26C:
 	MOVE.w	$A(A0), D1
 	MOVE.w	$C(A0), D2
 	;LSL.w	#1, D1
-	MULU.w	#3, D2
+	MULU.w	#2, D2
 	ADDQ.w	#1, D1
 	ADDQ.w	#1, D2
 	LSL.w	#1, D1
@@ -17821,17 +17821,22 @@ loc_0000E2F2:
 	ANDI.w	#$003F, D0
 	LSR.w	#7, D1
 	ANDI.w	#$003F, D1
+	
 	MOVE.w	$E(A0), D2
 	LSL.w	#1, D2
 	ADDQ.w	#1, D2
 	LSL.w	#3, D2
+	
 	MOVE.w	$10(A0), D3
-	MULU.w	#3, D3
+	MULU.w	#2, D3
+	ADDQ.w  #1, D3
 	LSL.w	#3, D3
 	LSL.w	#3, D0
+	
 	ADDI.w	#$0080, D0
 	LSL.w	#3, D1
 	ADDI.w	#$0080, D1
+	
 	ADD.w	D0, D2
 	ADD.w	D1, D3
 	MOVE.w	#3, D5
@@ -27488,7 +27493,8 @@ loc_00014AF8:
 	LSR.b	#4, D4
 	LSL.w	#1, D3
 	ADDQ.w	#1, D3
-	MULU.w	#3, D4
+	MULU.w	#2, D4
+	ADDQ.w  #1, D4
 	MOVE.w	$2(A2), D5
 	RTS
 loc_00014B14:

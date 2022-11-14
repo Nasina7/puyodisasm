@@ -11,6 +11,7 @@ Download the Repo and run build.bat.  This will build the rom and place it in th
 [Todo List](https://github.com/Nasina7/puyodisasm/wiki/Todo)
 ## Branches:
 [Main Branch](https://github.com/Nasina7/puyodisasm/tree/main)
- - This branch contains the unmodified disassembly
+ - This branch contains the unmodified disassembly    
+
 [Kosinski Branch](https://github.com/Nasina7/puyodisasm/tree/kosinski)
- - This branch converts all of the graphics to kosinski compression.  If you intend to mod the game, use this branch.
+ - This branch converts all of the graphics to kosinski compression.  If you intend to mod the game, use this branch.    

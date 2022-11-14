@@ -7786,7 +7786,7 @@ loc_0000723E:
 loc_00007248:
 	btst.b #0, (Z80BusReq).l
 	bne.b loc_00007248
-	lea (loc_0007E000).l, a0
+	lea ($0007E000).l, a0
 	lea (Z80Ram).l, A1
 	move.w #$1FFF, d0
 loc_00007262:
@@ -27955,9 +27955,6 @@ sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	
 loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	incbin "art/compressed/title/titleScreen.bin"
-	
-loc_0007E000: ; Uncertain if this is even related to sound, but a pointer to it exists near code that interacts with the z80
-	incbin "sound/unknown.bin"
 	
 	padToPowerOfTwo
 	even

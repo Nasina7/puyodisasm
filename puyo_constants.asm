@@ -26,6 +26,8 @@ debug_puyoDrop = $00FF1877 ; Byte
 debug_skipStages = $00FF1878 ; Byte
 debug_unknown = $00FF1879 ; Byte
 
+nem_decompBuffer = $00FF3400
+
 SystemStack = $00FFFC00
 
 

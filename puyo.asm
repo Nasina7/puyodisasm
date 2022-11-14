@@ -720,7 +720,16 @@ loc_00000C5C:
 	ANDI	#$FFFE, SR
 	RTS
 	
+; Kosinski Graphics Decompression routine from the Sonic 2 Disassembly
 graphicsDecompress:
+	lea ($00FF3400).l, a1
+	move.w #$8C00, d1
+cleanLoop:
+	move.b #$00, (a1)+
+	dbf d1, cleanLoop
+	
+
+
 	ORI	#$0700, SR
 	MOVE.w	D0, D1
 	ANDI.w	#$3FFF, D1
@@ -730,57 +739,106 @@ graphicsDecompress:
 	SWAP	D0
 	ANDI.w	#3, D0
 	MOVE.w	D0, vdpControl1
-	LEA	$00FF0000, A1
-	LEA	$00FF0100, A2
-	CLR.w	D0
-	CLR.w	D1
-loc_00000CB4:
-	MOVE.b	(A0)+, D2
-	TST.b	D2
-	BMI.w	loc_00000CF0
-	BNE.w	loc_00000CC6
+	lea (nem_decompBuffer).l, a1
+	subq.l	#2,sp
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+Kos_Loop:
+	lsr.w	#1,d5
+	move	sr,d6
+	dbf	d4,.chkbit
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+.chkbit:
+	move	d6,ccr
+	bcc.s	Kos_RLE
+	move.b	(a0)+,(a1)+
+	bra.s	Kos_Loop
+; ---------------------------------------------------------------------------
+Kos_RLE:
+	moveq	#0,d3
+	lsr.w	#1,d5
+	move	sr,d6
+	dbf	d4,.chkbit2
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+.chkbit2:
+	move	d6,ccr
+	bcs.s	Kos_SeparateRLE
+	lsr.w	#1,d5
+	dbf	d4,.loop1
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+.loop1:
+	roxl.w	#1,d3
+	lsr.w	#1,d5
+	dbf	d4,.loop2
+	move.b	(a0)+,1(sp)
+	move.b	(a0)+,(sp)
+	move.w	(sp),d5
+	moveq	#$F,d4
+
+.loop2:
+	roxl.w	#1,d3
+	addq.w	#1,d3
+	moveq	#-1,d2
+	move.b	(a0)+,d2
+	bra.s	Kos_RLELoop
+; ---------------------------------------------------------------------------
+Kos_SeparateRLE:
+	move.b	(a0)+,d0
+	move.b	(a0)+,d1
+	moveq	#-1,d2
+	move.b	d1,d2
+	lsl.w	#5,d2
+	move.b	d0,d2
+	andi.w	#7,d1
+	beq.s	Kos_SeparateRLE2
+	move.b	d1,d3
+	addq.w	#1,d3
+
+Kos_RLELoop:
+	move.b	(a1,d2.w),d0
+	move.b	d0,(a1)+
+	dbf	d3,Kos_RLELoop
+	bra.s	Kos_Loop
+; ---------------------------------------------------------------------------
+Kos_SeparateRLE2:
+	move.b	(a0)+,d1
+	beq.s	Kos_Done
+	cmpi.b	#1,d1
+	beq.w	Kos_Loop
+	move.b	d1,d3
+	bra.s	Kos_RLELoop
+; ---------------------------------------------------------------------------
+Kos_Done:
+	addq.l	#2,sp
+		
+	move.w a1, d0
+	subi.w #$3400, d0
+	lea (nem_decompBuffer).l, a0
+	lsr.w #2, d0
+	subq.w #1, d0
+		
+gfxLoadLoop:
+	move.l (a0)+, (vdpData1)
+	dbf d0, gfxLoadLoop
+	
 	ANDI	#$F8FF, SR
-	RTS
-	
-loc_00000CC6:
-	ANDI.w	#$007F, D2
-	SUBQ.w	#1, D2
-loc_00000CCC:
-	MOVE.b	(A0)+, D4
-	MOVE.b	D4, (A2,D1.w)
-	ADDQ.b	#1, D1
-	BTST.l	#2, D1
-	BEQ.w	loc_00000CE4
-	CLR.b	D1
-	MOVE.l	(A2), vdpData1
-loc_00000CE4:
-	MOVE.b	D4, (A1,D0.w)
-	ADDQ.b	#1, D0
-	DBF	D2, loc_00000CCC
-	BRA.b	loc_00000CB4
-	
-loc_00000CF0:
-	ANDI.w	#$007F, D2
-	ADDQ.w	#2, D2
-	MOVE.w	D0, D3
-	SUB.b	(A0)+, D3
-	SUBQ.b	#1, D3
-loc_00000CFC:
-	MOVE.b	(A1,D3.w), D4
-	MOVE.b	D4, (A2,D1.w)
-loc_00000D04:
-	ADDQ.b	#1, D1
-	BTST.l	#2, D1
-	BEQ.w	loc_00000D16
-	CLR.b	D1
-	MOVE.l	(A2), vdpData1
-loc_00000D16:
-	MOVE.b	D4, (A1,D0.w)
-	ADDQ.b	#1, D0
-	ADDQ.b	#1, D3
-	DBF	D2, loc_00000CFC
-	BRA.b	loc_00000CB4
-	
+	rts	
+; End of function KosDec
 
 
 init_initVDP:
@@ -27838,8 +27896,6 @@ loc_00040960:
 	incbin "art/compressed/unknown/unknown6.bin"
 loc_00041D38:
 	incbin "art/compressed/unknown/unknown5.bin"
-loc_0004200F:
-	incbin "art/compressed/unknown/unknown4.bin"
 art_cutsceneNasuGrave:
 	incbin "art/compressed/cutscene/tutorial2/nasuGrave.bin"
 loc_00043802:

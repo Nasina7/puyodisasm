@@ -27838,8 +27838,6 @@ loc_00040960:
 	incbin "art/compressed/unknown/unknown6.bin"
 loc_00041D38:
 	incbin "art/compressed/unknown/unknown5.bin"
-loc_0004200F:
-	incbin "art/compressed/unknown/unknown4.bin"
 art_cutsceneNasuGrave:
 	incbin "art/compressed/cutscene/tutorial2/nasuGrave.bin"
 loc_00043802:

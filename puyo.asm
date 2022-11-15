@@ -26281,181 +26281,181 @@ loc_00017D64:
     dc.b    $AE
 
 loc_00017D6C:
-    incbin "art/bgMappings/unknown1.bin"
+    incbin "art/bgMappings/puyo/unknown1.bin"
 loc_00017F2C:
-    incbin "art/bgMappings/unknown2.bin"
+    incbin "art/bgMappings/puyo/unknown2.bin"
 loc_00017F9C:
-    incbin "art/bgMappings/unknown3.bin"
+    incbin "art/bgMappings/puyo/unknown3.bin"
 loc_0001815C:
-    incbin "art/bgMappings/unknown4.bin"
+    incbin "art/bgMappings/puyo/unknown4.bin"
 loc_000181CC:
-    incbin "art/bgMappings/unknown5.bin"
+    incbin "art/bgMappings/puyo/unknown5.bin"
 loc_0001838C:
-    incbin "art/bgMappings/unknown6.bin"
+    incbin "art/bgMappings/puyo/unknown6.bin"
 loc_000183FC:
-    incbin "art/bgMappings/unknown7.bin"
+    incbin "art/bgMappings/puyo/unknown7.bin"
 loc_000185BC:
-    incbin "art/bgMappings/unknown8.bin"
+    incbin "art/bgMappings/puyo/unknown8.bin"
 loc_0001862C:
-    incbin "art/bgMappings/unknown9.bin"
+    incbin "art/bgMappings/puyo/unknown9.bin"
 loc_0001882C:
-    incbin "art/bgMappings/unknown10.bin"
+    incbin "art/bgMappings/puyo/unknown10.bin"
 loc_000188AC:
-    incbin "art/bgMappings/unknown11.bin"
+    incbin "art/bgMappings/puyo/unknown11.bin"
 loc_000189CC:
-    incbin "art/bgMappings/unknown12.bin"
+    incbin "art/bgMappings/puyo/unknown12.bin"
 loc_00018A14:
-    incbin "art/bgMappings/unknown13.bin"
+    incbin "art/bgMappings/puyo/unknown13.bin"
 loc_00018A20:
-    incbin "art/bgMappings/unknown14.bin"
+    incbin "art/bgMappings/puyo/unknown14.bin"
 loc_00018A30:
-    incbin "art/bgMappings/unknown15.bin"
+    incbin "art/bgMappings/puyo/unknown15.bin"
 loc_00018A90:
-    incbin "art/bgMappings/unknown16.bin"
+    incbin "art/bgMappings/puyo/unknown16.bin"
 loc_00018AA8:
-    incbin "art/bgMappings/unknown17.bin"
+    incbin "art/bgMappings/puyo/unknown17.bin"
 loc_00018AE0:
-    incbin "art/bgMappings/unknown18.bin"
+    incbin "art/bgMappings/puyo/unknown18.bin"
 loc_00018B10:
-    incbin "art/bgMappings/unknown19.bin"
+    incbin "art/bgMappings/puyo/unknown19.bin"
 loc_00018B16:
-    incbin "art/bgMappings/unknown20.bin"
+    incbin "art/bgMappings/puyo/unknown20.bin"
 loc_00018C16:
-    incbin "art/bgMappings/unknown21.bin"
+    incbin "art/bgMappings/puyo/unknown21.bin"
 loc_00018C56:
-    incbin "art/bgMappings/unknown22.bin"
+    incbin "art/bgMappings/puyo/unknown22.bin"
 loc_00018DFA:
-    incbin "art/bgMappings/unknown23.bin"
+    incbin "art/bgMappings/puyo/unknown23.bin"
 loc_00018F76:
-    incbin "art/bgMappings/unknown24.bin"
+    incbin "art/bgMappings/puyo/unknown24.bin"
 loc_000190F6:
-    incbin "art/bgMappings/unknown25.bin"
+    incbin "art/bgMappings/puyo/unknown25.bin"
 loc_00019156:
-    incbin "art/bgMappings/unknown26.bin"
+    incbin "art/bgMappings/puyo/unknown26.bin"
 loc_00019192:
-    incbin "art/bgMappings/unknown27.bin"
+    incbin "art/bgMappings/puyo/unknown27.bin"
 loc_00019372:
-    incbin "art/bgMappings/unknown28.bin"
+    incbin "art/bgMappings/puyo/unknown28.bin"
 loc_000193E2:
-    incbin "art/bgMappings/unknown29.bin"
+    incbin "art/bgMappings/puyo/unknown29.bin"
 loc_000195A2:
-    incbin "art/bgMappings/unknown30.bin"
+    incbin "art/bgMappings/puyo/unknown30.bin"
 loc_00019612:
-    incbin "art/bgMappings/unknown31.bin"
+    incbin "art/bgMappings/puyo/unknown31.bin"
 loc_00019792:
-    incbin "art/bgMappings/unknown32.bin"
+    incbin "art/bgMappings/puyo/unknown32.bin"
 loc_000197D2:
-    incbin "art/bgMappings/unknown33.bin"
+    incbin "art/bgMappings/puyo/unknown33.bin"
 loc_00019892:
-    incbin "art/bgMappings/unknown34.bin"
+    incbin "art/bgMappings/puyo/unknown34.bin"
 loc_000198C2:
-    incbin "art/bgMappings/unknown35.bin"
+    incbin "art/bgMappings/puyo/unknown35.bin"
 loc_00019C42:
-    incbin "art/bgMappings/unknown36.bin"
+    incbin "art/bgMappings/puyo/unknown36.bin"
 loc_00019D22:
-    incbin "art/bgMappings/unknown37.bin"
+    incbin "art/bgMappings/puyo/unknown37.bin"
 loc_00019D3E:
-    incbin "art/bgMappings/unknown38.bin"
+    incbin "art/bgMappings/puyo/unknown38.bin"
 loc_00019EBE:
-    incbin "art/bgMappings/unknown39.bin"
+    incbin "art/bgMappings/puyo/unknown39.bin"
 loc_00019F1E:
-    incbin "art/bgMappings/unknown40.bin"
+    incbin "art/bgMappings/puyo/unknown40.bin"
 loc_00019F9E:
-    incbin "art/bgMappings/unknown41.bin"
+    incbin "art/bgMappings/puyo/unknown41.bin"
 loc_00019FBE:
-    incbin "art/bgMappings/unknown42.bin"
+    incbin "art/bgMappings/puyo/unknown42.bin"
 loc_0001A15E:
-    incbin "art/bgMappings/unknown43.bin"
+    incbin "art/bgMappings/puyo/unknown43.bin"
 loc_0001A23E:
-    incbin "art/bgMappings/unknown44.bin"
+    incbin "art/bgMappings/puyo/unknown44.bin"
 loc_0001A4BE:
-    incbin "art/bgMappings/unknown45.bin"
+    incbin "art/bgMappings/puyo/unknown45.bin"
 loc_0001A73E:
-    incbin "art/bgMappings/unknown46.bin"
+    incbin "art/bgMappings/puyo/unknown46.bin"
 loc_0001A87E:
-    incbin "art/bgMappings/unknown47.bin"
+    incbin "art/bgMappings/puyo/unknown47.bin"
 loc_0001A8B6:
-    incbin "art/bgMappings/unknown48.bin"
+    incbin "art/bgMappings/puyo/unknown48.bin"
 loc_0001A8EE:
-    incbin "art/bgMappings/unknown49.bin"
+    incbin "art/bgMappings/puyo/unknown49.bin"
 loc_0001A926:
-    incbin "art/bgMappings/unknown50.bin"
+    incbin "art/bgMappings/puyo/unknown50.bin"
 loc_0001A95E:
-    incbin "art/bgMappings/unknown51.bin"
+    incbin "art/bgMappings/puyo/unknown51.bin"
 loc_0001AB1E:
-    incbin "art/bgMappings/unknown52.bin"
+    incbin "art/bgMappings/puyo/unknown52.bin"
 loc_0001AB8E:
-    incbin "art/bgMappings/unknown53.bin"
+    incbin "art/bgMappings/puyo/unknown53.bin"
 loc_0001AD4E:
-    incbin "art/bgMappings/unknown54.bin"
+    incbin "art/bgMappings/puyo/unknown54.bin"
 loc_0001ADBE:
-    incbin "art/bgMappings/unknown55.bin"
+    incbin "art/bgMappings/puyo/unknown55.bin"
 loc_0001AF7E:
-    incbin "art/bgMappings/unknown56.bin"
+    incbin "art/bgMappings/puyo/unknown56.bin"
 loc_0001AFEE:
-    incbin "art/bgMappings/unknown57.bin"
+    incbin "art/bgMappings/puyo/unknown57.bin"
 loc_0001B1AE:
-    incbin "art/bgMappings/unknown58.bin"
+    incbin "art/bgMappings/puyo/unknown58.bin"
 loc_0001B21E:
-    incbin "art/bgMappings/unknown59.bin"
+    incbin "art/bgMappings/puyo/unknown59.bin"
 loc_0001B59E:
-    incbin "art/bgMappings/unknown60.bin"
+    incbin "art/bgMappings/puyo/unknown60.bin"
 loc_0001B67E:
-    incbin "art/bgMappings/unknown61.bin"
+    incbin "art/bgMappings/puyo/unknown61.bin"
 loc_0001B9FE:
-    incbin "art/bgMappings/unknown62.bin"
+    incbin "art/bgMappings/puyo/unknown62.bin"
 loc_0001BADE:
-    incbin "art/bgMappings/unknown63.bin"
+    incbin "art/bgMappings/puyo/unknown63.bin"
 loc_0001BC9E:
-    incbin "art/bgMappings/unknown64.bin"
+    incbin "art/bgMappings/puyo/unknown64.bin"
 loc_0001BD0E:
-    incbin "art/bgMappings/unknown65.bin"
+    incbin "art/bgMappings/puyo/unknown65.bin"
 loc_0001BD7E:
-    incbin "art/bgMappings/unknown66.bin"
+    incbin "art/bgMappings/puyo/unknown66.bin"
 loc_0001BD9A:
-    incbin "art/bgMappings/unknown67.bin"
+    incbin "art/bgMappings/puyo/unknown67.bin"
 loc_0001BF5A:
-    incbin "art/bgMappings/unknown68.bin"
+    incbin "art/bgMappings/puyo/unknown68.bin"
 loc_0001BFCA:
-    incbin "art/bgMappings/unknown69.bin"
+    incbin "art/bgMappings/puyo/unknown69.bin"
 loc_0001C03A:
-    incbin "art/bgMappings/unknown70.bin"
+    incbin "art/bgMappings/puyo/unknown70.bin"
 loc_0001C056:
-    incbin "art/bgMappings/unknown71.bin"
+    incbin "art/bgMappings/puyo/unknown71.bin"
 loc_0001C216:
-    incbin "art/bgMappings/unknown72.bin"
+    incbin "art/bgMappings/puyo/unknown72.bin"
 loc_0001C286:
-    incbin "art/bgMappings/unknown73.bin"
+    incbin "art/bgMappings/puyo/unknown73.bin"
 loc_0001C446:
-    incbin "art/bgMappings/unknown74.bin"
+    incbin "art/bgMappings/puyo/unknown74.bin"
 loc_0001C4B6:
-    incbin "art/bgMappings/unknown75.bin"
+    incbin "art/bgMappings/puyo/unknown75.bin"
 loc_0001C4E6:
-    incbin "art/bgMappings/unknown76.bin"
+    incbin "art/bgMappings/puyo/unknown76.bin"
 loc_0001C4F8:
-    incbin "art/bgMappings/unknown77.bin"
+    incbin "art/bgMappings/puyo/unknown77.bin"
 loc_0001C5B0:
-    incbin "art/bgMappings/unknown78.bin"
+    incbin "art/bgMappings/puyo/unknown78.bin"
 loc_0001C844:
-    incbin "art/bgMappings/unknown79.bin"
+    incbin "art/bgMappings/puyo/unknown79.bin"
 loc_0001C864:
-    incbin "art/bgMappings/unknown80.bin"
+    incbin "art/bgMappings/puyo/unknown80.bin"
 loc_0001C884:
-    incbin "art/bgMappings/unknown81.bin"
+    incbin "art/bgMappings/puyo/unknown81.bin"
 loc_0001C8A4:
-    incbin "art/bgMappings/unknown82.bin"
+    incbin "art/bgMappings/puyo/unknown82.bin"
 loc_0001C8C4:
-    incbin "art/bgMappings/unknown83.bin"
+    incbin "art/bgMappings/puyo/unknown83.bin"
 loc_0001C8E4:
-    incbin "art/bgMappings/unknown84.bin"
+    incbin "art/bgMappings/puyo/unknown84.bin"
 loc_0001C904:
-    incbin "art/bgMappings/unknown85.bin"
+    incbin "art/bgMappings/puyo/unknown85.bin"
 loc_0001C924:
-    incbin "art/bgMappings/unknown86.bin"
+    incbin "art/bgMappings/puyo/unknown86.bin"
 loc_0001C944:
-    incbin "art/bgMappings/unknown87.bin"
+    incbin "art/bgMappings/puyo/unknown87.bin"
 loc_0001CC24:
-    incbin "art/bgMappings/unknown88.bin"
+    incbin "art/bgMappings/puyo/unknown88.bin"
 	
 loc_0001CCDC:
 	BSR.w	loc_0001CE34

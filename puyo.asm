@@ -1353,7 +1353,7 @@ loc_00002103:
 	MOVE.w	#5, D0
 	JMP	loc_00000BF2
 loc_0000210E:
-	LEA loc_00069B00, A0
+	LEA art_optionsBackground, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 	MOVE.w  #$16, D0
@@ -6498,7 +6498,7 @@ loc_00006040:
 	JMP	loc_00000C4C
 loc_00006056:
 	MOVEM.l	A0, -(A7)
-	LEA	loc_00027800, A0
+	LEA	art_winLose, A0
 	MOVE.w	#$4000, D0
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
@@ -10122,22 +10122,22 @@ loc_000094F2:
 	dc.b	$00, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $80, $00 
 loc_00009504:
 	dc.l	art_cutsceneSkeletonT
-	dc.l	loc_000385C8
+	dc.l	art_cutsceneSuketoudara
 	dc.l	art_cutsceneZombie
 	dc.l	art_cutsceneDraco
 	dc.l	art_cutsceneNasuGrave
 	dc.l	art_cutsceneWitch
-	dc.l	loc_0003CA34
+	dc.l	art_cutsceneSasoriman
 	dc.l	art_cutsceneHarpy
-	dc.l	loc_00039914
-	dc.l	loc_00040960
-	dc.l	loc_0003B60C
+	dc.l	art_cutsceneZoh
+	dc.l	art_cutsceneSchezo
+	dc.l	art_cutsceneMinotauros
 	dc.l	art_cutsceneRulue
-	dc.l	loc_00041D38
-	dc.l	loc_00043802
-	dc.l	loc_000447E0
-	dc.l	loc_000455C8
-	dc.l	loc_00041D38
+	dc.l	art_cutsceneSatan
+	dc.l	art_cutsceneMummy
+	dc.l	art_cutsceneSukiyapotes
+	dc.l	art_cutscenePanotty
+	dc.l	art_cutsceneSatan
 	dc.l	art_cutsceneCharset_tutorial1
 	dc.l	loc_00047374
 	dc.l	loc_0004700E
@@ -11201,7 +11201,7 @@ loc_0000A30A:
 	dc.l    loc_0000A382
 	dc.l    loc_0000A3DA
 loc_0000A316:
-	LEA	(loc_00020000).l, A0
+	LEA	(art_defaultBg).l, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	MOVE.w	#0, D0
@@ -11221,7 +11221,7 @@ loc_0000A34E:
 	JMP	loc_00000E46
 	
 loc_0000A368:
-	lea (loc_00022EF0).l, a0
+	lea (art_bgZou).l, a0
 	move.w #$2000, d0
 	jsr graphicsDecompress
 	move.w #1, d0
@@ -11239,7 +11239,7 @@ loc_0000A382:
 	adda.l #(pal_00002310-palLookupTable), a2
 	jmp loc_00000E46
 loc_0000A3B6:
-	lea (loc_00025400).l, a0
+	lea (art_bgSatan).l, a0
 	move.w #$2000, d0
 	jsr graphicsDecompress
 	move.w #2, d0
@@ -16142,10 +16142,10 @@ loc_0000DCB2:
 	JMP	loc_00002AF2
 loc_0000DCD4:
 	MOVEM.l	A0/D2, -(A7)
-	LEA	loc_00064000, A0
+	LEA	art_ingameAssets, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
-	LEA	loc_00020000, A0
+	LEA	art_defaultBg, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	JSR	loc_0000A3F4
@@ -27846,64 +27846,56 @@ loc_0001DE1A:
 ; Beginning of data segment
 loc_0001E000:
 	incbin "art/compressed/unknown/unknown22.bin"
-loc_00020000:
-	incbin "art/compressed/cutscene/general/background1.bin"
-loc_00022EF0:
-	incbin "art/compressed/unknown/unknown21.bin"
-loc_00025400:
-	incbin "art/compressed/unknown/unknown20.bin"
-loc_00027800:
+art_defaultBg:
+	incbin "art/compressed/cutscene/background.bin"
+art_bgZou:
+	incbin "art/compressed/cutscene/zouBackground.bin"
+art_bgSatan:
+	incbin "art/compressed/cutscene/satanBackground.bin"
+art_winLose:
 	incbin "art/compressed/twoPlayer/twoPlayerWinLose.bin"
 loc_00028500:
 	incbin "art/compressed/unknown/unkCharset4.bin"
-loc_00028B00:
+art_modeNames:
 	incbin "art/compressed/record/modeNames.bin"
-loc_00029800:
+art_gameOver:
 	incbin "art/compressed/gameover/gameover.bin"
-loc_0002CD00:
+art_recordScreen:
 	incbin "art/compressed/record/recordScreen.bin"
-loc_0002FC00:
-	incbin "art/compressed/unknown/unknown19.bin"
+art_arleVictory:
+	incbin "art/compressed/ending/arlevictory.bin"
 art_cutsceneArle:
 	incbin "art/compressed/cutscene/general/arle.bin"
 art_cutsceneDraco:
 	incbin "art/compressed/cutscene/stage1/draco.bin"
 art_cutsceneZombie:
-	incbin "art/compressed/unknown/unknown16.bin"
-loc_000385C8:
-	incbin "art/compressed/unknown/unknown15.bin"
-loc_00039914:
-	incbin "art/compressed/unknown/unknown14.bin"
+	incbin "art/compressed/cutscene/stage7/zombie.bin"
+art_cutsceneSuketoudara:
+	incbin "art/compressed/cutscene/stage2/suketoudara.bin"
+art_cutsceneZoh:
+	incbin "art/compressed/cutscene/stage9/zoh.bin"
 art_cutsceneSkeletonT:
 	incbin "art/compressed/cutscene/tutorial1/skeleton-t.bin"
-loc_0003B60C:
-	incbin "art/compressed/unknown/unknown13.bin"
-loc_0003CA34:
-	incbin "art/compressed/unknown/unknown12.bin"
+art_cutsceneMinotauros:
+	incbin "art/compressed/cutscene/stage11/minotauros.bin"
+art_cutsceneSasoriman:
+	incbin "art/compressed/cutscene/stage5/sasoriman.bin"
 art_cutsceneWitch:
-	incbin "art/compressed/unknown/unknown11.bin"
+	incbin "art/compressed/cutscene/stage8/witch.bin"
 art_cutsceneRulue:
 	incbin "art/compressed/cutscene/stage12/rulue.bin"
-; Despite being a duplicate copy of the harpy data, it seems to be missing some data.
-	incbin "art/compressed/cutscene/stage4/harpy_duplicate.bin"
-loc_00040306:
-	incbin "art/compressed/unknown/unknown9.bin"
-loc_00040408:
-	incbin "art/compressed/unknown/unknown8.bin"
-loc_0004080E:
-	incbin "art/compressed/unknown/unknown7.bin"
-loc_00040960:
-	incbin "art/compressed/unknown/unknown6.bin"
-loc_00041D38:
-	incbin "art/compressed/unknown/unknown5.bin"
+art_cutsceneSchezo:
+	incbin "art/compressed/cutscene/stage10/schezo.bin"
+art_cutsceneSatan:
+	incbin "art/compressed/cutscene/stage13/satan.bin"
 art_cutsceneNasuGrave:
 	incbin "art/compressed/cutscene/tutorial2/nasuGrave.bin"
-loc_00043802:
-	incbin "art/compressed/unknown/unknown3.bin"
-loc_000447E0:
-	incbin "art/compressed/unknown/unknown2.bin"
-loc_000455C8:
-	incbin "art/compressed/unknown/unknown1.bin"
+art_cutsceneMummy:
+	incbin "art/compressed/cutscene/tutorial3/mummy.bin"
+art_cutsceneSukiyapotes:
+	incbin "art/compressed/cutscene/stage3/sukiyapotes.bin"
+art_cutscenePanotty:
+	incbin "art/compressed/cutscene/stage6/panotty.bin"
 	
 ; Cutscene Charsets
 art_cutsceneCharset_stage1:
@@ -27980,23 +27972,23 @@ art_portraitPanotty:
 	
 loc_00061400: ; This data gets loaded when the title screen loads
 	incbin "art/compressed/unknown/unkCharset3.bin"
-loc_00061DD0:
-	incbin "art/compressed/unknown/unkCharset2.bin"
-loc_00062088:
-	incbin "art/compressed/unknown/unkCharset1.bin"
+art_tryAgain:
+	incbin "art/compressed/twoPlayer/tryagain.bin"
+art_tutorial:
+	incbin "art/compressed/demo/tutorial.bin"
 art_optionsCharset:
 	incbin "art/compressed/options/charset.bin"
 art_cutsceneHarpy: ; Used Version of Harpy (According to TCRF)
 	incbin "art/compressed/cutscene/stage4/harpy.bin"
-loc_00064000: ; In-Game Puyos & Misc
+art_ingameAssets: ; In-Game Puyos & Misc
 	incbin "art/compressed/game/puyos.bin"
 loc_00069300:
 	incbin "art/compressed/unknown/unkArt1.bin"
-loc_00069B00: ; Options Menu Background (Interestingly, it seems there are many tiles unused? here.)
+art_optionsBackground: ; Options Menu Background (Interestingly, it seems there are many tiles unused? here.)
 	incbin "art/compressed/options/background.bin"
 loc_0006AA80:
 	incbin "art/compressed/options/unknown.bin"
-loc_0006C400: ; Menu Screen Graphics
+art_menuScreen: ; Menu Screen Graphics
 	incbin "art/compressed/menu/menuScreen.bin"
 
 ; Sound engine stuff
@@ -28009,7 +28001,7 @@ z80SoundDriver: ; Sound Driver
 sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	incbin "sound/PCM2.bin"
 	
-loc_0007A300: ; Title Screen Background, Arle, Copyright Text, Title, etc...
+art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	incbin "art/compressed/title/titleScreen.bin"
 	
 	padToPowerOfTwo

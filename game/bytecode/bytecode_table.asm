@@ -53,7 +53,7 @@ BC_Bootup: ; Bootup Lookup Table
 
 	BVMODE $0001
 	
-	BART $0000, loc_00069B00
+	BART $0000, art_optionsBackground
 	
 	BART $A000, art_optionsCharset
 
@@ -99,7 +99,7 @@ BC_segaScreen:
 BC_titleScreen:
 	BVMODE $0000
 	
-	BART $0000, loc_0007A300
+	BART $0000, art_titleScreen
 	
 	BART $A000, loc_00061400
 	
@@ -153,7 +153,7 @@ BC_mainMenu2: ; Second half of above transition
 	
 	BRUN loc_0000C548
 	
-	BART $0000, loc_0006C400
+	BART $0000, art_menuScreen
 	
 	BSND $0004
 	BVDPC $001F
@@ -191,7 +191,7 @@ BC_options:
 	BVMODE $0001
 	BSND $0004
 	
-	BART $0000, loc_00069B00
+	BART $0000, art_optionsBackground
 	BART $A000, art_optionsCharset
 	
 	
@@ -229,8 +229,8 @@ BC_soundTest:
 	BVMODE $0001
 	
 	BART $6000, art_cutsceneArle
-	BART $8000, loc_00041D38
-	BART $0000, loc_00069B00
+	BART $8000, art_cutsceneSatan
+	BART $0000, art_optionsBackground
 	BART $A000, art_optionsCharset
 	
 	BRUN loc_0001CCDC
@@ -260,7 +260,7 @@ BC_soundTest:
 BC_portraitScreen:
 	BVMODE $0000
 
-	BART $8000, loc_0002CD00
+	BART $8000, art_recordScreen
 
 	BART $A000, loc_00061400
 
@@ -356,7 +356,7 @@ BC_unknown1:
 	
 	BRUN loc_00000BC6
 	
-	BART $2000, loc_00064000
+	BART $2000, art_ingameAssets
 	
 	BART $A000, loc_00061400
 	
@@ -418,7 +418,7 @@ BC_gameOver:
 	
 	BART $A000, loc_00061400
 	
-	BART $0000, loc_00029800
+	BART $0000, art_gameOver
 	
 	BSND $0007
 	BVDPC $0006
@@ -509,7 +509,7 @@ BC_normalModeEnding:
 	
 	BSND $0012
 	
-	BART $0000, loc_0002FC00
+	BART $0000, art_arleVictory
 	
 	BVDPC $0009
 	BNOP
@@ -558,7 +558,7 @@ BC_credits2:
 	
 	BSND $0011
 	BART $6000, art_cutsceneArle
-	BART $A000, loc_00061DD0
+	BART $A000, art_tryAgain
 	BRAM $00FF0112, $0000
 BC_credits3:
 	BRUN loc_0000DAF4
@@ -602,7 +602,7 @@ BC_staff3:
 	BVMODE $0001
 	BSND $000A
 	
-	BART $0000, loc_0002FC00
+	BART $0000, art_arleVictory
 	BART $A000, art_optionsCharset
 	
 	BVDPC $000A
@@ -649,11 +649,11 @@ BC_recordScreen1PlayerOnly:
 	
 	BSND $0004
 	
-	BART $0000, loc_00028B00
+	BART $0000, art_modeNames
 	
-	BART $2000, loc_00064000
+	BART $2000, art_ingameAssets
 	
-	BART $6000, loc_0002CD00
+	BART $6000, art_recordScreen
 	
 	BART $A000, loc_00061400
 	
@@ -707,7 +707,7 @@ BC_unknown3:
 	
 	BPAL pal_00002230, 0
 	
-	BART $2000, loc_00064000
+	BART $2000, art_ingameAssets
 	BRUN loc_00007F9C
 	BRUN loc_00002EBA
 	BRUN loc_00003056
@@ -743,8 +743,8 @@ BC_unknown5:
 
 	BVMODE $0001
 	
-	BART $0000, loc_00069B00
-	BART $2000, loc_00064000
+	BART $0000, art_optionsBackground
+	BART $2000, art_ingameAssets
 	BART $A000, loc_00061400
 	
 	BVDPC $0016
@@ -792,7 +792,7 @@ BC_unknown6:
 	BVDPC $0003
 	BNOP
 	
-	BART $2000, loc_00064000
+	BART $2000, art_ingameAssets
 	
 	BART $A000, loc_00061400
 	
@@ -834,9 +834,9 @@ BC_tutorialDemo:
 
 	BVMODE $0001
 	
-	BART $2000, loc_00064000
+	BART $2000, art_ingameAssets
 	BART $0000, loc_0001E000
-	BART $6600, loc_00062088
+	BART $6600, art_tutorial
 	BART $A000, loc_00061400
 	
 	BVDPC $0003
@@ -879,9 +879,9 @@ BC_recordScreen4:
 	
 	BSND $0004
 	
-	BART $0000, loc_00028B00
-	BART $2000, loc_00064000
-	BART $6000, loc_0002CD00
+	BART $0000, art_modeNames
+	BART $2000, art_ingameAssets
+	BART $6000, art_recordScreen
 	BART $A000, loc_00061400
 	
 	BVDPC $0008

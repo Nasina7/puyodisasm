@@ -19502,22 +19502,22 @@ loc_0001126E:
 	dc.l	loc_00013816
 	dc.l	loc_00011A5A
 	dc.l	sprMappings_arle
-	dc.l	loc_00012420
-	dc.l	loc_000124E8
-	dc.l	loc_00012616
+	dc.l	sprMappings_skeletont
+	dc.l	sprMappings_suketoudara
+	dc.l	sprMappings_zombie
 	dc.l	sprMappings_draco ; Draco?
-	dc.l	loc_00012816
-	dc.l	loc_00012842
-	dc.l	loc_000128D8
-	dc.l	loc_00012A1C
-	dc.l	loc_00012B1A
-	dc.l	loc_00012BF0
-	dc.l	loc_00012D1C
+	dc.l	sprMappings_nasu
+	dc.l	sprMappings_witch
+	dc.l	sprMappings_sasoriman
+	dc.l	sprMappings_harpy
+	dc.l	sprMappings_zoh
+	dc.l	sprMappings_schezo
+	dc.l	sprMappings_minotauros
 	dc.l	sprMappings_rulue
-	dc.l	loc_00012F18
-	dc.l	loc_0001226E
-	dc.l	loc_000120DA
-	dc.l	loc_00011FDE
+	dc.l	sprMappings_satan
+	dc.l	sprMappings_mummy
+	dc.l	sprMappings_sukiyapotes
+	dc.l	sprMappings_panotty
 	dc.l	loc_00013B2A
 	dc.l	loc_00013ED2
 	dc.l	loc_00013F26
@@ -19568,39 +19568,39 @@ loc_00011BDE:
 loc_00011C4E:
 	include "art/spriteMappings/unk/unknown11.asm"
 sprMappings_arle:
-	include "art/spriteMappings/arle.asm"
-loc_00011FDE:
-	include "art/spriteMappings/unk/unknown12.asm"
-loc_000120DA:
-	include "art/spriteMappings/unk/unknown13.asm"
-loc_0001226E:
-	include "art/spriteMappings/unk/unknown14.asm"
-loc_00012420:
-	include "art/spriteMappings/unk/unknown15.asm"
-loc_000124E8:
-	include "art/spriteMappings/unk/unknown16.asm"
-loc_00012616:
-	include "art/spriteMappings/unk/unknown17.asm"
+	include "art/spriteMappings/cutscene/arle.asm"
+sprMappings_panotty:
+	include "art/spriteMappings/cutscene/panotty.asm"
+sprMappings_sukiyapotes:
+	include "art/spriteMappings/cutscene/sukiyapotes.asm"
+sprMappings_mummy:
+	include "art/spriteMappings/cutscene/mummy.asm"
+sprMappings_skeletont:
+	include "art/spriteMappings/cutscene/skeletont.asm"
+sprMappings_suketoudara:
+	include "art/spriteMappings/cutscene/suketoudara.asm"
+sprMappings_zombie:
+	include "art/spriteMappings/cutscene/zombie.asm"
 sprMappings_draco:
-	include "art/spriteMappings/draco.asm"
-loc_00012816:
-	include "art/spriteMappings/unk/unknown18.asm"
-loc_00012842:
-	include "art/spriteMappings/unk/unknown19.asm"
-loc_000128D8:
-	include "art/spriteMappings/unk/unknown20.asm"
-loc_00012A1C:
-	include "art/spriteMappings/unk/unknown21.asm" ; This mapping contains NULL pointers!
-loc_00012B1A:
-	include "art/spriteMappings/unk/unknown22.asm"
-loc_00012BF0:
-	include "art/spriteMappings/unk/unknown23.asm"
-loc_00012D1C:
-	include "art/spriteMappings/unk/unknown24.asm"
+	include "art/spriteMappings/cutscene/draco.asm"
+sprMappings_nasu:
+	include "art/spriteMappings/cutscene/nasu.asm"
+sprMappings_witch:
+	include "art/spriteMappings/cutscene/witch.asm"
+sprMappings_sasoriman:
+	include "art/spriteMappings/cutscene/sasoriman.asm"
+sprMappings_harpy:
+	include "art/spriteMappings/cutscene/harpy.asm" ; This mapping contains NULL pointers!
+sprMappings_zoh:
+	include "art/spriteMappings/cutscene/zoh.asm"
+sprMappings_schezo:
+	include "art/spriteMappings/cutscene/schezo.asm"
+sprMappings_minotauros:
+	include "art/spriteMappings/cutscene/minotauros.asm"
 sprMappings_rulue:
-	include "art/spriteMappings/rulue.asm"
-loc_00012F18:
-	include "art/spriteMappings/unk/unknown25.asm"
+	include "art/spriteMappings/cutscene/rulue.asm"
+sprMappings_satan:
+	include "art/spriteMappings/cutscene/satan.asm"
 loc_00013062:
 	include "art/spriteMappings/unk/unknown26.asm"
 loc_0001318C:

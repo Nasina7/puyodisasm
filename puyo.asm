@@ -89,11 +89,11 @@ headerBegin:
 	dc.b    "(C)SEGA 1992.SEP" ; Copyright
 
 	; Game Title (Domestic)
-	dc.b    $82, $D5, $82 
-	dc.b	$E6, $82, $D5, $82, $E6, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20 ;0x20
-	dc.b	$20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20
+	dc.b    "‚Õ‚æ‚Õ‚æ                                        "
 	
-	dc.b    "PUYOPUYO                                        " ; Game Title (Overseas)
+	 ; Game Title (Overseas)
+	dc.b    "PUYOPUYO                                        "
+	
 	dc.b    "GM G-4082  -00" ; Serial
 checksum:
 	dc.w	$BCE7 ; Checksum (This will get patched later)

@@ -26,6 +26,6 @@ if not exist out\puyobuilt_temp.bin (
 if exist out\puyobuilt_prev.bin del out\puyobuilt_prev.bin
 if exist out\puyobuilt.bin rename out\puyobuilt.bin puyobuilt_prev.bin
 if exist out\puyobuilt_temp.bin rename out\puyobuilt_temp.bin puyobuilt.bin
-tools\fixChecksum.exe out\puyobuilt.bin
+tools\fixheader.exe out\puyobuilt.bin
 
 echo Success!  The ROM is stored at out\puyobuilt.bin

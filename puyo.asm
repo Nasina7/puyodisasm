@@ -1282,13 +1282,13 @@ loc_0000209A:
 	dc.l	loc_000020F4
 	dc.l	loc_000020F4
 loc_000020DA:
-	LEA	loc_0001E000, A0
+	LEA	art_grassBattle, A0
 	MOVE.w	#0, D0
 	JSR	graphicsDecompress
 	MOVE.w	#3, D0
 	JMP	loc_00000BF2
 loc_000020F4:
-	LEA loc_0006AA80, A0
+	LEA art_ruinsBattle, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 loc_00002103:
@@ -1326,12 +1326,12 @@ loc_00002138:
 loc_00002178:
 	MOVE.b	#2, D0
 	LEA	palLookupTable, A2
-	ADDA.l	#(pal_00002270-palLookupTable), A2
+	ADDA.l	#(pal_grassBattle-palLookupTable), A2
 	JMP	loc_00001020
 loc_0000218E:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
-	ADDA.l  #(pal_000026F0-palLookupTable), A2
+	ADDA.l  #(pal_ruinsBattle-palLookupTable), A2
 	JMP loc_00001020
 loc_000021A4:
 	MOVE.b  #2, D0
@@ -1365,8 +1365,8 @@ pal_00002230:
 	incbin "art/palettes/unknown/unknown1.bin"
 pal_00002250:
 	incbin "art/palettes/unknown/unknown2.bin"
-pal_00002270:
-	incbin "art/palettes/unknown/unknown3.bin"
+pal_grassBattle:
+	incbin "art/palettes/game/grass.bin"
 pal_general:
 	incbin "art/palettes/general.bin"
 pal_000022B0:
@@ -1432,8 +1432,8 @@ pal_titleScreenLogo_cycle:
 	incbin "art/palettes/title/logoYellow.bin"
 	incbin "art/palettes/title/logoLightBlue.bin"
 	incbin "art/palettes/title/logoPurple.bin"
-pal_000026F0:
-	incbin "art/palettes/unknown/unknown14.bin"
+pal_ruinsBattle:
+	incbin "art/palettes/game/ruins.bin"
 pal_00002710:
 	incbin "art/palettes/unknown/unknown15.bin"
 
@@ -19464,7 +19464,7 @@ loc_0001126E:
 	dc.l	sprMappings_carbuncle
 	dc.l	sprMappings_puyoBig
 	dc.l	sprMappings_bgBirds
-	dc.l	sprMappings_protoDemoText ; Leftover from Megadrive Prototype?
+	dc.l	sprMappings_leftoverCreditsText ; Leftover from Arcade version
 	dc.l	sprMappings_bgLightning
 	dc.l	sprMappings_unk11 ; Unknown Mappings
 	dc.l	sprMappings_gameoverLetters
@@ -19543,8 +19543,8 @@ sprMappings_rulue:
 	include "art/spriteMappings/cutscene/rulue.asm"
 sprMappings_satan:
 	include "art/spriteMappings/cutscene/satan.asm"
-sprMappings_protoDemoText:
-	include "art/spriteMappings/prototype/insertCoinDemo.asm"
+sprMappings_leftoverCreditsText:
+	include "art/spriteMappings/leftover/creditsText.asm"
 sprMappings_gameoverText:
 	include "art/spriteMappings/game/gameOver.asm"
 sprMappings_puyoRed:
@@ -27787,8 +27787,8 @@ loc_0001DE1A:
 	dc.b	$FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF ;0x1C0
 	
 ; Beginning of data segment
-loc_0001E000:
-	incbin "art/compressed/unknown/unknown22.bin"
+art_grassBattle:
+	incbin "art/compressed/game/grass.bin"
 art_defaultBg:
 	incbin "art/compressed/cutscene/background.bin"
 art_bgZou:
@@ -27915,8 +27915,8 @@ art_portraitPanotty:
 	incbin "art/compressed/portrait/panotty.bin"
 	
 	
-loc_00061400: ; This data gets loaded when the title screen loads
-	incbin "art/compressed/unknown/unkCharset3.bin"
+art_creditsText: ; This data gets loaded when the title screen loads
+	incbin "art/compressed/leftover/creditsText.bin"
 art_tryAgain:
 	incbin "art/compressed/twoPlayer/tryagain.bin"
 art_tutorial:
@@ -27931,8 +27931,8 @@ art_twoPlayerBackground:
 	incbin "art/compressed/twoPlayer/backgroundAndMisc.bin"
 art_optionsBackground: ; Options Menu Background (Interestingly, it seems there are many tiles unused? here.)
 	incbin "art/compressed/options/background.bin"
-loc_0006AA80:
-	incbin "art/compressed/options/unknown.bin"
+art_ruinsBattle:
+	incbin "art/compressed/game/ruins.bin"
 art_menuScreen: ; Menu Screen Graphics
 	incbin "art/compressed/menu/menuScreen.bin"
 

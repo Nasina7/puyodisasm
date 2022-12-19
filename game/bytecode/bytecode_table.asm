@@ -689,7 +689,7 @@ BC_unknown2:
 
 	BVMODE $0001
 	
-	BART $0000, loc_00069300
+	BART $0000, art_twoPlayerBackground
 	BART $A000, loc_00061400
 	
 	BVDPC $0004

@@ -19434,20 +19434,21 @@ loc_00011258:
 	dbf d0, loc_0001124A
 	andi #$F8FF, SR
 	rts
+	
 loc_0001126E:
-	dc.l	loc_000131FE
-	dc.l	loc_000132A4
-	dc.l	loc_0001334A
-	dc.l	loc_00013624
-	dc.l	loc_000136CA
-	dc.l	loc_00013770
-	dc.l	loc_00013816
-	dc.l	loc_00011A5A
+	dc.l	sprMappings_puyoRed
+	dc.l	sprMappings_puyoYellow
+	dc.l	sprMappings_attacks
+	dc.l	sprMappings_puyoGreen
+	dc.l	sprMappings_puyoPurple
+	dc.l	sprMappings_puyoBlue
+	dc.l	sprMappings_battleUI
+	dc.l	sprMappings_ram ; Ram Mappings?
 	dc.l	sprMappings_arle
 	dc.l	sprMappings_skeletont
 	dc.l	sprMappings_suketoudara
 	dc.l	sprMappings_zombie
-	dc.l	sprMappings_draco ; Draco?
+	dc.l	sprMappings_draco
 	dc.l	sprMappings_nasu
 	dc.l	sprMappings_witch
 	dc.l	sprMappings_sasoriman
@@ -19460,37 +19461,36 @@ loc_0001126E:
 	dc.l	sprMappings_mummy
 	dc.l	sprMappings_sukiyapotes
 	dc.l	sprMappings_panotty
-	dc.l	loc_00013B2A
-	dc.l	loc_00013ED2
-	dc.l	loc_00013F26
-	dc.l	loc_00013062
-	dc.l	loc_0001403E
-	dc.l	loc_00011C4E
-	dc.l	loc_00011BDE
-	dc.l	loc_00011B98
-	dc.l	loc_00011ABC
-	dc.l	loc_00011A7A
-	dc.l	loc_00011A7A
-	dc.l	loc_000113C8
-	dc.l	loc_000119B2
-	dc.l	loc_0001189E
-	dc.l	loc_00011724
-	dc.l	loc_000113C8
-	dc.l	loc_0001318C
-	dc.l	loc_0001131A
+	dc.l	sprMappings_carbuncle
+	dc.l	sprMappings_puyoBig
+	dc.l	sprMappings_bgBirds
+	dc.l	sprMappings_protoDemoText ; Leftover from Megadrive Prototype?
+	dc.l	sprMappings_bgLightning
+	dc.l	sprMappings_unk11 ; Unknown Mappings
+	dc.l	sprMappings_gameoverLetters
+	dc.l	sprMappings_textbox
+	dc.l	sprMappings_levelCursor
+	dc.l	sprMappings_portraitFlash
+	dc.l	sprMappings_portraitFlash
+	dc.l	sprMappings_title
+	dc.l	sprMappings_unk6 ; Unknown Mappings
+	dc.l	sprMappings_demoControls
+	dc.l	sprMappings_twoPlayer
+	dc.l	sprMappings_title
+	dc.l	sprMappings_gameoverText
+	dc.l	sprMappings_tutorial
 	
-loc_0001131A:
-	include "art/spriteMappings/unk/unknown2.asm"
-loc_000113C8:
-	include "art/spriteMappings/unk/unknown3.asm"
-loc_00011724:
-	include "art/spriteMappings/unk/unknown4.asm"
-loc_0001189E:
-	include "art/spriteMappings/unk/unknown5.asm"
-loc_000119B2:
+sprMappings_tutorial:
+	include "art/spriteMappings/tutorial/sprites.asm"
+sprMappings_title:
+	include "art/spriteMappings/title/title.asm"
+sprMappings_twoPlayer:
+	include "art/spriteMappings/twoPlayer/sprites.asm"
+sprMappings_demoControls:
+	include "art/spriteMappings/demo/controls.asm"
+sprMappings_unk6:
 	include "art/spriteMappings/unk/unknown6.asm"
-; RAM Sprite Mappings????
-loc_00011A5A:
+sprMappings_ram:
 	dc.l	$00FF1324
 	dc.l	$00FF13C6
 	dc.l	$00FF1468
@@ -19499,15 +19499,15 @@ loc_00011A5A:
 	dc.l	$00FF164E
 	dc.l	$00FF16F0
 	dc.l	$00FF1792
-loc_00011A7A:
-	include "art/spriteMappings/unk/unknown7.asm"
-loc_00011ABC:
-	include "art/spriteMappings/unk/unknown8.asm"
-loc_00011B98:
-	include "art/spriteMappings/unk/unknown9.asm"
-loc_00011BDE:
-	include "art/spriteMappings/unk/unknown10.asm"
-loc_00011C4E:
+sprMappings_portraitFlash:
+	include "art/spriteMappings/portrait/flash.asm"
+sprMappings_levelCursor:
+	include "art/spriteMappings/twoPlayer/cursor.asm"
+sprMappings_textbox:
+	include "art/spriteMappings/cutscene/textbox.asm"
+sprMappings_gameoverLetters:
+	include "art/spriteMappings/gameover/letters.asm"
+sprMappings_unk11:
 	include "art/spriteMappings/unk/unknown11.asm"
 sprMappings_arle:
 	include "art/spriteMappings/cutscene/arle.asm"
@@ -19543,34 +19543,35 @@ sprMappings_rulue:
 	include "art/spriteMappings/cutscene/rulue.asm"
 sprMappings_satan:
 	include "art/spriteMappings/cutscene/satan.asm"
-loc_00013062:
-	include "art/spriteMappings/unk/unknown26.asm"
-loc_0001318C:
-	include "art/spriteMappings/unk/unknown27.asm"
-loc_000131FE:
-	include "art/spriteMappings/unk/unknown1.asm"
-loc_000132A4:
-	include "art/spriteMappings/unk/unknown28.asm"
-loc_0001334A:
-	include "art/spriteMappings/unk/unknown29.asm"
-loc_00013624:
-	include "art/spriteMappings/unk/unknown30.asm"
-loc_000136CA:
-	include "art/spriteMappings/unk/unknown31.asm"
-loc_00013770:
-	include "art/spriteMappings/unk/unknown32.asm"
-loc_00013816:
-	include "art/spriteMappings/unk/unknown33.asm"
-loc_00013B2A:
-	include "art/spriteMappings/unk/unknown34.asm"
-loc_00013ED2:
-	include "art/spriteMappings/unk/unknown35.asm"
-loc_00013F26:
-	include "art/spriteMappings/unk/unknown36.asm"
-loc_0001403E:
-	include "art/spriteMappings/unk/unknown37.asm"
-loc_000141EA:
-	include "art/spriteMappings/unk/unknown38.asm"
+sprMappings_protoDemoText:
+	include "art/spriteMappings/prototype/insertCoinDemo.asm"
+sprMappings_gameoverText:
+	include "art/spriteMappings/game/gameOver.asm"
+sprMappings_puyoRed:
+	include "art/spriteMappings/game/puyoRed.asm"
+sprMappings_puyoYellow:
+	include "art/spriteMappings/game/puyoYellow.asm"
+sprMappings_attacks:
+	include "art/spriteMappings/game/attackEffects.asm"
+sprMappings_puyoGreen:
+	include "art/spriteMappings/game/puyoGreen.asm"
+sprMappings_puyoPurple:
+	include "art/spriteMappings/game/puyoPurple.asm"
+sprMappings_puyoBlue:
+	include "art/spriteMappings/game/puyoBlue.asm"
+sprMappings_battleUI:
+	include "art/spriteMappings/game/miscUI.asm"
+sprMappings_carbuncle:
+	include "art/spriteMappings/game/carbuncle.asm"
+sprMappings_puyoBig:
+	include "art/spriteMappings/game/puyoBig.asm"
+sprMappings_bgBirds:
+	include "art/spriteMappings/cutscene/bgBirds.asm"
+sprMappings_bgLightning:
+	include "art/spriteMappings/cutscene/bgLightning.asm"
+sprMappings_scoreText:
+	include "art/spriteMappings/game/score.asm"
+	
 loc_000143E2:
 	MOVE.w	$00FF0CDE, D0
 	BEQ.w	loc_0001442C
@@ -20376,7 +20377,7 @@ loc_0001514A:
 	CLR.w	D2
 	MOVE.b	$1(A2), D2
 	LSL.w	#2, D2
-	LEA	loc_000141EA, A3 ;THE 
+	LEA	sprMappings_scoreText, A3
 	MOVEA.l	(A3,D2.w), A4
 	MOVE.b	$2(A2), D4
 	BEQ.w	loc_0001517A
@@ -27926,8 +27927,8 @@ art_cutsceneHarpy: ; Used Version of Harpy (According to TCRF)
 	incbin "art/compressed/cutscene/stage4/harpy.bin"
 art_ingameAssets: ; In-Game Puyos & Misc
 	incbin "art/compressed/game/puyos.bin"
-loc_00069300:
-	incbin "art/compressed/unknown/unkArt1.bin"
+art_twoPlayerBackground:
+	incbin "art/compressed/twoPlayer/backgroundAndMisc.bin"
 art_optionsBackground: ; Options Menu Background (Interestingly, it seems there are many tiles unused? here.)
 	incbin "art/compressed/options/background.bin"
 loc_0006AA80:
@@ -27952,16 +27953,8 @@ art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	even
 endOfRom:
 
-; Some interesting things of note:
-;	* The game uses custom compression for it's art.
-;	  I've written a tool to decompress this data
-;	* The PCM data seems to have a header attatched to it.
-;   *    It seems to use VOX ACPCM?  The Sharp X68000 version does as well.
-;   *    I've yet to figure out how to import the data into Audacity though.
-;   * The Sound Driver is uncompressed
-
-; Hacking Notes
+; Notes:
 ; Two points in ram specify some specific things about the stage we're loading
 ; 00FF0112 - Stage to load.  00 to 0F is valid, anything below 3 will load easy mode
 ;    * Note: Stage 10 seems to be reserved for ending cutscenes?
-; 00FF0113 - Cutscene to load.  The order for this doesn't follow what you'd expect
+; 00FF0113 - Cutscene to load.

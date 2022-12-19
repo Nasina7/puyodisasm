@@ -77,7 +77,7 @@ BC_segaScreen:
 	
 	BVMODE $0001
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BRUN loadSegaScreen
 	
@@ -101,7 +101,7 @@ BC_titleScreen:
 	
 	BART $0000, art_titleScreen
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BSNDC2 $0082
 	BSND $0003
@@ -149,7 +149,7 @@ BC_mainMenu:
 BC_mainMenu2: ; Second half of above transition
 	BVMODE $0000
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BRUN loc_0000C548
 	
@@ -262,7 +262,7 @@ BC_portraitScreen:
 
 	BART $8000, art_recordScreen
 
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 
 	BVDPC $001E
 	BNOP
@@ -271,7 +271,7 @@ BC_portraitScreen:
 	
 	BNOP
 	
-	BPAL pal_00002270, 0
+	BPAL pal_grassBattle, 0
 	BPAL pal_general, 1
 	BPAL pal_portraitDefeated, 2
 	BPAL pal_portraitScreenBackground, 3
@@ -358,7 +358,7 @@ BC_unknown1:
 	
 	BART $2000, art_ingameAssets
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	
 	BSSND
@@ -416,7 +416,7 @@ BC_gameOver:
 	BRAM $00FF05D2, $0000
 	BRAM $00FF05D4, $0000
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BART $0000, art_gameOver
 	
@@ -480,7 +480,7 @@ BC_easyModeEnding:
 	BRUN loc_0000A2F4
 	
 	BPALF pal_general, 0, 0
-	BPALF pal_00002270, 2, 0
+	BPALF pal_grassBattle, 2, 0
 	BPALF pal_general, 3, 0
 	
 	BSTOP
@@ -655,7 +655,7 @@ BC_recordScreen1PlayerOnly:
 	
 	BART $6000, art_recordScreen
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BVDPC $0008
 	BNOP
@@ -664,7 +664,7 @@ BC_recordScreen1PlayerOnly:
 	
 	BPALF pal_recordScreenMain, 0, 0
 	BPALF pal_00002250, 1, 0
-	BPALF pal_00002270, 2, 0
+	BPALF pal_grassBattle, 2, 0
 	
 	BSTOP
 	
@@ -690,7 +690,7 @@ BC_unknown2:
 	BVMODE $0001
 	
 	BART $0000, art_twoPlayerBackground
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BVDPC $0004
 	BNOP
@@ -698,7 +698,7 @@ BC_unknown2:
 	
 	BPAL pal_00002230, 0
 	BPAL pal_00002250, 1
-	BPAL pal_00002270, 2
+	BPAL pal_grassBattle, 2
 	BPAL pal_000023D0, 3
 	
 	BRAM $00FF1108, $0802
@@ -745,7 +745,7 @@ BC_unknown5:
 	
 	BART $0000, art_optionsBackground
 	BART $2000, art_ingameAssets
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BVDPC $0016
 	BNOP
@@ -787,18 +787,18 @@ BC_unknown6:
 
 	BVMODE $0001
 	
-	BART $0000, loc_0001E000
+	BART $0000, art_grassBattle
 	
 	BVDPC $0003
 	BNOP
 	
 	BART $2000, art_ingameAssets
 	
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BPAL pal_00002230, 0
 	BPAL pal_00002250, 1
-	BPAL pal_00002270, 2
+	BPAL pal_grassBattle, 2
 	BPAL pal_general, 3
 	
 	BRUN loc_0000C9BA
@@ -835,9 +835,9 @@ BC_tutorialDemo:
 	BVMODE $0001
 	
 	BART $2000, art_ingameAssets
-	BART $0000, loc_0001E000
+	BART $0000, art_grassBattle
 	BART $6600, art_tutorial
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BVDPC $0003
 	BVDPC $002A
@@ -852,7 +852,7 @@ BC_tutorialDemo:
 	
 	BPAL pal_00002230, 0
 	BPAL pal_00002250, 1
-	BPAL pal_00002270, 2
+	BPAL pal_grassBattle, 2
 	BPAL pal_tutorialDemoBGJoystick, 3
 
 	BRUN loc_0000C960
@@ -882,7 +882,7 @@ BC_recordScreen4:
 	BART $0000, art_modeNames
 	BART $2000, art_ingameAssets
 	BART $6000, art_recordScreen
-	BART $A000, loc_00061400
+	BART $A000, art_creditsText
 	
 	BVDPC $0008
 	BNOP
@@ -896,7 +896,7 @@ BC_recordScreen4:
 
 	BPAL pal_recordScreenMain, 0
 	BPAL pal_00002250, 1
-	BPAL pal_00002270, 2
+	BPAL pal_grassBattle, 2
 	
 	BSTOP
 	

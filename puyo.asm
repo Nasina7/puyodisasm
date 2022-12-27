@@ -26148,59 +26148,9 @@ loc_00017CC4:
     dc.b    $22
     dc.b    $00
 loc_00017CD0:
-    dc.b    $46
-    dc.b    $47
-    dc.b    $00
-    dc.b    $6A
-    dc.b    $6B
-    dc.b    $00
-    dc.b    $94
-    dc.b    $64
-    dc.b    $00
-    dc.b    $97
-    dc.b    $5D
-    dc.b    $00
-    dc.b    $82
-    dc.b    $64
-    dc.b    $9B
-    dc.b    $A1
-    dc.b    $6B
-    dc.b    $A2
+    incbin "art/bgMappings/puyo/unknown89.bin"
 loc_00017CE2:
-    dc.b    $00
-    dc.b    $20
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $27
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $2B
-    dc.b    $00
-    dc.b    $20
-    dc.b    $00
-    dc.b    $2C
-    dc.b    $00
-    dc.b    $27
-    dc.b    $00
-    dc.b    $2D
-    dc.b    $00
-    dc.b    $2D
-    dc.b    $00
-    dc.b    $2D
-    dc.b    $00
-    dc.b    $2C
-    dc.b    $00
-    dc.b    $33
-    dc.b    $00
-    dc.b    $2D
-    dc.b    $38
-    dc.b    $39
-    dc.b    $00
-    dc.b    $2C
-
-	
+    incbin "art/bgMappings/puyo/unknown90.bin"
 	
 loc_00017D02:
     dc.b    $00

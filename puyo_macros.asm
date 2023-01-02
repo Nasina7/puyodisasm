@@ -1,4 +1,39 @@
+; BG Mapping Macros
+bgmac_Clear: macro bgWidth, bgHeight, bgLoc, bgValue
+	dc.w 	$0000
+	dc.b 	bgWidth
+	dc.b 	bgHeight
+	dc.w 	bgLoc
+	dc.w 	bgValue
+	endm
 
+bgmac_ByteIndex: macro bg, bgWidth, bgHeight, bgLoc, bgIndex
+	dc.w	$0004
+	dc.b	bgWidth
+	dc.b	bgHeight
+	dc.w	bgLoc
+	dc.l	bg
+	dc.b	bgIndex
+	dc.b	$00
+	endm
+	
+bgmac_WordIndex: macro bg, bgWidth, bgHeight, bgLoc
+	dc.w 	$0008
+	dc.b 	bgWidth
+	dc.b 	bgHeight
+	dc.w 	bgLoc
+	dc.l	bg
+	endm
+	
+bgmac_ByteIndexPal: macro bg, bgPal, bgWidth, bgHeight, bgLoc, bgIndex
+	dc.w	$0010
+	dc.b	bgWidth
+	dc.b	bgHeight
+	dc.w	bgLoc
+	dc.l 	bg
+	dc.l	bgPal
+	dc.w	bgIndex
+	endm
 	
 ; Cutscene Macros
 cutscene_endCutscene: macro

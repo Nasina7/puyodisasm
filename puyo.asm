@@ -668,7 +668,7 @@ loc_00000BF2:
 	ORI	#$0700, SR
 	MOVEM.l	A3/A2/D3/D2/D1, -(A7)
 	MOVE.b	#$FF, D2
-	LEA	loc_00017170, A2
+	LEA	bgMappingTable, A2
 loc_00000C04:
 	LSL.w	#2, D0
 	MOVEA.l	(A2,D0.w), A3
@@ -8566,7 +8566,7 @@ loc_00007E04:
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007E14:
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 loc_00007E1A:
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
@@ -8584,7 +8584,7 @@ loc_00007E3C:
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007E46:
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 loc_00007E4C:
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
@@ -8666,11 +8666,11 @@ loc_00007F5C:
 loc_00007F5E:
 	ORI	#$0700, SR
 	MOVE.w	#$C726, D5
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#$C1FC, vdpData1
 	MOVE.w	#$C1FE, vdpData1
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	#$C1FD, vdpData1
 	MOVE.w	#$C1FF, vdpData1
 	ANDI	#$F8FF, SR
@@ -8705,7 +8705,7 @@ loc_00007FEE:
 loc_00007FFA:
 	ori #$700, SR
 loc_00007FFE:
-	jsr loc_000157BA
+	jsr loadBGSetupVDP
 loc_00008004:
 	subi.w #$80, d5
 	move.w d6,(vdpData1)
@@ -8727,7 +8727,7 @@ loc_00008026:
 	move.w #1, d0
 	move.w #$8000, d6
 loc_0000803C:
-	jsr loc_000157BA
+	jsr loadBGSetupVDP
 	addi.w #$80, d5
 	move.w #4, d1
 loc_0000804A:
@@ -8939,11 +8939,11 @@ loc_00008342:
 	ADD.b	D1, D6
 loc_0000834A:
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADD.w	$12(A0), D5
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	SUB.w	$12(A0), D5
 	ADDQ.w	#2, D5
 	MOVE.w	D6, vdpData1
@@ -8976,12 +8976,12 @@ loc_000083BC:
 loc_000083CA:
 	move.b d0, d6
 	ori #$700, SR
-	jsr loc_000157BA
+	jsr loadBGSetupVDP
 	addi.w #$80, d5
 	move.b d0, d6
 	move.w d6, (vdpData1)
 	addq.b #1, d6
-	jsr loc_000157BA
+	jsr loadBGSetupVDP
 	subi.w #$7E, d5
 	move.w d6, (vdpData1)
 	andi #$F8FF, SR
@@ -12512,10 +12512,10 @@ loc_0000B7C6:
 	OR.b	D0, D2
 loc_0000B7E8:
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	D1, vdpData1
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	D2, vdpData1
 	ANDI	#$F8FF, SR
 	RTS
@@ -12812,11 +12812,11 @@ loc_0000BBB6:
 loc_0000BBC4:
 	ADD.b	D1, D0
 	LSL.b	#1, D0
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0100, D5
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	SUBI.w	#$00FE, D5
 	MOVE.w	D0, vdpData1
 	DBF	D3, loc_0000BBB6
@@ -12968,13 +12968,13 @@ loc_0000BDBA:
 	MOVEM.l	(A7)+, D1
 	MOVE.b	D0, D1
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0100, D5
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	MOVE.w	D1, vdpData1
 	ADDI.w	#$001F, D1
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	MOVE.w	D1, vdpData1
@@ -13144,7 +13144,7 @@ loc_0000C08C:
 	CLR.w	D2
 	MOVE.w	#$E400, D6
 loc_0000C09A:
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0100, D5
 	MOVE.w	D2, D3
 	MOVE.w	#$0033, D1
@@ -13159,7 +13159,7 @@ loc_0000C0BE:
 	ADDQ.w	#1, D3
 	MOVE.w	D6, vdpData1
 	DBF	D1, loc_0000C0B0
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0100, D5
 	MOVE.w	D2, D3
 	MOVE.w	#$0033, D1
@@ -13303,7 +13303,7 @@ loc_0000C302:
 	MOVE.w	#6, D4
 loc_0000C30E:
 	SWAP	D5
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	#9, D0
 loc_0000C31C:
@@ -13311,7 +13311,7 @@ loc_0000C31C:
 	DBF	D0, loc_0000C31C
 	ADDI.w	#$0100, D5
 	SWAP	D5
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	#9, D0
 loc_0000C33A:
@@ -13470,7 +13470,7 @@ loc_0000C60C:
 	DBF	D1, loc_0000C60C
 	DBF	D0, loc_0000C5F6
 	SWAP	D5
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$08C0, D5
 	SWAP	D5
 	LEA	$00FFC000, A4
@@ -13493,7 +13493,7 @@ loc_0000C652:
 	MOVE.w	#7, D0
 	MOVE.w	#$41F0, D1
 loc_0000C672:
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D2
 loc_0000C680:
@@ -13504,7 +13504,7 @@ loc_0000C680:
 	ANDI	#$F8FF, SR
 	RTS
 loc_0000C696:
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0017, D0
 	MOVE.w	#$2160, D1
@@ -13512,7 +13512,7 @@ loc_0000C6A8:
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	DBF	D0, loc_0000C6A8
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	#$0017, D0
 loc_0000C6BE:
 	MOVE.w	D1, vdpData1
@@ -14407,13 +14407,13 @@ loc_0000D306:
 	ORI	#$0700, SR
 	EORI.w	#$8000, D0
 	MOVE.w	$12(A0), D5
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADD.w	$28(A0), D5
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
 	MOVE.w	D0, vdpData1
@@ -16280,11 +16280,11 @@ loc_0000DF52:
 	MOVE.l	A1, $2E(A0)
 	MOVE.w	$2A(A0), D5
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	D0, $00C00000
 	ADDQ.b	#1, D0
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	MOVE.w	D0, $00C00000
 	ANDI	#$F8FF, SR
 	ADDQ.w	#2, $2A(A0)
@@ -16559,14 +16559,14 @@ loc_0000E26C:
 	ORI.w	#$8000, D0
 	ORI	#$0700, SR
 	
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	D0, vdpData1 ; Write top left of letter
 	ADDQ.w	#1, D0
 	MOVE.w	D0, vdpData1 ; Write top right of letter
 	ADDI.w	#$0080, D5
 	
 	
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADDI.w	#$001F, D0
 	MOVE.w	D0, vdpData1 ; Write bottom left of letter
 	ADDQ.w	#1, D0
@@ -19425,7 +19425,7 @@ loc_00011226:
 	move.w #5, d0
 	move.w #$2980, d5
 loc_0001124A:
-	jsr loc_000157BA
+	jsr loadBGSetupVDP
 	addi.w #$A80, d5
 	move.w #$3F, d1
 loc_00011258:
@@ -19599,7 +19599,7 @@ loc_0001442E:
 	dc.w	$0100
 loc_00014436:
 	MOVE.b	(A2), D2
-	BPL.w	loc_00015660
+	BPL.w	loadBGMappings
 	BRA.w	loc_00014440
 loc_00014440:
 	ANDI.w	#$007F, D2
@@ -19645,7 +19645,7 @@ loc_000144C0:
 	ADDA.w	D0, A4
 	MOVE.w	#2, D3
 	MOVE.w	#1, D4
-	BRA.w	loc_000156CA
+	BRA.w	loadBGWordIndexYLoop
 loc_000144E2:
 	dc.b	'BKBLBMBWBXBY' 
 	dc.w	$424F, $4250, $4251, $425B, $425C, $425D, $4252, $4253, $4254, $425E, $425F, $4260, $4A51, $4A50, $4A4F, $4A5D, $4A5C, $4A5B 
@@ -19664,7 +19664,7 @@ loc_00014530:
 	LEA	loc_00014570, A4
 	MOVE.w	#$000B, D3
 	MOVE.w	#1, D4
-	BSR.w	loc_000156CA
+	BSR.w	loadBGWordIndexYLoop
 	CLR.w	D5
 	MOVE.b	$1(A2), D5
 	NEG.b	D5
@@ -19674,7 +19674,7 @@ loc_00014530:
 	LEA	loc_00014588, A4
 	MOVE.w	#$000B, D3
 	MOVE.w	#1, D4
-	BRA.w	loc_000156CA
+	BRA.w	loadBGWordIndexYLoop
 loc_00014570:
 	dc.w	$C1E8, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1E9, $C1EA 
 loc_00014588:
@@ -19839,12 +19839,12 @@ loc_00014802:
 	BCS.w	loc_00014836
 	LEA	loc_0001485E, A4
 loc_00014836:
-	BRA.w	loc_000156AC
+	BRA.w	loadBGByteIndexYLoop
 loc_0001483A:
 	LEA	loc_0001486E, A4
 	LEA	loc_0001487E, A5
 	MOVE.w	#$8000, D6
-	BRA.w	loc_00015722
+	BRA.w	loadBGBytePal2
 loc_0001484E:
 	dc.b	$11, $12, $13, $14, $15, $16, $17, $18, $22, $23, $24, $25, $26, $27, $28, $29 
 loc_0001485E:
@@ -19859,11 +19859,11 @@ loc_00014882:
 	ADDI.w	#$0030, D5
 loc_00014890:
 	MOVE.b	(A1)+, D6
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	SUB.w	D1, D5
 	ADDQ.w	#2, D5
 	MOVE.w	D6, vdpData1
@@ -19878,9 +19878,9 @@ loc_000148B8:
 	CLR.w	D0
 	MOVE.b	$3(A2), D0
 	MULU.w	#$0050, D0
-	LEA	loc_0001A4BE, A4
+	LEA	bgmap_titleBG1, A4
 	ADDA.w	D0, A4
-	BRA.w	loc_000156CA
+	BRA.w	loadBGWordIndexYLoop
 loc_000148E2:
 	MOVE.w	#$C71E, D5
 	MOVE.w	#$8500, D6
@@ -19896,14 +19896,14 @@ loc_000148FA:
 	LEA	$00FF18A4, A3
 	MOVE.w	#3, D0
 loc_00014914:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.b	(A3)+, D6
 	ADDQ.b	#1, D6
 	LSL.b	#1, D6
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	SUB.w	D1, D5
 	MOVE.w	D6, vdpData1
 	ADDQ.w	#2, D5
@@ -19913,7 +19913,7 @@ loc_0001493C:
 	MOVE.w	#$0010, D3
 	MOVE.w	#9, D4
 	MOVE.w	#$C716, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$C4D8, vdpData1
 	MOVE.w	D3, D0
@@ -19925,7 +19925,7 @@ loc_0001495A:
 	MOVE.w	D4, D0
 	SUBQ.w	#1, D0
 loc_00014972:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	#$C4DB, vdpData1
 	MOVE.w	D3, D2
 	SUBQ.w	#1, D2
@@ -19935,7 +19935,7 @@ loc_00014982:
 	MOVE.w	#$C4DC, vdpData1
 	ADD.w	D1, D5
 	DBF	D0, loc_00014972
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	#$C4DD, vdpData1
 	MOVE.w	D3, D0
 	SUBQ.w	#1, D0
@@ -19953,7 +19953,7 @@ loc_000149C2:
 	MOVE.w	#$C70C, D5
 	MOVE.w	#6, D4
 loc_000149DA:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#7, D3
 loc_000149E6:
@@ -19969,10 +19969,10 @@ loc_000149F8:
 	MOVE.w	#$E100, D6
 	LEA	loc_00014A24, A4
 	TST.b	$1(A2)
-	BEQ.w	loc_000156AC
+	BEQ.w	loadBGByteIndexYLoop
 	MOVE.w	#$E900, D6
 	LEA	loc_00014A3A, A4
-	BRA.w	loc_000156AC
+	BRA.w	loadBGByteIndexYLoop
 loc_00014A24:
 	dc.b	$FC, $FC, $CA, $C8, $F1, $C0, $FC, $D5, $D6, $CD, $CE, $CF, $D0, $D1, $DF, $E5, $DD, $DE, $DF, $E0, $E1, $00 
 loc_00014A3A:
@@ -19983,7 +19983,7 @@ loc_00014A50:
 	SUBQ.w	#2, D4
 	ADDI.w	#$0082, D5
 	MOVE.w	#$83FB, D6
-	BRA.w	loc_0001568E
+	BRA.w	loadBGClearYLoop
 loc_00014A64:
 	BSR.w	loc_00014AF8
 	MOVEM.l	D5/D4/D3, -(A7)
@@ -20001,7 +20001,7 @@ loc_00014A7A:
 	SUBQ.w	#2, D3
 	SUBQ.w	#2, D4
 	ADDQ.w	#2, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	SUBQ.w	#2, D5
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
@@ -20009,7 +20009,7 @@ loc_00014A9E:
 	MOVE.w	#$83F8, vdpData1
 	DBF	D0, loc_00014A9E
 loc_00014AAA:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$83FA, vdpData1
 	MOVE.w	D3, D0
@@ -20019,7 +20019,7 @@ loc_00014ABA:
 	MOVE.w	#$83FC, vdpData1
 	DBF	D4, loc_00014AAA
 	ADDQ.w	#2, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	SUBQ.w	#2, D5
 	MOVE.w	D3, D0
 loc_00014ADC:
@@ -20029,7 +20029,7 @@ loc_00014ADC:
 loc_00014AEA:
 	BSR.w	loc_00014AF8
 	LEA	$00FFC000, A4
-	BRA.w	loc_000156CA
+	BRA.w	loadBGWordIndexYLoop
 loc_00014AF8:
 	CLR.w	D3
 	MOVE.b	$1(A2), D3
@@ -20054,7 +20054,7 @@ loc_00014B34:
 	MOVE.w	(A3), (A4)+
 	DBF	D0, loc_00014B34
 	MOVE.w	#$6580, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	LEA	$00FF0000, A4
 	MOVE.w	#$003F, D0
 loc_00014B4C:
@@ -20166,13 +20166,13 @@ loc_00014CA8:
 	dc.b	$FF
 loc_00014CAA:
 	MOVE.w	D1, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	#$83FE, vdpData1
 	MOVE.w	#$83FE, vdpData1
 loc_00014CC0:
 	MOVE.w	D1, D5
 	ADDI.w	#$0080, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	D0, D5
 	MOVE.w	D5, vdpData1
 	ADDQ.w	#2, D5
@@ -20180,7 +20180,7 @@ loc_00014CC0:
 loc_00014CDA:
 	MOVE.w	D1, D5
 	ADDI.w	#$0100, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	D0, D5
 	ADDQ.w	#1, D5
 	MOVE.w	D5, vdpData1
@@ -20206,7 +20206,7 @@ loc_00014CF8:
 	BEQ.w	loc_00014D3C
 	MOVE.w	#3, D2
 loc_00014D3C:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#5, D0
 loc_00014D46:
@@ -20273,14 +20273,14 @@ loc_00014E82:
 	LSL.w	#1, D2
 	MOVEA.l	$8(A3), A4
 	ADDA.w	D2, A4
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014EE2:
 	MOVE.w	D6, vdpData1
 	DBF	D0, loc_00014EE2
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$C4D8, vdpData1
 	MOVE.w	D3, D0
@@ -20293,7 +20293,7 @@ loc_00014EFE:
 	SUBQ.w	#1, D0
 	BMI.w	loc_00014F42
 loc_00014F1A:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	#$C4DB, vdpData1
 	MOVE.w	D3, D2
 	SUBQ.w	#1, D2
@@ -20304,7 +20304,7 @@ loc_00014F2A:
 	ADD.w	D1, D5
 	DBF	D0, loc_00014F1A
 loc_00014F42:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	#$C4DD, vdpData1
 	MOVE.w	D3, D0
 	SUBQ.w	#1, D0
@@ -20313,7 +20313,7 @@ loc_00014F52:
 	DBF	D0, loc_00014F52
 	MOVE.w	#$C4DF, vdpData1
 	ADD.w	D1, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014F70:
@@ -20328,14 +20328,14 @@ loc_00014F7C:
 	ADD.w	$0(A3), D5
 	MOVE.w	$6(A3), D6
 	MOVE.w	$2(A3), D3
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014F9C:
 	MOVE.w	D6, vdpData1
 	DBF	D0, loc_00014F9C
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014FAE:
@@ -20405,11 +20405,11 @@ loc_00015194:
 	CMPI.b	#$FF, D2
 	BEQ.w	loc_000151C2
 	BSR.w	loc_000151EC
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	D2, vdpData1
 	ADDQ.b	#1, D2
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	SUB.w	D1, D5
 	ADDQ.w	#2, D5
 	MOVE.w	D2, vdpData1
@@ -20461,7 +20461,7 @@ loc_00015228:
 loc_00015244:
 	LEA	$00FF18A0, A3
 	CLR.w	D3
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 loc_00015250:
 	BSR.w	loc_00015280
 	MOVE.w	D2, vdpData1
@@ -20470,7 +20470,7 @@ loc_00015250:
 	BCS.b	loc_00015250
 	CLR.w	D3
 	ADD.w	D1, D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 loc_0001526A:
 	BSR.w	loc_00015280
 	ADDQ.b	#1, D2
@@ -20559,12 +20559,12 @@ loc_00015372:
 	MOVE.w	#$000B, D3
 	MOVE.w	#1, D4
 	MOVE.w	$10(A3), D5
-	BSR.w	loc_0001568E
+	BSR.w	loadBGClearYLoop
 	MOVE.w	$6(A3), D6
 	MOVE.w	#$000B, D3
 	MOVE.w	#$0025, D4
 	MOVE.w	$E(A3), D5
-	BSR.w	loc_0001568E
+	BSR.w	loadBGClearYLoop
 	RTS
 loc_0001539C:
 	MOVE.w	$4(A3), D3
@@ -20585,8 +20585,8 @@ loc_0001539C:
 	RTS
 loc_000153D8:
 	CMPI.w	#$0040, $4(A3)
-	BCS.w	loc_000156AC
-	BRA.w	loc_000156CA
+	BCS.w	loadBGByteIndexYLoop
+	BRA.w	loadBGWordIndexYLoop
 loc_000153E6:
 	CLR.w	D2
 	MOVE.b	$00FF1882, D2
@@ -20653,7 +20653,7 @@ loc_000154D2:
 	MOVE.w	(A4)+, D4
 	MOVE.w	(A4)+, D5
 	MOVE.w	#$E400, D6
-	BSR.w	loc_000156AC
+	BSR.w	loadBGByteIndexYLoop
 	CMPI.b	#$0F, $00FF0113
 	BNE.w	loc_0001551E
 	CMPI.b	#$0E, $1(A2)
@@ -20676,7 +20676,7 @@ loc_00015520:
 	MOVE.w	(A4)+, D5
 	ADDI.w	#$0FEE, D5
 	MOVE.w	#$8000, D6
-	BRA.w	loc_000156AC
+	BRA.w	loadBGByteIndexYLoop
 loc_00015550:
 	CLR.w	D2
 	MOVE.b	$00FF0113, D2
@@ -20690,7 +20690,7 @@ loc_00015550:
 	MOVE.w	(A4)+, D4
 	MOVE.w	(A4)+, D5
 	MOVE.w	#$8100, D6
-	BRA.w	loc_000156AC
+	BRA.w	loadBGByteIndexYLoop
 loc_0001557C:
 	MOVE.w	#2, D0
 	MOVE.w	#$EA08, D5
@@ -20714,7 +20714,7 @@ loc_000155B8:
 	MOVE.w	#9, D3
 	MOVE.w	#6, D4
 loc_000155C0:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 loc_000155C8:
@@ -20729,7 +20729,7 @@ loc_000155DE:
 	MOVE.b	$1(A2), D3
 	SUBQ.w	#1, D3
 	MOVE.w	$2(A2), D5
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$8550, vdpData1
 	MOVE.w	D3, D0
@@ -20739,7 +20739,7 @@ loc_000155FA:
 	MOVE.w	#$8552, vdpData1
 	MOVE.w	#1, D4
 loc_00015612:
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$8553, vdpData1
 	MOVE.w	D3, D0
@@ -20748,7 +20748,7 @@ loc_00015622:
 	DBF	D0, loc_00015622
 	MOVE.w	#$8555, vdpData1
 	DBF	D4, loc_00015612
-	BSR.w	loc_000157BA
+	BSR.w	loadBGSetupVDP
 	ADD.w	D1, D5
 	MOVE.w	#$8556, vdpData1
 	MOVE.w	D3, D0
@@ -20757,7 +20757,8 @@ loc_0001564A:
 	DBF	D0, loc_0001564A
 	MOVE.w	#$8558, vdpData1
 	RTS
-loc_00015660:
+
+loadBGMappings:
 	MOVEA.l	(A2), A3
 	MOVE.w	(A3)+, D2
 	CLR.w	D3
@@ -20767,94 +20768,98 @@ loc_00015660:
 	MOVE.b	(A3)+, D4
 	SUBQ.b	#1, D4
 	MOVE.w	(A3)+, D5
-	MOVEA.l	loc_00015678(PC,D2.w), A4
+	MOVEA.l	loadBGFunctionList(PC,D2.w), A4
 	JMP	(A4)
-loc_00015678:
-	dc.l	loc_0001568C
-	dc.l	loc_000156A8
-	dc.l	loc_000156C8
-	dc.l	loc_000156E4 
-	dc.l	loc_0001571C 
-loc_0001568C:
+loadBGFunctionList:
+	dc.l	loadBGClear
+	dc.l	loadBGByteIndex
+	dc.l	loadBGWordIndex
+	dc.l	loadBGUnused 
+	dc.l	loadBGByteIndexPal 
+	
+loadBGClear:
 	MOVE.w	(A3)+, D6
-loc_0001568E:
-	BSR.w	loc_000157BA
+loadBGClearYLoop:
+	BSR.w	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	D3, D0
-loc_00015696:
+@xloop:
 	MOVE.w	D6, vdpData1
-	DBF	D0, loc_00015696
+	DBF	D0, @xloop
 	ADD.w	D1, D5
-	DBF	D4, loc_0001568E
+	DBF	D4, loadBGClearYLoop
 	RTS
-loc_000156A8:
+	
+loadBGByteIndex:
 	MOVEA.l	(A3)+, A4
 	MOVE.w	(A3)+, D6
-loc_000156AC:
-	BSR.w	loc_000157BA
+loadBGByteIndexYLoop:
+	BSR.w	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	D3, D0
-loc_000156B4:
+@xloop:
 	MOVE.b	(A4)+, D6
 	MOVE.w	D6, vdpData1
-	DBF	D0, loc_000156B4
+	DBF	D0, @xloop
 	ADD.w	D1, D5
-	DBF	D4, loc_000156AC
+	DBF	D4, loadBGByteIndexYLoop
 	RTS
-loc_000156C8:
+	
+loadBGWordIndex:
 	MOVEA.l	(A3)+, A4
-loc_000156CA:
-	BSR.w	loc_000157BA
+loadBGWordIndexYLoop:
+	BSR.w	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	D3, D0
-loc_000156D2:
+@xloop:
 	MOVE.w	(A4)+, vdpData1
-	DBF	D0, loc_000156D2
+	DBF	D0, @xloop
 	ADD.w	D1, D5
-	DBF	D4, loc_000156CA
+	DBF	D4, loadBGWordIndexYLoop
 	RTS
-loc_000156E4:
+	
+loadBGUnused:
 	MOVEA.l	(A3)+, A4
 	MOVEA.l	(A3)+, A5
 	MOVE.w	(A3)+, D6
 	MOVE.w	(A3)+, D2
-loc_000156EC:
-	BSR.w	loc_000157BA
+@yloop:
+	BSR.w	loadBGSetupVDP
 	CLR.w	D0
 	MOVE.w	D3, D0
-loc_000156F4:
-	BSR.w	loc_00015704
-	DBF	D0, loc_000156F4
+@xloop:
+	BSR.w	@writeByte
+	DBF	D0, @xloop
 	ADD.w	D1, D5
-	DBF	D4, loc_000156EC
+	DBF	D4, @yloop
 	RTS
-loc_00015704:
+@writeByte:
 	MOVE.b	(A4)+, D6
 	MOVE.b	(A5)+, D2
-	BEQ.w	loc_00015714
+	BEQ.w	@writeByteD6
 	MOVE.w	D2, vdpData1
 	RTS
-loc_00015714:
+@writeByteD6:
 	MOVE.w	D6, vdpData1
 	RTS
-loc_0001571C:
-; UNKNOWN USAGE
+	
+loadBGByteIndexPal:
 	movea.l (A3)+, A4
 	movea.l (A3)+, A5
 	move.w (A3)+, D6
-loc_00015722:
+loadBGBytePal2:
 	CLR.b	D2
-loc_00015724:
-	BSR.w	loc_000157BA
+@yloop:
+	BSR.w	loadBGSetupVDP
 	SWAP	D5
 	CLR.w	D0
 	MOVE.w	D3, D0
-loc_0001572E:
+@xloop:
 	ANDI.b	#3, D2
-	BNE.w	loc_0001573A
+	BNE.w	@skipload
 	MOVE.b	(A5)+, D7
 	ROR.w	#1, D7
-loc_0001573A:
+@skipload:
 	ROR.w	#2, D7
 	MOVE.w	D7, D5
 	ANDI.w	#$6000, D5
@@ -20862,11 +20867,12 @@ loc_0001573A:
 	MOVE.b	(A4)+, D5
 	MOVE.w	D5, vdpData1
 	ADDQ.b	#1, D2
-	DBF	D0, loc_0001572E
+	DBF	D0, @xloop
 	SWAP	D5
 	ADD.w	D1, D5
-	DBF	D4, loc_00015724
+	DBF	D4, @yloop
 	RTS
+
 loc_0001575C:
 	DIVU.w	#$2710, D2
 	LEA	$00FF18A8, A3
@@ -20902,7 +20908,7 @@ loc_000157A2:
 	BRA.b	loc_000157A2
 loc_000157B8:
 	RTS
-loc_000157BA:
+loadBGSetupVDP:
 	MOVE.w	D5, D7
 	ANDI.w	#$3FFF, D7
 	ORI.w	#$4000, D7
@@ -25008,1404 +25014,895 @@ loc_00017160:
     dc.b    $F2
     dc.b    $F3
 
-
-
-loc_00017170:
-	dc.l	loc_00017A98
-	dc.l	loc_00017C1C
-	dc.l	loc_00017D02
-	dc.l	loc_000177A2
-	dc.l	loc_0001786A
-	dc.l	loc_00017914
-	dc.l	loc_0001772C
-	dc.l	loc_00017704
-	dc.l	loc_00017676
-	dc.l	loc_0001761C
-	dc.l	loc_00017578
-	dc.l	loc_0001760A
-	dc.l	loc_00017238
-	dc.l	loc_0001727A
-	dc.l	loc_000172BC
-	dc.l	loc_000172FE
+bgMappingTable:
+	dc.l	bgdata_cutsceneGrass
+	dc.l	bgdata_cutsceneRuins
+	dc.l	bgdata_cutsceneHell
+	dc.l	bgdata_battleGrass
+	dc.l	bgdata_battle2P_2
+	dc.l	bgdata_battleRuins
+	dc.l	bgdata_gameOver
+	dc.l	bgdata_unk2
+	dc.l	bgdata_recordScreen
+	dc.l	bgdata_endingArle
+	dc.l	bgdata_endingScroll
+	dc.l	bgdata_endingNight
+	dc.l	bgdata_menu1PHighlight
+	dc.l	bgdata_menu2PHighlight
+	dc.l	bgdata_menuTokotonHighlight
+	dc.l	bgdata_menuOptionsHighlight
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
-	dc.l	loc_0001795E
-	dc.l	loc_00017828
+	dc.l	bgdata_battleTutorial
+	dc.l	bgdata_battle2P
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
-	dc.l	loc_0001771E
-	dc.l	loc_00017340
-	dc.l	loc_00017500
-	dc.l	loc_00017500
-	dc.l	loc_00017500
-	dc.l	loc_000174D6
+	dc.l	bgdata_unk3
+	dc.l	bgdata_mainMenu
+	dc.l	bgdata_title
+	dc.l	bgdata_title
+	dc.l	bgdata_title
+	dc.l	bgdata_segaLogo
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
 	dc.l	$00000000
-	dc.l	loc_0001746A
-	dc.l	loc_000174C8
-	dc.l	loc_00017A28
-	dc.l	loc_00017A32
-	dc.l	loc_00017A54
-	dc.l	loc_00017A76
-	dc.l	loc_00017C12
-	dc.l	loc_00017D02
+	dc.l	bgdata_demoScreen
+	dc.l	bgdata_unk1
+	dc.l	bgdata_cutsceneGrassTreesTop
+	dc.l	bgdata_cutsceneGrassNoClouds
+	dc.l	bgdata_cutsceneGrassClouds1
+	dc.l	bgdata_cutsceneGrassClouds2
+	dc.l	bgdata_cutsceneRuinsSky
+	dc.l	bgdata_cutsceneHell
 	
-loc_00017238:
+	
+bgdata_menu1PHighlight:
 	dc.w    $0004
-	dc.l    loc_0001724A
-	dc.l    loc_00017256
-	dc.l    loc_00017262
-	dc.l    loc_0001726E
+	dc.l    @menu1P
+	dc.l    @menu2P
+	dc.l    @menuTokoton
+	dc.l    @menuOptions
+@menu1P:
+	bgmac_ByteIndex bgmap_menu1PlayerHighlight, 16, 2, $CA18, $E3
+@menu2P:
+	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+@menuTokoton:
+	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+@menuOptions:
+	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
+	
 
-loc_0001724A:
-	dc.w	$0004
-	dc.l	$1002CA18
-	dc.l	loc_0001C844
-	dc.w	$E300
-loc_00017256:
+bgdata_menu2PHighlight:
 	dc.w    $0004
-	dc.l	$1002CD18
-	dc.l	loc_0001C8A4
-	dc.w	$E300
-loc_00017262:
+	dc.l    @menu1P
+	dc.l    @menu2P
+	dc.l    @menuTokoton
+	dc.l    @menuOptions
+@menu1P:
+	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+@menu2P:
+	bgmac_ByteIndex bgmap_menu2PlayerHighlight, 16, 2, $CD18, $E3
+@menuTokoton:
+	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+@menuOptions:
+	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
+	
+	
+bgdata_menuTokotonHighlight:
 	dc.w    $0004
-	dc.l	$1002D018
-	dc.l	loc_0001C8E4
-	dc.w	$E300
-loc_0001726E:
-	dc.w    $0004
-	dc.l	$1002D318
-	dc.l	loc_0001C924
-	dc.w	$E300
-	
-; Lookup End
-	
-; Lookup Begin
-loc_0001727A:
-	dc.w    $0004
-	dc.l    loc_0001728C
-	dc.l    loc_00017298
-	dc.l    loc_000172A4
-	dc.l    loc_000172B0
-
-loc_0001728C:
-	dc.b	$00, $04, $10, $02, $CA, $18 
-	dc.l	loc_0001C864
-	dc.b	$E3, $00
-loc_00017298:
-	dc.b    $00, $04, $10, $02, $CD, $18 
-	dc.l	loc_0001C884
-	dc.b	$E3, $00
-loc_000172A4:
-	dc.b    $00, $04, $10, $02, $D0, $18 
-	dc.l	loc_0001C8E4
-	dc.b	$E3, $00
-loc_000172B0:
-	dc.b    $00, $04, $10, $02, $D3, $18 
-	dc.l	loc_0001C924
-	dc.b	$E3, $00 
-	
-; Lookup End
-	
-	
-loc_000172BC:
-	dc.w    $0004
-	dc.l    loc_000172CE
-	dc.l    loc_000172DA
-	dc.l    loc_000172E6
-	dc.l    loc_000172F2
-	
-loc_000172CE:
-	dc.b	$00, $04, $10, $02, $CA, $18 
-	dc.l	loc_0001C864
-	dc.b	$E3, $00
-loc_000172DA:
-	dc.b    $00, $04, $10, $02, $CD, $18 
-	dc.l	loc_0001C8A4
-	dc.b	$E3, $00
-loc_000172E6:
-	dc.b    $00, $04, $10, $02, $D0, $18 
-	dc.l	loc_0001C8C4
-	dc.b	$E3, $00
-loc_000172F2:
-	dc.b    $00, $04, $10, $02, $D3, $18 
-	dc.l	loc_0001C924
-	dc.b	$E3, $00 
-	
-; Lookup End
+	dc.l    @menu1P
+	dc.l    @menu2P
+	dc.l    @menuTokoton
+	dc.l    @menuOptions
+@menu1P:
+	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+@menu2P:
+	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+@menuTokoton:
+	bgmac_ByteIndex bgmap_menuTokotonotonHighlight, 16, 2, $D018, $E3
+@menuOptions:
+	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
 
 
-loc_000172FE:
+bgdata_menuOptionsHighlight:
 	dc.w    $0004
-	dc.l    loc_00017310
-	dc.l    loc_0001731C
-	dc.l    loc_00017328
-	dc.l    loc_00017334
-	
-	
-loc_00017310:
-	dc.b	$00, $04, $10, $02, $CA, $18
-	dc.l	loc_0001C864
-	dc.b	$E3, $00
-loc_0001731C:
-	dc.b    $00, $04, $10, $02, $CD, $18
-	dc.l	loc_0001C8A4
-	dc.b	$E3, $00
-loc_00017328:
-	dc.b    $00, $04, $10, $02, $D0, $18
-	dc.l	loc_0001C8E4
-	dc.b	$E3, $00
-loc_00017334:
-	dc.b    $00, $04, $10, $02, $D3, $18
-	dc.l	loc_0001C904
-	dc.b	$E3, $00
+	dc.l    @menu1P
+	dc.l    @menu2P
+	dc.l    @menuTokoton
+	dc.l    @menuOptions
+@menu1P:
+	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+@menu2P:
+	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+@menuTokoton:
+	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+@menuOptions:
+	bgmac_ByteIndex bgmap_menuOptionsionsHighlight, 16, 2, $D318, $E3
 
 
 	
-loc_00017340:
+bgdata_mainMenu:
 	dc.w    $0013
-	dc.l    loc_0001738E
-	dc.l    loc_00017396
-	dc.l    loc_000173A2
-	dc.l    loc_000173AE
-	dc.l    loc_000173B6
-	dc.l    loc_000173C2
-	dc.l    loc_000173CE
-	dc.l    loc_000173DA
-	dc.l    loc_000173E6
-	dc.l    loc_000173F2
-	dc.l    loc_000173FE
-	dc.l    loc_0001740A
-	dc.l    loc_00017416
-	dc.l    loc_00017422
-	dc.l    loc_0001742E
-	dc.l    loc_0001743A
-	dc.l    loc_00017446
-	dc.l    loc_00017452
-	dc.l    loc_0001745E
+	dc.l    @clear1
+	dc.l    @treesTopLeft
+	dc.l    @treesTopRight
+	dc.l    @clear2
+	dc.l    @cloud1
+	dc.l    @cloud2
+	dc.l    @cloud3
+	dc.l    @cloud4
+	dc.l    @cloud5
+	dc.l    @cloud6
+	dc.l    @cloud7
+	dc.l    @cloud8
+	dc.l    @cloud9
+	dc.l    @cloud10
+	dc.l    @cloud11
+	dc.l    @cloud12
+	dc.l    @menu
+	dc.l    @diffLeft
+	dc.l    @diffRight
 
-loc_0001738E: ; 2
-	dc.b	$00, $00, $50, $1C, $C0, $00, $80, $00
-loc_00017396: ; 3
-	dc.w    $0004 
-	dc.l	$200EEE00
-	dc.l	loc_0001862C
-	dc.w	$0100
-loc_000173A2: ; 3
-	dc.w    $0004
-	dc.l	$080EEE40
-	dc.l	loc_0001882C
-	dc.w	$0100
-loc_000173AE: ; 2
-	dc.w    $0000
-	dc.l	$800EE000
-	dc.w	$0295
-loc_000173B6: ; 3
-	dc.w    $0004
-	dc.l	$0B05E004
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_000173C2: ; 3
-	dc.w    $0004
-	dc.l	$0C04E438
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_000173CE:
-	dc.w    $0004
-	dc.l	$0B05E934
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_000173DA:
-	dc.w    $0004
-	dc.l	$0C04E904
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_000173E6:
-	dc.w    $0004
-	dc.l	$0B05E352
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_000173F2:
-	dc.w    $0004
-	dc.l	$0C04E988
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_000173FE:
-	dc.w    $0004
-	dc.l	$0B05E970
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_0001740A:
-	dc.w    $0004
-	dc.l	$0C04E568
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_00017416:
-	dc.w    $0004
-	dc.l	$0B05E2A4
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_00017422:
-	dc.w    $0004
-	dc.l	$0C04EAC8
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_0001742E:
-	dc.w    $0004
-	dc.l	$0B05E8AC
-	dc.l	loc_00018AA8
-	dc.w	$0200
-loc_0001743A:
-	dc.w    $0004
-	dc.l	$0C04E4BC
-	dc.l	loc_00018AE0
-	dc.w	$0200
-loc_00017446:
-	dc.w    $0004
-	dc.l	$1E16C30A
-	dc.l	loc_0001C5B0
-	dc.w	$E000
-loc_00017452:
-	dc.w    $0004
-	dc.l	$2017C250
-	dc.l	loc_0001C944
-	dc.w	$E000
-loc_0001745E:
-	dc.w    $0004
-	dc.l	$0817C290
-	dc.l	loc_0001CC24
-	dc.w	$E000
-	
-; Lookup End	
+@clear1:
+	bgmac_Clear $50, $1C, $C000, $8000
+@treesTopLeft:
+	bgmac_ByteIndex bgmap_cutGrassTreesTopLeft, 32, 14, $EE00, $01
+@treesTopRight:
+	bgmac_ByteIndex bgmap_cutGrassTreesTopRight, 8, 14, $EE40, $01
+@clear2:
+	bgmac_Clear $80, $0E, $E000, $0295
+@cloud1:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E004, $02
+@cloud2:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E438, $02
+@cloud3:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E934, $02
+@cloud4:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E904, $02
+@cloud5:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E352, $02
+@cloud6:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E988, $02
+@cloud7:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E970, $02
+@cloud8:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E568, $02
+@cloud9:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E2A4, $02
+@cloud10:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $EAC8, $02
+@cloud11:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, 11, 5, $E8AC, $02
+@cloud12:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E4BC, $02
+@menu:
+	bgmac_ByteIndex bgmap_menuMain, 30, 22, $C30A, $E0
+@diffLeft:
+	bgmac_ByteIndex bgmap_menuDifficultyLeft, 32, 23, $C250, $E0
+@diffRight:
+	bgmac_ByteIndex bgmap_menuDifficultyRight, 8, 23, $C290, $E0	
 
 
-loc_0001746A:
+bgdata_demoScreen:
 	dc.w    $0007
-	dc.l    loc_00017488
-	dc.l    loc_00017490
-	dc.l    loc_00017498
-	dc.l    loc_000174A0
-	dc.l    loc_000174AC
-	dc.l    loc_000174B8
-	dc.l    loc_000174C0
+	dc.l    @clear1
+	dc.l    @clear2
+	dc.l    @clear3
+	dc.l    @patch1
+	dc.l    @patch2
+	dc.l    @clear4
+	dc.l    @clear5
+@clear1:
+	bgmac_Clear $17, $19, $C11E, $8000
+@clear2:
+	bgmac_Clear $16, $11, $E120, $63FD
+@clear3:
+	bgmac_Clear $15, $10, $E1A2, $63FC
+@patch1:
+	bgmac_ByteIndex bgmap_demoPatch1, 1, 17, $E11E, $40	
+@patch2:
+	bgmac_ByteIndex bgmap_demoPatch2, $17, 8, $E99E, $40	
+@clear4:
+	bgmac_Clear $E, $6, $EA20, $63FD
+@clear5:
+	bgmac_Clear $D, $5, $EAA2, $63FC
 
-loc_00017488:
-	dc.b	$00, $00, $17, $19, $C1, $1E, $80, $00
-loc_00017490:
-	dc.b    $00, $00, $16, $11, $E1, $20, $63, $FD
-loc_00017498:
-	dc.b    $00, $00, $15, $10, $E1, $A2, $63, $FC
-loc_000174A0:
-	dc.w    $0004 ;0x20
-	dc.l	$0111E11E
-	dc.l	loc_0001C4E6
-	dc.w	$4000
-loc_000174AC:
-	dc.w    $0004
-	dc.l	$1708E99E
-	dc.l	loc_0001C4F8
-	dc.w	$4000
-loc_000174B8:
-	dc.w    $0000
-	dc.l	$0E06EA20
-	dc.w	$63FD
-loc_000174C0:
-	dc.w    $0000
-	dc.l	$0D05EAA2
-	dc.w	$63FC
-	
-; Lookup End
-	
-	
-loc_000174C8:
+
+bgdata_unk1:
 	dc.w    $0001
+	dc.l	@clear1
+@clear1:
+	bgmac_Clear $16, $11, $C120, $8000
 
-	dc.l	loc_000174CE
-loc_000174CE:
-	dc.l	$00001611
-	dc.l	$C1208000
-	
-; Lookup End
 
-loc_000174D6:
+bgdata_segaLogo:
 	dc.w	$0003
-	dc.l	loc_000174E4
-	dc.l	loc_000174EC
-	dc.l	loc_000174F4
-loc_000174E4:
-	dc.w    $0000
-	dc.l	$401CC000
-	dc.w	$8000
-loc_000174EC:
-	dc.w    $0000
-	dc.l	$401CE000
-	dc.w	$0000
-loc_000174F4
-	dc.w    $0004
-	dc.l	$0C04C61C
-	dc.l	loc_0001C4B6
-	dc.b	$80, $00 
+	dc.l	@clear1
+	dc.l	@clear2
+	dc.l	@logo
+@clear1:
+	bgmac_Clear $40, $1C, $C000, $8000
+@clear2:
+	bgmac_Clear $40, $1C, $E000, $0000
+@logo
+	bgmac_ByteIndex bgmap_segaLogo, $C, 4, $C61C, $80
+
 	
-; Lookup End
+bgdata_title:
+	dc.w	$0008
+	dc.l    @clear1
+	dc.l    @bgPart1
+	dc.l    @bgPart2
+	dc.l    @bgPart3
+	dc.l    @Pu1
+	dc.l    @Yo1
+	dc.l    @Pu2
+	dc.l    @Yo2
+@clear1:
+	bgmac_Clear $80, $20, $C000, $0500
+@bgPart1:
+	bgmac_WordIndex bgmap_titleBG2, $28, $4, $E000
+@bgPart2:
+	bgmac_WordIndex bgmap_titleBG1, $28, $C, $E400
+@bgPart3:
+	bgmac_WordIndex bgmap_titleBG1, $28, $C, $F000
+@Pu1:
+	bgmac_ByteIndex bgmap_titlePu1, $8, $7, $C608, $E3
+@Yo1:
+	bgmac_ByteIndex bgmap_titleYo1, $8, $7, $C618, $E3
+@Pu2:
+	bgmac_ByteIndex bgmap_titlePu2, $8, $7, $C628, $E3
+@Yo2:
+	bgmac_ByteIndex bgmap_titleYo2, $8, $7, $C638, $E3
 	
-loc_00017500:
-	dc.w	$0008 ; Lookup Table Size
-	dc.l    loc_00017522
-	dc.l    loc_0001752A
-	dc.l    loc_00017534
-	dc.l    loc_0001753E
-	dc.l    loc_00017548
-	dc.l    loc_00017554
-	dc.l    loc_00017560
-	dc.l    loc_0001756C
-loc_00017522:
-	dc.b	$00, $00, $80, $20, $C0, $00, $05, $00
-loc_0001752A:
-	dc.b    $00, $08, $28, $04, $E0, $00 ;0x20
-	dc.l	loc_0001A73E
-loc_00017534:
-	dc.b	$00, $08, $28, $0C, $E4, $00 
-	dc.l	loc_0001A4BE
-loc_0001753E:
-	dc.b	$00, $08, $28, $0C, $F0, $00 
-	dc.l	loc_0001A4BE
-loc_00017548:
-	dc.b	$00, $04, $08, $07, $C6, $08 
-	dc.l	loc_0001A87E
-	dc.b    $E3, $00
-loc_00017554:
-	dc.b	$00, $04, $08, $07, $C6, $18 
-	dc.l	loc_0001A8B6
-	dc.b    $E3, $00
-loc_00017560:
-	dc.b	$00, $04, $08, $07, $C6, $28 
-	dc.l	loc_0001A8EE
-	dc.b	$E3, $00 
-loc_0001756C:
-	dc.b	$00, $04, $08, $07, $C6, $38 
-	dc.l	loc_0001A926
-	dc.b	$E3, $00 
-	
-; Lookup Start
-loc_00017578:
+
+bgdata_endingScroll:
 	dc.w    $000A
-	dc.l    loc_000175A2
-	dc.l    loc_000175AA
-	dc.l    loc_000175B2
-	dc.l    loc_000175BA
-	dc.l    loc_000175C6
-	dc.l    loc_000175D2
-	dc.l    loc_000175DE
-	dc.l    loc_000175E6
-	dc.l    loc_000175F2
-	dc.l    loc_000175FE
-loc_000175A2:
-	dc.b	$00, $00, $40, $1C, $C0, $00, $80, $FF
-loc_000175AA:
-	dc.b	$00, $00, $20, $03, $C7, $08, $80, $00
-loc_000175B2:
-	dc.b    $00, $00, $40, $1C, $E0, $00, $00, $00
-loc_000175BA:
-	dc.b	$00, $04, $20, $07, $C8, $88
-	dc.l    loc_0001A15E
-	dc.b    $81, $00
-loc_000175C6:
-	dc.b    $00, $04, $20, $09, $C2, $08
-	dc.l    loc_00019FBE
-	dc.b    $80, $00
-loc_000175D2:
-	dc.b 	$00, $04, $20, $01, $C6, $88
-	dc.l    loc_00019F9E
-	dc.b    $80, $00
-loc_000175DE:
-	dc.b 	$00, $00, $40, $09, $E2, $00, $00, $0F
-loc_000175E6:
-	dc.b 	$00, $04, $20, $04, $E6, $80
-	dc.l    loc_00019F1E
-	dc.b    $00, $00
-loc_000175F2:
-	dc.b 	$00, $04, $20, $04, $E6, $C0
-	dc.l    loc_00019F1E
-	dc.b    $00, $00
-loc_000175FE:
-	dc.b    $00, $04, $20, $04, $E6, $88
-	dc.l    loc_00019F1E
-	dc.b    $00, $00
-; Lookup End
+	dc.l    @clear1
+	dc.l    @clear2
+	dc.l    @clear3
+	dc.l    @ground
+	dc.l    @sunset
+	dc.l    @clouds
+	dc.l    @clear4
+	dc.l    @sunsetScroll1
+	dc.l    @sunsetScroll2
+	dc.l    @sunsetScroll3
+@clear1:
+	bgmac_Clear $40, $1C, $C000, $80FF
+@clear2:
+	bgmac_Clear $20, $3, $C708, $8000
+@clear3:
+	bgmac_Clear $40, $1C, $E000, $0000
+@ground:
+	bgmac_ByteIndex bgmap_endingGround, $20, $07, $C888, $81
+@sunset:
+	bgmac_ByteIndex bgmap_endingSunset, $20, $9, $C208, $80
+@clouds:
+	bgmac_ByteIndex bgmap_endingCloudScroll, $20, $1, $C688, $80
+@clear4:
+	bgmac_Clear $40, $09, $E200, $000F
+@sunsetScroll1:
+	bgmac_ByteIndex bgmap_endingSunsetScroll, $20, $4, $E680, $00
+@sunsetScroll2:
+	bgmac_ByteIndex bgmap_endingSunsetScroll, $20, $4, $E6C0, $00
+@sunsetScroll3:
+	bgmac_ByteIndex bgmap_endingSunsetScroll, $20, $4, $E688, $00
+
 	
-; Lookup Start
-	
-loc_0001760A:
+bgdata_endingNight:
 	dc.w	$0001
-	dc.l    loc_00017610
-loc_00017610:
-	dc.b	$00, $04, $20, $14, $C2, $08
-	dc.l    loc_0001A23E
-	dc.b    $81, $00
+	dc.l    @sunset
+@sunset:
+	bgmac_ByteIndex bgmap_endingSunsetNight, $20, $14, $C208, $81
+
 	
-; Lookup End
-	
-loc_0001761C:
+bgdata_endingArle:
 	dc.w	$0006
-	dc.l	loc_00017636
-	dc.l	loc_0001763E
-	dc.l	loc_00017646
-	dc.l	loc_00017652
-	dc.l	loc_0001765E
-	dc.l	loc_0001766A
+	dc.l	@clear1
+	dc.l	@clear2
+	dc.l	@arleTop
+	dc.l	@arleBottom
+	dc.l	@sunset
+	dc.l	@ground
+@clear1:
+	bgmac_Clear $80, $1C, $C000, $0000
+@clear2:
+	bgmac_Clear $80, $1C, $E000, $0000
+@arleTop:
+	bgmac_ByteIndex bgmap_endingArleTop, $18, $10, $C820, $22
+@arleBottom:
+	bgmac_ByteIndex bgmap_endingArleBottom, $18, $04, $D820, $23
+@sunset:
+	bgmac_ByteIndex bgmap_endingSunset, $20, $D, $E408, $00
+@ground:
+	bgmac_ByteIndex bgmap_endingGround, $20, $7, $F108, $01
+
 	
-loc_00017636:
-	dc.b    $00, $00, $80, $1C, $C0, $00, $00, $00
-loc_0001763E:
-	dc.b	$00, $00, $80, $1C, $E0, $00, $00, $00
-loc_00017646:
-	dc.b    $00, $04, $18, $10, $C8, $20
-	dc.l    loc_00019D3E
-	dc.b    $22, $00
-loc_00017652:
-	dc.b    $00, $04, $18, $04, $D8, $20
-	dc.l    loc_00019EBE
-	dc.b    $23, $00
-loc_0001765E:
-	dc.b 	$00, $04, $20, $0D, $E4, $08
-	dc.l    loc_00019FBE
-	dc.b    $00, $00
-loc_0001766A:
-	dc.b    $00, $04, $20, $07, $F1, $08
-	dc.l    loc_0001A15E
-	dc.b    $01, $00
-	
-; Lookup End
-	
-loc_00017676:
+bgdata_recordScreen:
 	dc.w    $0009
-	dc.l	loc_0001769C
-	dc.l	loc_000176A4
-	dc.l	loc_000176B0
-	dc.l	loc_000176BC
-	dc.l	loc_000176C8
-	dc.l	loc_000176D4
-	dc.l	loc_000176E0
-	dc.l	loc_000176EC
-	dc.l	loc_000176F8
+	dc.l	@clear1
+	dc.l	@recordLeft1
+	dc.l	@recordRight1
+	dc.l	@recordLeft2
+	dc.l	@recordRight2
+	dc.l	@recordUnk1
+	dc.l	@recordLeft3
+	dc.l	@recordRight3
+	dc.l	@recordUnk2
+@clear1:
+	bgmac_Clear $80, $1C, $C000, $8500
+@recordLeft1:
+	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E000, $03
+@recordRight1:
+	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E040, $03
+@recordLeft2:
+	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E050, $03
+@recordRight2:
+	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E090, $03
+@recordUnk1:
+	bgmac_ByteIndex bgmap_recordUnk1, $2, $E, $EA58, $03
+@recordLeft3:
+	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E0B0, $03
+@recordRight3:
+	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E0F0, $03
+@recordUnk2:
+	bgmac_ByteIndex bgmap_recordUnk1, $2, $E, $EAB8, $03
 
-loc_0001769C:
-	dc.b	$00, $00, $80, $1C, $C0, $00, $85, $00
-loc_000176A4:
-	dc.b    $00, $04, $20, $1C, $E0, $00 ;0x20
-	dc.l	loc_000198C2
-	dc.b	$03, $00
-loc_000176B0:
-	dc.b	$00, $04, $08, $1C, $E0, $40 
-	dc.l	loc_00019C42
-	dc.b	$03, $00
-loc_000176BC:
-	dc.b    $00, $04, $20, $1C, $E0, $50 
-	dc.l	loc_000198C2
-	dc.b	$03, $00
-loc_000176C8:
-	dc.b    $00, $04, $08, $1C, $E0, $90 
-	dc.l	loc_00019C42
-	dc.b	$03, $00
-loc_000176D4:
-	dc.b    $00, $04, $02, $0E, $EA, $58 
-	dc.l	loc_00019D22
-	dc.b	$03, $00
-loc_000176E0:
-	dc.b    $00, $04, $20, $1C, $E0, $B0 
-	dc.l	loc_000198C2
-	dc.b	$03, $00
-loc_000176EC:
-	dc.b    $00, $04, $08, $1C, $E0, $F0 
-	dc.l	loc_00019C42
-	dc.b	$03, $00
-loc_000176F8:
-	dc.b    $00, $04, $02, $0E, $EA, $B8 
-	dc.l	loc_00019D22
-	dc.b	$03, $00 
 	
-; Lookup End
-	
-loc_00017704:
+bgdata_unk2:
 	dc.w    $0002
-	dc.l	loc_0001770E
-	dc.l	loc_00017716
-	
-loc_0001770E:
-	dc.b	$00, $00, $80, $1C, $C0, $00, $85, $00
-loc_00017716:
-	dc.b    $00, $00, $80, $1C, $E0, $00, $05, $00
-	
-; Lookup End
+	dc.l	@clear1
+	dc.l	@clear2
+@clear1:
+	bgmac_Clear $80, $1C, $C000, $8500
+@clear2:
+	bgmac_Clear $80, $1C, $E000, $0500
 
 
-loc_0001771E:
+bgdata_unk3:
 	dc.w    $0001
 	dc.l    loc_00017724
-	
 loc_00017724:
-	dc.b    $00, $00, $33, $1C, $C0, $0E, $85, $00 
+	bgmac_Clear $33, $1C, $C00E, $8500
+
 	
-; Lookup End
-	
-loc_0001772C:
+bgdata_gameOver:
 	dc.w    $0007
-	dc.l    loc_00017752
-	dc.l    loc_00017762
-	dc.l    loc_0001776E
-	dc.l    loc_0001777A
-	dc.l    loc_00017786
-	dc.l    loc_0001775A
-	dc.l    loc_0001774A
+	dc.l    @clear2
+	dc.l    @topLeft
+	dc.l    @topRight
+	dc.l    @bottomLeft
+	dc.l    @bottomRight
+	dc.l    @clear3
+	dc.l    @clear1
+@clear1:
+	bgmac_Clear $40, $1C, $C000, $01F8
+@clear2:
+	bgmac_Clear $28, $04, $E400, $0001
+@clear3:
+	bgmac_Clear $28, $02, $ED00, $0101
+@topLeft:
+	bgmac_ByteIndex bgmap_gameoverTopLeft, $20, $C, $E400, $00
+@topRight:
+	bgmac_ByteIndex bgmap_gameoverTopRight, $8, $8, $E640, $00
+@bottomLeft:
+	bgmac_ByteIndex bgmap_gameoverBottomLeft, $20, $6, $EA00, $01
+@bottomRight:
+	bgmac_ByteIndex bgmap_gameoverBottomRight, $8, $6, $EA40, $01
 	
-loc_0001774A:
-	dc.b	$00, $00, $40, $1C, $C0, $00, $01, $F8
-loc_00017752:
-	dc.b    $00, $00, $28, $04, $E4, $00, $00, $01
-loc_0001775A:
-	dc.b    $00, $00, $28, $02, $ED, $00, $01, $01
-loc_00017762:
-	dc.b    $00, $04, $20, $0C, $E4, $00
-	dc.l	loc_00019612
-	dc.b	$00, $00
-loc_0001776E:
-	dc.b    $00, $04, $08, $08, $E6, $40
-	dc.l	loc_00019792
-	dc.b	$00, $00
-loc_0001777A:
-	dc.b    $00, $04, $20, $06, $EA, $00
-	dc.l	loc_000197D2
-	dc.b	$01, $00
-loc_00017786:
-    dc.b    $00, $04, $08, $06, $EA, $40
-	dc.l	loc_00019892
-	dc.b	$01, $00 
-	
-; Lookup End
 
-loc_00017792:
-	dc.b    $00, $00, $28, $04, $CE, $00, $80, $00
-loc_0001779A:
-	dc.b    $00, $00, $28, $04, $EE, $00, $80, $00
-	
-loc_000177A2:
+bgdata_unkClear1:
+	bgmac_Clear $28, $04, $CE00, $8000
+bgdata_unkClear2:
+	bgmac_Clear $28, $04, $EE00, $8000
+
+
+bgdata_battleGrass:
 	dc.w    $0009
-	dc.l    loc_000177C8
-	dc.l    loc_000177D4
-	dc.l    loc_000177E0
-	dc.l    loc_000177EC
-	dc.l    loc_000177F8
-	dc.l    loc_00017804
-	dc.l    loc_00017810
-	dc.l    loc_0001781C
-	dc.l    loc_00017792
+	dc.l    @topLeft
+	dc.l    @topRight
+	dc.l    @bottomLeft
+	dc.l    @bottomRight
+	dc.l    @bakTopLeft
+	dc.l    @bakTopRight
+	dc.l    @bakBottomLeft
+	dc.l    @bakBottomRight
+	dc.l    bgdata_unkClear1
+@topLeft:
+	bgmac_ByteIndex bgmap_batGrassTopLeft, $20, $E, $C000, $C0
+@topRight:
+	bgmac_ByteIndex bgmap_batGrassTopRight, $8, $E, $C040, $C0
+@bottomLeft:
+	bgmac_ByteIndex bgmap_batGrassBottomLeft, $20, $E, $C700, $C0
+@bottomRight:
+	bgmac_ByteIndex bgmap_batGrassBottomRight, $8, $E, $C740, $C0
+@bakTopLeft:
+	bgmac_ByteIndex bgmap_batBakGrassTopLeft, $20, $E, $E000, $40
+@bakTopRight:
+	bgmac_ByteIndex bgmap_batBakGrassTopRight, $8, $E, $E040, $40
+@bakBottomLeft:
+	bgmac_ByteIndex bgmap_batBakGrassBottomLeft, $20, $E, $E700, $40
+@bakBottomRight:
+	bgmac_ByteIndex bgmap_batBakGrassBottomRight, $8, $E, $E740, $40
 
-loc_000177C8:
-	dc.b    $00, $04, $20, $0E, $C0, $00
-	dc.l	loc_00017D6C
-	dc.b	$C0, $00
-loc_000177D4:
-	dc.b    $00, $04, $08, $0E, $C0, $40
-	dc.l	loc_00017F2C
-	dc.b	$C0, $00
-loc_000177E0:
-	dc.b    $00, $04, $20, $0E, $C7, $00
-	dc.l	loc_00017F9C
-	dc.b	$C0, $00
-loc_000177EC:
-	dc.b    $00, $04, $08, $0E, $C7, $40
-	dc.l	loc_0001815C
-	dc.b	$C0, $00
-loc_000177F8:
-	dc.b    $00, $04, $20, $0E, $E0, $00
-	dc.l	loc_000181CC
-	dc.b	$40, $00
-loc_00017804:
-	dc.b    $00, $04, $08, $0E, $E0, $40
-	dc.l	loc_0001838C
-	dc.b	$40, $00
-loc_00017810:
-	dc.b    $00, $04, $20, $0E, $E7, $00
-	dc.l	loc_000183FC
-	dc.b	$40, $00
-loc_0001781C:
-	dc.b    $00, $04, $08, $0E, $E7, $40
-	dc.l	loc_000185BC
-	dc.b	$40, $00
-	
-; Lookup End
 
-; This lookup contains data for two player bg mappings
-loc_00017828:
+bgdata_battle2P:
 	dc.w    $0004
-	dc.l    loc_0001783A
-	dc.l    loc_00017846
-	dc.l    loc_00017852
-	dc.l    loc_0001785E
-
-
-loc_0001783A:
-	dc.b	$00, $04, $20, $0E, $C0, $00
-	dc.l    loc_0001A95E
-	dc.b    $E0, $00
-loc_00017846:
-	dc.b    $00, $04 
-	dc.b	$08, $0E, $C0, $40
-	dc.l    loc_0001AB1E
-	dc.b    $E0, $00
-loc_00017852:
-	dc.b    $00, $04, $20, $0C, $C7, $00
-	dc.l    loc_0001AB8E
-	dc.b    $E0, $00
-loc_0001785E:
-	dc.b    $00, $04, $08, $0C, $C7, $40
-	dc.l    loc_0001AD4E
-	dc.b    $E0, $00 ;0x40
+	dc.l    @topLeft
+	dc.l    @topRight
+	dc.l    @bottomLeft
+	dc.l    @bottomRight
+@topLeft:
+	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $E, $C000, $E0
+@topRight:
+	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $E, $C040, $E0
+@bottomLeft:
+	bgmac_ByteIndex bgmap_twoPlayerBottomLeft, $20, $C, $C700, $E0
+@bottomRight:
+	bgmac_ByteIndex bgmap_twoPlayerBottomRight, $8, $C, $C740, $E0
 	
-; Lookup End	
 
-loc_0001786A:
+bgdata_battle2P_2:
 	dc.w   $000C
-	dc.l   loc_0001789C
-	dc.l   loc_000178A8
-	dc.l   loc_000178B4
-	dc.l   loc_000178C0
-	dc.l   loc_000178CC
-	dc.l   loc_000178D8
-	dc.l   loc_000178E4
-	dc.l   loc_000178F0
-	dc.l   loc_000178FC
-	dc.l   loc_00017908
-	dc.l   loc_00017792 ; ???
-	dc.l   loc_0001779A ; ???
-	
-loc_0001789C:
-	dc.b    $00, $04, $20, $0E, $C0, $00
-	dc.l    loc_0001A95E
-	dc.b    $E0, $00
-loc_000178A8:
-	dc.b    $00, $04, $08, $0E, $C0, $40
-	dc.l    loc_0001AB1E
-	dc.b    $E0, $00
-loc_000178B4:
-	dc.b    $00, $04, $20, $0E, $C7, $00
-	dc.l    loc_0001AB8E
-	dc.b    $E0, $00
-loc_000178C0:
-	dc.b    $00, $04, $08, $0E, $C7, $40
-	dc.l    loc_0001AD4E
-	dc.b	$E0, $00
-loc_000178CC:
-	dc.b    $00, $04, $20, $0E, $E0, $00
-	dc.l    loc_0001ADBE
-	dc.b    $60, $00
-loc_000178D8:
-	dc.b    $00, $04, $08, $0E, $E0, $40
-	dc.l    loc_0001AF7E
-	dc.b    $60, $00
-loc_000178E4:
-	dc.b    $00, $04, $20, $0E, $E7, $00 ;0x60
-	dc.l	loc_0001AFEE
-	dc.b    $60, $00
-loc_000178F0:
-	dc.b    $00, $04, $08, $0E, $E7, $40
-	dc.l    loc_0001B1AE
-	dc.b    $60, $00
-loc_000178FC:
-	dc.b    $00, $04, $20, $02, $E0, $00
-	dc.l    loc_0001A95E
-	dc.b    $60, $00
-loc_00017908:
-	dc.b    $00, $04, $08, $02, $E0, $40
-	dc.l    loc_0001AB1E
-	dc.b    $60, $00 ;0xA0
-	
-; Lookup End
+	dc.l   @topLeft
+	dc.l   @topRight
+	dc.l   @bottomLeft
+	dc.l   @bottomRight
+	dc.l   @bakTopLeft
+	dc.l   @bakTopRight
+	dc.l   @bakBottomLeft
+	dc.l   @bakBottomRight
+	dc.l   @topLeftUnk
+	dc.l   @topRightUnk
+	dc.l   bgdata_unkClear1
+	dc.l   bgdata_unkClear2
+@topLeft:
+	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $E, $C000, $E0
+@topRight:
+	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $E, $C040, $E0
+@bottomLeft:
+	bgmac_ByteIndex bgmap_twoPlayerBottomLeft, $20, $E, $C700, $E0
+@bottomRight:
+	bgmac_ByteIndex bgmap_twoPlayerBottomRight, $8, $E, $C740, $E0
+@bakTopLeft:
+	bgmac_ByteIndex bgmap_twoPlayerBakTopLeft, $20, $E, $E000, $60
+@bakTopRight:
+	bgmac_ByteIndex bgmap_twoPlayerBakTopRight, $8, $E, $E040, $60
+@bakBottomLeft:
+	bgmac_ByteIndex bgmap_twoPlayerBakBottomLeft, $20, $E, $E700, $60
+@bakBottomRight:
+	bgmac_ByteIndex bgmap_twoPlayerBakBottomRight, $8, $E, $E740, $60
+@topLeftUnk:
+	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $2, $E000, $60
+@topRightUnk:
+	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $2, $E040, $60
 	
 	
-	
-	
-loc_00017914:
+bgdata_battleRuins:
 	dc.w    $0006
-	dc.l    loc_0001792E
-	dc.l    loc_0001793A
-	dc.l    loc_00017946
-	dc.l    loc_00017952
-	dc.l    loc_00017792 ; ???
-	dc.l    loc_0001779A ; ???
-	
-loc_0001792E:
-	dc.b	$00, $04, $20, $1C, $C0, $00
-	dc.l    loc_0001B21E
-	dc.b    $C0, $00
-loc_0001793A:
-	dc.b    $00, $04, $08, $1C, $C0, $40
-	dc.l    loc_0001B59E
-	dc.b    $C0, $00
-loc_00017946:
-	dc.b    $00, $04, $20, $1C, $E0, $00
-	dc.l    loc_0001B67E
-	dc.b    $40, $00
-loc_00017952:	
-	dc.b    $00, $04, $08, $1C, $E0, $40
-	dc.l    loc_0001B9FE
-	dc.b    $40, $00
+	dc.l    @left
+	dc.l    @right
+	dc.l    @bakLeft
+	dc.l    @bakRight
+	dc.l    bgdata_unkClear1
+	dc.l    bgdata_unkClear2
+@left:
+	bgmac_ByteIndex bgmap_batRuinsLeft, $20, $1C, $C000, $C0
+@right:
+	bgmac_ByteIndex bgmap_batRuinsRight, $8, $1C, $C040, $C0
+@bakLeft:
+	bgmac_ByteIndex bgmap_batRuinsBakLeft, $20, $1C, $E000, $40
+@bakRight:	
+	bgmac_ByteIndex bgmap_batRuinsBakRight, $8, $1C, $E040, $40
 	
 	
-	
-	
-loc_0001795E:
+bgdata_battleTutorial:
 	dc.w    $000B
-	dc.l    loc_00017998
-	dc.l    loc_000179A8
-	dc.l    loc_000179B8
-	dc.l    loc_000179C8
-	dc.l    loc_000179D8
-	dc.l    loc_000179E4
-	dc.l    loc_000179F0
-	dc.l    loc_000179FC
-	dc.l    loc_00017A08
-	dc.l    loc_00017A18
-	dc.l    loc_00017990
-	dc.l    loc_00017792
+	dc.l    @topLeft
+	dc.l    @topRight
+	dc.l    @bottomLeft
+	dc.l    @bottomRight
+	dc.l    @bakTopLeft
+	dc.l    @bakTopRight
+	dc.l    @bakBottomLeft
+	dc.l    @bakBottomRight
+	dc.l    @unkTopLeft
+	dc.l    @unkTopRight
+	dc.l    @clear1
+	dc.l    bgdata_unkClear1
+@clear1:
+	bgmac_Clear $28, $04, $D01C, $8000
+@topLeft:
+	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialUnkTopLeft, $20, $0E, $C000, $8000
+@topRight:
+	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialUnkTopRight, $8, $0E, $C040, $8000
+@bottomLeft:
+	bgmac_ByteIndexPal bgmap_batTutorialBottomLeft, bgmap_batTutorialUnkBottomLeft, $20, $0E, $C700, $8000
+@bottomRight:
+	bgmac_ByteIndexPal bgmap_batTutorialBottomRight, bgmap_batTutorialUnkBottomRight, $8, $0E, $C740, $8000
+@bakTopLeft:
+	bgmac_ByteIndex bgmap_batTutorialBakTopLeft, $20, $E, $E000, $40
+@bakTopRight:
+	bgmac_ByteIndex bgmap_batTutorialBakTopRight, $8, $E, $E040, $40
+@bakBottomLeft:
+	bgmac_ByteIndex bgmap_batTutorialBakBottomLeft, $20, $E, $E700, $40
+@bakBottomRight:
+	bgmac_ByteIndex bgmap_batTutorialBakBottomRight, $8, $E, $E740, $40
+@unkTopLeft:
+	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialUnkTopLeft, $20, $2, $E000, $0000
+@unkTopRight:
+	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialUnkTopRight, $8, $2, $E040, $0000
 	
-loc_00017990:
-	dc.b	$00, $00, $28, $04, $D0, $1C, $80, $00
-loc_00017998:
-	dc.b    $00, $10, $20, $0E, $C0, $00 ;0x20
-	dc.l	loc_0001BADE
-	dc.l    loc_0001BC9E
-	dc.b    $80, $00
-loc_000179A8:
-	dc.b    $00, $10, $08, $0E, $C0, $40
-	dc.l    loc_0001BD0E
-	dc.l    loc_0001BD7E
-	dc.b    $80, $00
-loc_000179B8:
-	dc.b    $00, $10, $20, $0E, $C7, $00 ;0x40
-	dc.l	loc_0001BD9A
-	dc.l    loc_0001BF5A
-	dc.b    $80, $00
-loc_000179C8:
-	dc.b    $00, $10, $08, $0E, $C7, $40
-	dc.l    loc_0001BFCA
-	dc.l    loc_0001C03A
-	dc.b    $80, $00
-loc_000179D8:
-	dc.b    $00, $04, $20, $0E, $E0, $00 ;0x60
-	dc.l	loc_0001C056
-	dc.b    $40, $00
-loc_000179E4:
-	dc.b    $00, $04, $08, $0E, $E0, $40
-	dc.l    loc_0001C216
-	dc.b    $40, $00
-loc_000179F0:
-	dc.b    $00, $04, $20, $0E, $E7, $00
-	dc.l    loc_0001C286
-	dc.b    $40, $00
-loc_000179FC:
-	dc.b    $00, $04, $08, $0E, $E7, $40
-	dc.l    loc_0001C446
-	dc.b    $40, $00
-loc_00017A08:
-	dc.b    $00, $10, $20, $02, $E0, $00
-	dc.l    loc_0001BADE
-	dc.l    loc_0001BC9E
-	dc.b    $00, $00
-loc_00017A18:
-	dc.b    $00, $10, $08, $02, $E0, $40 ;0xA0
-	dc.l	loc_0001BD0E
-	dc.l    loc_0001BD7E
-	dc.b    $00, $00 ;0xC0
-	
-; Lookup Table End
 
-	
-	
-loc_00017A28:
+bgdata_cutsceneGrassTreesTop:
 	dc.w    $0002
-	dc.l    loc_00017AFA
-	dc.l    loc_00017B06
-	
-loc_00017A32:
-	dc.b	$00, $08
-	dc.l    loc_00017AFA
-	dc.l    loc_00017B06
-	dc.l    loc_00017B12
-	dc.l    loc_00017B1E
-	dc.l    loc_00017B2A
-	dc.l    loc_00017B34
-	dc.l    loc_00017B3E
-	dc.l    loc_00017B4A
-loc_00017A54:
-	dc.b	$00, $08
-	dc.l    loc_00017B56
-	dc.l    loc_00017B5E
-	dc.l    loc_00017B6A
-	dc.l    loc_00017B76
-	dc.l    loc_00017B82
-	dc.l    loc_00017B8E
-	dc.l    loc_00017B9A
-	dc.l    loc_00017BA6
-loc_00017A76:
-	dc.b	$00, $08
-	dc.l    loc_00017BB2
-	dc.l    loc_00017BBE
-	dc.l    loc_00017BCA
-	dc.l    loc_00017BD6
-	dc.l    loc_00017BE2
-	dc.l    loc_00017BEE
-	dc.l    loc_00017BFA
-	dc.l    loc_00017C06
-loc_00017A98:
-
+	dc.l    bgdata_cutGrass_topLeft
+	dc.l    bgdata_cutGrass_topRight
+bgdata_cutsceneGrassNoClouds:
+	dc.w	$0008
+	dc.l    bgdata_cutGrass_topLeft
+	dc.l    bgdata_cutGrass_topRight
+	dc.l    bgdata_cutGrass_bottomLeft
+	dc.l    bgdata_cutGrass_bottomRight
+	dc.l    bgdata_cutGrass_grassFarLeft
+	dc.l    bgdata_cutGrass_grassFarRight
+	dc.l    bgdata_cutGrass_grassLeft
+	dc.l    bgdata_cutGrass_grassRight
+bgdata_cutsceneGrassClouds1:
+	dc.w	$0008
+	dc.l    bgdata_cutGrass_clear1
+	dc.l    bgdata_cutGrass_cloud1
+	dc.l    bgdata_cutGrass_cloud2
+	dc.l    bgdata_cutGrass_cloud3
+	dc.l    bgdata_cutGrass_cloud4
+	dc.l    bgdata_cutGrass_cloud5
+	dc.l    bgdata_cutGrass_cloud6
+	dc.l    bgdata_cutGrass_cloud7
+bgdata_cutsceneGrassClouds2:
+	dc.w	$0008
+	dc.l    bgdata_cutGrass_cloud8
+	dc.l    bgdata_cutGrass_cloud9
+	dc.l    bgdata_cutGrass_cloud10
+	dc.l    bgdata_cutGrass_cloud11
+	dc.l    bgdata_cutGrass_cloud12
+	dc.l    bgdata_cutGrass_cloud13
+	dc.l    bgdata_cutGrass_cloud14
+	dc.l    bgdata_cutGrass_cloud15
+bgdata_cutsceneGrass:
 	dc.w    $0018
-	dc.l    loc_00017AFA
-	dc.l    loc_00017B06
-	dc.l    loc_00017B12
-	dc.l    loc_00017B1E
-	dc.l    loc_00017B2A
-	dc.l    loc_00017B34
-	dc.l    loc_00017B3E
-	dc.l    loc_00017B4A
+	dc.l    bgdata_cutGrass_topLeft
+	dc.l    bgdata_cutGrass_topRight
+	dc.l    bgdata_cutGrass_bottomLeft
+	dc.l    bgdata_cutGrass_bottomRight
+	dc.l    bgdata_cutGrass_grassFarLeft
+	dc.l    bgdata_cutGrass_grassFarRight
+	dc.l    bgdata_cutGrass_grassLeft
+	dc.l    bgdata_cutGrass_grassRight
+	dc.l    bgdata_cutGrass_clear1
+	dc.l    bgdata_cutGrass_cloud1
+	dc.l    bgdata_cutGrass_cloud2
+	dc.l    bgdata_cutGrass_cloud3
+	dc.l    bgdata_cutGrass_cloud4
+	dc.l    bgdata_cutGrass_cloud5
+	dc.l    bgdata_cutGrass_cloud6
+	dc.l    bgdata_cutGrass_cloud7
+	dc.l    bgdata_cutGrass_cloud8
+	dc.l    bgdata_cutGrass_cloud9
+	dc.l    bgdata_cutGrass_cloud10
+	dc.l    bgdata_cutGrass_cloud11
+	dc.l    bgdata_cutGrass_cloud12
+	dc.l    bgdata_cutGrass_cloud13
+	dc.l    bgdata_cutGrass_cloud14
+	dc.l    bgdata_cutGrass_cloud15
+bgdata_cutGrass_topLeft:
+	bgmac_ByteIndex bgmap_cutGrassTreesTopLeft, $20, $10, $D200, $21
+bgdata_cutGrass_topRight:
+	bgmac_ByteIndex bgmap_cutGrassTreesTopRight, $8, $10, $D240, $21
+bgdata_cutGrass_bottomLeft:
+	bgmac_ByteIndex bgmap_cutGrassTreesBottomLeft, $20, $9, $DA00, $62
+bgdata_cutGrass_bottomRight:
+	bgmac_ByteIndex bgmap_cutGrassTreesBottomRight, $8, $9, $DA40, $62
+bgdata_cutGrass_grassFarLeft:
+	bgmac_WordIndex bgmap_cutGrassFarLeft, $2, $3, $DD00
+bgdata_cutGrass_grassFarRight:
+	bgmac_WordIndex bgmap_cutGrassFarRight, $2, $4, $DCCC
+bgdata_cutGrass_grassLeft:
+	bgmac_ByteIndex bgmap_cutGrassLeft, $20, $3, $DE80, $E1
+bgdata_cutGrass_grassRight:
+	bgmac_ByteIndex bgmap_cutGrassRight, $8, $3, $DEC0, $E1
+bgdata_cutGrass_clear1:
+	bgmac_Clear $40, $40, $E000, $2200
+bgdata_cutGrass_cloud1:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F480, $22
+bgdata_cutGrass_cloud2:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F518, $22
+bgdata_cutGrass_cloud3:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F534, $22
+bgdata_cutGrass_cloud4:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F4D2, $22
+bgdata_cutGrass_cloud5:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F568, $22
+bgdata_cutGrass_cloud6:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F780, $22
+bgdata_cutGrass_cloud7:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F79C, $22
+bgdata_cutGrass_cloud8:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F832, $22
+bgdata_cutGrass_cloud9:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F7CC, $22
+bgdata_cutGrass_cloud10:
+	bgmac_ByteIndex bgmap_cutGrassCloud1, $B, $5, $F864, $22
+bgdata_cutGrass_cloud11:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, $C, $4, $FB04, $22
+bgdata_cutGrass_cloud12:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, $C, $4, $FAA4, $22
+bgdata_cutGrass_cloud13:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, $C, $4, $FABE, $22
+bgdata_cutGrass_cloud14:
+	bgmac_ByteIndex bgmap_cutGrassCloud2, $C, $4, $FB5C, $22
+bgdata_cutGrass_cloud15:
+	bgmac_ByteIndex bgmap_cutGrassCloud3, $3, $2, $FC78, $22
 	
-	dc.l    loc_00017B56
-	dc.l    loc_00017B5E
-	dc.l    loc_00017B6A
-	dc.l    loc_00017B76
-	dc.l    loc_00017B82
-	dc.l    loc_00017B8E
-	dc.l    loc_00017B9A
-	dc.l    loc_00017BA6
-	
-	dc.l    loc_00017BB2
-	dc.l    loc_00017BBE
-	dc.l    loc_00017BCA
-	dc.l    loc_00017BD6
-	dc.l    loc_00017BE2
-	dc.l    loc_00017BEE
-	dc.l    loc_00017BFA
-	dc.l    loc_00017C06
-	
-	
-loc_00017AFA:
-	dc.b    $00, $04, $20, $10, $D2, $00 ;0x60
-	dc.l	loc_0001862C
-	dc.b	$21, $00
-loc_00017B06:
-	dc.b	$00, $04, $08, $10, $D2, $40 
-	dc.l	loc_0001882C
-	dc.b	$21, $00
-loc_00017B12:
-	dc.b    $00, $04, $20, $09, $DA, $00 
-	dc.l	loc_000188AC
-	dc.b	$62, $00
-loc_00017B1E:
-	dc.b    $00, $04, $08, $09, $DA, $40 
-	dc.l	loc_000189CC
-	dc.b	$62, $00
-loc_00017B2A:
-	dc.b    $00, $08, $02, $03, $DD, $00 
-	dc.l	loc_00018A14
-loc_00017B34:
-	dc.b	$00, $08, $02, $04, $DC, $CC 
-	dc.l	loc_00018A20
-loc_00017B3E:
-	dc.b	$00, $04 
-	dc.l	$2003DE80
-	dc.l	loc_00018A30
-	dc.w	$E100
-loc_00017B4A:
-	dc.w    $0004
-	dc.l	$0803DEC0
-	dc.l	loc_00018A90
-	dc.w	$E100
-loc_00017B56:
-	dc.w    $0000
-	dc.l	$4040E000
-	dc.w	$2200
-loc_00017B5E:
-	dc.w    $0004
-	dc.l	$0B05F480
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017B6A:
-	dc.w    $0004
-	dc.l	$0B05F518
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017B76:
-	dc.w    $0004
-	dc.l	$0B05F534
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017B82:
-	dc.w    $0004
-	dc.l	$0B05F4D2
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017B8E:
-	dc.w    $0004
-	dc.l	$0B05F568
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017B9A:
-	dc.w    $0004
-	dc.l	$0B05F780
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017BA6:
-	dc.w    $0004
-	dc.l	$0B05F79C
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017BB2:
-	dc.w    $0004
-	dc.l	$0B05F832
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017BBE:
-	dc.w    $0004
-	dc.l	$0B05F7CC
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017BCA:
-	dc.w    $0004
-	dc.l	$0B05F864
-	dc.l	loc_00018AA8
-	dc.w	$2200
-loc_00017BD6:
-	dc.w    $0004
-	dc.l	$0C04FB04
-	dc.l	loc_00018AE0
-	dc.w	$2200
-loc_00017BE2:
-	dc.w    $0004
-	dc.l	$0C04FAA4
-	dc.l	loc_00018AE0
-	dc.w	$2200
-loc_00017BEE:
-	dc.w    $0004
-	dc.l	$0C04FABE
-	dc.l	loc_00018AE0
-	dc.w	$2200
-loc_00017BFA:
-	dc.w    $0004
-	dc.l	$0C04FB5C
-	dc.l	loc_00018AE0
-	dc.w	$2200
-loc_00017C06:
-	dc.w    $0004
-	dc.l	$0302FC78
-	dc.l	loc_00018B10
-	dc.w	$2200
-	
-loc_00017C12:
-	dc.b    $00
-    dc.b    $02
-    dc.l    loc_00017C76
-    dc.l    loc_00017C82
-loc_00017C1C:
-    dc.b    $00
-    dc.b    $0C
-    dc.l    loc_00017C5E
-    dc.l    loc_00017C6A
-    dc.l    loc_00017C76
-    dc.l    loc_00017C82
-    dc.l    loc_00017C8E
-    dc.l    loc_00017C9A
-    dc.l    loc_00017CA6
-    dc.l    loc_00017CAE
-    dc.l    loc_00017CB8
-    dc.l    loc_00017CC4
-    dc.l    loc_00017C4E
-    dc.l    loc_00017C56
-loc_00017C4E:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $28
-    dc.b    $04
-    dc.b    $C0
-    dc.b    $00
-    dc.b    $A1
-    dc.b    $00
-loc_00017C56:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $28
-    dc.b    $08
-    dc.b    $E0
-    dc.b    $00
-    dc.b    $21
-    dc.b    $00
-loc_00017C5E:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $20
-    dc.b    $08
-    dc.b    $DC
-    dc.b    $10
-    dc.l    loc_00018B16
-    dc.b    $A1
-    dc.b    $00
-loc_00017C6A:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $08
-    dc.b    $08
-    dc.b    $DC
-    dc.b    $00
-    dc.l    loc_00018C16
-    dc.b    $A1
-    dc.b    $00
-loc_00017C76:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $15
-    dc.b    $14
-    dc.b    $D2
-    dc.b    $26
-    dc.l    loc_00018C56
-    dc.b    $A1
-    dc.b    $00
-loc_00017C82:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $13
-    dc.b    $14
-    dc.b    $D2
-    dc.b    $00
-    dc.l    loc_00018DFA
-    dc.b    $A2
-    dc.b    $00
-loc_00017C8E:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $20
-    dc.b    $0C
-    dc.b    $F6
-    dc.b    $00
-    dc.l    loc_00018F76
-    dc.b    $62
-    dc.b    $00
-loc_00017C9A:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $08
-    dc.b    $0C
-    dc.b    $F6
-    dc.b    $40
-    dc.l    loc_000190F6
-    dc.b    $62
-    dc.b    $00
-loc_00017CA6:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $28
-    dc.b    $08
-    dc.b    $FC
-    dc.b    $00
-    dc.b    $62
-    dc.b    $BC
-loc_00017CAE:
-    dc.b    $00
-    dc.b    $08
-    dc.b    $0A
-    dc.b    $03
-    dc.b    $FA
-    dc.b    $BC
-    dc.l    loc_00019156
-loc_00017CB8:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $03
-    dc.b    $06
-    dc.b    $D6
-    dc.b    $A6
-    dc.l    loc_00017CD0
-    dc.b    $21
-    dc.b    $00
-loc_00017CC4:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $04
-    dc.b    $08
-    dc.b    $D5
-    dc.b    $9C
-    dc.l    loc_00017CE2
-    dc.b    $22
-    dc.b    $00
-loc_00017CD0:
+
+bgdata_cutsceneRuinsSky:
+	dc.w    $0002
+    dc.l    bgdata_cutRuins_skyRight
+    dc.l    bgdata_cutRuins_skyLeft	
+bgdata_cutsceneRuins:
+    dc.w    $000C
+    dc.l    bgdata_cutRuins_groundRight
+    dc.l    bgdata_cutRuins_groundLeft
+    dc.l    bgdata_cutRuins_skyRight
+    dc.l    bgdata_cutRuins_skyLeft
+    dc.l    bgdata_cutRuins_mountainLeft
+    dc.l    bgdata_cutRuins_mountainRight
+    dc.l    bgdata_cutRuins_clear3
+    dc.l    bgdata_cutRuins_unk3
+    dc.l    bgdata_cutRuins_unk1
+    dc.l    bgdata_cutRuins_unk2
+    dc.l    bgdata_cutRuins_clear1
+    dc.l    bgdata_cutRuins_clear2
+bgdata_cutRuins_clear1:
+	bgmac_Clear $28, $04, $C000, $A100
+bgdata_cutRuins_clear2:
+	bgmac_Clear $28, $08, $E000, $2100
+bgdata_cutRuins_groundRight:
+	bgmac_ByteIndex bgmap_cutRuinsGroundRight, $20, $8, $DC10, $A1
+bgdata_cutRuins_groundLeft:
+	bgmac_ByteIndex bgmap_cutRuinsGroundLeft, $8, $8, $DC00, $A1
+bgdata_cutRuins_skyRight:
+	bgmac_ByteIndex bgmap_cutRuinsSkyRight, $15, $14, $D226, $A1
+bgdata_cutRuins_skyLeft:
+	bgmac_ByteIndex bgmap_cutRuinsSkyLeft, $13, $14, $D200, $A2
+bgdata_cutRuins_mountainLeft:
+	bgmac_ByteIndex bgmap_cutRuinsMountainLeft, $20, $C, $F600, $62
+bgdata_cutRuins_mountainRight:
+	bgmac_ByteIndex bgmap_cutRuinsMountainRight, $8, $C, $F640, $62
+bgdata_cutRuins_clear3:
+	bgmac_Clear $28, $08, $FC00, $62BC
+bgdata_cutRuins_unk3:
+	bgmac_WordIndex bgmap_cutRuinsUnk3, $A, $3, $FABC
+bgdata_cutRuins_unk1:
+	bgmac_ByteIndex bgmap_cutRuinsUnk1, $3, $6, $D6A6, $21
+bgdata_cutRuins_unk2:
+	bgmac_ByteIndex bgmap_cutRuinsUnk2, $4, $8, $D59C, $22
+bgmap_cutRuinsUnk1:
     incbin "art/bgMappings/puyo/unknown89.bin"
-loc_00017CE2:
+bgmap_cutRuinsUnk2:
     incbin "art/bgMappings/puyo/unknown90.bin"
 	
-loc_00017D02:
-    dc.b    $00
-    dc.b    $07
-    dc.l    loc_00017D20
-    dc.l    loc_00017D28
-    dc.l    loc_00017D34
-    dc.l    loc_00017D40
-    dc.l    loc_00017D4C
-    dc.l    loc_00017D58
-    dc.l    loc_00017D64
-loc_00017D20:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $40
-    dc.b    $0E
-    dc.b    $D2
-    dc.b    $00
-    dc.b    $A2
-    dc.b    $00
-loc_00017D28:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $20
-    dc.b    $0F
-    dc.b    $D8
-    dc.b    $90
-    dc.l    loc_00019192
-    dc.b    $A1
-    dc.b    $00
-loc_00017D34:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $08
-    dc.b    $0E
-    dc.b    $D9
-    dc.b    $00
-    dc.l    loc_00019372
-    dc.b    $A1
-    dc.b    $00
-loc_00017D40:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $20
-    dc.b    $0E
-    dc.b    $F6
-    dc.b    $40
-    dc.l    loc_000193E2
-    dc.b    $22
-    dc.b    $00
-loc_00017D4C:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $20
-    dc.b    $0E
-    dc.b    $F6
-    dc.b    $10
-    dc.l    loc_000193E2
-    dc.b    $22
-    dc.b    $00
-loc_00017D58:
-    dc.b    $00
-    dc.b    $04
-    dc.b    $08
-    dc.b    $0E
-    dc.b    $F6
-    dc.b    $00
-    dc.l    loc_000195A2
-    dc.b    $22
-    dc.b    $00
-loc_00017D64:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $40
-    dc.b    $06
-    dc.b    $FD
-    dc.b    $00
-    dc.b    $22
-    dc.b    $AE
+	
+bgdata_cutsceneHell:
+    dc.w    $0007
+    dc.l    @clear1
+    dc.l    @groundRight
+    dc.l    @groundLeft
+    dc.l    @skyRight
+    dc.l    @skyRight2
+    dc.l    @skyLeft
+    dc.l    @clear2
+@clear1:
+	bgmac_Clear $40, $0E, $D200, $A200
+@groundRight:
+	bgmac_ByteIndex bgmap_cutHellGroundRight, $20, $F, $D890, $A1
+@groundLeft:
+	bgmac_ByteIndex bgmap_cutHellGroundLeft, $8, $E, $D900, $A1
+@skyRight:
+	bgmac_ByteIndex bgmap_cutHellSkyRight, $20, $E, $F640, $22
+@skyRight2:
+	bgmac_ByteIndex bgmap_cutHellSkyRight, $20, $E, $F610, $22
+@skyLeft:
+	bgmac_ByteIndex bgmap_cutHellSkyLeft, $8, $E, $F600, $22
+@clear2:
+	bgmac_Clear $40, $06, $FD00, $22AE
 
-loc_00017D6C:
+bgmap_batGrassTopLeft:
     incbin "art/bgMappings/puyo/unknown1.bin"
-loc_00017F2C:
+bgmap_batGrassTopRight:
     incbin "art/bgMappings/puyo/unknown2.bin"
-loc_00017F9C:
+bgmap_batGrassBottomLeft:
     incbin "art/bgMappings/puyo/unknown3.bin"
-loc_0001815C:
+bgmap_batGrassBottomRight:
     incbin "art/bgMappings/puyo/unknown4.bin"
-loc_000181CC:
+bgmap_batBakGrassTopLeft:
     incbin "art/bgMappings/puyo/unknown5.bin"
-loc_0001838C:
+bgmap_batBakGrassTopRight:
     incbin "art/bgMappings/puyo/unknown6.bin"
-loc_000183FC:
+bgmap_batBakGrassBottomLeft:
     incbin "art/bgMappings/puyo/unknown7.bin"
-loc_000185BC:
+bgmap_batBakGrassBottomRight:
     incbin "art/bgMappings/puyo/unknown8.bin"
-loc_0001862C:
+bgmap_cutGrassTreesTopLeft:
     incbin "art/bgMappings/puyo/unknown9.bin"
-loc_0001882C:
+bgmap_cutGrassTreesTopRight:
     incbin "art/bgMappings/puyo/unknown10.bin"
-loc_000188AC:
+bgmap_cutGrassTreesBottomLeft:
     incbin "art/bgMappings/puyo/unknown11.bin"
-loc_000189CC:
+bgmap_cutGrassTreesBottomRight:
     incbin "art/bgMappings/puyo/unknown12.bin"
-loc_00018A14:
+bgmap_cutGrassFarLeft:
     incbin "art/bgMappings/puyo/unknown13.bin"
-loc_00018A20:
+bgmap_cutGrassFarRight:
     incbin "art/bgMappings/puyo/unknown14.bin"
-loc_00018A30:
+bgmap_cutGrassLeft:
     incbin "art/bgMappings/puyo/unknown15.bin"
-loc_00018A90:
+bgmap_cutGrassRight:
     incbin "art/bgMappings/puyo/unknown16.bin"
-loc_00018AA8:
+bgmap_cutGrassCloud1:
     incbin "art/bgMappings/puyo/unknown17.bin"
-loc_00018AE0:
+bgmap_cutGrassCloud2:
     incbin "art/bgMappings/puyo/unknown18.bin"
-loc_00018B10:
+bgmap_cutGrassCloud3:
     incbin "art/bgMappings/puyo/unknown19.bin"
-loc_00018B16:
+bgmap_cutRuinsGroundRight:
     incbin "art/bgMappings/puyo/unknown20.bin"
-loc_00018C16:
+bgmap_cutRuinsGroundLeft:
     incbin "art/bgMappings/puyo/unknown21.bin"
-loc_00018C56:
+bgmap_cutRuinsSkyRight:
     incbin "art/bgMappings/puyo/unknown22.bin"
-loc_00018DFA:
+bgmap_cutRuinsSkyLeft:
     incbin "art/bgMappings/puyo/unknown23.bin"
-loc_00018F76:
+bgmap_cutRuinsMountainLeft:
     incbin "art/bgMappings/puyo/unknown24.bin"
-loc_000190F6:
+bgmap_cutRuinsMountainRight:
     incbin "art/bgMappings/puyo/unknown25.bin"
-loc_00019156:
+bgmap_cutRuinsUnk3:
     incbin "art/bgMappings/puyo/unknown26.bin"
-loc_00019192:
+bgmap_cutHellGroundRight:
     incbin "art/bgMappings/puyo/unknown27.bin"
-loc_00019372:
+bgmap_cutHellGroundLeft:
     incbin "art/bgMappings/puyo/unknown28.bin"
-loc_000193E2:
+bgmap_cutHellSkyRight:
     incbin "art/bgMappings/puyo/unknown29.bin"
-loc_000195A2:
+bgmap_cutHellSkyLeft:
     incbin "art/bgMappings/puyo/unknown30.bin"
-loc_00019612:
+bgmap_gameoverTopLeft:
     incbin "art/bgMappings/puyo/unknown31.bin"
-loc_00019792:
+bgmap_gameoverTopRight:
     incbin "art/bgMappings/puyo/unknown32.bin"
-loc_000197D2:
+bgmap_gameoverBottomLeft:
     incbin "art/bgMappings/puyo/unknown33.bin"
-loc_00019892:
+bgmap_gameoverBottomRight:
     incbin "art/bgMappings/puyo/unknown34.bin"
-loc_000198C2:
+bgmap_recordLeft:
     incbin "art/bgMappings/puyo/unknown35.bin"
-loc_00019C42:
+bgmap_recordRight:
     incbin "art/bgMappings/puyo/unknown36.bin"
-loc_00019D22:
+bgmap_recordUnk1:
     incbin "art/bgMappings/puyo/unknown37.bin"
-loc_00019D3E:
+bgmap_endingArleTop:
     incbin "art/bgMappings/puyo/unknown38.bin"
-loc_00019EBE:
+bgmap_endingArleBottom:
     incbin "art/bgMappings/puyo/unknown39.bin"
-loc_00019F1E:
+bgmap_endingSunsetScroll:
     incbin "art/bgMappings/puyo/unknown40.bin"
-loc_00019F9E:
+bgmap_endingCloudScroll:
     incbin "art/bgMappings/puyo/unknown41.bin"
-loc_00019FBE:
+bgmap_endingSunset:
     incbin "art/bgMappings/puyo/unknown42.bin"
-loc_0001A15E:
+bgmap_endingGround:
     incbin "art/bgMappings/puyo/unknown43.bin"
-loc_0001A23E:
+bgmap_endingSunsetNight:
     incbin "art/bgMappings/puyo/unknown44.bin"
-loc_0001A4BE:
+bgmap_titleBG1:
     incbin "art/bgMappings/puyo/unknown45.bin"
-loc_0001A73E:
+bgmap_titleBG2:
     incbin "art/bgMappings/puyo/unknown46.bin"
-loc_0001A87E:
+bgmap_titlePu1:
     incbin "art/bgMappings/puyo/unknown47.bin"
-loc_0001A8B6:
+bgmap_titleYo1:
     incbin "art/bgMappings/puyo/unknown48.bin"
-loc_0001A8EE:
+bgmap_titlePu2:
     incbin "art/bgMappings/puyo/unknown49.bin"
-loc_0001A926:
+bgmap_titleYo2:
     incbin "art/bgMappings/puyo/unknown50.bin"
-loc_0001A95E:
+bgmap_twoPlayerTopLeft:
     incbin "art/bgMappings/puyo/unknown51.bin"
-loc_0001AB1E:
+bgmap_twoPlayerTopRight:
     incbin "art/bgMappings/puyo/unknown52.bin"
-loc_0001AB8E:
+bgmap_twoPlayerBottomLeft:
     incbin "art/bgMappings/puyo/unknown53.bin"
-loc_0001AD4E:
+bgmap_twoPlayerBottomRight:
     incbin "art/bgMappings/puyo/unknown54.bin"
-loc_0001ADBE:
+bgmap_twoPlayerBakTopLeft:
     incbin "art/bgMappings/puyo/unknown55.bin"
-loc_0001AF7E:
+bgmap_twoPlayerBakTopRight:
     incbin "art/bgMappings/puyo/unknown56.bin"
-loc_0001AFEE:
+bgmap_twoPlayerBakBottomLeft:
     incbin "art/bgMappings/puyo/unknown57.bin"
-loc_0001B1AE:
+bgmap_twoPlayerBakBottomRight:
     incbin "art/bgMappings/puyo/unknown58.bin"
-loc_0001B21E:
+bgmap_batRuinsLeft:
     incbin "art/bgMappings/puyo/unknown59.bin"
-loc_0001B59E:
+bgmap_batRuinsRight:
     incbin "art/bgMappings/puyo/unknown60.bin"
-loc_0001B67E:
+bgmap_batRuinsBakLeft:
     incbin "art/bgMappings/puyo/unknown61.bin"
-loc_0001B9FE:
+bgmap_batRuinsBakRight:
     incbin "art/bgMappings/puyo/unknown62.bin"
-loc_0001BADE:
+bgmap_batTutorialTopLeft:
     incbin "art/bgMappings/puyo/unknown63.bin"
-loc_0001BC9E:
+bgmap_batTutorialUnkTopLeft:
     incbin "art/bgMappings/puyo/unknown64.bin"
-loc_0001BD0E:
+bgmap_batTutorialTopRight:
     incbin "art/bgMappings/puyo/unknown65.bin"
-loc_0001BD7E:
+bgmap_batTutorialUnkTopRight:
     incbin "art/bgMappings/puyo/unknown66.bin"
-loc_0001BD9A:
+bgmap_batTutorialBottomLeft:
     incbin "art/bgMappings/puyo/unknown67.bin"
-loc_0001BF5A:
+bgmap_batTutorialUnkBottomLeft:
     incbin "art/bgMappings/puyo/unknown68.bin"
-loc_0001BFCA:
+bgmap_batTutorialBottomRight:
     incbin "art/bgMappings/puyo/unknown69.bin"
-loc_0001C03A:
+bgmap_batTutorialUnkBottomRight:
     incbin "art/bgMappings/puyo/unknown70.bin"
-loc_0001C056:
+bgmap_batTutorialBakTopLeft:
     incbin "art/bgMappings/puyo/unknown71.bin"
-loc_0001C216:
+bgmap_batTutorialBakTopRight:
     incbin "art/bgMappings/puyo/unknown72.bin"
-loc_0001C286:
+bgmap_batTutorialBakBottomLeft:
     incbin "art/bgMappings/puyo/unknown73.bin"
-loc_0001C446:
+bgmap_batTutorialBakBottomRight:
     incbin "art/bgMappings/puyo/unknown74.bin"
-loc_0001C4B6:
+bgmap_segaLogo:
     incbin "art/bgMappings/puyo/unknown75.bin"
-loc_0001C4E6:
+bgmap_demoPatch1:
     incbin "art/bgMappings/puyo/unknown76.bin"
-loc_0001C4F8:
+bgmap_demoPatch2:
     incbin "art/bgMappings/puyo/unknown77.bin"
-loc_0001C5B0:
+bgmap_menuMain:
     incbin "art/bgMappings/puyo/unknown78.bin"
-loc_0001C844:
+bgmap_menu1PlayerHighlight:
     incbin "art/bgMappings/puyo/unknown79.bin"
-loc_0001C864:
+bgmap_menu1Player:
     incbin "art/bgMappings/puyo/unknown80.bin"
-loc_0001C884:
+bgmap_menu2PlayerHighlight:
     incbin "art/bgMappings/puyo/unknown81.bin"
-loc_0001C8A4:
+bgmap_menu2Player:
     incbin "art/bgMappings/puyo/unknown82.bin"
-loc_0001C8C4:
+bgmap_menuTokotonotonHighlight:
     incbin "art/bgMappings/puyo/unknown83.bin"
-loc_0001C8E4:
+bgmap_menuTokoton:
     incbin "art/bgMappings/puyo/unknown84.bin"
-loc_0001C904:
+bgmap_menuOptionsionsHighlight:
     incbin "art/bgMappings/puyo/unknown85.bin"
-loc_0001C924:
+bgmap_menuOptions:
     incbin "art/bgMappings/puyo/unknown86.bin"
-loc_0001C944:
+bgmap_menuDifficultyLeft:
     incbin "art/bgMappings/puyo/unknown87.bin"
-loc_0001CC24:
+bgmap_menuDifficultyRight:
     incbin "art/bgMappings/puyo/unknown88.bin"
 	
 loc_0001CCDC:
@@ -26417,7 +25914,7 @@ loc_0001CCDC:
 	MOVE.w	#$406C, D6
 loc_0001CCF8:
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D1
 loc_0001CD0A:
@@ -26438,7 +25935,7 @@ loc_0001CD34:
 	move.w #$406C, D6
 loc_0001CD48:
 	ori #$700, SR
-	jsr	loc_000157BA
+	jsr	loadBGSetupVDP
 	addi.w #$80, D5
 	move.w #$27, D1
 loc_0001CD5A:
@@ -26881,7 +26378,7 @@ loc_0001D35C:
 	MOVE.w	#$006C, D6
 loc_0001D370:
 	ORI	#$0700, SR
-	JSR	loc_000157BA
+	JSR	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D1
 loc_0001D382:

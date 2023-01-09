@@ -25583,13 +25583,13 @@ bgdata_battleTutorial:
 @clear1:
 	bgmac_Clear $28, $04, $D01C, $8000
 @topLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialUnkTopLeft, $20, $0E, $C000, $8000
+	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialPalTopLeft, $20, $0E, $C000, $8000
 @topRight:
-	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialUnkTopRight, $8, $0E, $C040, $8000
+	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialPalTopRight, $8, $0E, $C040, $8000
 @bottomLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialBottomLeft, bgmap_batTutorialUnkBottomLeft, $20, $0E, $C700, $8000
+	bgmac_ByteIndexPal bgmap_batTutorialBottomLeft, bgmap_batTutorialPalBottomLeft, $20, $0E, $C700, $8000
 @bottomRight:
-	bgmac_ByteIndexPal bgmap_batTutorialBottomRight, bgmap_batTutorialUnkBottomRight, $8, $0E, $C740, $8000
+	bgmac_ByteIndexPal bgmap_batTutorialBottomRight, bgmap_batTutorialPalBottomRight, $8, $0E, $C740, $8000
 @bakTopLeft:
 	bgmac_ByteIndex bgmap_batTutorialBakTopLeft, $20, $E, $E000, $40
 @bakTopRight:
@@ -25599,9 +25599,9 @@ bgdata_battleTutorial:
 @bakBottomRight:
 	bgmac_ByteIndex bgmap_batTutorialBakBottomRight, $8, $E, $E740, $40
 @unkTopLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialUnkTopLeft, $20, $2, $E000, $0000
+	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialPalTopLeft, $20, $2, $E000, $0000
 @unkTopRight:
-	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialUnkTopRight, $8, $2, $E040, $0000
+	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialPalTopRight, $8, $2, $E040, $0000
 	
 
 bgdata_cutsceneGrassTreesTop:
@@ -25757,9 +25757,9 @@ bgdata_cutRuins_unk1:
 bgdata_cutRuins_unk2:
 	bgmac_ByteIndex bgmap_cutRuinsUnk2, $4, $8, $D59C, $22
 bgmap_cutRuinsUnk1:
-    incbin "art/bgMappings/puyo/unknown89.bin"
+    incbin "art/bgMappings/cutscene/ruins/unknown1.bin"
 bgmap_cutRuinsUnk2:
-    incbin "art/bgMappings/puyo/unknown90.bin"
+    incbin "art/bgMappings/cutscene/ruins/unknown2.bin"
 	
 	
 bgdata_cutsceneHell:
@@ -25787,181 +25787,181 @@ bgdata_cutsceneHell:
 	bgmac_Clear $40, $06, $FD00, $22AE
 
 bgmap_batGrassTopLeft:
-    incbin "art/bgMappings/puyo/unknown1.bin"
+    incbin "art/bgMappings/battle/grass/topLeft.bin"
 bgmap_batGrassTopRight:
-    incbin "art/bgMappings/puyo/unknown2.bin"
+    incbin "art/bgMappings/battle/grass/topRight.bin"
 bgmap_batGrassBottomLeft:
-    incbin "art/bgMappings/puyo/unknown3.bin"
+    incbin "art/bgMappings/battle/grass/bottomLeft.bin"
 bgmap_batGrassBottomRight:
-    incbin "art/bgMappings/puyo/unknown4.bin"
+    incbin "art/bgMappings/battle/grass/bottomRight.bin"
 bgmap_batBakGrassTopLeft:
-    incbin "art/bgMappings/puyo/unknown5.bin"
+    incbin "art/bgMappings/battle/grass/backdropTopLeft.bin"
 bgmap_batBakGrassTopRight:
-    incbin "art/bgMappings/puyo/unknown6.bin"
+    incbin "art/bgMappings/battle/grass/backdropTopRight.bin"
 bgmap_batBakGrassBottomLeft:
-    incbin "art/bgMappings/puyo/unknown7.bin"
+    incbin "art/bgMappings/battle/grass/backdropBottomLeft.bin"
 bgmap_batBakGrassBottomRight:
-    incbin "art/bgMappings/puyo/unknown8.bin"
+    incbin "art/bgMappings/battle/grass/backdropBottomRight.bin"
 bgmap_cutGrassTreesTopLeft:
-    incbin "art/bgMappings/puyo/unknown9.bin"
+    incbin "art/bgMappings/cutscene/grass/treesTopLeft.bin"
 bgmap_cutGrassTreesTopRight:
-    incbin "art/bgMappings/puyo/unknown10.bin"
+    incbin "art/bgMappings/cutscene/grass/treesTopRight.bin"
 bgmap_cutGrassTreesBottomLeft:
-    incbin "art/bgMappings/puyo/unknown11.bin"
+    incbin "art/bgMappings/cutscene/grass/treesBottomLeft.bin"
 bgmap_cutGrassTreesBottomRight:
-    incbin "art/bgMappings/puyo/unknown12.bin"
+    incbin "art/bgMappings/cutscene/grass/treesBottomRight.bin"
 bgmap_cutGrassFarLeft:
-    incbin "art/bgMappings/puyo/unknown13.bin"
+    incbin "art/bgMappings/cutscene/grass/u_grassFarLeft.bin"
 bgmap_cutGrassFarRight:
-    incbin "art/bgMappings/puyo/unknown14.bin"
+    incbin "art/bgMappings/cutscene/grass/u_grassFarRight.bin"
 bgmap_cutGrassLeft:
-    incbin "art/bgMappings/puyo/unknown15.bin"
+    incbin "art/bgMappings/cutscene/grass/grassLeft.bin"
 bgmap_cutGrassRight:
-    incbin "art/bgMappings/puyo/unknown16.bin"
+    incbin "art/bgMappings/cutscene/grass/grassRight.bin"
 bgmap_cutGrassCloud1:
-    incbin "art/bgMappings/puyo/unknown17.bin"
+    incbin "art/bgMappings/cutscene/grass/cloud1.bin"
 bgmap_cutGrassCloud2:
-    incbin "art/bgMappings/puyo/unknown18.bin"
+    incbin "art/bgMappings/cutscene/grass/cloud2.bin"
 bgmap_cutGrassCloud3:
-    incbin "art/bgMappings/puyo/unknown19.bin"
+    incbin "art/bgMappings/cutscene/grass/cloud3.bin"
 bgmap_cutRuinsGroundRight:
-    incbin "art/bgMappings/puyo/unknown20.bin"
+    incbin "art/bgMappings/cutscene/ruins/groundRight.bin"
 bgmap_cutRuinsGroundLeft:
-    incbin "art/bgMappings/puyo/unknown21.bin"
+    incbin "art/bgMappings/cutscene/ruins/groundLeft.bin"
 bgmap_cutRuinsSkyRight:
-    incbin "art/bgMappings/puyo/unknown22.bin"
+    incbin "art/bgMappings/cutscene/ruins/skyRight.bin"
 bgmap_cutRuinsSkyLeft:
-    incbin "art/bgMappings/puyo/unknown23.bin"
+    incbin "art/bgMappings/cutscene/ruins/skyLeft.bin"
 bgmap_cutRuinsMountainLeft:
-    incbin "art/bgMappings/puyo/unknown24.bin"
+    incbin "art/bgMappings/cutscene/ruins/mountainLeft.bin"
 bgmap_cutRuinsMountainRight:
-    incbin "art/bgMappings/puyo/unknown25.bin"
+    incbin "art/bgMappings/cutscene/ruins/mountainRight.bin"
 bgmap_cutRuinsUnk3:
-    incbin "art/bgMappings/puyo/unknown26.bin"
+    incbin "art/bgMappings/cutscene/ruins/u_unknown.bin"
 bgmap_cutHellGroundRight:
-    incbin "art/bgMappings/puyo/unknown27.bin"
+    incbin "art/bgMappings/cutscene/hell/groundRight.bin"
 bgmap_cutHellGroundLeft:
-    incbin "art/bgMappings/puyo/unknown28.bin"
+    incbin "art/bgMappings/cutscene/hell/groundLeft.bin"
 bgmap_cutHellSkyRight:
-    incbin "art/bgMappings/puyo/unknown29.bin"
+    incbin "art/bgMappings/cutscene/hell/skyRight.bin"
 bgmap_cutHellSkyLeft:
-    incbin "art/bgMappings/puyo/unknown30.bin"
+    incbin "art/bgMappings/cutscene/hell/skyLeft.bin"
 bgmap_gameoverTopLeft:
-    incbin "art/bgMappings/puyo/unknown31.bin"
+    incbin "art/bgMappings/gameover/topLeft.bin"
 bgmap_gameoverTopRight:
-    incbin "art/bgMappings/puyo/unknown32.bin"
+    incbin "art/bgMappings/gameover/topRight.bin"
 bgmap_gameoverBottomLeft:
-    incbin "art/bgMappings/puyo/unknown33.bin"
+    incbin "art/bgMappings/gameover/bottomLeft.bin"
 bgmap_gameoverBottomRight:
-    incbin "art/bgMappings/puyo/unknown34.bin"
+    incbin "art/bgMappings/gameover/bottomRight.bin"
 bgmap_recordLeft:
-    incbin "art/bgMappings/puyo/unknown35.bin"
+    incbin "art/bgMappings/record/left.bin"
 bgmap_recordRight:
-    incbin "art/bgMappings/puyo/unknown36.bin"
+    incbin "art/bgMappings/record/right.bin"
 bgmap_recordUnk1:
-    incbin "art/bgMappings/puyo/unknown37.bin"
+    incbin "art/bgMappings/record/unknown.bin"
 bgmap_endingArleTop:
-    incbin "art/bgMappings/puyo/unknown38.bin"
+    incbin "art/bgMappings/ending/arleTop.bin"
 bgmap_endingArleBottom:
-    incbin "art/bgMappings/puyo/unknown39.bin"
+    incbin "art/bgMappings/ending/arleBottom.bin"
 bgmap_endingSunsetScroll:
-    incbin "art/bgMappings/puyo/unknown40.bin"
+    incbin "art/bgMappings/ending/sunsetScroll.bin"
 bgmap_endingCloudScroll:
-    incbin "art/bgMappings/puyo/unknown41.bin"
+    incbin "art/bgMappings/ending/cloudScroll.bin"
 bgmap_endingSunset:
-    incbin "art/bgMappings/puyo/unknown42.bin"
+    incbin "art/bgMappings/ending/sunset.bin"
 bgmap_endingGround:
-    incbin "art/bgMappings/puyo/unknown43.bin"
+    incbin "art/bgMappings/ending/ground.bin"
 bgmap_endingSunsetNight:
-    incbin "art/bgMappings/puyo/unknown44.bin"
+    incbin "art/bgMappings/ending/sunsetNight.bin"
 bgmap_titleBG1:
-    incbin "art/bgMappings/puyo/unknown45.bin"
+    incbin "art/bgMappings/title/u_background1.bin"
 bgmap_titleBG2:
-    incbin "art/bgMappings/puyo/unknown46.bin"
+    incbin "art/bgMappings/title/u_background2.bin"
 bgmap_titlePu1:
-    incbin "art/bgMappings/puyo/unknown47.bin"
+    incbin "art/bgMappings/title/firstPu.bin"
 bgmap_titleYo1:
-    incbin "art/bgMappings/puyo/unknown48.bin"
+    incbin "art/bgMappings/title/firstYo.bin"
 bgmap_titlePu2:
-    incbin "art/bgMappings/puyo/unknown49.bin"
+    incbin "art/bgMappings/title/secondPu.bin"
 bgmap_titleYo2:
-    incbin "art/bgMappings/puyo/unknown50.bin"
+    incbin "art/bgMappings/title/secondYo.bin"
 bgmap_twoPlayerTopLeft:
-    incbin "art/bgMappings/puyo/unknown51.bin"
+    incbin "art/bgMappings/twoplayer/topLeft.bin"
 bgmap_twoPlayerTopRight:
-    incbin "art/bgMappings/puyo/unknown52.bin"
+    incbin "art/bgMappings/twoplayer/topRight.bin"
 bgmap_twoPlayerBottomLeft:
-    incbin "art/bgMappings/puyo/unknown53.bin"
+    incbin "art/bgMappings/twoplayer/bottomLeft.bin"
 bgmap_twoPlayerBottomRight:
-    incbin "art/bgMappings/puyo/unknown54.bin"
+    incbin "art/bgMappings/twoplayer/bottomRight.bin"
 bgmap_twoPlayerBakTopLeft:
-    incbin "art/bgMappings/puyo/unknown55.bin"
+    incbin "art/bgMappings/twoplayer/backdropTopLeft.bin"
 bgmap_twoPlayerBakTopRight:
-    incbin "art/bgMappings/puyo/unknown56.bin"
+    incbin "art/bgMappings/twoplayer/backdropTopRight.bin"
 bgmap_twoPlayerBakBottomLeft:
-    incbin "art/bgMappings/puyo/unknown57.bin"
+    incbin "art/bgMappings/twoplayer/backdropBottomLeft.bin"
 bgmap_twoPlayerBakBottomRight:
-    incbin "art/bgMappings/puyo/unknown58.bin"
+    incbin "art/bgMappings/twoplayer/backdropBottomRight.bin"
 bgmap_batRuinsLeft:
-    incbin "art/bgMappings/puyo/unknown59.bin"
+    incbin "art/bgMappings/battle/ruins/left.bin"
 bgmap_batRuinsRight:
-    incbin "art/bgMappings/puyo/unknown60.bin"
+    incbin "art/bgMappings/battle/ruins/right.bin"
 bgmap_batRuinsBakLeft:
-    incbin "art/bgMappings/puyo/unknown61.bin"
+    incbin "art/bgMappings/battle/ruins/backdropLeft.bin"
 bgmap_batRuinsBakRight:
-    incbin "art/bgMappings/puyo/unknown62.bin"
+    incbin "art/bgMappings/battle/ruins/backdropRight.bin"
 bgmap_batTutorialTopLeft:
-    incbin "art/bgMappings/puyo/unknown63.bin"
-bgmap_batTutorialUnkTopLeft:
-    incbin "art/bgMappings/puyo/unknown64.bin"
+    incbin "art/bgMappings/battle/tutorial/topLeft.bin"
+bgmap_batTutorialPalTopLeft:
+    incbin "art/bgMappings/battle/tutorial/pal_topLeft.bin"
 bgmap_batTutorialTopRight:
-    incbin "art/bgMappings/puyo/unknown65.bin"
-bgmap_batTutorialUnkTopRight:
-    incbin "art/bgMappings/puyo/unknown66.bin"
+    incbin "art/bgMappings/battle/tutorial/topRight.bin"
+bgmap_batTutorialPalTopRight:
+    incbin "art/bgMappings/battle/tutorial/pal_topRight.bin"
 bgmap_batTutorialBottomLeft:
-    incbin "art/bgMappings/puyo/unknown67.bin"
-bgmap_batTutorialUnkBottomLeft:
-    incbin "art/bgMappings/puyo/unknown68.bin"
+    incbin "art/bgMappings/battle/tutorial/bottomLeft.bin"
+bgmap_batTutorialPalBottomLeft:
+    incbin "art/bgMappings/battle/tutorial/pal_bottomLeft.bin"
 bgmap_batTutorialBottomRight:
-    incbin "art/bgMappings/puyo/unknown69.bin"
-bgmap_batTutorialUnkBottomRight:
-    incbin "art/bgMappings/puyo/unknown70.bin"
+    incbin "art/bgMappings/battle/tutorial/bottomRight.bin"
+bgmap_batTutorialPalBottomRight:
+    incbin "art/bgMappings/battle/tutorial/pal_bottomRight.bin"
 bgmap_batTutorialBakTopLeft:
-    incbin "art/bgMappings/puyo/unknown71.bin"
+    incbin "art/bgMappings/battle/tutorial/backdropTopLeft.bin"
 bgmap_batTutorialBakTopRight:
-    incbin "art/bgMappings/puyo/unknown72.bin"
+    incbin "art/bgMappings/battle/tutorial/backdropTopRight.bin"
 bgmap_batTutorialBakBottomLeft:
-    incbin "art/bgMappings/puyo/unknown73.bin"
+    incbin "art/bgMappings/battle/tutorial/backdropBottomLeft.bin"
 bgmap_batTutorialBakBottomRight:
-    incbin "art/bgMappings/puyo/unknown74.bin"
+    incbin "art/bgMappings/battle/tutorial/backdropBottomRight.bin"
 bgmap_segaLogo:
-    incbin "art/bgMappings/puyo/unknown75.bin"
+    incbin "art/bgMappings/sega/logo.bin"
 bgmap_demoPatch1:
-    incbin "art/bgMappings/puyo/unknown76.bin"
+    incbin "art/bgMappings/demo/patch1.bin"
 bgmap_demoPatch2:
-    incbin "art/bgMappings/puyo/unknown77.bin"
+    incbin "art/bgMappings/demo/patch2.bin"
 bgmap_menuMain:
-    incbin "art/bgMappings/puyo/unknown78.bin"
+    incbin "art/bgMappings/menu/mainMenu.bin"
 bgmap_menu1PlayerHighlight:
-    incbin "art/bgMappings/puyo/unknown79.bin"
+    incbin "art/bgMappings/menu/1playerHighlight.bin"
 bgmap_menu1Player:
-    incbin "art/bgMappings/puyo/unknown80.bin"
+    incbin "art/bgMappings/menu/1player.bin"
 bgmap_menu2PlayerHighlight:
-    incbin "art/bgMappings/puyo/unknown81.bin"
+    incbin "art/bgMappings/menu/2playerHighlight.bin"
 bgmap_menu2Player:
-    incbin "art/bgMappings/puyo/unknown82.bin"
+    incbin "art/bgMappings/menu/2player.bin"
 bgmap_menuTokotonotonHighlight:
-    incbin "art/bgMappings/puyo/unknown83.bin"
+    incbin "art/bgMappings/menu/tokotonHighlight.bin"
 bgmap_menuTokoton:
-    incbin "art/bgMappings/puyo/unknown84.bin"
+    incbin "art/bgMappings/menu/tokoton.bin"
 bgmap_menuOptionsionsHighlight:
-    incbin "art/bgMappings/puyo/unknown85.bin"
+    incbin "art/bgMappings/menu/optionsHighlight.bin"
 bgmap_menuOptions:
-    incbin "art/bgMappings/puyo/unknown86.bin"
+    incbin "art/bgMappings/menu/options.bin"
 bgmap_menuDifficultyLeft:
-    incbin "art/bgMappings/puyo/unknown87.bin"
+    incbin "art/bgMappings/menu/difficultyLeft.bin"
 bgmap_menuDifficultyRight:
-    incbin "art/bgMappings/puyo/unknown88.bin"
+    incbin "art/bgMappings/menu/difficultyRight.bin"
 	
 loc_0001CCDC:
 	BSR.w	loc_0001CE34

@@ -11,6 +11,12 @@ if not exist sound/driver/sound.bin (
 	exit /B 1
 )
 
+echo Building BG Mappings...
+cd art/bgMappings/
+CALL buildMappings.bat
+cd ..
+cd ..
+
 echo Building puyo.asm...
 tools\asm68k.exe /p puyo.asm,out\puyobuilt_temp.bin > out\puyo.log
 if not exist out\puyobuilt_temp.bin (

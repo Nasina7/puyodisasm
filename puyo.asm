@@ -13277,7 +13277,7 @@ loc_0000C1E8:
 	BSR.w	loc_0000C08C
 	BSR.w	loc_0000C56A
 	BRA.w	loc_0000C294
-	dc.b	$4E, $75 
+	RTS
 loc_0000C1FA:
 	dc.b	$FF, $00, $00 
 	dc.b	$FF
@@ -17394,7 +17394,7 @@ loc_0000F76E:
 	RTS
 loc_0000F788:
 	JMP	loc_00002AF2
-	dc.b	$4E, $75 
+	RTS
 loc_0000F790:
 	MOVEM.l	D0, -(A7)
 	MOVE.w	#5, D0

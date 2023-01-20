@@ -690,6 +690,7 @@ BC_unknown2:
 	BVMODE $0001
 	
 	BART $0000, art_twoPlayerBackground
+	BART $1000, art_twoPlayerStars
 	BART $A000, art_creditsText
 	
 	BVDPC $0004

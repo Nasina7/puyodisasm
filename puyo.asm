@@ -27387,7 +27387,9 @@ art_cutsceneHarpy: ; Used Version of Harpy (According to TCRF)
 art_ingameAssets: ; In-Game Puyos & Misc
 	incbin "art/compressed/game/puyos.bin"
 art_twoPlayerBackground:
-	incbin "art/compressed/twoPlayer/backgroundAndMisc.bin"
+	incbin "art/compressed/twoPlayer/bg.bin"
+art_twoPlayerStars:
+	incbin "art/compressed/twoPlayer/stars.bin"
 art_optionsBackground: ; Options Menu Background (Interestingly, it seems there are many tiles unused? here.)
 	incbin "art/compressed/options/background.bin"
 art_ruinsBattle:

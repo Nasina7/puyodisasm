@@ -9,7 +9,7 @@
 shiftabilityTest = 0
 
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
-fixBugs = 0
+fixBugs = 1
 
 ; MISSING POINTER = Code or data that is missing a pointer
 ; UNKNOWN USAGE = Code that was originally not disassembled during the initial runthrough, but is now disassembled.  Probably unused.
@@ -634,12 +634,6 @@ loc_00000A14:
 	MOVE.w	(A1)+, vdpData1
 	DBF	D0, loc_00000A14
 	RTS
-	
-; MISSING POINTER
-; UNKNOWN USAGE
-mis_00000A20:
-	include "game/unused/unused1.asm"
-	
 loc_00000BA4:
 	MOVE.w	#$01FF, D0
 	LEA	$00FF0622, A1
@@ -4160,12 +4154,6 @@ loc_0000473C:
 	ADDI.w	#$0020, D0
 	MOVE.w	D0, $28(A0)
 	RTS
-
-; MISSING POINTER
-; UNKNOWN USAGE
-mis_0000474A:
-	include "game/unused/unused2.asm"
-	
 loc_0000476C:
 	MOVE.w	$20(A0), D2
 	ADD.w	D1, $20(A0)
@@ -4462,12 +4450,6 @@ loc_00004B2E:
 	MOVE.w	#$00FF, (A2)+
 	DBF	D0, loc_00004B2E
 	RTS
-	
-; UNKNOWN USAGE
-; MISSING POINTER
-mis_00004B38:
-	include "game/unused/unused3.asm"
-
 loc_00004BF2:
 	MOVE.w	$00FF110A, D0
 	TST.b	$00FF1884
@@ -20832,7 +20814,6 @@ loadBGFunctionList:
 	dc.l	loadBGClear
 	dc.l	loadBGByteIndex
 	dc.l	loadBGWordIndex
-	dc.l	loadBGUnused 
 	dc.l	loadBGByteIndexPal 
 	
 loadBGClear:
@@ -20874,31 +20855,6 @@ loadBGWordIndexYLoop:
 	DBF	D0, @xloop
 	ADD.w	D1, D5
 	DBF	D4, loadBGWordIndexYLoop
-	RTS
-	
-loadBGUnused:
-	MOVEA.l	(A3)+, A4
-	MOVEA.l	(A3)+, A5
-	MOVE.w	(A3)+, D6
-	MOVE.w	(A3)+, D2
-@yloop:
-	BSR.w	loadBGSetupVDP
-	CLR.w	D0
-	MOVE.w	D3, D0
-@xloop:
-	BSR.w	@writeByte
-	DBF	D0, @xloop
-	ADD.w	D1, D5
-	DBF	D4, @yloop
-	RTS
-@writeByte:
-	MOVE.b	(A4)+, D6
-	MOVE.b	(A5)+, D2
-	BEQ.w	@writeByteD6
-	MOVE.w	D2, vdpData1
-	RTS
-@writeByteD6:
-	MOVE.w	D6, vdpData1
 	RTS
 	
 loadBGByteIndexPal:

@@ -26,7 +26,7 @@ bgmac_WordIndex: macro bg, bgWidth, bgHeight, bgLoc
 	endm
 	
 bgmac_ByteIndexPal: macro bg, bgPal, bgWidth, bgHeight, bgLoc, bgIndex
-	dc.w	$0010
+	dc.w	$000C
 	dc.b	bgWidth
 	dc.b	bgHeight
 	dc.w	bgLoc

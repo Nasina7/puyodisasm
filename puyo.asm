@@ -733,6 +733,8 @@ cleanLoop:
 	SWAP	D0
 	ANDI.w	#3, D0
 	MOVE.w	D0, vdpControl1
+	
+	
 	lea (nem_decompBuffer).l, a1
 	subq.l	#2,sp
 	move.b	(a0)+,1(sp)
@@ -20815,6 +20817,7 @@ loadBGFunctionList:
 	dc.l	loadBGByteIndex
 	dc.l	loadBGWordIndex
 	dc.l	loadBGByteIndexPal 
+	dc.l	loadBGWordOffset
 	
 loadBGClear:
 	MOVE.w	(A3)+, D6
@@ -20885,6 +20888,22 @@ loadBGBytePal2:
 	SWAP	D5
 	ADD.w	D1, D5
 	DBF	D4, @yloop
+	RTS
+	
+loadBGWordOffset:
+	MOVEA.l	(A3)+, A4 ; Load BG Mapping pointer
+	move.w	(a3)+, d2 ; Load Offset
+loadBGWordOffsetYLoop:
+	BSR.w	loadBGSetupVDP
+	CLR.w	D0
+	MOVE.w	D3, D0 ; Move width into D0
+@xloop:
+	MOVE.w	(A4)+, d6
+	add.w	d2, d6
+	MOVE.w	d6, vdpData1
+	DBF	D0, @xloop
+	ADD.w	D1, D5
+	DBF	D4, loadBGWordOffsetYLoop
 	RTS
 
 loc_0001575C:
@@ -25393,28 +25412,16 @@ loc_00017724:
 
 	
 bgdata_gameOver:
-	dc.w    $0007
-	dc.l    @clear2
+	dc.w    $0003
 	dc.l    @topLeft
-	dc.l    @topRight
-	dc.l    @bottomLeft
-	dc.l    @bottomRight
 	dc.l    @clear3
 	dc.l    @clear1
 @clear1:
 	bgmac_Clear $40, $1C, $C000, $01F8
-@clear2:
-	bgmac_Clear $28, $04, $E400, $0001
 @clear3:
 	bgmac_Clear $28, $02, $ED00, $0101
 @topLeft:
-	bgmac_ByteIndex bgmap_gameoverTopLeft, $20, $C, $E400, $00
-@topRight:
-	bgmac_ByteIndex bgmap_gameoverTopRight, $8, $8, $E640, $00
-@bottomLeft:
-	bgmac_ByteIndex bgmap_gameoverBottomLeft, $20, $6, $EA00, $01
-@bottomRight:
-	bgmac_ByteIndex bgmap_gameoverBottomRight, $8, $6, $EA40, $01
+	bgmac_WordOffset bgmap_gameover, 40, 18, $E400, $0000
 	
 
 bgdata_unkClear1:
@@ -25802,14 +25809,8 @@ bgmap_cutHellSkyRight:
     incbin "art/bgMappings/puyo/cutscene/hell/skyRight.bin"
 bgmap_cutHellSkyLeft:
     incbin "art/bgMappings/puyo/cutscene/hell/skyLeft.bin"
-bgmap_gameoverTopLeft:
-    incbin "art/bgMappings/puyo/gameover/topLeft.bin"
-bgmap_gameoverTopRight:
-    incbin "art/bgMappings/puyo/gameover/topRight.bin"
-bgmap_gameoverBottomLeft:
-    incbin "art/bgMappings/puyo/gameover/bottomLeft.bin"
-bgmap_gameoverBottomRight:
-    incbin "art/bgMappings/puyo/gameover/bottomRight.bin"
+bgmap_gameover:
+    incbin "art/bgMappings/puyo/gameover/bg.bin"
 bgmap_recordLeft:
     incbin "art/bgMappings/puyo/record/left.bin"
 bgmap_recordRight:
@@ -27262,8 +27263,20 @@ loc_00028500:
 	incbin "art/compressed/unknown/unkCharset4.bin"
 art_modeNames:
 	incbin "art/compressed/record/modeNames.bin"
-art_gameOver:
+	
+;art_gameOver:
+	;incbin "art/compressed/gameover/gameover.bin"
+art_gameOverBackground:
+	incbin "art/compressed/gameover/background.bin"
+art_gameOverContinue:
+	incbin "art/compressed/gameover/continue.bin"
+art_gameOverText:
 	incbin "art/compressed/gameover/gameover.bin"
+art_gameOverBGFade:
+	incbin "art/compressed/gameover/bg_fade.bin"
+art_gameOverNumbers:
+	incbin "art/compressed/gameover/numbers.bin"
+
 art_recordScreen:
 	incbin "art/compressed/record/recordScreen.bin"
 art_arleVictory:
@@ -27409,6 +27422,9 @@ sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	
 art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	incbin "art/compressed/title/titleScreen.bin"
+	
+art_clear:
+	incbin "art/compressed/clear.bin"
 	
 	padToPowerOfTwo
 	even

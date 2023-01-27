@@ -96,3 +96,13 @@ BSNDC2: macro sound
 	dc.w    $0013
 	dc.w    sound
 	endm
+	
+; Todo: Find a better way to do this?
+BCLEAR: macro
+	BART $0000, art_clear
+	BART $2000, art_clear
+	BART $4000, art_clear
+	BART $6000, art_clear
+	BART $8000, art_clear
+	BART $A000, art_clear
+	endm

@@ -414,11 +414,17 @@ BC_gameOver:
 	BRUN loc_00000BDC
 	
 	BRAM $00FF05D2, $0000
-	BRAM $00FF05D4, $0000
+	BRAM $00FF05D4, $0000 
+	
+	BCLEAR
 	
 	BART $A000, art_creditsText
 	
-	BART $0000, art_gameOver
+	BART $0000, art_gameOverBackground
+	BART $2C00, art_gameOverContinue
+	BART $3200, art_gameOverText
+	BART $3E00, art_gameOverBGFade
+	BART $4000, art_gameOverNumbers
 	
 	BSND $0007
 	BVDPC $0006

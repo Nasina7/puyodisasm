@@ -34,6 +34,16 @@ bgmac_ByteIndexPal: macro bg, bgPal, bgWidth, bgHeight, bgLoc, bgIndex
 	dc.l	bgPal
 	dc.w	bgIndex
 	endm
+
+bgmac_WordOffset: macro bg, bgWidth, bgHeight, bgLoc, bgOff
+	dc.w	$0010
+	dc.b	bgWidth
+	dc.b	bgHeight
+	dc.w	bgLoc
+	dc.l	bg
+	dc.w	bgOff
+	endm
+
 	
 ; Cutscene Macros
 cutscene_endCutscene: macro

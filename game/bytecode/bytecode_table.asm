@@ -42,6 +42,7 @@
 	include "game/bytecode/bytecode_macros.asm"
 	
 BC_Bootup: ; Bootup Lookup Table
+	BRUN clearVram
 
 	BRUN loc_00000FB8
 	
@@ -73,6 +74,8 @@ BC_Bootup: ; Bootup Lookup Table
 	
 	BNOP
 BC_segaScreen:
+	BRUN clearVram
+
 	BRUN loc_00000FB8
 	
 	BVMODE $0001
@@ -416,7 +419,7 @@ BC_gameOver:
 	BRAM $00FF05D2, $0000
 	BRAM $00FF05D4, $0000 
 	
-	BCLEAR
+	BRUN clearVram
 	
 	BART $A000, art_creditsText
 	

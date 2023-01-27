@@ -836,6 +836,16 @@ gfxLoadLoop:
 	rts	
 ; End of function KosDec
 
+clearVram:
+	ori	#$0700, sr
+	move.w	#$4000, (vdpControl1)
+	move.w	#$0000, (vdpControl1)
+	move.w 	#$3FFF, d0
+clearVramLoop:
+	move.l 	#0, (vdpData1)
+	dbf d0, clearVramLoop
+	andi	#$F8FF, sr
+	rts	
 
 init_initVDP:
 	CLR.w	D0
@@ -27420,9 +27430,6 @@ sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	
 art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	incbin "art/compressed/title/titleScreen.bin"
-	
-art_clear:
-	incbin "art/compressed/clear.bin"
 	
 	padToPowerOfTwo
 	even

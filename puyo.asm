@@ -25413,14 +25413,14 @@ loc_00017724:
 	
 bgdata_gameOver:
 	dc.w    $0003
-	dc.l    @topLeft
+	dc.l    @background
 	dc.l    @clear3
 	dc.l    @clear1
 @clear1:
 	bgmac_Clear $40, $1C, $C000, $01F8
 @clear3:
 	bgmac_Clear $28, $02, $ED00, $0101
-@topLeft:
+@background:
 	bgmac_WordOffset bgmap_gameover, 40, 18, $E400, $0000
 	
 
@@ -27264,8 +27264,6 @@ loc_00028500:
 art_modeNames:
 	incbin "art/compressed/record/modeNames.bin"
 	
-;art_gameOver:
-	;incbin "art/compressed/gameover/gameover.bin"
 art_gameOverBackground:
 	incbin "art/compressed/gameover/background.bin"
 art_gameOverContinue:

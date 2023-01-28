@@ -20903,6 +20903,7 @@ loadBGBytePal2:
 loadBGWordOffset:
 	MOVEA.l	(A3)+, A4 ; Load BG Mapping pointer
 	move.w	(a3)+, d2 ; Load Offset
+	lsl.w	#8, d2
 loadBGWordOffsetYLoop:
 	BSR.w	loadBGSetupVDP
 	CLR.w	D0
@@ -25117,13 +25118,13 @@ bgdata_menu1PHighlight:
 	dc.l    @menuTokoton
 	dc.l    @menuOptions
 @menu1P:
-	bgmac_ByteIndex bgmap_menu1PlayerHighlight, 16, 2, $CA18, $E3
+	bgmac_WordOffset bgmap_menu1PlayerHighlight, 16, 2, $CA18, $E3
 @menu2P:
-	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+	bgmac_WordOffset bgmap_menu2Player, 16, 2, $CD18, $E3
 @menuTokoton:
-	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+	bgmac_WordOffset bgmap_menuTokoton, 16, 2, $D018, $E3
 @menuOptions:
-	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
+	bgmac_WordOffset bgmap_menuOptions, 16, 2, $D318, $E3
 	
 
 bgdata_menu2PHighlight:
@@ -25133,13 +25134,13 @@ bgdata_menu2PHighlight:
 	dc.l    @menuTokoton
 	dc.l    @menuOptions
 @menu1P:
-	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+	bgmac_WordOffset bgmap_menu1Player, 16, 2, $CA18, $E3
 @menu2P:
-	bgmac_ByteIndex bgmap_menu2PlayerHighlight, 16, 2, $CD18, $E3
+	bgmac_WordOffset bgmap_menu2PlayerHighlight, 16, 2, $CD18, $E3
 @menuTokoton:
-	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+	bgmac_WordOffset bgmap_menuTokoton, 16, 2, $D018, $E3
 @menuOptions:
-	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
+	bgmac_WordOffset bgmap_menuOptions, 16, 2, $D318, $E3
 	
 	
 bgdata_menuTokotonHighlight:
@@ -25149,13 +25150,13 @@ bgdata_menuTokotonHighlight:
 	dc.l    @menuTokoton
 	dc.l    @menuOptions
 @menu1P:
-	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+	bgmac_WordOffset bgmap_menu1Player, 16, 2, $CA18, $E3
 @menu2P:
-	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+	bgmac_WordOffset bgmap_menu2Player, 16, 2, $CD18, $E3
 @menuTokoton:
-	bgmac_ByteIndex bgmap_menuTokotonotonHighlight, 16, 2, $D018, $E3
+	bgmac_WordOffset bgmap_menuTokotonotonHighlight, 16, 2, $D018, $E3
 @menuOptions:
-	bgmac_ByteIndex bgmap_menuOptions, 16, 2, $D318, $E3
+	bgmac_WordOffset bgmap_menuOptions, 16, 2, $D318, $E3
 
 
 bgdata_menuOptionsHighlight:
@@ -25165,18 +25166,18 @@ bgdata_menuOptionsHighlight:
 	dc.l    @menuTokoton
 	dc.l    @menuOptions
 @menu1P:
-	bgmac_ByteIndex bgmap_menu1Player, 16, 2, $CA18, $E3
+	bgmac_WordOffset bgmap_menu1Player, 16, 2, $CA18, $E3
 @menu2P:
-	bgmac_ByteIndex bgmap_menu2Player, 16, 2, $CD18, $E3
+	bgmac_WordOffset bgmap_menu2Player, 16, 2, $CD18, $E3
 @menuTokoton:
-	bgmac_ByteIndex bgmap_menuTokoton, 16, 2, $D018, $E3
+	bgmac_WordOffset bgmap_menuTokoton, 16, 2, $D018, $E3
 @menuOptions:
-	bgmac_ByteIndex bgmap_menuOptionsionsHighlight, 16, 2, $D318, $E3
+	bgmac_WordOffset bgmap_menuOptionsionsHighlight, 16, 2, $D318, $E3
 
 
 	
 bgdata_mainMenu:
-	dc.w    $0013
+	dc.w    $0012
 	dc.l    @clear1
 	dc.l    @treesTopLeft
 	dc.l    @treesTopRight
@@ -25194,8 +25195,7 @@ bgdata_mainMenu:
 	dc.l    @cloud11
 	dc.l    @cloud12
 	dc.l    @menu
-	dc.l    @diffLeft
-	dc.l    @diffRight
+	dc.l    @diff
 
 @clear1:
 	bgmac_Clear $50, $1C, $C000, $8000
@@ -25230,11 +25230,9 @@ bgdata_mainMenu:
 @cloud12:
 	bgmac_ByteIndex bgmap_cutGrassCloud2, 12, 4, $E4BC, $02
 @menu:
-	bgmac_ByteIndex bgmap_menuMain, 30, 22, $C30A, $E0
-@diffLeft:
-	bgmac_ByteIndex bgmap_menuDifficultyLeft, 32, 23, $C250, $E0
-@diffRight:
-	bgmac_ByteIndex bgmap_menuDifficultyRight, 8, 23, $C290, $E0	
+	bgmac_WordOffset bgmap_menuMain, 30, 22, $C30A, $E0
+@diff:
+	bgmac_WordOffset bgmap_menuDifficulty, 40, 23, $C250, $E0	
 
 
 bgdata_demoScreen:
@@ -25253,9 +25251,9 @@ bgdata_demoScreen:
 @clear3:
 	bgmac_Clear $15, $10, $E1A2, $63FC
 @patch1:
-	bgmac_ByteIndex bgmap_demoPatch1, 1, 17, $E11E, $40	
+	bgmac_WordOffset bgmap_demoPatch1, 1, 17, $E11E, $40	
 @patch2:
-	bgmac_ByteIndex bgmap_demoPatch2, $17, 8, $E99E, $40	
+	bgmac_WordOffset bgmap_demoPatch2, $17, 8, $E99E, $40	
 @clear4:
 	bgmac_Clear $E, $6, $EA20, $63FD
 @clear5:
@@ -25279,19 +25277,16 @@ bgdata_segaLogo:
 @clear2:
 	bgmac_Clear $40, $1C, $E000, $0000
 @logo
-	bgmac_ByteIndex bgmap_segaLogo, $C, 4, $C61C, $80
+	bgmac_WordOffset bgmap_segaLogo, $C, 4, $C61C, $80
 
 	
 bgdata_title:
-	dc.w	$0008
+	dc.w	$0005
 	dc.l    @clear1
 	dc.l    @bgPart1
 	dc.l    @bgPart2
 	dc.l    @bgPart3
-	dc.l    @Pu1
-	dc.l    @Yo1
-	dc.l    @Pu2
-	dc.l    @Yo2
+	dc.l    @logo
 @clear1:
 	bgmac_Clear $80, $20, $C000, $0500
 @bgPart1:
@@ -25300,14 +25295,8 @@ bgdata_title:
 	bgmac_WordIndex bgmap_titleBG1, $28, $C, $E400
 @bgPart3:
 	bgmac_WordIndex bgmap_titleBG1, $28, $C, $F000
-@Pu1:
-	bgmac_ByteIndex bgmap_titlePu1, $8, $7, $C608, $E3
-@Yo1:
-	bgmac_ByteIndex bgmap_titleYo1, $8, $7, $C618, $E3
-@Pu2:
-	bgmac_ByteIndex bgmap_titlePu2, $8, $7, $C628, $E3
-@Yo2:
-	bgmac_ByteIndex bgmap_titleYo2, $8, $7, $C638, $E3
+@logo:
+	bgmac_WordOffset bgmap_titleLogo, $20, $7, $C608, $E3
 	
 
 bgdata_endingScroll:
@@ -25374,34 +25363,25 @@ bgdata_endingArle:
 
 	
 bgdata_recordScreen:
-	dc.w    $0009
+	dc.w    $0006
 	dc.l	@clear1
-	dc.l	@recordLeft1
-	dc.l	@recordRight1
-	dc.l	@recordLeft2
-	dc.l	@recordRight2
+	dc.l	@record1
+	dc.l	@record2
 	dc.l	@recordUnk1
-	dc.l	@recordLeft3
-	dc.l	@recordRight3
+	dc.l	@record3
 	dc.l	@recordUnk2
 @clear1:
 	bgmac_Clear $80, $1C, $C000, $8500
-@recordLeft1:
-	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E000, $03
-@recordRight1:
-	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E040, $03
-@recordLeft2:
-	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E050, $03
-@recordRight2:
-	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E090, $03
+@record1:
+	bgmac_WordOffset bgmap_record, $28, $1C, $E000, $03
+@record2:
+	bgmac_WordOffset bgmap_record, $28, $1C, $E050, $03
 @recordUnk1:
-	bgmac_ByteIndex bgmap_recordUnk1, $2, $E, $EA58, $03
-@recordLeft3:
-	bgmac_ByteIndex bgmap_recordLeft, $20, $1C, $E0B0, $03
-@recordRight3:
-	bgmac_ByteIndex bgmap_recordRight, $8, $1C, $E0F0, $03
+	bgmac_WordOffset bgmap_recordUnk1, $2, $E, $EA58, $03
+@record3:
+	bgmac_WordOffset bgmap_record, $28, $1C, $E0B0, $03
 @recordUnk2:
-	bgmac_ByteIndex bgmap_recordUnk1, $2, $E, $EAB8, $03
+	bgmac_WordOffset bgmap_recordUnk1, $2, $E, $EAB8, $03
 
 	
 bgdata_unk2:
@@ -25431,7 +25411,7 @@ bgdata_gameOver:
 @clear3:
 	bgmac_Clear $28, $02, $ED00, $0101
 @background:
-	bgmac_WordOffset bgmap_gameover, 40, 18, $E400, $0000
+	bgmac_WordOffset bgmap_gameover, 40, 18, $E400, $00
 	
 
 bgdata_unkClear1:
@@ -25821,12 +25801,12 @@ bgmap_cutHellSkyLeft:
     incbin "art/bgMappings/puyo/cutscene/hell/skyLeft.bin"
 bgmap_gameover:
     incbin "art/bgMappings/puyo/gameover/bg.bin"
-bgmap_recordLeft:
-    incbin "art/bgMappings/puyo/record/left.bin"
-bgmap_recordRight:
-    incbin "art/bgMappings/puyo/record/right.bin"
+	
+bgmap_record:
+	incbin "art/bgMappings/puyo/record/record.bin"
 bgmap_recordUnk1:
     incbin "art/bgMappings/puyo/record/unknown.bin"
+	
 bgmap_endingArleTop:
     incbin "art/bgMappings/puyo/ending/arleTop.bin"
 bgmap_endingArleBottom:
@@ -25841,18 +25821,14 @@ bgmap_endingGround:
     incbin "art/bgMappings/puyo/ending/ground.bin"
 bgmap_endingSunsetNight:
     incbin "art/bgMappings/puyo/ending/sunsetNight.bin"
+	
 bgmap_titleBG1:
     incbin "art/bgMappings/puyo/title/u_background1.bin"
 bgmap_titleBG2:
     incbin "art/bgMappings/puyo/title/u_background2.bin"
-bgmap_titlePu1:
-    incbin "art/bgMappings/puyo/title/firstPu.bin"
-bgmap_titleYo1:
-    incbin "art/bgMappings/puyo/title/firstYo.bin"
-bgmap_titlePu2:
-    incbin "art/bgMappings/puyo/title/secondPu.bin"
-bgmap_titleYo2:
-    incbin "art/bgMappings/puyo/title/secondYo.bin"
+bgmap_titleLogo:
+	incbin "art/bgMappings/puyo/title/logo.bin"
+	
 bgmap_twoPlayerTopLeft:
     incbin "art/bgMappings/puyo/twoplayer/topLeft.bin"
 bgmap_twoPlayerTopRight:
@@ -25907,6 +25883,7 @@ bgmap_demoPatch1:
     incbin "art/bgMappings/puyo/demo/patch1.bin"
 bgmap_demoPatch2:
     incbin "art/bgMappings/puyo/demo/patch2.bin"
+	
 bgmap_menuMain:
     incbin "art/bgMappings/puyo/menu/mainMenu.bin"
 bgmap_menu1PlayerHighlight:
@@ -25925,10 +25902,8 @@ bgmap_menuOptionsionsHighlight:
     incbin "art/bgMappings/puyo/menu/optionsHighlight.bin"
 bgmap_menuOptions:
     incbin "art/bgMappings/puyo/menu/options.bin"
-bgmap_menuDifficultyLeft:
-    incbin "art/bgMappings/puyo/menu/difficultyLeft.bin"
-bgmap_menuDifficultyRight:
-    incbin "art/bgMappings/puyo/menu/difficultyRight.bin"
+bgmap_menuDifficulty:
+    incbin "art/bgMappings/puyo/menu/difficulty.bin"
 	
 loc_0001CCDC:
 	BSR.w	loc_0001CE34

@@ -304,7 +304,7 @@ BC_portraitScreen:
 	BRUN loc_000093F4
 	BRUN loc_0000A1A4
 	BRUN loc_0000A2AC
-	BRUN loc_0000204E
+	BRUN cutsceneLoadMusic
 	
 	
 	BNOP
@@ -313,7 +313,7 @@ BC_portraitScreen:
 	
 	BPALF pal_general, 0, 0
 	
-	BRUN loc_00002128
+	BRUN loadBattlePalette
 	
 	BSTOP
 	
@@ -345,7 +345,7 @@ BC_unknown1:
 	BWPAL
 	BNOP
 	
-	BRUN loc_0000208A
+	BRUN loadBattleBackground
 	
 	BMUSF
 	
@@ -370,7 +370,7 @@ BC_unknown1:
 	BPAL pal_00002250, 1
 	BPAL pal_general, 3
 	
-	BRUN loc_00002128
+	BRUN loadBattlePalette
 	
 	BRAM $00FF1108, $0802
 	
@@ -482,7 +482,7 @@ BC_easyModeEnding:
 	
 	BRUN loc_000093F4
 	BRUN loc_0000A2AC
-	BRUN loc_0000204E
+	BRUN cutsceneLoadMusic
 	
 	BNOP
 	

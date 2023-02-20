@@ -11,9 +11,6 @@ shiftabilityTest = 0
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
 fixBugs = 0
 
-; MISSING POINTER = Code or data that is missing a pointer
-; UNKNOWN USAGE = Code that was originally not disassembled during the initial runthrough, but is now disassembled.  Probably unused.
-
 ; Credits to AURORA*FIELDS for making LANG.ASM
 
 startOfRom:
@@ -207,9 +204,9 @@ mainLoop:
 waitForVint:
 	LEA	$00FF05C6, A0
 	MOVE.w	(A0), D0
-waitForVintLoop:
+@waitVint:
 	CMP.w	(A0), D0
-	BEQ.b	waitForVintLoop
+	BEQ.b	@waitVint
 	RTS
 	
 loc_0000033B:
@@ -635,8 +632,7 @@ loc_00000A14:
 	DBF	D0, loc_00000A14
 	RTS
 	
-; MISSING POINTER
-; UNKNOWN USAGE
+; Large Dead Code
 mis_00000A20:
 	include "game/unused/unused1.asm"
 	
@@ -1242,113 +1238,130 @@ loc_000013B0:
 	include "game/bytecode/bytecode.asm"
 	include "game/bytecode/bytecode_table.asm"
 
-loc_0000204E:
+cutsceneLoadMusic:
 	CLR.w	D1
-	MOVE.b	$00FF0112, D1
-	MOVE.b	loc_00002078(PC,D1.w), D0
+	MOVE.b	game_curStage, D1
+	MOVE.b	cutsceneSongs(PC,D1.w), D0
 	JSR	playSoundID
-	CMPI.b	#7, $00FF0113
+	CMPI.b	#cutID_Harpy, game_curCutscene
 	BEQ.w	loc_0000206E
 	RTS
 loc_0000206E:
 	MOVE.b	#$0D, D0
 	JMP	loc_000072BE
-loc_00002078:
-	dc.b	$0C, $0C, $0C 
-	dc.b	$0C
-	dc.b	$0C
-	dc.b	$0C, $0C, $0C, $0C, $0C, $0C, $10, $10, $10, $10, $0F, $10, $00 
-loc_0000208A:
+cutsceneSongs:
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Memories
+	dc.b	musID_Brave
+	dc.b	musID_Brave
+	dc.b	musID_Brave
+	dc.b	musID_Brave
+	dc.b	musID_SatanTheme
+	dc.b	musID_Brave
+	even
+	
+loadBattleBackground:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LSL.w	#2, D0
-	MOVEA.l	loc_0000209A(PC,D0.w), A1
+	MOVEA.l	tbl_loadBattleBackground(PC,D0.w), A1
 	JMP	(A1)
-loc_0000209A:
-	dc.l	loc_0000210E
-	dc.l	loc_0000210E
-	dc.l	loc_0000210E
-	dc.l	loc_000020DA
-	dc.l	loc_000020DA
-	dc.l	loc_000020DA 
-	dc.l	loc_000020DA 
-	dc.l	loc_000020DA 
-	dc.l	loc_000020DA 
-	dc.l	loc_000020DA 
-	dc.l	loc_000020DA 
-	dc.l	loc_000020F4
-	dc.l	loc_000020F4
-	dc.l	loc_000020F4
-	dc.l	loc_000020F4
-	dc.l	loc_000020F4
-loc_000020DA:
+tbl_loadBattleBackground:
+	dc.l	battleLoadTutorialBG
+	dc.l	battleLoadTutorialBG
+	dc.l	battleLoadTutorialBG
+	dc.l	@battleLoadGrass
+	dc.l	@battleLoadGrass
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadRuins
+	dc.l	@battleLoadRuins
+	dc.l	@battleLoadRuins
+	dc.l	@battleLoadRuins
+	dc.l	@battleLoadRuins
+@battleLoadGrass:
 	LEA	art_grassBattle, A0
 	MOVE.w	#0, D0
 	JSR	graphicsDecompress
 	MOVE.w	#3, D0
 	JMP	loc_00000BF2
-loc_000020F4:
+@battleLoadRuins:
 	LEA art_ruinsBattle, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 loc_00002103:
 	MOVE.w	#5, D0
 	JMP	loc_00000BF2
-loc_0000210E:
+battleLoadTutorialBG:
 	LEA art_optionsBackground, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 	MOVE.w  #$16, D0
 	jmp loc_00000BF2
-loc_00002128:
+	
+loadBattlePalette:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LSL.w	#2, D0
-	MOVEA.l	loc_00002138(PC,D0.w), A1
+	MOVEA.l	tbl_loadBattlePalette(PC,D0.w), A1
 	JMP	(A1)
-loc_00002138:
-	dc.l    loc_000021BA
-	dc.l    loc_000021BA
-	dc.l    loc_000021BA
-	dc.l	loc_00002178
-	dc.l	loc_00002178
-	dc.l	loc_00002178 
-	dc.l	loc_00002178 
-	dc.l	loc_00002178 
-	dc.l	loc_00002178 
-	dc.l	loc_00002178 
-	dc.l	loc_00002178 
-	dc.l    loc_0000218E
-	dc.l    loc_0000218E
-	dc.l    loc_0000218E
-	dc.l    loc_0000218E
-	dc.l    loc_000021A4
-loc_00002178:
+tbl_loadBattlePalette:
+	dc.l    @battleLoadTutorial
+	dc.l    @battleLoadTutorial
+	dc.l    @battleLoadTutorial
+	dc.l	@battleLoadGrass
+	dc.l	@battleLoadGrass
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l	@battleLoadGrass 
+	dc.l    @battleLoadRuins
+	dc.l    @battleLoadRuins
+	dc.l    @battleLoadRuins
+	dc.l    @battleLoadRuins
+	dc.l    @battleLoadUnk
+@battleLoadGrass:
 	MOVE.b	#2, D0
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_grassBattle-palLookupTable), A2
 	JMP	loc_00001020
-loc_0000218E:
+@battleLoadRuins:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_ruinsBattle-palLookupTable), A2
 	JMP loc_00001020
-loc_000021A4:
+@battleLoadUnk:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_00002710-palLookupTable), A2
 	JMP loc_00001020
-loc_000021BA:
+@battleLoadTutorial:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_optionsBackground-palLookupTable), A2
 	JMP loc_00001020
 loc_000021D0:
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCC.w	loc_000021E0
 	BSR.w	loc_00000FB8
 loc_000021E0:
 	RTS
+	
 initializeDebugFlags:
 	move.b #-1, (debug_CpuPlayer).l
 	move.b #0, (debug_puyoDrop).l
@@ -1358,6 +1371,7 @@ initializeDebugFlags:
 loc_00002204:
 	MOVE.b	debug_skipStages, BC_returnState
 	RTS
+	
 palLookupTable:
 pal_blank:
 	incbin "art/palettes/blank.bin"
@@ -2158,7 +2172,7 @@ loc_00002D28:
 	SUB.l	D1, $16(A0)
 	RTS
 loc_00002D34:
-	CMPI.b	#8, $00FF0113
+	CMPI.b	#cutID_ZohDaimaoh, game_curCutscene
 	BNE.w	loc_00002DC2
 	TST.b	$2A(A0)
 	BEQ.w	loc_00002DC2
@@ -2195,21 +2209,21 @@ loc_00002D9A:
 	rts
 loc_00002DC2:
 	MOVE.b	#$55, D0
-	CMPI.b	#$0C, $00FF0113
+	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002DD6
 	MOVE.b	#$2E, D0
 loc_00002DD6:
 	JMP	loc_000072BE
 loc_00002DDC:
 	MOVE.b	#$67, D0
-	CMPI.b	#$0C, $00FF0113
+	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002DF0
 	MOVE.b	#$4A, D0
 loc_00002DF0:
 	JMP	loc_000072BE
 loc_00002DF6:
 	MOVE.b	#$53, D0
-	CMPI.b	#$0C, $00FF0113
+	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002E0A
 	MOVE.b	#$2D, D0
 loc_00002E0A:
@@ -2223,8 +2237,8 @@ loc_00002E1C:
 	BEQ.w	loc_00002E26
 	RTS
 loc_00002E26:
-	CMPI.b	#$0C, $00FF0113
-	BEQ.w	loc_00002E70
+	CMPI.b	#cutID_Satan, game_curCutscene
+	BEQ.w	loadBattleMusic
 	CMPI.b	#musID_Warning, $00FF111A
 	BEQ.w	loc_00002E62
 	CMPI.w	#$003C, $00FF1F1C
@@ -2237,12 +2251,12 @@ mus_triggerWarningMusic:
 	JMP	playSoundID
 loc_00002E62:
 	CMPI.w	#$0036, $00FF1F1C
-	BCS.w	loc_00002E70
+	BCS.w	loadBattleMusic
 	RTS
-loc_00002E70:
+loadBattleMusic:
 	CLR.w	D1
-	MOVE.b	$00FF0112, D1
-	MOVE.b	mus_stageMusicLookup(PC,D1.w), D0
+	MOVE.b	game_curStage, D1
+	MOVE.b	tbl_loadBattleMusic(PC,D1.w), D0
 	CMP.b	$00FF111A, D0
 	BNE.w	loc_00002E88
 	RTS
@@ -2250,11 +2264,10 @@ loc_00002E88:
 	MOVE.b	D0, $00FF111A
 	JSR	loc_00007308
 	JMP	playSoundID
-mus_stageMusicLookup:
+tbl_loadBattleMusic:
 	dc.b    musID_Morning
 	dc.b    musID_Morning
 	dc.b    musID_Morning
-	
 	dc.b    musID_Theme
 	dc.b    musID_Theme
 	dc.b    musID_Theme
@@ -2263,12 +2276,10 @@ mus_stageMusicLookup:
 	dc.b    musID_Theme
 	dc.b    musID_Theme
 	dc.b    musID_Theme
-	
 	dc.b    musID_Sticker
 	dc.b    musID_Sticker
 	dc.b    musID_Sticker
 	dc.b    musID_Sticker
-	
 	dc.b    musID_Final
 loc_00002EAA:
 	dc.b	$04, $04, $04 
@@ -2280,7 +2291,7 @@ loc_00002EBA:
 	CMPI.b	#1, $00FF1882
 	BEQ.w	loc_00002ED6
 	CLR.w	D1
-	MOVE.b	$00FF0112, D1
+	MOVE.b	game_curStage, D1
 	MOVE.b	loc_00002EAA(PC,D1.w), D2
 loc_00002ED6:
 	MOVE.w	#$00FF, D1
@@ -2352,15 +2363,15 @@ loc_00002FAE:
 	dc.w	$000C
 	dc.b	$00, $08, $00, $04, $00, $02, $00, $00 
 loc_00002FB8:
-	CMPI.b	#$0F, $00FF0112
+	CMPI.b	#stgID_Satan, game_curStage
 	BCC.w	loc_00002FFC
-	ADDQ.b	#1, $00FF0112
+	ADDQ.b	#1, game_curStage
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LEA	$00FF0116, A1
 	MOVE.b	#$FF, (A1,D0.w)
 	MOVE.b	#0, BC_returnState
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#3, game_curStage
 	BNE.w	loc_00002FFA
 	MOVE.b	#2, BC_returnState
 loc_00002FFA:
@@ -2410,7 +2421,7 @@ loc_00003070:
 	TST.b	$00FF1882
 	BNE.w	loc_00003096
 	CLR.b	$00FF111A
-	BSR.w	loc_00002E70
+	BSR.w	loadBattleMusic
 loc_00003096:
 	BSR.w	loc_00000BA4
 	MOVE.w	#$8B00, D0
@@ -2614,7 +2625,7 @@ loc_000033C0:
 loc_000033C4:
 	BCLR.b	#0, $7(A0)
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	MOVE.b	loc_000033DA(PC,D0.w), $8(A0)
 	RTS
 loc_000033DA:
@@ -3364,7 +3375,7 @@ loc_00003DBE:
 	EORI.b	#1, D0
 	CMPI.b	#$14, $9(A0)
 	BNE.w	loc_00003E16
-	CMPI.b	#$0C, $00FF0113
+	CMPI.b	#cutID_Satan, game_curCutscene
 	BEQ.w	loc_00003E16
 	SUBQ.b	#2, D0
 loc_00003E16:
@@ -3526,7 +3537,7 @@ loc_00003FF6:
 	MOVE.b	#6, D1
 loc_00004008:
 	MOVE.b	loc_00004022(PC,D1.w), D0
-	CMPI.b	#$0C, $00FF0113
+	CMPI.b	#cutID_Satan, game_curCutscene
 loc_00004014:
 	BNE.w	loc_0000401C
 	MOVE.b	#$30, D0
@@ -3596,7 +3607,7 @@ loc_000040DC:
 	TST.b	$2A(A0)
 	BEQ.w	loc_0000424C
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	loc_00004102(PC,D0.w), A1
 	JMP	(A1)
@@ -4103,8 +4114,7 @@ loc_0000473C:
 	MOVE.w	D0, $28(A0)
 	RTS
 
-; MISSING POINTER
-; UNKNOWN USAGE
+; Large Dead Code
 mis_0000474A:
 	include "game/unused/unused2.asm"
 	
@@ -4405,8 +4415,7 @@ loc_00004B2E:
 	DBF	D0, loc_00004B2E
 	RTS
 	
-; UNKNOWN USAGE
-; MISSING POINTER
+; Large Dead Code
 mis_00004B38:
 	include "game/unused/unused3.asm"
 
@@ -4971,62 +4980,62 @@ loc_000052A4:
 loc_000052BA:
 	MOVE.l	#$000053D2, $32(A0)
 	BSR.w	loc_00002B26
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	BCS.w	loc_000052DA	;Predicted (Code-scan)
-	MOVE.b	$9(A0), $9(A1)	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	
+	BSR.w	func_updateCutsceneAnimation	
+	BCS.w	loc_000052DA	
+	MOVE.b	$9(A0), $9(A1)	
+	RTS	
 loc_000052DA:
-	MOVE.b	#5, $6(A0)	;Predicted (Code-scan)
-	MOVE.w	$A(A1), $A(A0)	;Predicted (Code-scan)
-	MOVE.w	$A(A1), $36(A0)	;Predicted (Code-scan)
-	MOVE.w	$E(A1), $E(A0)	;Predicted (Code-scan)
-	MOVE.w	$E(A1), $38(A0)	;Predicted (Code-scan)
-	MOVE.w	#$FFFF, $16(A0)	;Predicted (Code-scan)
-	MOVE.w	#$0A00, $1A(A0)	;Predicted (Code-scan)
-	MOVE.w	#$1800, $1C(A0)	;Predicted (Code-scan)
-	MOVE.b	#$75, D0	;Predicted (Code-scan)
-	JSR	loc_000072BE	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BSR.w	loc_00002C2A	;Predicted (Code-scan)
-	BCS.w	loc_00005332	;Predicted (Code-scan)
-	MOVE.w	$A(A0), $A(A1)	;Predicted (Code-scan)
-	MOVE.w	$E(A0), $E(A1)	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	MOVE.b	#5, $6(A0)	
+	MOVE.w	$A(A1), $A(A0)	
+	MOVE.w	$A(A1), $36(A0)	
+	MOVE.w	$E(A1), $E(A0)	
+	MOVE.w	$E(A1), $38(A0)	
+	MOVE.w	#$FFFF, $16(A0)	
+	MOVE.w	#$0A00, $1A(A0)	
+	MOVE.w	#$1800, $1C(A0)	
+	MOVE.b	#$75, D0	
+	JSR	loc_000072BE	
+	BSR.w	loc_00002B26	
+	MOVEA.l	$2E(A0), A1	
+	BSR.w	loc_00002C2A	
+	BCS.w	loc_00005332	
+	MOVE.w	$A(A0), $A(A1)	
+	MOVE.w	$E(A0), $E(A1)	
+	RTS	
 loc_00005332:
-	CLR.b	$00FF18C7	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	TST.b	$00FF18C7	;Predicted (Code-scan)
-	BNE.w	loc_00005348	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	CLR.b	$00FF18C7	
+	BSR.w	loc_00002B26	
+	TST.b	$00FF18C7	
+	BNE.w	loc_00005348	
+	RTS	
 loc_00005348:
-	MOVE.b	#5, $6(A0)	;Predicted (Code-scan)
-	MOVE.w	$36(A0), $A(A0)	;Predicted (Code-scan)
-	CLR.l	$16(A0)	;Predicted (Code-scan)
-	MOVE.w	#$FFFF, $20(A0)	;Predicted (Code-scan)
-	MOVE.w	#$1800, $1C(A0)	;Predicted (Code-scan)
-	MOVE.l	#$000053C4, $32(A0)	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BSR.w	loc_00002C2A	;Predicted (Code-scan)
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	MOVE.b	$9(A0), $9(A1)	;Predicted (Code-scan)
-	MOVE.w	$A(A0), $A(A1)	;Predicted (Code-scan)
-	MOVE.w	$E(A0), D0	;Predicted (Code-scan)
-	MOVE.w	D0, $E(A1)	;Predicted (Code-scan)
-	CMP.w	$38(A0), D0	;Predicted (Code-scan)
-	BCC.w	loc_0000539A	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	MOVE.b	#5, $6(A0)	
+	MOVE.w	$36(A0), $A(A0)	
+	CLR.l	$16(A0)	
+	MOVE.w	#$FFFF, $20(A0)	
+	MOVE.w	#$1800, $1C(A0)	
+	MOVE.l	#$000053C4, $32(A0)	
+	BSR.w	loc_00002B26	
+	MOVEA.l	$2E(A0), A1	
+	BSR.w	loc_00002C2A	
+	BSR.w	func_updateCutsceneAnimation	
+	MOVE.b	$9(A0), $9(A1)	
+	MOVE.w	$A(A0), $A(A1)	
+	MOVE.w	$E(A0), D0	
+	MOVE.w	D0, $E(A1)	
+	CMP.w	$38(A0), D0	
+	BCC.w	loc_0000539A	
+	RTS	
 loc_0000539A:
-	MOVE.b	#$0D, $9(A1)	;Predicted (Code-scan)
-	MOVE.w	$36(A0), $A(A1)	;Predicted (Code-scan)
-	MOVE.w	$38(A0), $E(A1)	;Predicted (Code-scan)
-	MOVE.b	#$FF, $36(A1)	;Predicted (Code-scan)
-	CLR.w	$00FF18C6	;Predicted (Code-scan)
-	MOVE.b	#$55, D0	;Predicted (Code-scan)
-	BSR.w	loc_000072BE	;Predicted (Code-scan)
-	BRA.w	loc_00002AF2	;Predicted (Code-scan)
+	MOVE.b	#$0D, $9(A1)	
+	MOVE.w	$36(A0), $A(A1)	
+	MOVE.w	$38(A0), $E(A1)	
+	MOVE.b	#$FF, $36(A1)	
+	CLR.w	$00FF18C6	
+	MOVE.b	#$55, D0	
+	BSR.w	loc_000072BE	
+	BRA.w	loc_00002AF2	
 loc_000053C4:
 	dc.b	$01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00
 	dc.l    loc_000053C4
@@ -5150,13 +5159,12 @@ loc_00005582:
 	BCS.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
 	RTS
-; MISSING POINTER
-; UNKNOWN USAGE
+; Dead Code
 	MOVE.b	#$87, $6(A0)
 	BSR.w	loc_00002B26
-	BSR.w	loc_00002C2A	;Predicted (Code-scan)
-	BCS.w	loc_00002AF2	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	BSR.w	loc_00002C2A	
+	BCS.w	loc_00002AF2	
+	RTS	
 loc_000055A4:
 	MOVE.w	#$8000, D1
 	MOVE.w	#$8500, D2
@@ -5171,7 +5179,7 @@ loc_000055BC:
 loc_000055C4:
 	MOVEM.l	A0/D2, -(A7)
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	MOVEA.l	lookup_portraitArt(PC,D0.w), A0
 	MOVE.w	D1, D0
@@ -5201,7 +5209,7 @@ lookup_portraitArt:
 	dc.l	art_portraitNasu
 	dc.l	art_portraitWitch
 	dc.l	art_portraitSasoriman
-	dc.l	art_portraitHarpy    ; Harpy Portrait
+	dc.l	art_portraitHarpy
 	dc.l	art_portraitZoDaimaoh
 	dc.l	art_portraitSchezo
 	dc.l	art_portraitMinotauros
@@ -5227,7 +5235,7 @@ loc_0000568A:
 	MOVE.w	D0, $26(A0)
 	LEA	loc_000056E8, A1
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.w	$26(A0), D0
@@ -6839,9 +6847,9 @@ loc_000065D4:
 	MOVE.l	#$05F5E0FF, $00FF187A
 loc_00006610:
 	MOVE.w	$16(A1), $00FF187E
-	CMPI.b	#$0F, $00FF0112
+	CMPI.b	#stgID_Satan, game_curStage
 	BEQ.w	loc_00006646
-	CMPI.b	#2, $00FF0112
+	CMPI.b	#stgID_Mummy, game_curStage
 	BEQ.w	loc_00006646
 loc_00006630:
 	BSR.w	loc_00002AFC
@@ -6877,14 +6885,14 @@ loc_00006668:
 	bcs.w loc_000066C4
 	clr.w (a1)
 	move.b #1, (a1, d0.w)
-	move.b #$c, ($00FF0113)
+	move.b #cutID_Satan, (game_curCutscene)
 loc_000066C4:
 	bra.w loc_00005F7A
 loc_000066C8:
-	lea (loc_0000C20A), a1
+	lea (tbl_cutsceneOrder), a1
 	move.w #$F, d0
 	jsr loc_00001202
-	move.b (a1, d0.w), ($00FF0113)
+	move.b (a1, d0.w), (game_curCutscene)
 	rts
 loc_000066E2:
 	clr.w d0
@@ -7019,7 +7027,7 @@ loc_000068B4:
 loc_000068D6:
 	MOVEM.l	A0, -(A7)
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
@@ -7027,7 +7035,7 @@ loc_000068D6:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	MOVE.b	D0, D1
 	ADDI.b	#9, D1
 	LEA	loc_000069A4, A1
@@ -7045,7 +7053,7 @@ loc_000068D6:
 	LEA	loc_00006994, A3
 loc_0000694A:
 	CLR.w	D2
-	MOVE.b	$00FF0113, D2
+	MOVE.b	game_curCutscene, D2
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
 	LEA	loc_00009702, A3
@@ -7115,7 +7123,7 @@ loc_00006A40:
 	SUBI.w	#$0040, $38(A0)
 	BCS.b	loc_00006A0E
 	RTS
-; MISSING POINTER
+; Dead Data?
 	dc.b	$60, $00, $C0, $80 
 loc_00006A74:
 	JSR	func_updateCutsceneAnimation
@@ -7164,14 +7172,14 @@ loc_00006B1E:
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, D2/A0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	MOVEM.l	D0, -(A7)
 	MOVE.w	#$9401, D0
 	SWAP	D0
-	MOVE.b	#$0D, $00FF0113
+	MOVE.b	#cutID_Mummy, game_curCutscene
 	JSR	loc_00000C4C
 	MOVEM.l	(A7)+, D0
-	MOVE.b	D0, $00FF0113
+	MOVE.b	D0, game_curCutscene
 	RTS
 loc_00006B64:
 	MOVE.w	$0(A0), D0
@@ -8013,7 +8021,6 @@ loc_000075C2:
 	
 	dc.l    loc_000075C2
 loc_000075D0:
-; UNKNOWN USAGE
 	BSR.w	loc_00004986
 	MOVE.b	#$80, $6(A0)
 	TST.b	$00FF18C6
@@ -8023,122 +8030,122 @@ loc_000075D0:
 	MOVE.b	D0, $00FF18C6
 	MOVE.b	#$FF, $00FF18C7
 	BSR.w	loc_00002B26
-	TST.b	$00FF18C7	;Predicted (Code-scan)
-	BEQ.w	loc_0000760A	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	TST.b	$00FF18C7	
+	BEQ.w	loc_0000760A	
+	RTS	
 loc_0000760A:
-	MOVE.w	#$0010, D0	;Predicted (Code-scan)
-	BSR.w	loc_00002B1C	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
+	MOVE.w	#$0010, D0	
+	BSR.w	loc_00002B1C	
+	BSR.w	loc_00002B26	
 loc_00007616:
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BTST.b	#0, $7(A1)	;Predicted (Code-scan)
-	BEQ.w	loc_00004484	;Predicted (Code-scan)
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	CMPI.w	#3, $1C(A0)	;Predicted (Code-scan)
-	BCC.w	loc_0000763C	;Predicted (Code-scan)
-	MOVE.b	#$45, $9(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	
+	MOVEA.l	$2E(A0), A1	
+	BTST.b	#0, $7(A1)	
+	BEQ.w	loc_00004484	
+	BSR.w	func_updateCutsceneAnimation	
+	CMPI.w	#3, $1C(A0)	
+	BCC.w	loc_0000763C	
+	MOVE.b	#$45, $9(A0)	
 loc_0000763C:
-	BSR.w	loc_000045AA	;Predicted (Code-scan)
-	BSR.w	loc_00004624	;Predicted (Code-scan)
-	BCS.w	loc_0000764C	;Predicted (Code-scan)
-	BRA.w	loc_00004986	;Predicted (Code-scan)
+	BSR.w	loc_000045AA	
+	BSR.w	loc_00004624	
+	BCS.w	loc_0000764C	
+	BRA.w	loc_00004986	
 loc_0000764C:
-	MOVE.b	#$55, D0	;Predicted (Code-scan)
-	BSR.w	loc_000072BE	;Predicted (Code-scan)
-	BSR.w	loc_00005022	;Predicted (Code-scan)
-	MOVE.w	$1A(A0), D0	;Predicted (Code-scan)
-	ADDQ.w	#1, $1C(A0)	;Predicted (Code-scan)
-	MOVE.w	$1C(A0), D1	;Predicted (Code-scan)
-	CMPI.w	#$000E, D1	;Predicted (Code-scan)
-	BCC.w	loc_0000775C	;Predicted (Code-scan)
-	MULU.w	#6, D1	;Predicted (Code-scan)
-	ADD.w	D1, D0	;Predicted (Code-scan)
-	LSL.w	#1, D0	;Predicted (Code-scan)
-	MOVE.w	D0, $26(A0)	;Predicted (Code-scan)
-	MOVE.b	(A2,D0.w), D1	;Predicted (Code-scan)
-	ANDI.b	#$F0, D1	;Predicted (Code-scan)
-	CMPI.b	#$E0, D1	;Predicted (Code-scan)
-	BCS.w	loc_0000768C	;Predicted (Code-scan)
-	MOVE.b	#$80, D1	;Predicted (Code-scan)
+	MOVE.b	#$55, D0	
+	BSR.w	loc_000072BE	
+	BSR.w	loc_00005022	
+	MOVE.w	$1A(A0), D0	
+	ADDQ.w	#1, $1C(A0)	
+	MOVE.w	$1C(A0), D1	
+	CMPI.w	#$000E, D1	
+	BCC.w	loc_0000775C	
+	MULU.w	#6, D1	
+	ADD.w	D1, D0	
+	LSL.w	#1, D0	
+	MOVE.w	D0, $26(A0)	
+	MOVE.b	(A2,D0.w), D1	
+	ANDI.b	#$F0, D1	
+	CMPI.b	#$E0, D1	
+	BCS.w	loc_0000768C	
+	MOVE.b	#$80, D1	
 loc_0000768C:
-	MOVE.b	D1, $36(A0)	;Predicted (Code-scan)
-	MOVE.w	#1, $16(A0)	;Predicted (Code-scan)
+	MOVE.b	D1, $36(A0)	
+	MOVE.w	#1, $16(A0)	
 loc_00007696:
-	MOVE.w	#$0010, $28(A0)	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	MOVE.b	$29(A0), D0	;Predicted (Code-scan)
-	ANDI.b	#3, D0	;Predicted (Code-scan)
-	BNE.w	loc_000076B4	;Predicted (Code-scan)
-	MOVE.b	#$5E, D0	;Predicted (Code-scan)
-	BSR.w	loc_000072BE	;Predicted (Code-scan)
+	MOVE.w	#$0010, $28(A0)	
+	BSR.w	loc_00002B26	
+	MOVE.b	$29(A0), D0	
+	ANDI.b	#3, D0	
+	BNE.w	loc_000076B4	
+	MOVE.b	#$5E, D0	
+	BSR.w	loc_000072BE	
 loc_000076B4:
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	MOVE.w	$12(A0), D0	;Predicted (Code-scan)
-	ADD.w	D0, $A(A0)	;Predicted (Code-scan)
-	MOVE.w	$16(A0), D0	;Predicted (Code-scan)
-	ADD.w	D0, $E(A0)	;Predicted (Code-scan)
-	SUBQ.w	#1, $28(A0)	;Predicted (Code-scan)
-	BEQ.w	loc_000076D2	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	BSR.w	func_updateCutsceneAnimation	
+	MOVE.w	$12(A0), D0	
+	ADD.w	D0, $A(A0)	
+	MOVE.w	$16(A0), D0	
+	ADD.w	D0, $E(A0)	
+	SUBQ.w	#1, $28(A0)	
+	BEQ.w	loc_000076D2	
+	RTS	
 loc_000076D2:
-	BSR.w	loc_00005022	;Predicted (Code-scan)
-	MOVE.w	$26(A0), D0	;Predicted (Code-scan)
-	MOVE.b	$36(A0), (A2,D0.w)	;Predicted (Code-scan)
-	ORI	#$0700, SR	;Predicted (Code-scan)
-	BSR.w	loc_00004CCC	;Predicted (Code-scan)
-	ANDI	#$F8FF, SR	;Predicted (Code-scan)
-	BSR.w	loc_000077FE	;Predicted (Code-scan)
-	BCC.b	loc_00007696	;Predicted (Code-scan)
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BCLR.b	#0, $7(A1)	;Predicted (Code-scan)
-	MOVE.b	#$AF, $6(A0)	;Predicted (Code-scan)
-	MOVE.l	#$0000774E, $32(A0)	;Predicted (Code-scan)
-	MOVE.w	#3, $12(A0)	;Predicted (Code-scan)
-	MOVE.w	#0, $16(A0)	;Predicted (Code-scan)
-	MOVE.w	#$1A00, $1A(A0)	;Predicted (Code-scan)
-	MOVE.w	#$0800, $1C(A0)	;Predicted (Code-scan)
-	MOVE.w	$A(A0), $1E(A0)	;Predicted (Code-scan)
-	MOVE.w	#0, $20(A0)	;Predicted (Code-scan)
-	TST.b	$2A(A0)	;Predicted (Code-scan)
-	BEQ.w	loc_0000773C	;Predicted (Code-scan)
-	MOVE.w	#$FFFE, $12(A0)	;Predicted (Code-scan)
+	BSR.w	loc_00005022	
+	MOVE.w	$26(A0), D0	
+	MOVE.b	$36(A0), (A2,D0.w)	
+	ORI	#$0700, SR	
+	BSR.w	loc_00004CCC	
+	ANDI	#$F8FF, SR	
+	BSR.w	loc_000077FE	
+	BCC.b	loc_00007696	
+	MOVEA.l	$2E(A0), A1	
+	BCLR.b	#0, $7(A1)	
+	MOVE.b	#$AF, $6(A0)	
+	MOVE.l	#$0000774E, $32(A0)	
+	MOVE.w	#3, $12(A0)	
+	MOVE.w	#0, $16(A0)	
+	MOVE.w	#$1A00, $1A(A0)	
+	MOVE.w	#$0800, $1C(A0)	
+	MOVE.w	$A(A0), $1E(A0)	
+	MOVE.w	#0, $20(A0)	
+	TST.b	$2A(A0)	
+	BEQ.w	loc_0000773C	
+	MOVE.w	#$FFFE, $12(A0)	
 loc_0000773C:
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	BSR.w	loc_00002C2A	;Predicted (Code-scan)
-	BCS.w	loc_000077E0	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	BSR.w	loc_00002B26	
+	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	loc_00002C2A	
+	BCS.w	loc_000077E0	
+	RTS	
 loc_0000774E:
 	dc.b	$01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00
 	dc.l    loc_0000774E
 loc_0000775C:
-	MOVE.b	#$82, $6(A0)	;Predicted (Code-scan)
-	MOVE.w	#$FFFF, $12(A0)	;Predicted (Code-scan)
-	MOVE.l	#$000077D4, $32(A0)	;Predicted (Code-scan)
-	TST.b	$2A(A0)	;Predicted (Code-scan)
-	BEQ.w	loc_00007786	;Predicted (Code-scan)
-	MOVE.w	#1, $12(A0)	;Predicted (Code-scan)
-	MOVE.l	#$000077C8, $32(A0)	;Predicted (Code-scan)
+	MOVE.b	#$82, $6(A0)	
+	MOVE.w	#$FFFF, $12(A0)	
+	MOVE.l	#$000077D4, $32(A0)	
+	TST.b	$2A(A0)	
+	BEQ.w	loc_00007786	
+	MOVE.w	#1, $12(A0)	
+	MOVE.l	#$000077C8, $32(A0)	
 loc_00007786:
-	MOVEA.l	$2E(A0), A1	;Predicted (Code-scan)
-	BCLR.b	#0, $7(A1)	;Predicted (Code-scan)
-	MOVE.l	#$00002710, D0	;Predicted (Code-scan)
-	BSR.w	loc_00007542	;Predicted (Code-scan)
-	BSR.w	loc_00002B26	;Predicted (Code-scan)
-	BSR.w	func_updateCutsceneAnimation	;Predicted (Code-scan)
-	CMPI.b	#$43, $9(A0)	;Predicted (Code-scan)
-	BCC.w	loc_000077AE	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	MOVEA.l	$2E(A0), A1	
+	BCLR.b	#0, $7(A1)	
+	MOVE.l	#$00002710, D0	
+	BSR.w	loc_00007542	
+	BSR.w	loc_00002B26	
+	BSR.w	func_updateCutsceneAnimation	
+	CMPI.b	#$43, $9(A0)	
+	BCC.w	loc_000077AE	
+	RTS	
 loc_000077AE:
-	MOVE.w	$12(A0), D0	;Predicted (Code-scan)
-	ADD.w	D0, $A(A0)	;Predicted (Code-scan)
-	MOVE.w	$A(A0), D0	;Predicted (Code-scan)
-	SUBI.w	#$0078, D0	;Predicted (Code-scan)
-	CMPI.w	#$0150, D0	;Predicted (Code-scan)
-	BCC.w	loc_000077E0	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	MOVE.w	$12(A0), D0	
+	ADD.w	D0, $A(A0)	
+	MOVE.w	$A(A0), D0	
+	SUBI.w	#$0078, D0	
+	CMPI.w	#$0150, D0	
+	BCC.w	loc_000077E0	
+	RTS	
 loc_000077C8:
 	dc.b	$08, $37, $08, $38, $06, $44, $FF, $00
 	dc.l    loc_000077C8
@@ -8146,54 +8153,54 @@ loc_000077D4:
 	dc.b    $08, $3B, $08, $3C, $08, $43, $FF, $00
 	dc.l    loc_000077D4
 loc_000077E0:
-	MOVE.b	$2A(A0), D0	;Predicted (Code-scan)
-	ORI.b	#$80, D0	;Predicted (Code-scan)
-	CMP.b	$00FF18C6, D0	;Predicted (Code-scan)
-	BNE.w	loc_00002AF2	;Predicted (Code-scan)
-	MOVE.b	#$FF, $00FF18C7	;Predicted (Code-scan)
-	BRA.w	loc_00002AF2	;Predicted (Code-scan)
+	MOVE.b	$2A(A0), D0	
+	ORI.b	#$80, D0	
+	CMP.b	$00FF18C6, D0	
+	BNE.w	loc_00002AF2	
+	MOVE.b	#$FF, $00FF18C7	
+	BRA.w	loc_00002AF2	
 loc_000077FE:
-	BSR.w	loc_00005022	;Predicted (Code-scan)
-	LEA	loc_000078A6, A1	;Predicted (Code-scan)
-	EORI.b	#$80, $7(A0)	;Predicted (Code-scan)
-	BSR.w	loc_000011D0	;Predicted (Code-scan)
-	ANDI.w	#1, D0	;Predicted (Code-scan)
-	BSR.w	loc_00007854	;Predicted (Code-scan)
-	BCS.w	loc_00007820	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	BSR.w	loc_00005022	
+	LEA	loc_000078A6, A1	
+	EORI.b	#$80, $7(A0)	
+	BSR.w	loc_000011D0	
+	ANDI.w	#1, D0	
+	BSR.w	loc_00007854	
+	BCS.w	loc_00007820	
+	RTS	
 loc_00007820:
-	CMPI.w	#$000D, $1C(A0)	;Predicted (Code-scan)
-	BCC.w	loc_0000784E	;Predicted (Code-scan)
-	ADDQ.w	#1, $1C(A0)	;Predicted (Code-scan)
-	ADDI.w	#$000C, $26(A0)	;Predicted (Code-scan)
-	MOVE.w	#0, $12(A0)	;Predicted (Code-scan)
-	MOVE.w	#1, $16(A0)	;Predicted (Code-scan)
-	MOVE.l	#$000075A6, $32(A0)	;Predicted (Code-scan)
-	ANDI	#$FFFE, SR	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	CMPI.w	#$000D, $1C(A0)	
+	BCC.w	loc_0000784E	
+	ADDQ.w	#1, $1C(A0)	
+	ADDI.w	#$000C, $26(A0)	
+	MOVE.w	#0, $12(A0)	
+	MOVE.w	#1, $16(A0)	
+	MOVE.l	#$000075A6, $32(A0)	
+	ANDI	#$FFFE, SR	
+	RTS	
 loc_0000784E:
-	ORI	#1, SR	;Predicted (Code-scan)
-	RTS	;Predicted (Code-scan)
+	ORI	#1, SR	
+	RTS	
 loc_00007854:
-	MOVE.w	D0, D1	;Predicted (Code-scan)
-	MULU.w	#$000A, D1	;Predicted (Code-scan)
-	MOVE.w	$1A(A0), D2	;Predicted (Code-scan)
-	ADD.w	(A1,D1.w), D2	;Predicted (Code-scan)
-	CMPI.w	#6, D2	;Predicted (Code-scan)
-	BCC.b	loc_0000784E	;Predicted (Code-scan)
-	MOVE.w	$26(A0), D3	;Predicted (Code-scan)
-	ADD.w	$4(A1,D1.w), D3	;Predicted (Code-scan)
-	MOVE.b	(A2,D3.w), D4	;Predicted (Code-scan)
-	BPL.b	loc_0000784E	;Predicted (Code-scan)
-	ANDI.b	#$F0, D4	;Predicted (Code-scan)
-	CMP.b	$36(A0), D4	;Predicted (Code-scan)
-	BEQ.b	loc_0000784E	;Predicted (Code-scan)
-	MOVE.w	D2, $1A(A0)	;Predicted (Code-scan)
-	MOVE.w	D3, $26(A0)	;Predicted (Code-scan)
-	MOVE.w	(A1,D1.w), $12(A0)	;Predicted (Code-scan)
-	MOVE.w	$2(A1,D1.w), $16(A0)	;Predicted (Code-scan)
-	MOVE.l	$6(A1,D1.w), $32(A0)	;Predicted (Code-scan)
-	ANDI	#$FFFE, SR	;Predicted (Code-scan)
+	MOVE.w	D0, D1	
+	MULU.w	#$000A, D1	
+	MOVE.w	$1A(A0), D2	
+	ADD.w	(A1,D1.w), D2	
+	CMPI.w	#6, D2	
+	BCC.b	loc_0000784E	
+	MOVE.w	$26(A0), D3	
+	ADD.w	$4(A1,D1.w), D3	
+	MOVE.b	(A2,D3.w), D4	
+	BPL.b	loc_0000784E	
+	ANDI.b	#$F0, D4	
+	CMP.b	$36(A0), D4	
+	BEQ.b	loc_0000784E	
+	MOVE.w	D2, $1A(A0)	
+	MOVE.w	D3, $26(A0)	
+	MOVE.w	(A1,D1.w), $12(A0)	
+	MOVE.w	$2(A1,D1.w), $16(A0)	
+	MOVE.l	$6(A1,D1.w), $32(A0)	
+	ANDI	#$FFFE, SR	
 	RTS
 	; ????
 	ori     #1, SR
@@ -8447,7 +8454,7 @@ loc_00007C5E:
 	subq.b #4, $36(a0)
 	bcs.w loc_00002AF2
 	rts
-; MISSING POINTER
+; Dead Code
 	move.l #$800E0000, d0
 	jsr loc_00000C4C
 	lea loc_00007CA8, a1
@@ -8819,7 +8826,7 @@ loc_000081AA:
 	move.w d6, $e(a1)
 	move.w d5, $a(a1)
 	rts
-; MISSING POINTER?
+; Dead Code
 	lea loc_000081E6, a1
 	jsr loc_00002A54
 	bcc.w loc_000081CE
@@ -8877,8 +8884,8 @@ loc_0000826E:
 	MOVE.w	D6, $E(A1)
 	MOVE.w	D5, $A(A1)
 	CLR.l	D0
-	MOVE.b	$00FF0112, D0
-	CMPI.b	#3, D0
+	MOVE.b	game_curStage, D0
+	CMPI.b	#stgID_Draco, D0
 	BCS.w	loc_0000828C
 	SUBQ.b	#3, D0
 loc_0000828C:
@@ -8896,10 +8903,10 @@ loc_0000829C:
 	MOVE.b	D0, $F(A1)
 	RTS
 loc_000082AC:
-	CMPI.b	#$0F, $00FF0112
+	CMPI.b	#stgID_Satan, game_curStage
 	BEQ.w	loc_000082DA
 	LEA	loc_000082EE, A1
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCC.w	loc_000082D0
 	LEA	loc_000082F8, A1
 loc_000082D0:
@@ -10000,14 +10007,14 @@ loc_000093EE:
 	JMP	loc_00002AF2
 loc_000093F4:
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
 	JSR	graphicsDecompress
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	$44(A1,D0.w), A0
@@ -10016,7 +10023,7 @@ loc_000093F4:
 	MOVE.b	#$FF, $00FF18AE
 	MOVE.b	#0, $00FF18AF
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	MOVE.b	D0, D1
 	CMPI.b	#$10, D1
 	BNE.w	loc_00009456
@@ -10115,7 +10122,7 @@ loc_0000958C:
 	
 loc_000095CC:
 	CLR.w	D1
-	MOVE.b	$00FF0113, D1
+	MOVE.b	game_curCutscene, D1
 	LEA	loc_00009702, A1
 	LSL.w	#2, D1
 	MOVEA.l	(A1,D1.w), A2
@@ -10138,7 +10145,7 @@ loc_000095FC:
 	MOVE.b	#0, $6(A0)
 	LEA	loc_00009644, A2
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	(A2,D0.w), A3
 	MOVE.b	$9(A1), D0
@@ -11065,7 +11072,7 @@ loc_0000A1DE:
 	MOVE.l	#$00040000, $16(A0)
 	MOVE.w	#$0038, $26(A0)
 	BSR.w	loc_00002B26
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0000A21E
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
@@ -11086,11 +11093,10 @@ loc_0000A23A:
 	RTS
 loc_0000A246:
 	MOVE.w	#$FF60, $E(A0)
-; This is not a rom pointer
 	MOVE.l	#$0002DB6D, $16(A0)
 	MOVE.w	#$0038, $26(A0)
 	BSR.w	loc_00002B26
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0000A286
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
@@ -11112,7 +11118,7 @@ loc_0000A2AC:
 	BSR.w	loc_00002A54
 	CLR.w	D0
 	CLR.w	D1
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	MOVE.b	D1, D2
 	LSR.b	#1, D2
@@ -11133,7 +11139,7 @@ loc_0000A2E8:
 loc_0000A2F4:
 	CLR.w	D0
 	CLR.w	D1
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	LSL.w	#2, D1
 	MOVEA.l	loc_0000A30A(PC,D1.w), A2
@@ -12258,11 +12264,11 @@ loc_0000B46E:
 	BTST.b	#4, $2A(A0)
 	MOVE.w	$26(A0), D0
 	CLR.w	D1
-	LEA	loc_0000C566, A1
+	LEA	tbl_menuStageSelect, A1
 	MOVE.b	(A1,D0.w), D1
-	MOVE.b	D1, $00FF0112
-	LEA	loc_0000C20A, A1
-	MOVE.b	(A1,D1.w), $00FF0113
+	MOVE.b	D1, game_curStage
+	LEA	tbl_cutsceneOrder, A1
+	MOVE.b	(A1,D1.w), game_curCutscene
 	MOVE.w	$26(A0), D1
 loc_0000B4A0:
 	MOVE.w	#$9500, D0
@@ -13189,9 +13195,9 @@ loc_0000C14A:
 	JMP	loc_00000C4C
 loc_0000C162:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
-	LEA	loc_0000C20A, A1
-	MOVE.b	(A1,D0.w), $00FF0113
+	MOVE.b	game_curStage, D0
+	LEA	tbl_cutsceneOrder, A1
+	MOVE.b	(A1,D0.w), game_curCutscene
 	JSR	loc_00000BC6
 	BSR.w	loc_0000D1F0
 	LEA	loc_0000C21A, A1
@@ -13206,7 +13212,7 @@ loc_0000C194:
 	MOVE.w	#$FF70, $00FF0622
 	MOVE.w	#$FF70, $00FF0624
 	CLR.w	D1
-	MOVE.b	$00FF0112, D1
+	MOVE.b	game_curStage, D1
 	CLR.w	D0
 	MOVE.b	loc_0000C1FA(PC,D1.w), D0
 	BNE.w	loc_0000C1E8
@@ -13225,11 +13231,24 @@ loc_0000C1FA:
 	dc.b	$FF
 	dc.b	$00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 
-loc_0000C20A:
-	dc.b	$00, $04, $0D 
-	dc.b	$03
-	dc.b	$01
-	dc.b	$0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C 
+tbl_cutsceneOrder:
+	dc.b	cutID_SkeletonT
+	dc.b 	cutID_Nasu
+	dc.b	cutID_Mummy
+	dc.b	cutID_Draco
+	dc.b	cutID_Suketoudara
+	dc.b	cutID_Sukiyapotes
+	dc.b 	cutID_Harpy
+	dc.b 	cutID_Sasoriman
+	dc.b 	cutID_Panotty
+	dc.b 	cutID_Zombie
+	dc.b 	cutID_Witch
+	dc.b 	cutID_ZohDaimaoh
+	dc.b 	cutID_Schezo
+	dc.b 	cutID_Minotauros
+	dc.b 	cutID_Rulue
+	dc.b 	cutID_Satan 
+	even
 loc_0000C21A:
 	MOVE.w	#$0060, $26(A0)
 	JSR	loc_00002B26
@@ -13264,7 +13283,7 @@ loc_0000C288:
 	JMP	loc_00002AF2
 loc_0000C294:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LSL.w	#2, D0
 	LEA	loc_0000C3B0, A1
 	MOVEA.l	(A1,D0.w), A2
@@ -13402,24 +13421,28 @@ loc_0000C520:
 loc_0000C536:
 	dc.b	$00, $09, $0A, $00, $00, $0A, $0A, $16, $00, $0B, $0A, $2C, $00, $0C, $0A, $42, $80, $00 
 loc_0000C548:
-	LEA	loc_0000C562, A2
+	LEA	tbl_menuPortraits, A2
 	LEA	$00FF0116, A1
 	LEA	lookup_portraitArt, A3
 	MOVE.w	#$88C0, D5
 	BRA.w	loc_0000C5A4
-loc_0000C562:
-	dc.b	$03, $07, $FF, $00 
-loc_0000C566:
-	dc.b	$00 
-	dc.b	$03
-	dc.b	$06, $00 
+tbl_menuPortraits:
+	dc.b	cutID_Draco
+	dc.b	cutID_Harpy
+	dc.b 	$FF
+	even
+tbl_menuStageSelect:
+	dc.b	stgID_SkeletonT
+	dc.b	stgID_Draco
+	dc.b	stgID_Harpy
+	even
 loc_0000C56A:
 	LEA	loc_0000C640, A2
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0000C594
 	LEA	loc_0000C644, A2
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	SUBQ.b	#6, D0
 	BCC.w	loc_0000C592
 	CLR.b	D0
@@ -13677,20 +13700,19 @@ loc_0000C8E2:
 	MOVE.w	D2, $E(A0)
 	ADDQ.b	#2, $36(A0)
 	RTS
-; MISSING POINTER
-; UNKNOWN USAGE
+; Dead Code
 	TST.b	$9(A0)
 	BEQ.w	loc_0000C91E
 	JMP	loc_00002AF2
 loc_0000C91E:
-	MOVE.b	#0, $6(A0)	;Predicted (Code-scan)
-	JSR	loc_00002B26	;Predicted (Code-scan)
-	MOVE.l	#$800B0F00, D0	;Predicted (Code-scan)
-	TST.b	$00FF1884	;Predicted (Code-scan)
-	BEQ.w	loc_0000C940	;Predicted (Code-scan)
-	MOVE.l	#$80100F00, D0	;Predicted (Code-scan)
+	MOVE.b	#0, $6(A0)	
+	JSR	loc_00002B26	
+	MOVE.l	#$800B0F00, D0	
+	TST.b	$00FF1884	
+	BEQ.w	loc_0000C940	
+	MOVE.l	#$80100F00, D0	
 loc_0000C940:
-	JMP	loc_00000C4C	;Predicted (Code-scan)
+	JMP	loc_00000C4C	
 
 loc_0000C946:
 	LEA	loc_0000C96C, A1
@@ -14092,7 +14114,7 @@ loc_0000CEBC:
 	CLR.w	$00FF010E
 	CLR.w	$00FF0110
 	CLR.w	$00FF0144
-	CLR.w	$00FF0112
+	CLR.w	game_curStage
 	CLR.b	$00FF0115
 	CLR.b	$00FF0105
 	CLR.b	$00FF1884
@@ -15864,7 +15886,7 @@ loc_0000D92A:
 loc_0000D93E:
 	MOVEM.l	A0, -(A7)
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
@@ -15872,7 +15894,7 @@ loc_0000D93E:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	MOVE.b	D0, D1
 	ADDI.b	#9, D1
 	LEA	loc_0000DA02, A1
@@ -15892,7 +15914,7 @@ loc_0000D984:
 	MOVE.w	#$4000, $1C(A1)
 	MOVEA.l	A1, A2
 	CLR.w	D2
-	MOVE.b	$00FF0113, D2
+	MOVE.b	game_curCutscene, D2
 	LEA	loc_0000DA66, A3
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
@@ -15976,9 +15998,9 @@ loc_0000DAEA:
 	dc.b	$00 
 loc_0000DAF4:
 	clr.w    d0
-	move.b   ($00FF0112).l, d0
+	move.b   (game_curStage).l, d0
 	lea (loc_0000DB16).l, a1
-	move.b $0(a1, d0.w), ($00FF0113).l
+	move.b $0(a1, d0.w), (game_curCutscene).l
 	lea (loc_0000DB28).l, a1
 	jmp loc_00002A54
 loc_0000DB16:
@@ -15988,7 +16010,7 @@ loc_0000DB28:
 	MOVE.b	#$FF, $7(A0)
 	BSR.w	loc_0000DC06
 	JSR	loc_00002B26
-	CMPI.b	#$11, $00FF0113
+	CMPI.b	#cutID_Unk2, game_curCutscene
 	BCS.w	loc_0000DB5E
 	MOVE.w	#$002E, D0
 	JSR	loc_00000BF2
@@ -16004,13 +16026,13 @@ loc_0000DB5E:
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	BSR.w	loc_0000DEEC
 	MOVE.w	#1, $00FF18AA
 	MOVE.w	#$00A0, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	CMPI.b	#$11, $00FF0112
+	CMPI.b	#$11, game_curStage
 	BCS.w	loc_0000DBC2
 	MOVE.w	#$0100, D0
 	JSR	loc_00002B1C
@@ -16023,15 +16045,15 @@ loc_0000DBC2:
 	BSR.w	loc_0000DE6A
 	CLR.b	BC_stopRunning
 	CLR.b	$00FF0A3A
-	ADDQ.b	#1, $00FF0112
-	CMPI.b	#$12, $00FF0112
+	ADDQ.b	#1, game_curStage
+	CMPI.b	#$12, game_curStage
 	BCC.w	loc_0000DC00
 	MOVE.b	#1, $00FF0A3A
 loc_0000DC00:
 	JMP	loc_00002AF2
 loc_0000DC06:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LEA	loc_0000DC4E, A1
 	CLR.w	D1
 	MOVE.b	(A1,D0.w), D1
@@ -16045,7 +16067,7 @@ loc_0000DC06:
 loc_0000DC34:
 	RTS
 loc_0000DC36:
-	CMPI.b	#$10, $00FF0113
+	CMPI.b	#cutID_EasyEnding, game_curCutscene
 	BCC.w	loc_0000DC4C
 	JSR	loc_000055B0
 	BSR.w	loc_0000D93E
@@ -16159,7 +16181,7 @@ loc_0000DDC4:
 	dc.l	loc_0000DDC4
 loc_0000DDD2:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LEA	loc_0000DE48, A1
 	CLR.w	D1
 	MOVE.b	(A1,D0.w), D1
@@ -16174,7 +16196,7 @@ loc_0000DDD2:
 	MOVE.b	#0, D1
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_00002230-palLookupTable), A2
-	CMPI.b	#$11, $00FF0112
+	CMPI.b	#$11, game_curStage
 	BEQ.w	loc_0000DE26
 	ADDA.l	#$00000060, A2
 loc_0000DE26:
@@ -16196,7 +16218,7 @@ loc_0000DE5A:
 	dc.l    loc_0000A334
 loc_0000DE6A:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LEA	loc_0000DEC8, A1
 	TST.b	(A1,D0.w)
 	BEQ.w	loc_0000DEAA
@@ -16209,7 +16231,7 @@ loc_0000DE6A:
 	MOVE.w	#$FF60, $00FF05D4
 loc_0000DEAA:
 	CLR.w	D1
-	MOVE.b	$00FF0112, D1
+	MOVE.b	game_curStage, D1
 	LEA	loc_0000DEDA, A1
 	CLR.w	D0
 	MOVE.b	(A1,D1.w), D0
@@ -16375,11 +16397,11 @@ credits_TextboxSatan:
 credits_TextboxCarbuncle:
 	creditsTextboxText $D79C, "CARBUNCLE"
 	
-; Why is there an rts here???
+; Dead Code
 	rts
 loc_0000E0E2:
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	cutsceneLookupTable, A1
 	MOVE.l	(A1,D0.w), $32(A0)
@@ -16672,73 +16694,73 @@ loc_0000E3C6:
 ; * $8A = Unknown
 ; * $8B-FF = INVALID
 cutsceneLookupTable:
-	dc.l   	loc_0000E60C;
-	dc.l   	loc_0000E6AC;
-	dc.l   	loc_0000E70C;
-	dc.l   	cutscene_Draco;
-	dc.l   	cutscene_Nazu;
-	dc.l   	loc_0000E87A;
-	dc.l   	loc_0000E904;
-	dc.l   	loc_0000E986;
-	dc.l   	loc_0000E9D8;
-	dc.l   	loc_0000EA88;
-	dc.l   	loc_0000EB8C;
-	dc.l   	loc_0000EC46;
-	dc.l   	loc_0000ED4E;
-	dc.l   	loc_0000E410;
-	dc.l   	loc_0000E4AE;
-	dc.l   	loc_0000E542;
-	dc.l   	loc_0000EEA4
-loc_0000E410:
+	dc.l   	cutscene_SkeletonT
+	dc.l   	cutscene_Suketoudara
+	dc.l   	cutscene_Zombie
+	dc.l   	cutscene_Draco
+	dc.l   	cutscene_Nasu
+	dc.l   	cutscene_Witch
+	dc.l   	cutscene_Sasoriman
+	dc.l   	cutscene_Harpy
+	dc.l   	cutscene_ZohDaimaoh
+	dc.l   	cutscene_Minotauros
+	dc.l   	cutscene_Rulue
+	dc.l   	cutscene_Satan
+	dc.l   	cutscene_Mummy
+	dc.l   	cutscene_Sukiyapotes
+	dc.l   	cutscene_Panotty
+	dc.l   	cutscene_Unk1
+	dc.l   	cutscene_Unk2
+cutscene_Sukiyapotes:
+	include "game/cutscene/cutscene_sukiyapotes.asm"
+	even
+cutscene_Panotty:
+	include "game/cutscene/cutscene_panotty.asm"
+	even
+cutscene_Unk1:
 	include "game/cutscene/cutscene_unk1.asm"
 	even
-loc_0000E4AE:
-	include "game/cutscene/cutscene_unk2.asm"
+cutscene_SkeletonT:
+	include "game/cutscene/cutscene_skeletont.asm"
 	even
-loc_0000E542:
-	include "game/cutscene/cutscene_unk3.asm"
+cutscene_Suketoudara:
+	include "game/cutscene/cutscene_suketoudara.asm"
 	even
-loc_0000E60C:
-	include "game/cutscene/cutscene_unk4.asm"
-	even
-loc_0000E6AC:
-	include "game/cutscene/cutscene_unk5.asm"
-	even
-loc_0000E70C:
-	include "game/cutscene/cutscene_unk6.asm"
+cutscene_Zombie:
+	include "game/cutscene/cutscene_zombie.asm"
 	even
 cutscene_Draco:
 	include "game/cutscene/cutscene_draco.asm"
 	even
-cutscene_Nazu:
-	include "game/cutscene/cutscene_nazu.asm"
+cutscene_Nasu:
+	include "game/cutscene/cutscene_nasu.asm"
 	even
-loc_0000E87A:
-	include "game/cutscene/cutscene_unk7.asm"
+cutscene_Witch:
+	include "game/cutscene/cutscene_witch.asm"
 	even
-loc_0000E904:
-	include "game/cutscene/cutscene_unk8.asm"
+cutscene_Sasoriman:
+	include "game/cutscene/cutscene_sasoriman.asm"
 	even
-loc_0000E986:
-	include "game/cutscene/cutscene_unk9.asm"
+cutscene_Harpy:
+	include "game/cutscene/cutscene_harpy.asm"
 	even
-loc_0000E9D8:
-	include "game/cutscene/cutscene_unk10.asm"
+cutscene_ZohDaimaoh:
+	include "game/cutscene/cutscene_zohdaimaoh.asm"
 	even
-loc_0000EA88:
-	include "game/cutscene/cutscene_unk11.asm"
+cutscene_Minotauros:
+	include "game/cutscene/cutscene_minotauros.asm"
 	even
-loc_0000EB8C:
-	include "game/cutscene/cutscene_unk12.asm"
+cutscene_Rulue:
+	include "game/cutscene/cutscene_rulue.asm"
 	even
-loc_0000EC46:
-	include "game/cutscene/cutscene_unk13.asm"
+cutscene_Satan:
+	include "game/cutscene/cutscene_satan.asm"
 	even
-loc_0000ED4E:
-	include "game/cutscene/cutscene_unk14.asm"
+cutscene_Mummy:
+	include "game/cutscene/cutscene_mummy.asm"
 	even
-loc_0000EEA4:
-	include "game/cutscene/cutscene_unk15.asm"
+cutscene_Unk2:
+	include "game/cutscene/cutscene_unk2.asm"
 	even
 loc_0000EF6C:
 	CLR.w	$00FF0DE2
@@ -16887,7 +16909,7 @@ loc_0000F128:
 	RTS
 loc_0000F134:
 	MOVE.b	$00FF1882, D2
-	OR.b	$00FF0112, D2
+	OR.b	game_curStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F18A
 	LEA	loc_0000F18C, A1
@@ -16929,7 +16951,7 @@ loc_0000F1E0:
 	jmp loc_00002AF2
 loc_0000F1E6:
 	MOVE.b	$00FF1882, D2
-	OR.b	$00FF0112, D2
+	OR.b	game_curStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F23E
 	LEA	loc_0000F28A, A1
@@ -17342,7 +17364,7 @@ loc_0000F790:
 	MOVE.w	#5, D0
 	TST.b	$2A(A0)
 	BEQ.w	loc_0000F7A6
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 loc_0000F7A6:
 	LSL.w	#2, D0
 	MOVEA.l	loc_0000F7B2(PC,D0.w), A2
@@ -17463,7 +17485,7 @@ loc_0000F90C:
 	RTS
 loc_0000F916:
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	loc_0000F926(PC,D0.w), A6
 	JMP	(A6)
@@ -18069,7 +18091,7 @@ loc_000100CA:
 	OR.b	loc_00010134(PC,D2.w), D1
 	TST.b	$2A(A1)
 	BEQ.w	loc_00010106
-	CMPI.b	#4, $00FF0112
+	CMPI.b	#stgID_Suketoudara, game_curStage
 	BCC.w	loc_00010106
 	TST.b	$27(A1)
 	BMI.w	loc_00010106
@@ -19040,9 +19062,9 @@ loc_00010CCC:
 	CLR.w	D0
 	MOVE.b	$00FF188F, D0
 	ADDQ.b	#3, D0
-	MOVE.b	D0, $00FF0112
-	LEA	loc_0000C20A, A1
-	MOVE.b	(A1,D0.w), $00FF0113
+	MOVE.b	D0, game_curStage
+	LEA	tbl_cutsceneOrder, A1
+	MOVE.b	(A1,D0.w), game_curCutscene
 	ADDQ.b	#1, $00FF188F
 	CMPI.b	#4, $00FF188F
 	BCC.w	loc_00010D02
@@ -19420,7 +19442,7 @@ loc_00011226:
 	ADDI.w	#$0020, D1
 	DBF	D3, loc_00011226
 	RTS
-; MISSING POINTER
+; Dead Code
 	ori #$700, SR
 	move.w #5, d0
 	move.w #$2980, d5
@@ -19691,7 +19713,7 @@ loc_000145B8:
 loc_000145D8:
 	BSR.w	loc_00014890
 	CLR.w	D0
-	MOVE.b	$00FF0113, D0
+	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00014612, A1
 	ADDA.w	D0, A1
@@ -19779,27 +19801,27 @@ loc_0001473C:
 	BSR.w	loc_00014802
 	RTS
 loc_0001474A:
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0001479C
-	CMPI.b	#$0C, $00FF0112
+	CMPI.b	#stgID_Schezo, game_curStage
 	BCC.w	loc_0001477E
 	LEA	loc_000147D4, A1
 	BSR.w	loc_000147B6
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	SUBQ.b	#3, D0
 	LEA	$00FF189A, A1
 	BRA.w	loc_000147C8
 loc_0001477E:
 	LEA	loc_000147DC, A1
 	BSR.w	loc_000147B6
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	SUBI.b	#$0D, D0
 	LEA	$00FF189B, A1
 	BRA.w	loc_000147C8
 loc_0001479C:
 	LEA	loc_000147E4, A1
 	BSR.w	loc_000147B6
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	LEA	$00FF189B, A1
 	BRA.w	loc_000147C8
 loc_000147B6:
@@ -19831,11 +19853,11 @@ loc_00014802:
 	MOVE.w	#$E520, D5
 	MOVE.w	#7, D3
 	MOVE.w	#1, D4
-	CMPI.b	#3, $00FF0112
+	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0001483A
 	MOVE.w	#$C000, D6
 	LEA	loc_0001484E, A4
-	CMPI.b	#$0B, $00FF0112
+	CMPI.b	#stgID_ZohDaimaoh, game_curStage
 	BCS.w	loc_00014836
 	LEA	loc_0001485E, A4
 loc_00014836:
@@ -20599,7 +20621,7 @@ loc_00015402:
 	RTS
 loc_00015404:
 	CLR.w	D0
-	MOVE.b	$00FF0112, D0
+	MOVE.b	game_curStage, D0
 	MOVE.b	loc_00015412(PC,D0.w), D2
 	RTS
 loc_00015412:
@@ -20642,7 +20664,7 @@ loc_000154C0:
 	dc.b    $00, $40, $C0, $00, $40, $00, $00, $0F, $ED, $30, $CD, $34, $C0, $34 
 loc_000154D2:
 	CLR.w	D2
-	MOVE.b	$00FF0113, D2
+	MOVE.b	game_curCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -20654,7 +20676,7 @@ loc_000154D2:
 	MOVE.w	(A4)+, D5
 	MOVE.w	#$E400, D6
 	BSR.w	loadBGByteIndexYLoop
-	CMPI.b	#$0F, $00FF0113
+	CMPI.b	#cutID_Panotty, game_curCutscene
 	BNE.w	loc_0001551E
 	CMPI.b	#$0E, $1(A2)
 	BNE.w	loc_0001551E
@@ -20664,7 +20686,7 @@ loc_0001551E:
 	RTS
 loc_00015520:
 	CLR.w	D2
-	MOVE.b	$00FF0113, D2
+	MOVE.b	game_curCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -20679,7 +20701,7 @@ loc_00015520:
 	BRA.w	loadBGByteIndexYLoop
 loc_00015550:
 	CLR.w	D2
-	MOVE.b	$00FF0113, D2
+	MOVE.b	game_curCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -27399,7 +27421,7 @@ art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	padToPowerOfTwo
 	even
 endOfRom:
-
+	END
 ; Notes:
 ; Two points in ram specify some specific things about the stage we're loading
 ; 00FF0112 - Stage to load.  00 to 0F is valid, anything below 3 will load easy mode

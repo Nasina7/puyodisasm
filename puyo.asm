@@ -11,9 +11,9 @@ shiftabilityTest = 0
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
 fixBugs = 0
 
-; Credits to AURORA*FIELDS for making LANG.ASM
-
 startOfRom:
+	include "tools/Macros - More CPUs.asm"
+	cpu 68000
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
 vectorTable:
@@ -27410,7 +27410,7 @@ art_menuScreen: ; Menu Screen Graphics
 sound_chunk1: ; Music Data? + HAIYAH
 	incbin "sound/musicAndPCM1.bin"
 z80SoundDriver: ; Sound Driver
-	incbin "sound/driver/sound.bin"
+	include "sound/driver/sound.asm"
 	align $8000
 sound_chunk2: ; YATANA and PUYOPUYO sound bytes
 	incbin "sound/PCM2.bin"

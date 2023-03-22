@@ -6,11 +6,9 @@
 	cpu z80
 	obj 0
 
-dcwLE: macro data
-	dc.w ((data&$00FF)<<8)|(data>>8)
-	endm
-; Some memory locations at the start of the sound driver
-
+	include "sound/z80_macros.asm"
+	
+; Some memory locations
 zPlaySoundId = 		$0000 ; The latest sound for the sound driver to play
 zPlayMusicId =		$0001 ; Same as above.  Only sometimes used compared to zPlaySoundId
 zUnkBitfield1 = 	$0021 ; Unknown bitfield, see below
@@ -19,6 +17,8 @@ zUnkBitfield1 = 	$0021 ; Unknown bitfield, see below
 	; Bit 3-2: Unk
 	; Bit 1: Set if the game is paused, zero otherwise
 	; Bit 0: Set if PCM data is playing, zero otherwise
+	
+zChannelArray = $1C00
 	
 ; Define some I/O Ports
 zPsgPort = 			$7F11
@@ -453,7 +453,7 @@ loc_02C2:
 	ld hl, loc_02C1
 
 	push hl
-	ld hl, loc_02DF
+	ld hl, tbl_commands
 	ld b, 0
 	add a
 	ld c, a
@@ -464,57 +464,57 @@ loc_02C2:
 	ld l, a
 	ld a, (de)
 	jp (hl)
-loc_02DF:
-	dc.b $31 ; ??
-	dc.w sub_0338
-	dc.w loc_037E
-	dc.w sub_0387
-	dc.w sub_03C0
-	dc.w sub_03D9
-	dc.w sub_036F
-	dc.w loc_03BC
-	dc.w sub_038B
-	dc.w sub_038F
-	dc.w sub_03A6
-	dc.w loc_03CC
-	dc.w loc_0436
-	dc.w sub_0366
-	dc.w loc_0374+2 ; ??
-	dc.w sub_0476
-	dc.w loc_049E+1 ; ??
-	dc.w loc_0302
-loc_0302:
-	dc.w sub_04C8
-	dc.w sub_0425
-	dc.w sub_0448
-	dc.w sub_0460
-	dc.w sub_0472
-	dc.w sub_04AC
-	dc.w sub_04A4
-	dc.w sub_047A
-	dc.w sub_04D8
-	dc.w sub_04D8
-	dc.w sub_0412
-	dc.w sub_04A8
-	dc.w sub_0469
-	dc.w sub_04E3
-	dc.w loc_044F
-	dc.w loc_0391
-	dc.w sub_049B
-	dc.w sub_04D8
-	dc.w sub_04B6
-	dc.w sub_04BE
-	dc.w sub_04EE
-	dc.w sub_04F9
-	dc.w loc_044C
-	dc.b $05 ; ??
 	
-loc_0331:
+tbl_commands:
+	dcwLE sub_0331
+	dcwLE sub_0338
+	dcwLE sub_037E
+	dcwLE sub_0387
+	dcwLE sub_03C0
+	dcwLE sub_03D9
+	dcwLE sub_036F
+	dcwLE sub_03BC
+	dcwLE sub_038B
+	dcwLE sub_038F
+	dcwLE sub_03A6
+	dcwLE sub_04CC
+	dcwLE sub_0336
+	dcwLE sub_0366
+	dcwLE sub_0476
+	dcwLE sub_0476
+	dcwLE sub_039F
+	dcwLE sub_0402
+	dcwLE sub_04C8
+	dcwLE sub_0425
+	dcwLE sub_0448
+	dcwLE sub_0460
+	dcwLE sub_0472
+	dcwLE sub_04AC
+	dcwLE sub_04A4
+	dcwLE sub_047A
+	dcwLE sub_04D8
+	dcwLE sub_04D8
+	dcwLE sub_0412
+	dcwLE sub_04A8
+	dcwLE sub_0469
+	dcwLE sub_04E3
+	dcwLE sub_034F
+	dcwLE sub_0491
+	dcwLE sub_049B
+	dcwLE sub_04D8
+	dcwLE sub_04B6
+	dcwLE sub_04BE
+	dcwLE sub_04EE
+	dcwLE sub_04F9
+	dcwLE sub_054C
+	
+sub_0331:
 	ld l, a
 	inc de
 	ld a, (de)
 	ld h, a
 	ex de,hl
+sub_0336:
 	dec de
 	ret
 
@@ -524,30 +524,30 @@ sub_0338:
 	jr z, loc_0346
 	dec (ix+10h)
 	ld a, (de)
-	jp nz, loc_0331
+	jp nz, sub_0331
 	inc de
 	ret
 loc_0346:
 	dec (ix+11h)
 	ld a, (de)
-	jp nz, loc_0331
+	jp nz, sub_0331
 	inc de
 	ret
 
-unk_034F:
+sub_034F:
 	inc de
 	cp 11h
 	jr z, loc_035D
 	dec (ix+10h)
 	ld a, (de)
-	jp z, loc_0331
+	jp z, sub_0331
 	inc de
 	ret
 
 loc_035D:
 	dec (ix+11h)
 	ld a, (de)
-	jp z, loc_0331
+	jp z, sub_0331
 	inc de
 	ret
 	
@@ -569,7 +569,7 @@ loc_0374:
 	ld (mem_0020), a
 	sub a
 	ld (mem_0024), a
-loc_037E:
+sub_037E:
 	ld (ix+00h), 0
 	pop hl
 	exx
@@ -606,15 +606,15 @@ sub_03A6:
 	and a
 	jp p, loc_03B5
 	add c
-	jr c, loc_03BC
+	jr c, sub_03BC
 	ld (ix+01h), 0
 	ret
 loc_03B5:
 	add c
 	cp 20h
-	jr c, loc_03BC
+	jr c, sub_03BC
 	ld a, 1Fh
-loc_03BC:
+sub_03BC:
 	ld (ix+01h), a
 	ret
 
@@ -740,7 +740,7 @@ sub_0460:
 	exx
 	bit 1, e
 	exx
-	jp z, loc_0331
+	jp z, sub_0331
 	inc de
 	ret
 
@@ -748,7 +748,7 @@ sub_0469:
 	exx
 	bit 5, c
 	exx
-	jp nz, loc_0331
+	jp nz, sub_0331
 	inc de
 	ret
 
@@ -821,7 +821,7 @@ sub_04BE:
 	inc de
 	cp (ix+06h)
 	ld a, (de)
-	jp z, loc_0331
+	jp z, sub_0331
 	inc de
 	ret
 
@@ -903,6 +903,7 @@ loc_0545:
 	and a, 7Fh
 	ld b, 2
 	jp loc_04FF
+sub_054C:
 	ld b, a
 	ld a, 1
 	ld (mem_0026), a
@@ -2002,9 +2003,10 @@ loc_0C54:
 	ld (hl), a
 	ret
 
-sub_0C6D:
-	ld c, a
-	add a
+InitSoundId:
+	ld c, a ; Backup song id into c
+	
+	add a ; Multiply it by 2 so we can get the song pointer into HL
 	ld e, a
 	ld d, 0h
 	ld hl, (8000h)
@@ -2013,62 +2015,72 @@ sub_0C6D:
 	inc hl
 	ld d, (hl)
 	ex de,hl
-	ld b, (hl)
+	
+	ld b, (hl) ; B contains the number of channels to initialize
 	inc hl
 loc_0C7C:
-	ld a, (hl)
+	ld a, (hl) ; A contains a channel to select?
 	inc hl
-	push hl
-	add a
+	push hl ; Save current song pointer
+	add a ; Multiply channel num by 2
 	ld e, a
 	ld d, 0h
-	ld hl, ptr_0D05
+	ld hl, tbl_channels ; Index into channel table and load pointer for the selected channel into DE
 	add hl, de
 	ld e, (hl)
 	inc hl
 	ld d, (hl)
-	pop hl
-	ld a, (hl)
-	and a
+	
+	pop hl ; Get the original current song pointer
+	ld a, (hl) ; Get third byte
+	and a ; Check if it's zero
 	jr z, loc_0CFE
-	ld a, (de)
-	bit 6, a
+	ld a, (de) ; Wasn't zero, so load channel+00h
+	
+	bit 6, a ; If bit 6 is set, return.
 	ret nz
-	push de
+	
+	push de ; Load channel pointer into ix
 	pop ix
-	ld (ix+0Ch), 0
+	
+	ld (ix+0Ch), 0 ; ??
+	
 	and a
-	jr z, loc_0CAA
-	ld a, c
+	jr z, loc_0CAA ; If current channel is disabled, load song id into channel+14h
+	
+	ld a, c ; Load song id from earlier, and compare it to channel+14h
 	cp (ix+14h)
-	jr nz, loc_0CAA
-	set 5, (ix+0Ch)
-	jp loc_0CAD
+	jr nz, loc_0CAA ; If the current song id in 14h isn't the current song, then load it into it
+	
+	set 5, (ix+0Ch) ; ??
+	jp loc_0CAD ; Skip loading the song id (why do we need to avoid loading it at times?)
 loc_0CAA:
 	ld (ix+14h), c
 loc_0CAD:
 	push bc
-	ld bc, 000Bh
-	ldir
-	pop bc
-	ld a, (ix+05h)
-	cpl
-	inc a
-	ld (ix+0Fh), a
+	ld bc, 000Bh ; Load 000B bytes from the song
+	ldir ; and store them into the current channel
+	pop bc ; Restore bc from earlier (song type?|song id)
+	ld a, (ix+05h) ; Load channel+05h
+	cpl ; Invert all the bits
+	inc a ; Increment by 1
+	ld (ix+0Fh), a ; Load it into channel+0Fh
 	sub a
-	ld (ix+0Bh), a
-	ld (ix+0Dh), a
-	ld (ix+15h), a
-	ld (ix+12h), a
-	ld (ix+13h), a
-	ld (ix+22h), a
-	ld (ix+24h), 4
+	ld (ix+0Bh), a ; ??
+	ld (ix+0Dh), a ; ??
+	ld (ix+15h), a ; ??
+	ld (ix+12h), a ; ??
+	ld (ix+13h), a ; ??
+	ld (ix+22h), a ; ??
+	ld (ix+24h), 4 ; ??
 	inc a
-	ld (ix+0Eh), a
+	ld (ix+0Eh), a ; Load it into length of note?
+	
 	ld a, (1F68h)
 	and a
 	ld a, (800Fh)
-	jp z, loc_0CF3
+	jp z, loc_0CF3 ; If 1F68h is zero
+	
 	ld a, (1F66h)
 	add (ix+01h)
 	sub 1Fh
@@ -2080,17 +2092,19 @@ loc_0CED:
 loc_0CF3:
 	add (ix+04h)
 	ld (ix+04h), a
+	
 	dec b
-	jp nz, loc_0C7C
+	jp nz, loc_0C7C ; If there are more channels to load, loop
 	ret
-loc_0CFE:
-	ld (de), a
-	inc hl
+loc_0CFE: ; Channel will not be initialized
+	ld (de), a ; Set channel+00h to zero
+	inc hl ; Increment current song pointer
+	
 	dec b
-	jp nz, loc_0C7C
+	jp nz, loc_0C7C ; If there are more channels to load, loop
 	ret
 
-ptr_0D05:
+tbl_channels:
 	dcwLE $1C00
 	dcwLE $1C30
 	dcwLE $1C60
@@ -2330,7 +2344,7 @@ loc_0EBA:
 	jr loc_0ED6
 loc_0ED1:
 	push bc
-	call sub_0C6D
+	call InitSoundId
 	pop bc
 loc_0ED6:
 	inc c
@@ -2363,7 +2377,7 @@ sub_0EF3:
 	ld a, 30h
 	ld (4001h), a
 sub_0F08:
-	ld hl, 1C00h
+	ld hl, zChannelArray
 	ld de, 0030h
 	ld b, 0Dh
 	sub a
@@ -2569,7 +2583,7 @@ sub_1042:
 	ld hl, mem_0010
 	add hl, bc
 	ld a, (hl)
-	call sub_0C6D
+	call InitSoundId
 	pop bc
 	sub a
 	ld (mem_002F), a
@@ -2598,7 +2612,7 @@ sub_1070:
 	push ix
 	ld de, 0030h
 	ld h, 0Bh
-	ld ix, 1C00h
+	ld ix, zChannelArray
 loc_1088:
 	ld a, (ix+00h)
 	and a
@@ -2621,7 +2635,7 @@ sub_10A2:
 	push bc
 	sub a
 	ld (1F68h), a
-	call sub_0C6D
+	call InitSoundId
 	pop bc
 	ret
 
@@ -2632,7 +2646,7 @@ sub_10B4:
 	push bc
 	sub a
 	ld (1F68h), a
-	call sub_0C6D
+	call InitSoundId
 	pop bc
 	ret
 
@@ -2703,7 +2717,7 @@ loc_1121:
 	add hl, bc
 	ld a, (hl)
 	push bc
-	call sub_0C6D
+	call InitSoundId
 	pop bc
 	sub a
 	ld (1F68h), a
@@ -2872,7 +2886,7 @@ loc_1261:
 	jr loc_127D
 loc_1278:
 	push bc
-	call sub_0C6D
+	call InitSoundId
 loc_127C:
 	pop bc
 loc_127D:

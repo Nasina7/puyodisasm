@@ -8,6 +8,50 @@
 
 	include "sound/z80_macros.asm"
 	
+	
+; Layout of each channel in Z80 memory
+; 00 - 
+; 		Bits 7-1:	Unk
+; 		Bit 0:		Channel Enabled
+; 01 - 
+; 		Bits 7-5: 	Unk
+; 		Bits 4-0:	Volume
+; 02 - Volume Sweep?
+; 03 - Pitch Sweep?
+; 04 - Unk
+; 05 - Channel Playback Speed
+; 06 - Unk
+; 07-08 - Track Current Location (Little Endian 16-bit)
+; 09 - 
+; 		Bits 7-6: 	Panning (Bit 7 for Left, Bit 6 for Right)
+;		Bits 5-4:	Unk
+; 		Bits 3-0: 	Vibrato
+; 0A - Instrument (Up to 4E makes noise)
+; 0B - Unk
+; 0C - 
+; 		Bits 7-4: 	???
+; 		Bit 3: 		Play next notes at constant pitch
+; 		Bits 2-0: 	???
+; 0D - Time that current note has played
+; 0E - Length at which to start over currently playing note
+; 0F - Unk Timer
+; 10 - Unk
+; 11 - Loop Timer for conditional loops
+; 12 - Minor Pitch Adjustment
+; 13 - Current Note
+; 14 - Unk
+; 15 - Unk
+; 16-17 - Note Pitch 16 Bit version (Little Endian)
+; 18-19 - Unk
+; 1A-1B - Unk
+; 1C-1D - Unk
+; 1E-1F - Unk
+; 20-21 - Unk
+; 22-23 - Something related to vibrato?
+; 24 - Unk
+; 25-2F - Unused?
+
+
 ; Some memory locations
 zPlaySoundId = 		$0000 ; The latest sound for the sound driver to play
 zPlayMusicId =		$0001 ; Same as above.  Only sometimes used compared to zPlaySoundId
@@ -446,9 +490,9 @@ loc_02C1:
 loc_02C2:
 	ld a, (de)
 	and a
-	jp p, loc_05F8
+	jp p, PlayNote
 	cp $C0
-	jp nc, loc_058F
+	jp nc, SetNoteLength
 	inc de
 	ld hl, loc_02C1
 
@@ -466,7 +510,7 @@ loc_02C2:
 	jp (hl)
 	
 tbl_commands:
-	dcwLE sub_0331
+	dcwLE CmdJump ; 3 Byte Command
 	dcwLE sub_0338
 	dcwLE sub_037E
 	dcwLE sub_0387
@@ -482,14 +526,14 @@ tbl_commands:
 	dcwLE sub_0366
 	dcwLE sub_0476
 	dcwLE sub_0476
-	dcwLE sub_039F
+	dcwLE sub_039F ; Command 90h
 	dcwLE sub_0402
 	dcwLE sub_04C8
 	dcwLE sub_0425
 	dcwLE sub_0448
 	dcwLE sub_0460
 	dcwLE sub_0472
-	dcwLE sub_04AC
+	dcwLE CmdSetMinorPitch ; 2 Byte Command
 	dcwLE sub_04A4
 	dcwLE sub_047A
 	dcwLE sub_04D8
@@ -508,7 +552,7 @@ tbl_commands:
 	dcwLE sub_04F9
 	dcwLE sub_054C
 	
-sub_0331:
+CmdJump:
 	ld l, a
 	inc de
 	ld a, (de)
@@ -524,13 +568,13 @@ sub_0338:
 	jr z, loc_0346
 	dec (ix+10h)
 	ld a, (de)
-	jp nz, sub_0331
+	jp nz, CmdJump
 	inc de
 	ret
 loc_0346:
 	dec (ix+11h)
 	ld a, (de)
-	jp nz, sub_0331
+	jp nz, CmdJump
 	inc de
 	ret
 
@@ -540,14 +584,14 @@ sub_034F:
 	jr z, loc_035D
 	dec (ix+10h)
 	ld a, (de)
-	jp z, sub_0331
+	jp z, CmdJump
 	inc de
 	ret
 
 loc_035D:
 	dec (ix+11h)
 	ld a, (de)
-	jp z, sub_0331
+	jp z, CmdJump
 	inc de
 	ret
 	
@@ -740,7 +784,7 @@ sub_0460:
 	exx
 	bit 1, e
 	exx
-	jp z, sub_0331
+	jp z, CmdJump
 	inc de
 	ret
 
@@ -748,7 +792,7 @@ sub_0469:
 	exx
 	bit 5, c
 	exx
-	jp nz, sub_0331
+	jp nz, CmdJump
 	inc de
 	ret
 
@@ -801,7 +845,7 @@ sub_04A8:
 	ld (ix+15h), a
 	ret
 	
-sub_04AC:
+CmdSetMinorPitch:
 	and a, a
 	jr z, loc_04B2
 	add (ix+12h)
@@ -821,7 +865,7 @@ sub_04BE:
 	inc de
 	cp (ix+06h)
 	ld a, (de)
-	jp z, sub_0331
+	jp z, CmdJump
 	inc de
 	ret
 
@@ -940,7 +984,7 @@ loc_0578:
 	pop hl
 	jp loc_0628
 
-loc_058F:
+SetNoteLength:
 	cp $DE
 	jp nc, loc_05EE
 	sub $C0
@@ -1000,7 +1044,7 @@ loc_05E0:
 	inc hl
 	ld a, (hl)
 	and a
-	jp loc_05F8
+	jp PlayNote
 loc_05EE:
 	ld a, (ix+13h)
 	ld c, a
@@ -1008,7 +1052,7 @@ loc_05EE:
 	ex af,af
 	ld a, c
 	jp loc_0602
-loc_05F8:
+PlayNote:
 	inc de
 	ex af,af
 	ld a, (ix+13h)

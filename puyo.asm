@@ -5,9 +5,6 @@
 ; # Analysis Region: 0x00000000 - 0x00080000
 ; ########################################################################################
 
-; Used to test the shiftability of the rom, should be left to 0
-shiftabilityTest = 0
-
 ; Set this to 1 if you plan to mod the game, it fixes a shiftability bug in the original game code
 fixBugs = 1
 
@@ -106,9 +103,6 @@ checksum:
 	dc.b    "                                        " ; Reserved
 	dc.b    "J  " ; Region Support
 	dc.b	"             " ; Reserved
-	if shiftabilityTest == 1
-	padding $370000, $FF
-	endif
 Reset:
 	TST.l	$00A10008
 	BNE.b	loc_0000020F
@@ -416,6 +410,7 @@ loc_0000067C:
 	ANDI.b	#$FB, D0
 	MOVE.b	D0, $00FF0A2D
 	RTS
+	
 horizontalInterrupt:
 	ORI	#$0700, SR
 	TST.b	$00FF013A
@@ -851,7 +846,7 @@ init_initVDP:
 	BSR.w	loc_00000FC6
 	RTS
 
-loc_00000D30:
+bc_setVDPMode:
 	ORI	#$0700, SR
 	BSR.w	vdp_setVdpState
 	LEA	$00FF0A23, A0
@@ -1094,6 +1089,7 @@ loc_00001076:
 	MOVE.b	D0, padControl3
 	MOVE.w	#0, Z80BusReq
 	RTS
+	
 loc_00001096:
 	ORI	#$0700, SR
 loc_0000109A:
@@ -1203,6 +1199,7 @@ loc_000011BA:
 	OR.b	$00FF1108, D0
 	MOVE.b	D0, $4(A0)
 	RTS
+	
 loc_000011D0:
 	MOVEM.l	D1, -(A7)
 	MOVE.l	$00FF1116, D1
@@ -1313,7 +1310,7 @@ cutsceneLoadMusic:
 	BEQ.w	loc_0000206E
 	RTS
 loc_0000206E:
-	MOVE.b	#$0D, D0
+	MOVE.b	#musID_HarpyTheme, D0
 	JMP	loc_000072BE
 cutsceneSongs:
 	dc.b	musID_Memories
@@ -1434,8 +1431,9 @@ initializeDebugFlags:
 	move.b #0, (debug_skipStages).l
 	move.b #0, (debug_unknown).l
 	rts
-loc_00002204:
-	MOVE.b	debug_skipStages, BC_returnState
+	
+debug_SkipStage:
+	MOVE.b	debug_skipStages, bc_returnState
 	RTS
 	
 palLookupTable:
@@ -2092,7 +2090,6 @@ loc_00002B68:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
 	
-;loc_00002b72
 func_updateCutsceneAnimation:
 	TST.b	$22(A0)
 	BEQ.w	loc_00002B80
@@ -2436,14 +2433,14 @@ loc_00002FB8:
 	MOVE.b	game_curCutscene, D0
 	LEA	$00FF0116, A1
 	MOVE.b	#$FF, (A1,D0.w)
-	MOVE.b	#0, BC_returnState
+	MOVE.b	#0, bc_returnState
 	CMPI.b	#3, game_curStage
 	BNE.w	loc_00002FFA
-	MOVE.b	#2, BC_returnState
+	MOVE.b	#2, bc_returnState
 loc_00002FFA:
 	RTS
 loc_00002FFC:
-	MOVE.b	#1, BC_returnState
+	MOVE.b	#1, bc_returnState
 	RTS
 loc_00003006:
 	LEA	loc_00003010, A1
@@ -3203,7 +3200,18 @@ loc_00003AE6:
 	dc.w	$00C6
 	dc.w	$0138
 	dc.w	$00C6
-	dc.b	$01, $08, $00, $C6, $01, $38, $00, $C6, $01, $08, $00, $C6, $01, $38, $00, $C6, $01, $08, $00, $C6, $01, $38, $00, $C6 
+	dc.w	$0108
+	dc.w	$00C6
+	dc.w	$0138
+	dc.w	$00C6
+	dc.w	$0108
+	dc.w	$00C6
+	dc.w	$0138
+	dc.w	$00C6
+	dc.w	$0108
+	dc.w	$00C6
+	dc.w	$0138
+	dc.w	$00C6
 loc_00003B04:
 	MOVEA.l	$2E(A0), A1
 	CLR.w	D1
@@ -3594,7 +3602,7 @@ loc_00003FC0:
 	BEQ.w	loc_00003FF0
 	MOVE.b	#$81, D0
 loc_00003FF0:
-	JSR	loc_00007356
+	JSR	cut_PlayVoice
 loc_00003FF6:
 	CLR.w	D1
 	MOVE.b	$9(A0), D1
@@ -3650,7 +3658,7 @@ loc_00004098:
 	RTS
 loc_000040BC:
 	BSR.w	loc_00002B26
-	BSR.w	loc_000040DC
+	BSR.w	btl_loadClearParticles
 	BSR.w	loc_00002B26
 	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_00002AF2
@@ -3666,35 +3674,37 @@ loc_000040D2:
 	dc.b	$06 
 	dc.b	$FE
 	dc.b	$00 
-loc_000040DC:
+	
+btl_loadClearParticles:
 	MOVE.b	$00FF1882, D2
 	ANDI.b	#3, D2
-	BNE.w	loc_0000424C
+	BNE.w	btl_loadPartNormal
 	TST.b	$2A(A0)
-	BEQ.w	loc_0000424C
+	BEQ.w	btl_loadPartNormal
 	CLR.w	D0
 	MOVE.b	game_curCutscene, D0
 	LSL.b	#2, D0
-	MOVEA.l	loc_00004102(PC,D0.w), A1
+	MOVEA.l	tbl_loadClearParticles(PC,D0.w), A1
 	JMP	(A1)
-loc_00004102:
-	dc.l	loc_0000424C 
-	dc.l	loc_0000424C
-	dc.l	loc_0000424C 
-	dc.l	loc_0000424C
-	dc.l	loc_0000424C 
-	dc.l    loc_000041B6
-	dc.l    loc_0000424C
-	dc.l    loc_00004142
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-	dc.l    loc_0000424C
-loc_00004142:
+tbl_loadClearParticles:
+	dc.l	btl_loadPartNormal 
+	dc.l	btl_loadPartNormal
+	dc.l	btl_loadPartNormal 
+	dc.l	btl_loadPartNormal
+	dc.l	btl_loadPartNormal 
+	dc.l    btl_loadPartWitch
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartHarpy
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	dc.l    btl_loadPartNormal
+	
+btl_loadPartHarpy:
 	LEA loc_00004190, A1
 	BSR.w loc_00002AB0
 	BCS.b loc_0000418E
@@ -3725,7 +3735,8 @@ loc_000041A6:
 	rts
 loc_000041B0:
 	jmp loc_00002AF2
-loc_000041B6:
+	
+btl_loadPartWitch:
 	MOVE.b #$20, D0
 	MOVE.w #$180, D1
 	MOVE.w #3, D3
@@ -3766,7 +3777,8 @@ loc_0000423E:
 	bsr.w loc_00002B1C
 	bsr.w loc_00002B26
 	jmp loc_00002AF2
-loc_0000424C:
+	
+btl_loadPartNormal:
 	MOVE.w	#3, D3
 	MOVE.w	#$0400, D1
 loc_00004254:
@@ -6862,14 +6874,14 @@ loc_0000654C:
 	movea.l $2e(a0), a1
 	bsr.w loc_00002AFC
 	clr.b ($00FF0A3A)
-	clr.b (BC_stopRunning)
+	clr.b (bc_stopRunning)
 	rts
 loc_00006562:
 	MOVE.w	#$FFFF, $00FF18C8
 	CLR.w	$00FF0144
 	MOVE.b	$2A(A0), D0
 	EORI.b	#1, D0
-	MOVE.b	D0, BC_returnState
+	MOVE.b	D0, bc_returnState
 	MOVE.b	D0, $00FF0115
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
@@ -7054,7 +7066,7 @@ loc_0000683C:
 loc_00006862:
 	CLR.b	$7(A0)
 	BSR.w	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_00006874:
 	MOVE.b	#1, $7(A0)
@@ -7078,7 +7090,7 @@ loc_000068B4:
 	ANDI	#$F8FF, SR
 	CLR.b	$7(A0)
 	BSR.w	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_000068D6:
 	MOVEM.l	A0, -(A7)
@@ -7319,20 +7331,20 @@ loc_00006C9E:
 	MOVE.w	#$0080, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B40
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	MOVE.b	#$FF, $00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006CD2:
 	MOVE.b	#$52, D0
 	JSR	loc_000072BE
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006CEC:
 	MOVE.w	#$0100, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B40
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006D08:
@@ -7406,7 +7418,7 @@ loc_00006DC8:
 	ANDI	#$F8FF, SR
 	BRA.w	loc_0000319A
 loc_00006E16:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BCLR.b	#0, $7(A0)
 	BSR.w	loc_00002B26
 	BRA.w	loc_00002AF2
@@ -7912,7 +7924,8 @@ loc_0000733C:
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-loc_00007356:
+	
+cut_PlayVoice:
 	TST.b	$00FFFCAC
 	BNE.w	loc_00007376
 loc_00007360:
@@ -7921,6 +7934,7 @@ loc_00007360:
 	MOVE.b	#$FF, $00FF012E
 loc_00007376:
 	RTS
+	
 loc_00007378:
 	MOVE.w	#$0100, Z80BusReq
 loc_00007380:
@@ -8522,7 +8536,7 @@ loc_00007CA8:
 	bcs.w loc_00007CB2
 	rts
 loc_00007CB2:
-	clr.b BC_stopRunning
+	clr.b bc_stopRunning
 	jmp loc_00002AF2
 loc_00007CBE:
 	MOVEQ	#0, D2
@@ -11141,7 +11155,7 @@ loc_0000A21E:
 	MOVE.w	#0, $00FF05D2
 	MOVE.b	#$55, D0
 	JSR	loc_000072BE
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_0000A23A:
 	TST.w	$00FF1892
@@ -11170,7 +11184,7 @@ loc_0000A286:
 	CLR.w	$00FF0624
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
-	LEA	loc_0000E0E2, A1
+	LEA	cut_TickCutscene, A1
 	BSR.w	loc_00002A54
 	CLR.w	D0
 	CLR.w	D1
@@ -11178,11 +11192,10 @@ loc_0000A2AC:
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	MOVE.b	D1, D2
 	LSR.b	#1, D2
-	MOVE.b	D2, BC_returnState
+	MOVE.b	D2, bc_returnState
 	LSL.w	#2, D1
 	MOVEA.l	loc_0000A2E8(PC,D1.w), A2
 	JMP	(A2)
-	;dc.w    $0000
 loc_0000A2D6:
 	dc.b	$00, $00, $00 
 	dc.b	$00
@@ -11318,7 +11331,7 @@ loc_0000A4AA:
 	ORI	#$0700, SR
 	MOVE.w	#$4000, vdpControl1
 	MOVE.w	#0, vdpControl1
-	LEA	loc_0000A632, A1
+	LEA	art_segaLogo, A1
 	MOVE.w	#$02FF, D0
 loc_0000A4C8:
 	MOVE.w	(A1)+, vdpData1
@@ -11330,7 +11343,7 @@ loc_0000A4C8:
 	JSR	loc_00000BF2
 	JSR	loc_00002B26
 	MOVE.b	#0, D0
-	LEA	loc_0000A5F0, A2
+	LEA	pal_segaPart1, A2
 	JSR	loc_00001020
 	MOVE.w	#$003F, $26(A0)
 	BSR.w	loc_00010D0E
@@ -11357,7 +11370,7 @@ loc_0000A51E:
 loc_0000A55C:
 	MOVE.w	$26(A0), D0
 	MOVE.w	#$000A, D1
-	LEA	loc_0000A5F4, A1
+	LEA	pal_segaPart2, A1
 	LEA	$00FF0A5A, A2
 loc_0000A570:
 	MOVE.w	(A1,D0.w), (A2)+
@@ -11373,7 +11386,7 @@ loc_0000A594:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000A5B0:
 	LEA	$00FF3000, A1
@@ -11396,11 +11409,11 @@ loc_0000A5D2:
 	MOVE.b	D1, $00FF013A
 	EORI.b	#1, $00FF013B
 	RTS
-loc_0000A5F0:
+pal_segaPart1:
 	incbin "art/palettes/sega/logoPart1.bin"
-loc_0000A5F4:
+pal_segaPart2:
 	incbin "art/palettes/sega/logoPart2.bin"
-loc_0000A632:
+art_segaLogo:
 	incbin "art/uncompressed/segaLogo.bin"
 loc_0000AC92:
 	MOVE.b	#$FF, $7(A0)
@@ -11427,7 +11440,7 @@ loc_0000ACDC:
 	MOVE.w	#$0800, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	JMP	loc_00002AF2
 loc_0000AD04:
@@ -12135,13 +12148,13 @@ loc_0000B22E:
 	MOVE.w	$26(A0), D0
 	MOVE.b	loc_0000B260(PC,D0.w), D1
 	MOVE.b	D1, $00FF1882
-	MOVE.b	D1, BC_returnState
+	MOVE.b	D1, bc_returnState
 	BEQ.w	loc_0000B354
 	CMPI.b	#3, D1
 	BEQ.w	loc_0000B254
 	CLR.b	$00FF1884
 loc_0000B254:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000B260:
 	dc.b	$00
@@ -12307,7 +12320,7 @@ loc_0000B438:
 loc_0000B446:
 	MOVE.b	$27(A0), $00FF0114
 	BSR.w	loc_0000B4B4
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JSR	loc_00002B26
 	RTS
 loc_0000B460:
@@ -12929,14 +12942,14 @@ loc_0000BC2C:
 	BEQ.w	loc_0000BCA8
 	TST.b	$2A(A0)
 	BNE.w	loc_0000BCA8
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	MOVE.b	#$FF, $2A(A0)
 loc_0000BCA8:
 	RTS
 loc_0000BCAA:
 	MOVE.b	#$70, D0
 	BSR.w	loc_000072BE
-	TST.b	BC_stopRunning
+	TST.b	bc_stopRunning
 	BEQ.w	loc_0000BCD8
 	MOVE.w	#4, D0
 loc_0000BCC0:
@@ -12975,7 +12988,7 @@ loc_0000BD32:
 loc_0000BD3C:
 	TST.b	$2A(A0)
 	BNE.w	loc_0000BD4A
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 loc_0000BD4A:
 	JMP	loc_00002AF2
 loc_0000BD50:
@@ -13196,7 +13209,7 @@ loc_0000C00E:
 	move.w #$200, d0
 	jsr loc_00002B1C
 	jsr loc_00002B26
-	clr.b (BC_stopRunning).l
+	clr.b (bc_stopRunning).l
 	clr.b ($00FF0A3A).l
 	jmp loc_00002AF2
 
@@ -13335,7 +13348,7 @@ loc_0000C278:
 	MOVE.b	D0, $6(A0)
 	RTS
 loc_0000C288:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000C294:
 	CLR.w	D0
@@ -13607,7 +13620,7 @@ loc_0000C6CC:
 loc_0000C6E2:
 	MOVE.w	#1, $12(A1)
 	MOVE.w	#$000B, $28(A1)
-	MOVE.b	#$FF, BC_returnState
+	MOVE.b	#$FF, bc_returnState
 	BSR.w	loc_0000D1DA
 	RTS
 loc_0000C6FC:
@@ -13642,9 +13655,9 @@ loc_0000C74E:
 loc_0000C764:
 	MOVE.b	#$52, D0
 	BSR.w	loc_000072BE
-	CLR.b	BC_returnState
+	CLR.b	bc_returnState
 loc_0000C772:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JSR	loc_00002B26
 	RTS
 loc_0000C780:
@@ -13794,12 +13807,12 @@ loc_0000C98A:
 	BEQ.w	loc_0000C9A8
 	RTS
 loc_0000C994:
-	MOVE.b	#$FF, BC_returnState
-	CLR.b	BC_stopRunning
+	MOVE.b	#$FF, bc_returnState
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000C9A8:
-	CLR.b	BC_returnState
-	CLR.b	BC_stopRunning
+	CLR.b	bc_returnState
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000C9BA:
 	LEA	loc_0000C9F0, A1
@@ -13810,7 +13823,7 @@ loc_0000C9CC:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$1C, $8(A1)
 	CLR.w	D0
-	MOVE.b	BC_returnState, D0
+	MOVE.b	bc_returnState, D0
 	LSL.b	#2, D0
 	MOVE.w	loc_0000CA12(PC,D0.w), $A(A1)
 	MOVE.w	loc_0000CA14(PC,D0.w), $E(A1)
@@ -14094,7 +14107,7 @@ loc_0000CD98:
 	JMP	loc_00002AF2
 loc_0000CD9E:
 	MOVE.b	#$80, D0
-	JMP	loc_00007356
+	JMP	cut_PlayVoice
 loc_0000CDA8:
 	MOVE.b	#$73, D0
 	JMP	loc_000072BE
@@ -14313,8 +14326,8 @@ loc_0000D0A6:
 loc_0000D0D4:
 	MOVE.b	#$52, D0
 	JSR	loc_000072BE
-	CLR.b	BC_stopRunning
-	CLR.b	BC_returnState
+	CLR.b	bc_stopRunning
+	CLR.b	bc_returnState
 	JMP	loc_00002AF2
 loc_0000D0F0:
 	LEA	loc_0000D188, A1
@@ -15936,7 +15949,7 @@ loc_0000D914:
 	bne.w loc_0000D92A
 	rts
 loc_0000D92A:
-	clr.b (BC_stopRunning).l
+	clr.b (bc_stopRunning).l
 	move.b #2, ($00FF0A3A).l
 	jmp loc_00002AF2
 loc_0000D93E:
@@ -16099,7 +16112,7 @@ loc_0000DBC2:
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
 	BSR.w	loc_0000DE6A
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	ADDQ.b	#1, game_curStage
 	CMPI.b	#$12, game_curStage
@@ -16305,21 +16318,9 @@ loc_0000DEEC:
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.w	#$9100, D0
 	SWAP	D0
-	
-; Right here is a bug that the original devs of the game never caught (to my knowledge).
-; Explanation is as follows:
-; Over at around 0x1680 are a bunch of tables that handle loading data during transitions between game scenes
-; At around transition_credits3, there's a function in this table that calls loc_0000D908.
-; The code that they wrote will first read the upper half of this address into the lower half of D0
-; swap the words of D0, and then load the lower half of the address.  That code works perfectly fine, however
-; by the time that *this* function gets called much later on, the upper half of D0 has *never* been cleared.
-; This normally wouldn't be an issue, the upper half of loc_0000D908 is 0000 after all, but when the rom is
-; shifted to extreme amounts, it becomes values that aren't 0000, which causes issues in the below code
 
-; TL:DR
-; D0 here contains the upper half of loc_0000D908, which is normally expected to be 0000.  Shifting the rom
-; beyond a point causes D0 to have a non-zero value, which breaks the below code.
-
+	; D0 here contains the upper half of loc_0000D908, which is normally expected to be 0000.  Shifting the rom
+	; beyond a certain point causes D0 to have a non-zero value, which breaks the below code.
 	if fixBugs == 1
 		; Clearing the lower half of D0 fixes the above issue.
 		move.w #$0000, d0
@@ -16455,7 +16456,7 @@ credits_TextboxCarbuncle:
 	
 ; Dead Code
 	rts
-loc_0000E0E2:
+cut_TickCutscene:
 	CLR.w	D0
 	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
@@ -16464,12 +16465,11 @@ loc_0000E0E2:
 	JSR	loc_00002B26
 	JSR	loc_00004BF2
 	ANDI.b	#$F0, D0
-	BNE.w	endCutscene
+	BNE.w	cut_EndCutscene
 	TST.w	$26(A0)
 	BEQ.w	loc_0000E11A
 	SUBQ.w	#1, $26(A0)
 	RTS
-; Cutscene Runner Function?
 loc_0000E11A:
 	; Grab a byte from the cutscene pointer (A2), and store the increased pointer
 	MOVEA.l	$32(A0), A2
@@ -16479,36 +16479,38 @@ loc_0000E11A:
 	
 	; If the hightest bit isn't set, branch to E26C
 	OR.b	D0, D0
-	BPL.w	loc_0000E26C
+	BPL.w	cut_WriteChar
 	
 	; If the highest bit was set, run code depending on it
 	ANDI.b	#$7F, D0
 	LSL.w	#2, D0
-	MOVEA.l	loc_0000E140(PC,D0.w), A3
+	MOVEA.l	cut_CommandLookupTable(PC,D0.w), A3
 	
 	; Get the next byte (argument to upcoming function call?)
 	CLR.w	D0
 	MOVE.b	(A2)+, D0
 	MOVE.l	A2, $32(A0)
 	JMP	(A3)
-loc_0000E140:
-	dc.l	endCutscene  ; Self Explanatory
-	dc.l	loc_0000E1BC
-	dc.l	loc_0000E20C
-	dc.l	loc_0000E24A
-	dc.l	loc_0000E254 ; Store FFXX to 00FF18AC
-	dc.l	loc_0000E260 ; Store FFXX to 00FF18AE
-	dc.l	loc_0000E182
+cut_CommandLookupTable:
+	dc.l	cut_EndCutscene
+	dc.l	cut_MakeTextbox
+	dc.l	cut_ClearTextbox
+	dc.l	cut_WaitTime
+	dc.l	cut_PlayArleAnim
+	dc.l	cut_PlayOpponentAnim
+	dc.l	cut_TextboxNewLine
 	dc.l	loc_0000E1A0 
-	dc.l	$00000000 
-	dc.l	loc_0000E242
-	dc.l	loc_00007356 
-endCutscene:
+	dc.l	NULL 
+	dc.l	cut_AddWhitespace
+	dc.l	cut_PlayVoice 
+	
+cut_EndCutscene:
 	BSR.w	loc_0000E210
 	JSR	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
-loc_0000E182:
+	
+cut_TextboxNewLine:
 	SUBQ.l	#1, $32(A0)
 loc_0000E186:
 ; Preform newline in textbox (if out of bounds, set to start of textbox
@@ -16520,6 +16522,7 @@ loc_0000E186:
 	CLR.w	$C(A0)
 loc_0000E19E:
 	RTS
+	
 loc_0000E1A0:
 	SUBQ.l	#1, $32(A0)
 	CLR.w	$A(A0)
@@ -16528,7 +16531,8 @@ loc_0000E1A0:
 	ORI.w	#$8E00, D0
 	SWAP	D0
 	JMP	loc_00000C4C
-loc_0000E1BC:
+	
+cut_MakeTextbox:
 	; Make copies of argument
 	MOVE.w	D0, D1
 	MOVE.w	D0, D2
@@ -16579,7 +16583,8 @@ loc_0000E1BC:
 	; ?
 	MOVE.b	#$FF, $7(A0)
 	RTS
-loc_0000E20C:
+	
+cut_ClearTextbox:
 	SUBQ.l	#1, $32(A0)
 loc_0000E210:
 	TST.b	$7(A0)
@@ -16599,24 +16604,27 @@ loc_0000E22E:
 	LSL.w	#4, D0
 	OR.w	$E(A0), D0
 	RTS
-loc_0000E242:
+	
+cut_AddWhitespace:
 	SUBQ.l	#1, $32(A0)
 	BRA.w	loc_0000E2E0
-loc_0000E24A:
+	
+cut_WaitTime:
 	MULU.w	#$000A, D0
 	MOVE.w	D0, $26(A0)
 	RTS
-loc_0000E254:
+	
+cut_PlayArleAnim:
 	ORI.w	#$FF00, D0
 	MOVE.w	D0, $00FF18AC
 	RTS
-loc_0000E260:
-	; Store FFXX to 00FF18AE
+	
+cut_PlayOpponentAnim:
 	ORI.w	#$FF00, D0
 	MOVE.w	D0, $00FF18AE
 	RTS
-loc_0000E26C:
-
+	
+cut_WriteChar:
 	MOVE.w	$A(A0), D1
 	MOVE.w	$C(A0), D2
 	LSL.w	#1, D1
@@ -16726,29 +16734,7 @@ loc_0000E3B8:
 	RTS
 loc_0000E3C6:
 	JMP	loc_00002AF2
-	
-; This lookup containes the cutscene data for each stage
 
-; Commands:
-; * Less than $80 = Textbox Character
-; * $80 = End Cutscene
-; * $81 = Creates a textbox
-;	* Argument 1:
-;		Bits 0-3: Textbox Width
-;		Bits 4-6: Textbox Height
-;		Bit 7: Opponent Speaking
-;	* Argument 2-3:
-;		Defines where in VRAM to place the textbox
-; * $82 = Clear Previous Textbox
-; * $83 = Wait for an amount of time (time interval unknown)
-; * $84 = Play Arle Animation
-; * $85 = Play Opponent Animation
-; * $86 = Unknown
-; * $87 = Unknown
-; * $88 = Invalid
-; * $89 = Add Whitespace Character?
-; * $8A = Unknown
-; * $8B-FF = INVALID
 cutsceneLookupTable:
 	dc.l   	cutscene_SkeletonT
 	dc.l   	cutscene_Suketoudara
@@ -16818,6 +16804,7 @@ cutscene_Mummy:
 cutscene_Unk2:
 	include "game/cutscene/cutscene_unk2.asm"
 	even
+
 loc_0000EF6C:
 	CLR.w	$00FF0DE2
 	CLR.w	$00FF0DE4
@@ -18702,8 +18689,8 @@ loc_00010670:
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	CLR.b	BC_returnState
-	CLR.b	BC_stopRunning
+	CLR.b	bc_returnState
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_000106A4:
 	CLR.b	$9(A0)
@@ -19062,7 +19049,7 @@ loc_00010BE8:
 loc_00010BF4:
 	MOVE.w	#2, $26(A0)
 loc_00010BFA:
-	TST.b	BC_stopRunning
+	TST.b	bc_stopRunning
 	BEQ.w	loc_00010C56
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
@@ -19072,7 +19059,7 @@ loc_00010BFA:
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B26
-	TST.b	BC_stopRunning
+	TST.b	bc_stopRunning
 	BEQ.w	loc_00010C56
 	MOVE.b	#0, D1
 	BSR.w	titleScreen_fadeLogoToColor
@@ -19086,11 +19073,7 @@ loc_00010C56:
 titleScreen_fadeLogoToColor:
 	CLR.l	D0
 	MOVE.b	$00FF188B, D0
-	
-	
 	ADDI.b	#(((pal_titleScreenLogo_cycle)-palLookupTable)>>5), D0
-	
-	
 	LSL.w	#5, D0
 	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
@@ -19105,13 +19088,13 @@ loc_00010C7C:
 	BEQ.w	loc_00010C9C
 	BRA.w	loc_00010B8A
 loc_00010C9C:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	MOVE.b	$00FF188E, D0
 	ADDQ.b	#1, D0
-	MOVE.b	D0, BC_returnState
+	MOVE.b	D0, bc_returnState
 	ANDI.b	#1, D0
 	MOVE.b	D0, $00FF188E
-	CMPI.b	#2, BC_returnState
+	CMPI.b	#2, bc_returnState
 	BEQ.w	loc_00010CCC
 	JMP	loc_00002AF2
 loc_00010CCC:
@@ -25993,7 +25976,7 @@ loc_0001CDC6:
 	jsr loc_00002B1C
 	jsr loc_00002b40
 	clr.b ($00FF1834).l
-	clr.b (BC_stopRunning).l
+	clr.b (bc_stopRunning).l
 	jmp loc_00002AF2
 loc_0001CDE8:
 	LEA	loc_0001CDF4, A1
@@ -26089,7 +26072,7 @@ loc_0001CF12:
 	JMP	loc_00007308
 loc_0001CF18:
 	CLR.b	$00FF1834
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0001CF2A:
 	MOVE.b	#1, D1
@@ -26675,8 +26658,8 @@ loc_0001D6E4:
 loc_0001D72C:
 	BSR.w	loc_0001DC02
 	CLR.b	$00FF1834
-	MOVE.b	#0, BC_returnState
-	CLR.b	BC_stopRunning
+	MOVE.b	#0, bc_returnState
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0001D74A:
 	MOVE.b	#2, D2
@@ -26793,8 +26776,8 @@ loc_0001D8BC:
 	JSR	loc_000072BE
 	MOVEM.l	(A7)+, D0
 	CLR.b	$00FF1834
-	MOVE.b	#1, BC_returnState
-	CLR.b	BC_stopRunning
+	MOVE.b	#1, bc_returnState
+	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0001D8E4:
 	BSR.w	loc_0001D902
@@ -27023,10 +27006,10 @@ loc_0001DBCA:
 	nop
 	nop
 	nop
-	move.b #0, (BC_returnState).l
+	move.b #0, (bc_returnState).l
 	cmp.w (checksum).w, D1
 	beq.w loc_0001DBFA
-	move.b #$FF, (BC_returnState).l
+	move.b #$FF, (bc_returnState).l
 loc_0001DBFA:
 	move.w D1, ($00FF0106).l
 	rts

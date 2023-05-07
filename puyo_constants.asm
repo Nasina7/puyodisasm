@@ -1,3 +1,5 @@
+NULL = 0
+
 Z80Ram =     $A00000
 Z80BusReq =  $A11100
 Z80Reset =   $A11200
@@ -14,36 +16,6 @@ vdpControl1 = $C00004
 vdpControl2 = $C00006
 
 nem_decompBuffer = $00FF3400
-
-; Cutscene Constants (Todo: Move these into their own file)
-arle_AnimIdle = 0
-arle_AnimIdleTalk = 1
-arle_AnimAngerTalk = 2
-arle_AnimSurprise = 3
-arle_AnimCurious = 4
-arle_AnimCuriousTalk = 5
-arle_AnimCuriousIdle = 6
-arle_AnimCuriousAnger = 7
-arle_AnimCuriousAngerTalk = 8
-arle_AnimStance = 9
-arle_AnimStanceTalk = $A
-arle_AnimStanceIdle = $B
-arle_AnimCuriousEmbarrassedBlush = $C
-arle_AnimCuriousEmbarrassed = $D
-arle_AnimStancePoint = $E
-arle_AnimStanceHalt = $F
-arle_AnimStancePointTalk = $10
-arle_AnimStancePointNoIntro = $11
-arle_AnimStanceHaltTalk = $12
-arle_AnimStanceHaltNoIntro = $13
-arle_AnimStancePointEmbarrass = $14
-arle_AnimIdleAnger = $15
-
-draco_AnimIdle = 0
-draco_AnimIdleTalk = 1
-draco_AnimGloatTalk = 2
-draco_AnimPointUp = 3
-draco_AnimAnger = 4
 
 ; Music / SFX Constants:
 musID_Final = 1
@@ -102,40 +74,21 @@ stgID_Minotauros	= $0D
 stgID_Rulue			= $0E
 stgID_Satan			= $0F
 
-; RAM:
-	org $0
-	ds.b $112 					; Unknown
+; Ram
 
-game_curStage = $FF0000+*		; $112
-	ds.b $1
-game_curCutscene = $FF0000+*	; $113
-	ds.b $1
-	ds.b $1B 					; Unknown
-	
-mus_curSong = $FF0000+*			; $12F
-	ds.b $1
-	ds.b $906					; Unknown
-	
-BC_programCounter = $FF0000+* 	; $A36
-	ds.l $1
-BC_returnState = $FF0000+*		; $A3A
-	ds.b $1
-BC_stopRunning = $FF0000+*		; $A3B
-	ds.b $1
-BC_stopBytecodeLoop = $FF0000+*	; $A3C
-	ds.b $1
-	ds.b $E39					; Unknown
+game_curStage = $FF0112		; Byte
+game_curCutscene = $FF0113	; Byte
 
-debug_CpuPlayer = $FF0000+*		; $1876
-	ds.b $1
-debug_puyoDrop = $FF0000+*		; $1877
-	ds.b $1
-debug_skipStages = $FF0000+*	; $1878
-	ds.b $1
-debug_unknown = $FF0000+*		; $1879
-	ds.b $1
-	ds.b $E386
-	
-SystemStack = $FF0000+*			; $FC00
-	ds.b $10000-*
-	org $0
+mus_curSong = $FF012F		; Byte
+
+bc_programCounter = $FF0A36 ; Long
+bc_returnState = $FF0A3A	; Byte
+bc_stopRunning = $FF0A3B	; Byte
+bc_stopLoop = $FF0A3C 		; Byte
+
+debug_CpuPlayer = $FF1876	; Byte
+debug_puyoDrop = $FF1877	; Byte
+debug_skipStages = $FF1878	; Byte
+debug_unknown = $FF1879		; Byte
+
+SystemStack = $FFFC00

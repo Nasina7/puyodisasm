@@ -314,7 +314,7 @@ BC_portraitScreen:
 	
 	BSTOP
 	
-	BRUN loc_00002204
+	BRUN debug_SkipStage
 	
 	BJEQ BC_unknown1
 	

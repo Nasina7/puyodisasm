@@ -1,23 +1,23 @@
 initBytecode:
-	MOVE.l	#BC_Bootup, BC_programCounter
+	MOVE.l	#BC_Bootup, bc_programCounter
 loc_000013E2:
-	CLR.b	BC_returnState
-	CLR.b	BC_stopRunning
+	CLR.b	bc_returnState
+	CLR.b	bc_stopRunning
 	RTS
 runBytecode:
-	TST.b	BC_stopRunning
+	TST.b	bc_stopRunning
 	BEQ.w	.bytecodeLoop
 	RTS
 .bytecodeLoop:
-	CLR.b	BC_stopBytecodeLoop
-	MOVEA.l	BC_programCounter, A0
+	CLR.b	bc_stopLoop
+	MOVEA.l	bc_programCounter, A0
 	MOVE.w	(A0)+, D1
 	MOVE.w	(A0)+, D0
-	MOVE.l	A0, BC_programCounter
+	MOVE.l	A0, bc_programCounter
 	ASL.w	#2, D1
 	MOVEA.l	bytecodeFunctionLookup(PC,D1.w), A0
 	JSR	(A0)
-	TST.b	BC_stopBytecodeLoop
+	TST.b	bc_stopLoop
 	BEQ.b	.bytecodeLoop
 	RTS
 bytecodeFunctionLookup:
@@ -43,19 +43,19 @@ bytecodeFunctionLookup:
 	dc.l	.playSoundCheckSample2
 	
 .stopBytecode:
-	SUBQ.l	#2, BC_programCounter
-	MOVE.b	#$FF, BC_stopBytecodeLoop
-	MOVE.b	#$FF, BC_stopRunning
+	SUBQ.l	#2, bc_programCounter
+	MOVE.b	#$FF, bc_stopLoop
+	MOVE.b	#$FF, bc_stopRunning
 	RTS
 	
 .bytecodeNop:
-	SUBQ.l	#2, BC_programCounter
-	MOVE.b	#$FF, BC_stopBytecodeLoop
+	SUBQ.l	#2, bc_programCounter
+	MOVE.b	#$FF, bc_stopLoop
 	RTS
 	
 .delayForFrames:
-	MOVE.b	#$FF, BC_stopBytecodeLoop
-	MOVE.b	#$FF, BC_stopRunning
+	MOVE.b	#$FF, bc_stopLoop
+	MOVE.b	#$FF, bc_stopRunning
 	LEA	loc_000014C2, A1
 	BSR.w	loc_00002A54
 	BCC.w	loc_000014BC
@@ -65,13 +65,13 @@ loc_000014BC:
 	RTS
 loc_000014C2:
 	BSR.w	loc_00002B26
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 	
 .waitForPal:
-	SUBQ.l	#2, BC_programCounter
-	MOVE.b	#$FF, BC_stopBytecodeLoop
-	MOVE.b	#$FF, BC_stopRunning
+	SUBQ.l	#2, bc_programCounter
+	MOVE.b	#$FF, bc_stopLoop
+	MOVE.b	#$FF, bc_stopRunning
 	LEA	loc_000014F0, A1
 	BRA.w	loc_00002A54
 loc_000014F0:
@@ -79,7 +79,7 @@ loc_000014F0:
 	BCC.w	loc_000014FA
 	RTS
 loc_000014FA:
-	CLR.b	BC_stopRunning
+	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_00001504:
 	LEA	$00FF0AD6, A2
@@ -96,46 +96,46 @@ loc_00001524:
 	RTS
 	
 .writeRam:
-	MOVEA.l	BC_programCounter, A0
+	MOVEA.l	bc_programCounter, A0
 	SWAP	D0
 	MOVE.w	(A0)+, D0
 	MOVE.w	(A0)+, D1
-	MOVE.l	A0, BC_programCounter
+	MOVE.l	A0, bc_programCounter
 	MOVEA.l	D0, A0
 	MOVE.w	D1, (A0)
 	RTS
 	
-.runFunction: ; Case 0005
-	MOVEA.l	BC_programCounter, A0
+.runFunction:
+	MOVEA.l	bc_programCounter, A0
 	SWAP	D0
 	MOVE.w	(A0)+, D0
-	MOVE.l	A0, BC_programCounter
+	MOVE.l	A0, bc_programCounter
 	MOVEA.l	D0, A0
 	JMP	(A0)
 	
-.jumpLocation: ; Case 0006
-	MOVEA.l	BC_programCounter, A0
+.jumpLocation:
+	MOVEA.l	bc_programCounter, A0
 	SWAP	D0
 	MOVE.w	(A0), D0
-	MOVE.l	D0, BC_programCounter
+	MOVE.l	D0, bc_programCounter
 	RTS
 
-.jumpLocationEQ: ; Case 0007
-	TST.b	BC_returnState
+.jumpLocationEQ:
+	TST.b	bc_returnState
 	BEQ.b	.jumpLocation
-	ADDQ.l	#2, BC_programCounter
+	ADDQ.l	#2, bc_programCounter
 	RTS
 	
-.jumpLocationNE: ; Case 0008
-	TST.b	BC_returnState
+.jumpLocationNE:
+	TST.b	bc_returnState
 	BNE.b	.jumpLocation
-	ADDQ.l	#2, BC_programCounter
+	ADDQ.l	#2, bc_programCounter
 	RTS
 	
 .jumpTable:
-	MOVEA.l	BC_programCounter, A0
+	MOVEA.l	bc_programCounter, A0
 	CLR.w	D1
-	MOVE.b	BC_returnState, D1
+	MOVE.b	bc_returnState, D1
 	CMP.w	D0, D1
 	BCS.w	loc_000015A0
 	MOVE.w	D0, D1
@@ -143,16 +143,16 @@ loc_00001524:
 loc_000015A0:
 	LSL.w	#2, D1
 	MOVE.l	(A0,D1.w), D2
-	MOVE.l	D2, BC_programCounter
+	MOVE.l	D2, bc_programCounter
 	RTS
 	
 .setVDPMode:
-	BRA.w	loc_00000D30
+	BRA.w	bc_setVDPMode
 	
 .loadArt:
-	MOVEA.l	BC_programCounter, A1
+	MOVEA.l	bc_programCounter, A1
 	MOVEA.l	(A1)+, A0
-	MOVE.l	A1, BC_programCounter
+	MOVE.l	A1, bc_programCounter
 	BRA.w	graphicsDecompress
 	
 .runVDPCommand:
@@ -165,10 +165,10 @@ loc_000015A0:
 	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
 	MOVE.b	D1, D0
-	MOVEA.l	BC_programCounter, A0
+	MOVEA.l	bc_programCounter, A0
 	MOVE.b	(A0)+, D1
 	MOVE.b	(A0)+, D2
-	MOVE.l	A0, BC_programCounter
+	MOVE.l	A0, bc_programCounter
 	BRA.w	loc_00000E46
 	
 .loadPalette:
@@ -187,12 +187,12 @@ loc_000015A0:
 	JMP	loc_000072BE
 	
 .fadeMusic:
-	SUBQ.l	#2, BC_programCounter
+	SUBQ.l	#2, bc_programCounter
 	JMP	loc_000072EE
 	
 .stopAllSound:
-	SUBQ.l	#2, BC_programCounter
+	SUBQ.l	#2, bc_programCounter
 	JMP	loc_00007308
 	
 .playSoundCheckSample2:
-	JMP	loc_00007356
+	JMP	cut_PlayVoice

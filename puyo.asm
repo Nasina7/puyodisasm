@@ -7818,10 +7818,10 @@ z80Load_LoadData: ; 000071C0
 	
 	; This is the code that determines where the sound data is located in rom, as well as where the z80 will load it from.
 	; The sound data must be 8KB aligned in the rom
-	MOVE.b	#((sound_chunk1>>8)&$80), $00A01F00
-	MOVE.b	#((sound_chunk1>>16)&$FF), $00A01F01
-	MOVE.b	#((sound_chunk2>>8)&$80), $00A01F02
-	MOVE.b	#((sound_chunk2>>16)&$FF), $00A01F03
+	MOVE.b	#((sound_bank1>>8)&$80), $00A01F00
+	MOVE.b	#((sound_bank1>>16)&$FF), $00A01F01
+	MOVE.b	#((sound_bank2>>8)&$80), $00A01F02
+	MOVE.b	#((sound_bank2>>16)&$FF), $00A01F03
 	
 	BSR.w	z80Load_resetZ80
 	MOVE.w	#0, Z80BusReq
@@ -7869,10 +7869,10 @@ loc_00007262:
 	move.b (a0)+, (a1)+
 	dbf d0, loc_00007262
 	
-	MOVE.b	#((sound_chunk1>>8)&$80), $00A01F00
-	MOVE.b	#((sound_chunk1>>16)&$FF), $00A01F01
-	MOVE.b	#((sound_chunk2>>8)&$80), $00A01F02
-	MOVE.b	#((sound_chunk2>>16)&$FF), $00A01F03
+	MOVE.b	#((sound_bank1>>8)&$80), $00A01F00
+	MOVE.b	#((sound_bank1>>16)&$FF), $00A01F01
+	MOVE.b	#((sound_bank2>>8)&$80), $00A01F02
+	MOVE.b	#((sound_bank2>>16)&$FF), $00A01F03
 	
 	move.b #$C3, ($00A00000).l
 	move.b #$0, ($00A00001).l
@@ -27404,13 +27404,14 @@ art_menuScreen: ; Menu Screen Graphics
 
 ; Sound engine stuff
 	align $8000
-sound_chunk1: ; Music Data? + HAIYAH
+sound_bank1: ; Music Data? + HAIYAH
 	incbin "sound/musicAndPCM1.bin"
 z80SoundDriver: ; Sound Driver
 	include "sound/driver/sound.asm"
 	align $8000
-sound_chunk2: ; YATANA and PUYOPUYO sound bytes
-	incbin "sound/PCM2.bin"
+sound_bank2: ; YATANA and PUYOPUYO sound bytes
+	include "sound/bank2/bank2.asm"
+	padding $7A300-*, $FF	; There's some odd padding happening here.
 	
 art_titleScreen: ; Title Screen Background, Arle, Copyright Text, Title, etc...
 	incbin "art/compressed/title/titleScreen.bin"

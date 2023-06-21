@@ -7533,8 +7533,8 @@ loc_00006FEC:
 	SUBQ.b	#1, D1
 	RTS
 loc_00007006:
-	dc.b $00, $FF, $FF, $FF, $00
-	dc.b $00, $00, $00, $00, $00
+	dc.b 	$00, $FF, $FF, $FF, $00
+	dc.b 	$00, $00, $00, $00, $00
 loc_00007010:
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_0000701C
@@ -8609,8 +8609,8 @@ loc_00007E6A:
 loc_00007E80:
 	dc.l 	$00FF0146
 loc_00007E84:
-	dc.w $C104, $0000, $00FF, $0386, $C134, $0000, $00FF
-	dc.w $0146, $C134, $0000, $00FF, $0386, $C104, $0000
+	dc.w 	$C104, $0000, $00FF, $0386, $C134, $0000, $00FF
+	dc.w 	$0146, $C134, $0000, $00FF, $0386, $C104, $0000
 loc_00007EA0:
 	bsr.w loc_00005064
 	addi.w #$30, d0
@@ -11114,8 +11114,8 @@ loc_0000A2AC:
 	MOVEA.l	loc_0000A2E8(PC,D1.w), A2
 	JMP	(A2)
 loc_0000A2D6:
-	dc.b $00, $00, $00, $00, $00, $00, $00, $00, $00
-	dc.b $00, $00, $01, $01, $01, $01, $02, $02, $00
+	dc.b 	$00, $00, $00, $00, $00, $00, $00, $00, $00
+	dc.b 	$00, $00, $01, $01, $01, $01, $02, $02, $00
 loc_0000A2E8:
 	dc.l	loc_0000A316
 	dc.l    loc_0000A368
@@ -13052,8 +13052,8 @@ loc_0000BF60:
 	rts
 ; Palette data?
 loc_0000BF76:
-	dc.w $0466, $0688, $08AA, $0ACC, $0CCC, $0CEE, $0EEE, $0EEE
-	dc.w $0C62, $0C64, $0C66, $0E88, $0EAA, $0ECC, $0EEE, $0EEE
+	dc.w 	$0466, $0688, $08AA, $0ACC, $0CCC, $0CEE, $0EEE, $0EEE
+	dc.w 	$0C62, $0C64, $0C66, $0E88, $0EAA, $0ECC, $0EEE, $0EEE
 loc_0000BF96:
 	movea.l $2e(a0), a1
 	tst.b $7(a1)
@@ -14423,7 +14423,7 @@ loc_0000D34A:
     dc.l    loc_0000D61A
     dc.l    loc_0000D6AC
     dc.l    loc_0000D6AE
-	dc.l 	$00000000
+    dc.l 	$00000000
     dc.l    loc_0000D3A6
     dc.l    loc_0000D3BE
     dc.l    loc_0000D3DE
@@ -18416,9 +18416,9 @@ loc_00010456:
     dc.b    $11
     dc.b    $FF
     dc.b    $00
-	dc.b 	$01
-	dc.b	$00
-	dc.b	$10
+    dc.b 	$01
+    dc.b	$00
+    dc.b	$10
     dc.b    $FF
 loc_00010462:
     dc.b    $02

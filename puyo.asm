@@ -659,7 +659,7 @@ loc_00000BF2:
 	ORI	#$0700, SR
 	MOVEM.l	A3/A2/D3/D2/D1, -(A7)
 	MOVE.b	#$FF, D2
-	LEA	bgMappingTable, A2
+	LEA	tbl_bgMappings, A2
 loc_00000C04:
 	LSL.w	#2, D0
 	MOVEA.l	(A2,D0.w), A3
@@ -5230,7 +5230,7 @@ loc_0000568A:
 	CMP.w	$26(A0), D0
 	BEQ.w	loc_000056C6
 	MOVE.w	D0, $26(A0)
-	LEA	loc_000056E8, A1
+	LEA	tbl_PortraitAnims, A1
 	CLR.w	D0
 	MOVE.b	game_curCutscene, D0
 	LSL.w	#2, D0
@@ -5252,1006 +5252,40 @@ loc_000056DC:
 	MOVE.b	D0, $8(A0)
 	SWAP	D0
 	JMP	loc_00000C4C
-loc_000056E8:
-	dc.l	loc_0000586A
-	dc.l	loc_000058C8
-	dc.l	loc_00005920
-	dc.l	loc_00005972
-	dc.l	loc_000059EE
-	dc.l	loc_00005A38
-	dc.l	loc_00005AA4
-	dc.l	loc_00005AFA
-	dc.l	loc_00005B6E
-	dc.l	loc_00005BD0
-	dc.l	loc_00005C6E
-	dc.l	loc_00005CF2
-	dc.l	loc_00005D9A
-	dc.l	loc_00005728
-	dc.l    loc_00005782
-	dc.l    loc_00005804
-	
-loc_00005728:
-	dc.l    loc_00005748
-	dc.l    loc_0000575A
-	dc.l    loc_0000576A
-	dc.l    loc_00005776
-	dc.l    loc_00005780
-	dc.l    loc_00005780
-	dc.l    loc_00005780
-	dc.l    loc_00005780
-loc_00005748:
-	dc.b    $00, $00
-loc_0000574A:
-	dc.b    $01, $02, $01, $03, $03, $04, $02, $03, $F0, $02, $FF, $00
-	dc.l    loc_0000574A
-loc_0000575A:
-	dc.b    $00, $00 ;0x20
-loc_0000575C:
-	dc.b	$03, $02, $03, $05, $03, $06, $03, $07, $FF, $00
-	dc.l    loc_0000575C
-loc_0000576A:
-	dc.b    $03, $08, $03, $09, $04, $0A, $FF, $00
-	dc.l    loc_0000576A
-loc_00005776:
-	dc.b    $06, $01, $08, $0B, $FF, $00 ;0x40
-	dc.l	loc_00005776
-loc_00005780:
-	dc.b    $FE, $00
-loc_00005782:
-	dc.l    loc_000057A2
-	dc.l    loc_000057A6
-	dc.l    loc_000057B2
-	dc.l    loc_000057D0
-	dc.l    loc_000057F0
-	dc.l    loc_000057F0
-	dc.l    loc_00005802
-	dc.l    loc_00005802
-	
-loc_000057A2:
-	dc.b    $00, $00, $FE, $00
-loc_000057A6:
-	dc.b    $00, $00
-loc_000057A8:
-	dc.b    $01, $02, $01, $03, $FF, $00
-	dc.l    loc_000057A8
-loc_000057B2:
-	dc.b    $00, $04, $02, $05, $03, $06, $01, $05, $04, $04 ;0x80
-	dc.b	$02, $05, $03, $06, $01, $05, $04, $04, $02, $0B, $02, $0C, $02, $0B, $FF, $00
-	dc.l    loc_000057B2
-loc_000057D0:
-	dc.b    $F1, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D ;0xA0
-	dc.b	$01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $01, $0D, $01, $01, $FF, $00
-	dc.l    loc_000057D0
-loc_000057F0:
-	dc.b    $02, $07, $02, $08, $02, $09, $02, $08, $F1, $07, $F1, $07 ;0xC0
-	dc.b	$FF, $00
-	dc.l    loc_000057F0
-loc_00005802:
-	dc.b    $FE, $00
-loc_00005804:
-	dc.l    loc_00005824
-	dc.l    loc_00005836
-	dc.l    loc_00005846
-	dc.l    loc_00005858
-	dc.l    loc_00005868
-	dc.l    loc_00005868
-	dc.l    loc_00005868
-	dc.l    loc_00005868
-loc_00005824:
-	dc.b    $00, $00
-loc_00005826:
-	dc.b    $02, $02, $02, $03, $02, $02, $F1, $00, $F1, $00, $FF, $00
-	dc.l    loc_00005826
-loc_00005836:
-	dc.b    $02, $05, $02, $06, $02, $05 ;0x100
-	dc.b	$F1, $04, $F1, $04, $FF, $00
-	dc.l    loc_00005836
-loc_00005846:
-	dc.b    $01, $07, $F4, $07, $02, $08, $02, $09, $02, $0A, $02, $0B, $FF, $00
-	dc.l    loc_00005846
-loc_00005858:
-	dc.b    $00, $01
-loc_0000585A:
-	dc.b    $05, $0C ;0x120
-	dc.b	$03, $0D, $05, $0E, $03, $0D, $FF, $00
-	dc.l    loc_0000585A
-loc_00005868:
-	dc.b    $FE, $00 ;0x140
-loc_0000586A:
-	dc.l    loc_0000588A
-	dc.l    loc_0000588A
-	dc.l    loc_00005896
-	dc.l    loc_000058A4
-	dc.l    loc_000058A8
-	dc.l    loc_000058B4
-	dc.l    loc_000058C2
-	dc.l    loc_000058C6
-loc_0000588A:
-	dc.w    $0000
-loc_0000588C:
-	dc.w    $F002
-	dc.b	$06, $03, $FF, $00
-	dc.l    loc_0000588C
-loc_00005896:
-	dc.b    $00, $02
-loc_00005898:
-	dc.b    $04, $04, $04, $05, $04, $06, $FF, $00
-	dc.l    loc_00005898
-loc_000058A4:
-	dc.b    $00, $01, $FE, $00
-loc_000058A8:
-	dc.b    $07, $07 ;0x20
-	dc.b	$07, $08, $07, $09, $FF, $00
-	dc.l    loc_000058A8
-loc_000058B4:
-	dc.b    $08, $0B, $06, $0B
-loc_000058B8:
-	dc.b    $03, $0C, $03, $0D, $FF, $00
-	dc.l    loc_000058B8
-loc_000058C2:
-	dc.b    $00, $0A, $FE, $00
-loc_000058C6:
-	dc.b    $FE, $00 ;0x40
-loc_000058C8:
-	dc.l	loc_000058E8
-	dc.l	loc_000058E8
-	dc.l	loc_000058E8
-	dc.l	loc_000058EC
-	dc.l	loc_000058F0
-	dc.l	loc_00005900
-	dc.l	loc_00005910
-	dc.l	loc_0000591E
-loc_000058E8:
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$FE
-	dc.b	$00
-loc_000058EC:
-	dc.b    $00, $01, $FE, $00 
-loc_000058F0:
-	dc.b	$00
-	dc.b	$00 
-loc_000058F2:
-	dc.b	$F1
-	dc.b	$02 
-	dc.b	$03
-	dc.b	$03 
-	dc.b	$08
-	dc.b	$04 
-	dc.b	$03
-	dc.b	$03 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_000058F2
-loc_00005900:
-	dc.w	$0000
-loc_00005902:
-	dc.w    $F105
-loc_00005904:
-	dc.l	$03060807	
-	dc.l	$0306FF00	
-	dc.l	loc_00005902
-loc_00005910:
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$08 
-loc_00005914:
-	dc.b	$01
-	dc.b	$09 
-	dc.b	$01
-	dc.b	$0A 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_00005914
-loc_0000591E:
-	dc.b	$FE, $00 
-loc_00005920:
-	dc.l    loc_00005940
-	dc.l    loc_00005940
-	dc.l    loc_00005940
-	dc.l    loc_00005944
-	dc.l    loc_00005948
-	dc.l    loc_00005954
-	dc.l    loc_00005964
-	dc.l    loc_00005970
-loc_00005940:
-	dc.b	$00, $00, $FE, $00
-loc_00005944:
-	dc.b    $00, $01, $FE, $00
-loc_00005948:
-	dc.b    $00, $00
-loc_0000594A:
-	dc.b    $F1, $02, $08, $03, $FF, $00
-	dc.l    loc_0000594A
-loc_00005954:
-	dc.b    $00, $00
-loc_00005956:
-	dc.b    $F1, $04, $04, $03, $06, $02, $04, $03, $FF, $00 ;0x20
-	dc.l	loc_00005956
-loc_00005964:
-	dc.b    $00, $05
-loc_00005966:
-	dc.b    $08, $06, $08, $07, $FF, $00
-	dc.l    loc_00005966
-loc_00005970:
-	dc.b    $FE, $00 ;0x40
-loc_00005972:
-	dc.l	loc_00005992
-	dc.l	loc_00005992
-	dc.l	loc_000059A4
-	dc.l	loc_000059B4
-	dc.l	loc_000059B8
-	dc.l	loc_000059C8
-	dc.l	loc_000059DA
-	dc.l	loc_000059EC
-loc_00005992:
-	dc.b	$00
-	dc.b	$00 
-loc_00005994:
-	dc.b	$01
-	dc.b	$02 
-	dc.b	$01
-	dc.b	$03 
-	dc.b	$03
-	dc.b	$04 
-	dc.b	$02
-	dc.b	$03 
-	dc.b	$F0
-	dc.b	$02 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_00005994
-loc_000059A4:
-	dc.l	$010B010C	
-	dc.l	$030D020C	
-	dc.l	$F00BFF00	
-	dc.l	loc_000059A4
-loc_000059B4:
-	dc.l	$0001FE00
-	
-loc_000059B8: ; This animation handles Draco's mouth movement in the portrait
-	dc.l	$02050207	
-	dc.l	$02060207	
-	dc.l	$F105FF00	
-	dc.l	loc_000059B8
-	
-loc_000059C8:
-	dc.l	$0002080A
-	dc.l	$04090808
-	dc.l	$0409F10A
-	dc.w	$FF00
-	dc.l	loc_000059C8
-loc_000059DA:
-	dc.w    $000B
-loc_000059DC:
-	dc.l	$2010040F	
-	dc.l	$200E040F	
-	dc.l	$F110FF00	
-	dc.l	loc_000059DA
-loc_000059EC:
-	dc.b	$FE
-	dc.b	$00 
-	
-	
-loc_000059EE:
-	dc.l    loc_00005A0E
-	dc.l    loc_00005A1C
-	dc.l    loc_00005A22
-	dc.l    loc_00005A28
-	dc.l    loc_00005A36
-	dc.l    loc_00005A36
-	dc.l    loc_00005A36
-	dc.l    loc_00005A36
-loc_00005A0E:
-	dc.b	$00, $00
-loc_00005A10:
-	dc.b    $F2, $02, $05, $02, $05, $03, $FF, $00
-	dc.l    loc_00005A10
-loc_00005A1C:
-	dc.b    $00, $00, $00, $05, $FE, $00
-loc_00005A22:
-	dc.b    $00, $00, $00, $04, $FE, $00
-loc_00005A28:
-	dc.b    $03, $06, $03, $07, $03, $08 ;0x20
-	dc.b	$03, $09, $FF, $00
-	dc.l    loc_00005A28
-loc_00005A36:
-	dc.b    $FE, $00 ;0x40
-loc_00005A38:
-	dc.l    loc_00005A58
-	dc.l    loc_00005A68
-	dc.l    loc_00005A68
-	dc.l    loc_00005A78
-	dc.l    loc_00005A7C
-	dc.l    loc_00005A8E
-	dc.l    loc_00005AA0
-	dc.l    loc_00005AA2
-loc_00005A58:
-	dc.b	$00, $00
-loc_00005A5A:
-	dc.b    $F0, $02, $01, $03, $03, $04, $02, $03, $FF, $00
-	dc.l    loc_00005A5A
-loc_00005A68:
-	dc.b    $00, $00
-loc_00005A6A:
-	dc.b    $F0, $08, $01, $09, $03, $0A, $02, $09, $FF, $00
-	dc.l    loc_00005A6A
-loc_00005A78:
-	dc.b	$00, $01, $FE, $00
-loc_00005A7C:
-	dc.b    $F1, $05, $02, $06, $02, $07, $02, $06, $02, $05, $02, $06, $FF, $00
-	dc.l    loc_00005A7C
-loc_00005A8E:
-	dc.b    $F1, $0B, $02, $0C, $02, $0D, $02, $0C, $02, $0B ;0x40
-	dc.b	$02, $0C, $FF, $00
-	dc.l    loc_00005A8E
-loc_00005AA0:
-	dc.b    $FE, $00
-loc_00005AA2:
-	dc.b    $FE, $00 ;0x60
-	
-	
-loc_00005AA4:
-	dc.l    loc_00005AC4
-	dc.l    loc_00005AC8
-	dc.l    loc_00005AC8
-	dc.l    loc_00005ACA
-	dc.l    loc_00005ACE
-	dc.l    loc_00005ADE
-	dc.l    loc_00005AEC
-	dc.l    loc_00005AF8
-	
-loc_00005AC4:
-	dc.b	$00, $00, $FE, $00
-loc_00005AC8:
-	dc.b    $FE, $00
-loc_00005ACA:
-	dc.b    $00, $01
-	
-	dc.b    $FE, $00
-loc_00005ACE:
-	dc.b    $00, $00
-loc_00005AD0:
-	dc.b    $F1, $02, $02, $03, $02, $04, $02, $03, $FF, $00
-	dc.l    loc_00005AD0
-loc_00005ADE:
-	dc.b    $F1, $05, $02, $03, $02, $04 ;0x20
-	dc.b	$02, $03, $FF, $00
-	dc.l    loc_00005ADE
-loc_00005AEC:
-	dc.b    $00, $00
-loc_00005AEE:
-	dc.b    $F1, $06, $04, $07, $FF, $00
-	dc.l    loc_00005AEE
-loc_00005AF8:
-	dc.b    $FE, $00 ;0x40
-loc_00005AFA:
-    dc.l    loc_00005B1A
-    dc.l    loc_00005B2A
-    dc.l    loc_00005B30
-    dc.l    loc_00005B3E
-    dc.l    loc_00005B42
-    dc.l    loc_00005B50
-    dc.l    loc_00005B5E
-    dc.l    loc_00005B6C
-loc_00005B1A:
-    dc.b    $00
-    dc.b    $00
-loc_00005B1C:
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B1C
-loc_00005B2A:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $04
-    dc.b    $FE
-    dc.b    $00
-loc_00005B30:
-    dc.b    $F0
-    dc.b    $0B
-    dc.b    $01
-    dc.b    $0C
-    dc.b    $03
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B30
-loc_00005B3E:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005B42:
-    dc.b    $F1
-    dc.b    $05
-    dc.b    $02
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $02
-    dc.b    $07
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B42
-loc_00005B50:
-    dc.b    $F1
-    dc.b    $0A
-    dc.b    $02
-    dc.b    $09
-    dc.b    $02
-    dc.b    $08
-    dc.b    $02
-    dc.b    $09
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B50
-loc_00005B5E:
-    dc.b    $F1
-    dc.b    $06
-    dc.b    $02
-    dc.b    $07
-    dc.b    $02
-    dc.b    $05
-    dc.b    $02
-    dc.b    $07
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B5E
-loc_00005B6C:
-    dc.b    $FE
-    dc.b    $00
+tbl_PortraitAnims:
+	dc.l	animtbl_PortraitSkeletonT
+	dc.l	animtbl_PortraitSuketoudara
+	dc.l	animtbl_PortraitZombie
+	dc.l	animtbl_PortraitDraco
+	dc.l	animtbl_PortraitNasu
+	dc.l	animtbl_PortraitWitch
+	dc.l	animtbl_PortraitSasoriman
+	dc.l	animtbl_PortraitHarpy
+	dc.l	animtbl_PortraitZohDaimaoh
+	dc.l	animtbl_PortraitSchezo
+	dc.l	animtbl_PortraitMinotauros
+	dc.l	animtbl_PortraitRulue
+	dc.l	animtbl_PortraitSatan
+	dc.l	animtbl_PortraitMummy
+	dc.l    animtbl_PortraitSukiyapotes
+	dc.l    animtbl_PortraitPanotty
 
-loc_00005B6E:
-    dc.l    loc_00005B8E
-    dc.l    loc_00005BB6
-    dc.l    loc_00005BBC
-    dc.l    loc_00005BCA
-    dc.l    loc_00005BCE
-    dc.l    loc_00005BCE
-    dc.l    loc_00005BCE
-    dc.l    loc_00005BCE
-loc_00005B8E:
-    dc.b    $00
-    dc.b    $00
-loc_00005B90:
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $03
-    dc.b    $06
-    dc.b    $08
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F1
-    dc.b    $05
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005B90
-loc_00005BB6:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $04
-    dc.b    $FE
-    dc.b    $00
-loc_00005BBC:
-    dc.b    $02
-    dc.b    $08
-    dc.b    $01
-    dc.b    $09
-    dc.b    $02
-    dc.b    $0A
-    dc.b    $01
-    dc.b    $09
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005BBC
-loc_00005BCA:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005BCE:
-    dc.b    $FE
-    dc.b    $00
-
-loc_00005BD0:
-    dc.l    loc_00005BF0
-    dc.l    loc_00005C12
-    dc.l    loc_00005C36
-    dc.l    loc_00005C5A
-    dc.l    loc_00005C5E
-    dc.l    loc_00005C5E
-    dc.l    loc_00005C5E
-    dc.l    loc_00005C60
-loc_00005BF0:
-    dc.b    $00
-    dc.b    $00
-loc_00005BF2:
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $02
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $02
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0B
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005BF2
-loc_00005C12:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $0E
-loc_00005C16:
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $02
-    dc.b    $10
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $02
-    dc.b    $0E
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005C16
-loc_00005C36:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $11
-loc_00005C3A:
-    dc.b    $F0
-    dc.b    $08
-    dc.b    $01
-    dc.b    $09
-    dc.b    $03
-    dc.b    $0A
-    dc.b    $02
-    dc.b    $09
-    dc.b    $F0
-    dc.b    $08
-    dc.b    $01
-    dc.b    $09
-    dc.b    $03
-    dc.b    $0A
-    dc.b    $02
-    dc.b    $09
-    dc.b    $F0
-    dc.b    $08
-    dc.b    $02
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0B
-    dc.b    $02
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $11
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005C3A
-loc_00005C5A:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005C5E:
-    dc.b    $FE
-    dc.b    $00
-loc_00005C60:
-    dc.b    $F1
-    dc.b    $12
-    dc.b    $02
-    dc.b    $14
-    dc.b    $02
-    dc.b    $13
-    dc.b    $02
-    dc.b    $14
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005C60
-
-loc_00005C6E:
-    dc.l    loc_00005C8E
-    dc.l    loc_00005CA4
-    dc.l    loc_00005CCA
-    dc.l    loc_00005CEC
-    dc.l    loc_00005CF0
-    dc.l    loc_00005CF0
-    dc.l    loc_00005CF0
-    dc.l    loc_00005CF0
-loc_00005C8E:
-    dc.b    $F0
-    dc.b    $00
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $06
-    dc.b    $06
-    dc.b    $08
-    dc.b    $00
-    dc.b    $06
-    dc.b    $06
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005C8E
-loc_00005CA4:
-    dc.b    $F0
-    dc.b    $00
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $06
-    dc.b    $06
-    dc.b    $08
-    dc.b    $00
-    dc.b    $06
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $00
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $00
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $00
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $00
-    dc.b    $03
-    dc.b    $07
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005CA4
-loc_00005CCA:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $F0
-    dc.b    $05
-loc_00005CCE:
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $06
-    dc.b    $09
-    dc.b    $04
-    dc.b    $08
-    dc.b    $06
-    dc.b    $09
-    dc.b    $04
-    dc.b    $08
-    dc.b    $06
-    dc.b    $09
-    dc.b    $04
-    dc.b    $08
-    dc.b    $06
-    dc.b    $09
-    dc.b    $04
-    dc.b    $08
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005CCE
-loc_00005CEC:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005CF0:
-    dc.b    $FE
-    dc.b    $00
-
-loc_00005CF2:
-    dc.l    loc_00005D12
-    dc.l    loc_00005D3C
-    dc.l    loc_00005D68
-    dc.l    loc_00005D94
-    dc.l    loc_00005D98
-    dc.l    loc_00005D98
-    dc.l    loc_00005D98
-    dc.l    loc_00005D98
-loc_00005D12:
-    dc.b    $00
-    dc.b    $00
-loc_00005D14:
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $02
-    dc.b    $09
-    dc.b    $03
-    dc.b    $0A
-    dc.b    $02
-    dc.b    $09
-    dc.b    $00
-    dc.b    $08
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005D14
-loc_00005D3C:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $0B
-loc_00005D40:
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $03
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $00
-    dc.b    $0B
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005D40
-loc_00005D68:
-    dc.b    $00
-    dc.b    $00
-    dc.b    $00
-    dc.b    $0E
-loc_00005D6C:
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $01
-    dc.b    $06
-    dc.b    $03
-    dc.b    $07
-    dc.b    $02
-    dc.b    $06
-    dc.b    $F0
-    dc.b    $05
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $03
-    dc.b    $10
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $00
-    dc.b    $0E
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005D6C
-loc_00005D94:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005D98:
-    dc.b    $FE
-    dc.b    $00
-
-loc_00005D9A:
-    dc.l    loc_00005DBA
-    dc.l    loc_00005DBA
-    dc.l    loc_00005DBA
-    dc.l    loc_00005DCA
-    dc.l    loc_00005DCE
-    dc.l    loc_00005DDC
-    dc.l    loc_00005DEA
-    dc.l    loc_00005DF8
-loc_00005DBA:
-    dc.b    $00
-    dc.b    $00
-loc_00005DBC:
-    dc.b    $F0
-    dc.b    $02
-    dc.b    $01
-    dc.b    $03
-    dc.b    $03
-    dc.b    $04
-    dc.b    $02
-    dc.b    $03
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005DBC
-loc_00005DCA:
-    dc.b    $00
-    dc.b    $01
-    dc.b    $FE
-    dc.b    $00
-loc_00005DCE:
-    dc.b    $F1
-    dc.b    $05
-    dc.b    $02
-    dc.b    $07
-    dc.b    $03
-    dc.b    $06
-    dc.b    $02
-    dc.b    $07
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005DCE
-loc_00005DDC:
-    dc.b    $F1
-    dc.b    $0A
-    dc.b    $02
-    dc.b    $09
-    dc.b    $03
-    dc.b    $08
-    dc.b    $02
-    dc.b    $09
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005DDC
-loc_00005DEA:
-    dc.b    $F1
-    dc.b    $0B
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $03
-    dc.b    $0D
-    dc.b    $02
-    dc.b    $0C
-    dc.b    $FF
-    dc.b    $00
-    dc.l    loc_00005DEA
-loc_00005DF8:
-    dc.b    $04
-    dc.b    $0E
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $03
-    dc.b    $10
-    dc.b    $02
-    dc.b    $0F
-    dc.b    $FF
-    dc.b    $00
-    dc.l	loc_00005DF8
+	include "anim/portrait/mummy.asm"
+	include "anim/portrait/sukiyapotes.asm"
+	include "anim/portrait/panotty.asm"
+	include "anim/portrait/skeletont.asm"
+	include "anim/portrait/suketoudara.asm"
+	include "anim/portrait/zombie.asm"
+	include "anim/portrait/draco.asm"
+	include "anim/portrait/nasu.asm"
+	include "anim/portrait/witch.asm"
+	include "anim/portrait/sasoriman.asm"
+	include "anim/portrait/harpy.asm"
+	include "anim/portrait/zohdaimaoh.asm"
+	include "anim/portrait/schezo.asm"
+	include "anim/portrait/minotauros.asm"
+	include "anim/portrait/rulue.asm"
+	include "anim/portrait/satan.asm"
 
 loc_00005E06:
 	EORI.b	#1, $2A(A0)
@@ -7053,7 +6087,7 @@ loc_0000694A:
 	MOVE.b	game_curCutscene, D2
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
-	LEA	loc_00009702, A3
+	LEA	tbl_CutsceneCharAnims, A3
 	LSL.w	#2, D2
 	MOVEA.l	(A3,D2.w), A4
 	LSL.w	#2, D3
@@ -10121,7 +9155,7 @@ loc_0000958C:
 loc_000095CC:
 	CLR.w	D1
 	MOVE.b	game_curCutscene, D1
-	LEA	loc_00009702, A1
+	LEA	tbl_CutsceneCharAnims, A1
 	LSL.w	#2, D1
 	MOVEA.l	(A1,D1.w), A2
 	LSL.w	#2, D0
@@ -10151,6 +9185,8 @@ loc_000095FC:
 	MOVE.b	$6(A1), $6(A0)
 loc_00009642:
 	RTS
+	
+
 loc_00009644:
 	dc.l	loc_00009688
 	dc.l	loc_0000968E
@@ -10201,382 +9237,43 @@ loc_000096EC:
 	dc.b	$FF, $0C, $0D, $FF, $0E, $0F, $FF, $10, $11, $12, $FF, $FF 
 loc_000096F8:
 	dc.b	$FF, $09, $FF, $FF, $0A, $FF, $0B, $0C, $0D, $00 
-loc_00009702:
-	dc.l	loc_00009864
-	dc.l	loc_00009892
-	dc.l	loc_000098CA
-	dc.l	loc_000098FA
-	dc.l	loc_0000993E
-	dc.l	loc_0000994C
-	dc.l	loc_00009984
-	dc.l	loc_000099C8
-	dc.l	loc_000099E4
-	dc.l	loc_00009A1A
-	dc.l	loc_00009A5A
-	dc.l	loc_00009A94
-	dc.l    loc_00009AFA
-	dc.l    loc_000097F8
-	dc.l    loc_000097A6
-	dc.l    loc_00009746
-	dc.l    loc_00009AFA
-loc_00009746:
-	dc.l    loc_00009762
-	dc.l    loc_0000977E
-	dc.l    loc_00009788
-	dc.l    loc_0000978C
-	dc.l    loc_00009796
-	dc.l    loc_0000979A
-	dc.l    loc_00009778
-loc_00009762:
-	dc.b	$18, $00, $14, $02, $20, $00, $1C, $02, $1A, $00, $12, $02, $18, $00, $20, $01 ;0x20
-	dc.b	$FF, $00
-	dc.l    loc_00009762
-loc_00009778:
-	dc.b    $20, $00, $00, $01, $FE, $00
-loc_0000977E:
-	dc.b    $08, $03, $06, $04, $FF, $00
-	dc.l    loc_0000977E
-loc_00009788:
-	dc.b    $00, $04, $FE, $00
-loc_0000978C:
-	dc.b    $08, $05, $06, $06, $FF, $00 ;0x40
-	dc.l	loc_0000978C
-loc_00009796:
-	dc.b    $00, $06, $FE, $00
-loc_0000979A:
-	dc.b    $08, $07, $14, $08, $08, $07, $14, $08, $00, $07, $FE, $00
-loc_000097A6:
-	dc.l    loc_000097BA
-	dc.l    loc_000097CC
-	dc.l    loc_000097D6
-	dc.l    loc_000097E0
-	dc.l    loc_000097EA
-loc_000097BA:
-	dc.b    $18, $00, $08, $03, $20, $00, $0A, $03, $14, $00, $08, $03, $FF, $00
-	dc.l    loc_000097BA
-loc_000097CC:
-	dc.b    $08, $00, $06, $01, $FF, $00 ;0x80
-	dc.l    loc_000097CC
-loc_000097D6:
-	dc.b    $01, $06, $01, $07, $FF, $00
-	dc.l    loc_000097D6
-loc_000097E0:
-	dc.b    $0A, $06, $08, $08, $FF, $00
-	dc.l    loc_000097E0
-loc_000097EA:
-	dc.b    $20, $02, $06, $05, $04, $02, $0C, $09 ;0xA0
-	dc.b	$02, $0A, $00, $0B, $FE, $00
-loc_000097F8:
-	dc.l    loc_00009810
-	dc.l    loc_00009836
-	dc.l    loc_0000983A
-	dc.l    loc_0000983E
-	dc.l    loc_00009848
-	dc.l    loc_00009852
-loc_00009810:
-	dc.b    $00, $00 ;0xC0
-	dc.b	$0C, $01, $08, $00, $0C, $02, $10, $00, $0A, $02, $10, $00, $00, $02, $0C, $03, $08, $02, $10, $00, $12, $02, $0C, $00, $10, $02, $0F, $00, $0C, $02, $FF, $00 ;0xE0
-	dc.l    loc_00009810
-loc_00009836:
-	dc.b    $00, $04, $FE, $00
-loc_0000983A:
-	dc.b    $00, $05, $FE, $00
-loc_0000983E:
-	dc.b    $F0, $06, $0C, $09, $FF, $00
-	dc.l    loc_0000983E
-loc_00009848:
-	dc.b    $F0, $07, $0C, $0A, $FF, $00
-	dc.l    loc_00009848
-loc_00009852:
-	dc.b	$08, $07, $07, $0B, $09, $07, $08, $0B, $0A, $07, $08, $0B, $FF, $00
-	dc.l    loc_00009852
-loc_00009864:
-	dc.l    loc_00009874
-	dc.l    loc_0000987E
-	dc.l    loc_0000988A
-	dc.l    loc_0000988E
-loc_00009874:
-	dc.b	$F0, $04, $0C, $01, $FF, $00
-	dc.l    loc_00009874
-loc_0000987E:
-	dc.b    $00, $01, $04, $02, $40, $03 
-	dc.b	$06, $02, $00, $01, $FE, $00
-loc_0000988A:
-	dc.b    $00, $00, $FE, $00
-loc_0000988E:
-	dc.b    $00, $01, $FE, $00 ;0x20
-loc_00009892:
-	dc.l	loc_000098AC
-	dc.l    loc_000098A2
-	dc.l	loc_000098BA
-	dc.l	loc_000098C6
-loc_000098A2:
-	dc.b	$05, $00 
-	dc.b	$04
-	dc.b	$01 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_000098A2
-loc_000098AC:
-	dc.b	$09
-	dc.b	$03 
-	dc.b	$07
-	dc.b	$02 
-	dc.b	$09
-	dc.b	$04 
-	dc.b	$07
-	dc.b	$02 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_000098AC
-loc_000098BA:
-	dc.l	$04031805	
-	dc.l	$0000FF00	
-	dc.l	loc_000098A2
-loc_000098C6:
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$FE
-	dc.b	$00 
-loc_000098CA:
-	dc.l    loc_000098DE
-	dc.l    loc_000098E2
-	dc.l    loc_000098F0
-	dc.l    loc_000098DA
-loc_000098DA:
-	dc.b    $00, $05, $FE, $00
-loc_000098DE:
-	dc.b    $00, $00, $FE, $00
-loc_000098E2:
-	dc.b    $03, $00, $03, $01, $03, $02, $03, $03 
-	dc.b	$FF, $00
-	dc.l    loc_000098E2
-loc_000098F0:
-	dc.b    $04, $00, $03, $04, $FF, $00
-	dc.l    loc_000098F0
 	
-	
-; This is the animation data for draco centauros
-loc_000098FA:
-	dc.l	loc_0000990E, loc_00009918, loc_00009922, loc_0000992C, loc_00009932 
-loc_0000990E:
-	dc.b	$F0
-	dc.b	$00 
-	dc.b	$06
-	dc.b	$03 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_0000990E
-loc_00009918:
-	dc.b	$04
-	dc.b	$00 
-	dc.b	$03
-	dc.b	$02 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_00009918
-loc_00009922:
-	dc.b	$04
-	dc.b	$04 
-	dc.b	$04
-	dc.b	$05 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_00009922
-loc_0000992C:
-	dc.b	$02
-	dc.b	$00 
-	dc.b	$00
-	dc.b	$01 
-	dc.b	$FE
-	dc.b	$00 
-loc_00009932:
-	dc.b	$0C
-	dc.b	$06 
-	dc.b	$1E
-	dc.b	$07 
-	dc.b	$08
-	dc.b	$06 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_0000990E
-; Draco centauros anim end
-	
+tbl_CutsceneCharAnims:
+	dc.l	animtbl_CutsceneSkeletonT
+	dc.l	animtbl_CutsceneSuketoudara
+	dc.l	animtbl_CutsceneZombie
+	dc.l	animtbl_CutsceneDraco
+	dc.l	animtbl_CutsceneNasu
+	dc.l	animtbl_CutsceneWitch
+	dc.l	animtbl_CutsceneSasoriman
+	dc.l	animtbl_CutsceneHarpy
+	dc.l	animtbl_CutsceneZohDaimaoh
+	dc.l	animtbl_CutsceneSchezo
+	dc.l	animtbl_CutsceneMinotauros
+	dc.l	animtbl_CutsceneRulue
+	dc.l    animtbl_CutsceneSatan
+	dc.l    animtbl_CutsceneMummy
+	dc.l    animtbl_CutsceneSukiyapotes
+	dc.l    animtbl_CutscenePanotty
+	dc.l    animtbl_CutsceneSatan ; Satan is listed twice because he appears in the easy ending.
 
-loc_0000993E:
-	dc.l    loc_00009942
-loc_00009942:
-	dc.b	$06, $00, $05, $01, $FF, $00
-	dc.l    loc_00009942
-loc_0000994C:
-	dc.l    loc_0000995C
-	dc.l    loc_0000996E
-	dc.l    loc_00009976
-	dc.l    loc_00009980
-loc_0000995C:
-	dc.b	$F1, $00, $04, $02, $03, $00, $04, $02, $03, $00, $04, $02, $FF, $00
-	dc.l    loc_0000995C
-loc_0000996E:
-	dc.b    $00, $00, $08, $01, $00, $03, $FE, $00
-loc_00009976:
-	dc.b    $05, $03, $03, $04, $FF, $00
-	dc.l    loc_00009976
-loc_00009980:
-	dc.b    $00, $03, $FE, $00 ;0x20
-	
-	
-loc_00009984:
-	dc.l    loc_00009998
-	dc.l    loc_0000999C
-	dc.l    loc_000099A6
-	dc.l    loc_000099AC
-	dc.l    loc_000099C0
-loc_00009998:
-	dc.b	$00, $00, $FE, $00
-loc_0000999C:
-	dc.b    $08, $03, $06, $00, $FF, $00
-	dc.l    loc_0000999C
-loc_000099A6:
-	dc.b    $00, $00, $00, $04, $FE, $00
-loc_000099AC:
-	dc.b    $04, $01, $06, $02, $04, $01, $06, $02, $04, $01, $06, $02, $F0, $01, $FF, $00
-	dc.l    loc_000099AC
-loc_000099C0:
-	dc.b    $0C, $00, $0C, $06 ;0x20
-	dc.b	$00, $05, $FE, $00 ;0x40
-loc_000099C8:
-	dc.l    loc_000099D0
-	dc.l    loc_000099DA
-loc_000099D0:
-	dc.b	$F0, $00, $08, $02, $FF, $00
-	dc.l    loc_000099D0
-loc_000099DA:
-	dc.b    $0C, $00, $09, $01, $FF, $00
-	dc.l    loc_000099DA
-	
-loc_000099E4:
-	dc.l   loc_000099F0
-	dc.l   loc_000099FA
-	dc.l   loc_00009A10
-loc_000099F0:
-	dc.b	$F0, $00, $08, $02, $FF, $00
-	dc.l    loc_000099F0
-loc_000099FA:
-	dc.b    $00, $00, $0C, $04, $40, $05, $00, $04, $0C, $03 
-	dc.b	$02, $00, $10, $03, $00, $00, $FF
-	dc.l    loc_000099F0
-loc_00009A10:
-	dc.b     $03, $00, $03, $01, $FF, $00
-	dc.l     loc_00009A10
-	
-loc_00009A1A:
-	dc.l    loc_00009A2A
-	dc.l    loc_00009A34
-	dc.l    loc_00009A3E
-	dc.l    loc_00009A4C
-loc_00009A2A:
-	dc.b	$F0, $00, $08, $02, $FF, $00
-	dc.l    loc_00009A2A
-loc_00009A34:
-	dc.b    $04, $00, $05, $01, $FF, $00 
-	dc.l	loc_00009A34
-loc_00009A3E:
-	dc.b    $00, $00, $0C, $03, $18, $04, $08, $03, $FF, $00
-	dc.l    loc_00009A2A
-loc_00009A4C:
-	dc.b    $00, $00, $0C, $05, $08, $06, $04, $07, $08, $06, $00, $07, $FE, $00 ;0x20
-	
-loc_00009A5A:
-	dc.l    loc_00009A6A
-	dc.l    loc_00009A6E
-	dc.l    loc_00009A7C
-	dc.l    loc_00009A86
-loc_00009A6A:
-	dc.b	$00, $00, $FE, $00
-loc_00009A6E:
-	dc.b    $07, $00, $05, $02, $07, $03, $05, $04, $FF, $00
-	dc.l    loc_00009A6E
-loc_00009A7C:
-	dc.b    $08, $01, $04, $00, $FF, $00
-	dc.l    loc_00009A7C
-loc_00009A86:
-	dc.b    $03, $02, $04, $03, $03, $04, $04, $00, $FF, $00
-	dc.l    loc_00009A86
-	
-loc_00009A94:
-	dc.l    loc_00009AB4
-	dc.l    loc_00009AB8
-	dc.l    loc_00009AC2
-	dc.l    loc_00009ACC
-	dc.l    loc_00009AD6
-	dc.l    loc_00009AE0
-	dc.l    loc_00009AEA
-	dc.l    loc_00009AEE
-loc_00009AB4:
-	dc.b	$00, $00, $FE, $00
-loc_00009AB8:
-	dc.b    $04, $06, $05, $07, $FF, $00
-	dc.l    loc_00009AB8
-loc_00009AC2:
-	dc.b    $F0, $06, $06, $08, $FF, $00
-	dc.l    loc_00009AC2
-loc_00009ACC:
-	dc.b    $04, $03, $05, $04, $FF, $00
-	dc.l    loc_00009ACC
-loc_00009AD6:
-	dc.b    $F0, $03, $06, $05, $FF, $00
-	dc.l    loc_00009AD6
-loc_00009AE0:
-	dc.b    $04, $01, $05, $02, $FF, $00
-	dc.l    loc_00009AE0
-loc_00009AEA:
-	dc.b    $00, $01, $FE, $00
-loc_00009AEE:
-	dc.b    $08, $00, $08, $06, $10, $09 ;0x40
-	dc.b	$0C, $0A, $08, $00, $FE, $00
-	
-loc_00009AFA:
-	dc.l    loc_00009B26
-	dc.l    loc_00009B32
-	dc.l    loc_00009B3E
-	dc.l    loc_00009B48
-	dc.l    loc_00009B52
-	dc.l    loc_00009B56
-	dc.l    loc_00009B60
-	dc.l    loc_00009B6A
-	dc.l    loc_00009B72
-	dc.l    loc_00009B76
-	dc.l    loc_00009B2A
-loc_00009B26:
-	dc.b    $00, $06, $FE, $00
-loc_00009B2A:
-	dc.b    $04, $00, $04, $08, $00, $06, $FE, $00
-loc_00009B32:
-	dc.b    $0A, $08 ;0x80
-	dc.b	$06, $06, $00, $00, $FF, $00
-	dc.l    loc_00009B48
-loc_00009B3E:
-	dc.b    $06, $03, $04, $00, $FF, $00
-	dc.l    loc_00009B3E
-loc_00009B48:
-	dc.b    $F0, $00, $06, $02, $FF, $00
-	dc.l    loc_00009B48
-loc_00009B52:
-	dc.b    $00, $07 ;0xA0
-	dc.b	$FE, $00
-loc_00009B56:
-	dc.b    $06, $05, $04, $01, $FF, $00
-	dc.l    loc_00009B56
-loc_00009B60:
-	dc.b    $06, $04, $04, $02, $FF, $00
-	dc.l    loc_00009B60
-loc_00009B6A:
-	dc.b    $10, $00, $05, $06, $00, $08, $FE, $00
-loc_00009B72:
-	dc.b    $00, $05 ;0xC0
-	dc.b	$FE, $00
-loc_00009B76:
-	dc.b    $00, $02, $FE, $00 ;0xE0
+	include "anim/cutscene/panotty.asm"
+	include "anim/cutscene/sukiyapotes.asm"
+	include "anim/cutscene/mummy.asm"
+	include "anim/cutscene/skeletont.asm"
+	include "anim/cutscene/suketoudara.asm"
+	include "anim/cutscene/zombie.asm"
+	include "anim/cutscene/draco.asm"
+	include "anim/cutscene/nasu.asm"
+	include "anim/cutscene/witch.asm"
+	include "anim/cutscene/sasoriman.asm"
+	include "anim/cutscene/harpy.asm"
+	include "anim/cutscene/zohdaimaoh.asm"
+	include "anim/cutscene/schezo.asm"
+	include "anim/cutscene/minotauros.asm"
+	include "anim/cutscene/rulue.asm"
+	include "anim/cutscene/satan.asm"
+
 loc_00009B7A:
 	MOVE.b	#$FF, $00FF18AC
 	MOVE.b	#0, $00FF18AD
@@ -14423,7 +13120,7 @@ loc_0000D34A:
     dc.l    loc_0000D61A
     dc.l    loc_0000D6AC
     dc.l    loc_0000D6AE
-    dc.l 	$00000000
+    dc.l 	NULL
     dc.l    loc_0000D3A6
     dc.l    loc_0000D3BE
     dc.l    loc_0000D3DE
@@ -15880,7 +14577,7 @@ loc_0000D984:
 	LEA	loc_0000DA66, A3
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
-	LEA	loc_00009702, A3
+	LEA	tbl_CutsceneCharAnims, A3
 	LSL.w	#2, D2
 	MOVEA.l	(A3,D2.w), A4
 	LSL.w	#2, D3
@@ -24991,7 +23688,7 @@ loc_00017160:
     dc.b    $F2
     dc.b    $F3
 
-bgMappingTable:
+tbl_bgMappings:
 	dc.l	bgdata_cutsceneGrass
 	dc.l	bgdata_cutsceneRuins
 	dc.l	bgdata_cutsceneHell
@@ -25008,32 +23705,32 @@ bgMappingTable:
 	dc.l	bgdata_menu2PHighlight
 	dc.l	bgdata_menuTokotonHighlight
 	dc.l	bgdata_menuOptionsHighlight
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
 	dc.l	bgdata_battleTutorial
 	dc.l	bgdata_battle2P
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
 	dc.l	bgdata_unk3
 	dc.l	bgdata_mainMenu
 	dc.l	bgdata_title
 	dc.l	bgdata_title
 	dc.l	bgdata_title
 	dc.l	bgdata_segaLogo
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
+	dc.l	NULL
 	dc.l	bgdata_demoScreen
 	dc.l	bgdata_unk1
 	dc.l	bgdata_cutsceneGrassTreesTop
@@ -26219,11 +24916,7 @@ soundTest_MusicArray:
 	dc.l	soundTest_BraveOfPuyoPuyo
 	dc.l	soundTest_OndoOfPuyoPuyo
 	dc.l	soundTest_VictoryOfPuyoPuyo
-	
-; These arrays contain IDs and Names for the songs in the soundtest
-; Text format is A = $0B, B = $0C, etc...
-; Space is $00
-; The strings are terminated with $FF
+
 soundTest_FinalOfPuyoPuyo:
 	dc.b	$01 
 	soundTestText "FINAL OF PUYOPUYO"

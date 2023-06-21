@@ -1,13 +1,11 @@
 ; Sprite animation data is layed out as follows:
-;	Byte 0 = Length until animation is triggered
-;	Byte 1 = Sprite mapping to start animation on
-;	Byte 2 = Number of frames next sprite mapping lasts
-;	Byte 3 = Next sprite mapping ID
-;	(Bytes 2 and 3 can be repeated many times to chain mappings together)
-;	Byte 4 = Ending (FF = Loop animation to label, FE = End Animation)
-;			 It's worth noting that animations can loop into eachother (In this file, anim_DracoAnger transitions into anim_DracoIdle)
-;	Byte 5 = Padding to even number of bytes
-;	Long 6 = If the animation loops, this is the label to loop to.
+;	Byte 0 = Number of frames(?) next sprite mapping lasts
+;	Byte 1 = Next sprite mapping ID
+;	(Bytes 0 and 1 can be repeated many times to chain mappings together)
+;	Byte 2 = Ending (FF = Loop animation to label, FE = End Animation)
+;			 It's worth noting that animations can loop into eachother (In this file, anim_draco_Anger transitions into anim_draco_Idle)
+;	Byte 3 = Padding to even number of bytes
+;	Long 4 = If the animation loops, this is the label to loop to.
 
 ; Its worth noting here that animations on a sprite are also controlled by what mapping a sprite is in.
 ; For example with Draco,

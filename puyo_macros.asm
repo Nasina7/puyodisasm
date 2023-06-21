@@ -35,6 +35,7 @@ bgmac_ByteIndexPal: macro bg, bgPal, bgWidth, bgHeight, bgLoc, bgIndex
 	dc.w	bgIndex
 	endm
 
+
 bgmac_WordOffset: macro bg, bgWidth, bgHeight, bgLoc, bgOff
 	dc.w	$0010
 	dc.b	bgWidth
@@ -44,19 +45,6 @@ bgmac_WordOffset: macro bg, bgWidth, bgHeight, bgLoc, bgOff
 	dc.w	bgOff
 	endm
 
-	
-align macro alignment
-	cnop $00,alignment
-    endm
-	
-padding macro amount, typePadding
-	i: = amount
-	while (i>0)
-		dc.b    typePadding
-		i: = i-1
-	endw
-	endm
-	
 soundTestText: macro text
 	i: = 0
 	while (strlen(\1)>i)
@@ -92,14 +80,22 @@ creditsTextboxText: macro vramLocation, text
 	even
 	endm
 	
+align macro amount, typePadding
+	dcb.b (amount-(*&(amount-1)))&(amount-1), typePadding
+	endm
+	
+pad macro amount, typePadding
+	dcb.b amount, typePadding
+	endm
+	
 padToPowerOfTwo: macro 
 	if (*<=$80000)
-		align $80000
+		align $80000, $00
 	elseif (*<=$100000)
-		align $100000
+		align $100000, $00
 	elseif (*<=$200000)
-		align $200000
+		align $200000, $00
 	elseif (*<=$400000)
-		align $400000
+		align $400000, $00
 	endc
 	endm

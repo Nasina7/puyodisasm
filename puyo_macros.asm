@@ -41,12 +41,17 @@ soundTestText: macro text
 		tempChar: substr i+1,i+1,\1
 		if (strcmp("\tempChar", " "))
 			dc.b    $00
+		elseif (strcmp("\tempChar", ":"))
+			dc.b	$28
+		elseif ("\tempChar"<$3A)
+			if ("\tempChar">$2F)
+				dc.b 	"\tempChar"-$2F
+			endc
 		else
 			dc.b    "\tempChar"-$36
 		endc
 		i: = i+1
 	endw
-	
 	dc.b    $FF
 	endm
 	

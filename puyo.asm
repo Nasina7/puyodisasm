@@ -189,10 +189,10 @@ loc_00000305:
 mainLoop:
 	BSR.w	waitForVint
 	BSR.w	loc_00007CBE
-	BSR.w	loc_00001096
+	BSR.w	updateControllers
 	BSR.w	runBytecode
 	BSR.w	loc_00002A00
-	JSR	loc_0000EF7A
+	JSR	updateSprites
 	BRA.b	mainLoop
 
 waitForVint:
@@ -286,7 +286,7 @@ loc_000004CA:
 	JSR	loc_0000EF6C
 	JSR	z80Load_Begin
 	BSR.w	loc_00001046
-	JSR	loc_0000EF7A
+	JSR	updateSprites
 	BSR.w	loc_000007C0
 	BSR.w	loc_0000075A
 	LEA	$00FF0A23, A0
@@ -317,17 +317,16 @@ VerticalInterrupt:
 	ORI	#$0700, SR
 	MOVEM.l	A6/A5/A4/A3/A2/A1/A0/D7/D6/D5/D4/D3/D2/D1/D0, -(A7)
 	ADDQ.w	#1, $00FF05C6
-	BSR.w	loc_0000064C
+	BSR.w	loc_0000064C ; Something to do with the sega logo
 	BSR.w	loc_00000606
-	JSR	loc_00007378
-	BSR.w	loc_000007C0
+	JSR	loc_00007378 ; Z80 Related
+	BSR.w	loc_000007C0 ; Sprite Related
 	BSR.w	loc_00000880
 	BSR.w	loc_0000095A
 	BSR.w	loc_0000075A
 	JSR	loc_000143E2
-	BSR.w	loc_000011D0
+	BSR.w	updateRNG
 	TST.w	$00FF1834
-loc_00000560:
 	BEQ.w	loc_00000568
 	BSR.w	loc_00000572
 loc_00000568:
@@ -371,6 +370,7 @@ loc_000005FA:
 	MOVE.w	(A1)+, vdpData1
 	DBF	D0, loc_000005FA
 	RTS
+	
 loc_00000606:
 	MOVE.b	$00FF0144, D0
 	OR.b	$00FF0145, D0
@@ -389,6 +389,7 @@ loc_00000626:
 	MOVE.l	D0, $00FF05CE
 loc_0000064A:
 	RTS
+	
 loc_0000064C:
 	CLR.w	D0
 	MOVE.b	$00FF013A, D0
@@ -454,19 +455,16 @@ loc_00000748:
 	RTS
 loc_0000075A:
 	LEA	$00FF0A3E, A2
-loc_00000760:
 	LEA	$00FF0A56, A3
 	MOVE.w	#3, D0
 	MOVEQ	#0, D1
 loc_0000076C:
 	TST.w	(A2)
-loc_0000076E:
 	BEQ.w	loc_00000778
 	CLR.w	(A2)
 	BSR.w	loc_0000078E
 loc_00000778:
 	ADDA.l	#6, A2
-loc_0000077E:
 	ADDA.l	#$00000020, A3
 	ADDI.b	#$20, D1
 	DBF	D0, loc_0000076C
@@ -489,12 +487,10 @@ loc_000007B4:
 	RTS
 loc_000007C0:
 	TST.w	$00FF0DE4
-loc_000007C6:
 	BNE.w	loc_000007CC
 	RTS
 loc_000007CC:
 	TST.w	$00FF0134
-loc_000007D2:
 	BNE.w	loc_00000850
 	MOVE.w	#$0100, Z80BusReq
 loc_000007DE:
@@ -590,7 +586,7 @@ loc_0000095A:
 	MOVE.w	#$7800, vdpControl1
 	MOVE.w	#2, vdpControl1
 	MOVE.w	$00FF0622, vdpData1
-	MOVE.w	$00FF0624, vdpData1
+	MOVE.w	ram_scanScrBuf, vdpData1
 	RTS
 loc_0000098C:
 	TST.w	$00FF0134
@@ -1066,7 +1062,7 @@ loc_00001020:
 	MOVEM.l	(A7)+, D1/A3
 	RTS
 loc_00001046:
-	LEA	$00FF110A, A1
+	LEA	ram_pad1Held, A1
 loc_0000104C:
 	MOVE.w	#$000B, D0
 loc_00001050:
@@ -1087,9 +1083,8 @@ loc_00001076:
 	MOVE.w	#0, Z80BusReq
 	RTS
 	
-loc_00001096:
+updateControllers:
 	ORI	#$0700, SR
-loc_0000109A:
 	MOVE.w	#$0100, Z80BusReq
 loc_000010A2:
 	BTST.b	#0, Z80BusReq
@@ -1100,7 +1095,7 @@ loc_000010AA:
 	ANDI	#$F8FF, SR
 	RTS
 loc_000010BE:
-	LEA	$00FF110A, A0
+	LEA	ram_pad1Held, A0
 loc_000010C4:
 	LEA	padData1, A1
 	BSR.w	loc_000010DA
@@ -1196,13 +1191,15 @@ loc_000011BA:
 	OR.b	$00FF1108, D0
 	MOVE.b	D0, $4(A0)
 	RTS
-	
-loc_000011D0:
+
+; Odd quirk of this function, it seems the last nibble of the random number
+; output by this function will always be 0xA.
+updateRNG:
 	MOVEM.l	D1, -(A7)
-	MOVE.l	$00FF1116, D1
-	BNE.b	loc_000011E2
+	MOVE.l	randomNumber, D1
+	BNE.b	@rngNonZero
 	MOVE.l	#$2A6D365A, D1
-loc_000011E2:
+@rngNonZero:
 	MOVE.l	D1, D0
 	ASL.l	#2, D1
 	ADD.l	D0, D1
@@ -1213,14 +1210,14 @@ loc_000011E2:
 	ADD.w	D1, D0
 	MOVE.w	D0, D1
 	SWAP	D1
-	MOVE.l	D1, $00FF1116
+	MOVE.l	D1, randomNumber
 	MOVEM.l	(A7)+, D1
-loc_00001200:
 	RTS
+
 loc_00001202:
 	MOVEM.l	D1, -(A7)
 	MOVE.l	D0, D1
-	BSR.b	loc_000011D0
+	BSR.b	updateRNG
 	MULU.w	D1, D0
 	SWAP	D0
 	MOVEM.l	(A7)+, D1
@@ -1290,7 +1287,7 @@ loc_000013B0:
 	andi.b #$FC, d0
 	move.b d0, ($00FF0A2D).l
 	clr.b ($00FF0136).l
-	clr.w ($00FF0624).l
+	clr.w (ram_scanScrBuf).l
 	bra.w loc_00002AF2
 	rts
 	rts
@@ -1394,7 +1391,7 @@ tbl_loadBattlePalette:
 	dc.l    @battleLoadRuins
 	dc.l    @battleLoadRuins
 	dc.l    @battleLoadRuins
-	dc.l    @battleLoadUnk
+	dc.l    @battleLoadRuinsSatan
 @battleLoadGrass:
 	MOVE.b	#2, D0
 	LEA	palLookupTable, A2
@@ -1405,10 +1402,10 @@ tbl_loadBattlePalette:
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_ruinsBattle-palLookupTable), A2
 	JMP loc_00001020
-@battleLoadUnk:
+@battleLoadRuinsSatan:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
-	ADDA.l  #(pal_00002710-palLookupTable), A2
+	ADDA.l  #(pal_ruinsBattleSatan-palLookupTable), A2
 	JMP loc_00001020
 @battleLoadTutorial:
 	MOVE.b  #2, D0
@@ -1444,16 +1441,16 @@ pal_grassBattle:
 	incbin "art/palettes/game/grass.bin"
 pal_general:
 	incbin "art/palettes/general.bin"
-pal_000022B0:
-	incbin "art/palettes/unknown/unknown4.bin"
-pal_000022D0:
-	incbin "art/palettes/unknown/unknown5.bin"
-pal_000022F0:
-	incbin "art/palettes/unknown/unknown6.bin"
-pal_00002310:
-	incbin "art/palettes/unknown/unknown7.bin"
-pal_00002330:
-	incbin "art/palettes/unknown/unknown8.bin"
+pal_grassCutTop:
+	incbin "art/palettes/cutscene/grassTop.bin"
+pal_grassCutBottom:
+	incbin "art/palettes/cutscene/grassBottom.bin"
+pal_ruinsCutForeground:
+	incbin "art/palettes/cutscene/ruinsForeground.bin"
+pal_ruinsCutBackground:
+	incbin "art/palettes/cutscene/ruinsBackground.bin"
+pal_satanCut:
+	incbin "art/palettes/cutscene/satan.bin"
 ; MISSING POINTER (Palette)
 	incbin "art/palettes/missing/missing1.bin"
 pal_mainMenuMenus:
@@ -1464,8 +1461,8 @@ pal_gameOverSky:
 	incbin "art/palettes/gameOver/sky.bin"
 pal_000023D0:
 	incbin "art/palettes/unknown/unknown9.bin"
-pal_000023F0:
-	incbin "art/palettes/unknown/unknown10.bin"
+pal_staffBG:
+	incbin "art/palettes/staff/background.bin"
 pal_endingArle:
 	incbin "art/palettes/ending/arle.bin"
 pal_00002430:
@@ -1486,8 +1483,8 @@ pal_00002510:
 	incbin "art/palettes/unknown/unknown12.bin"
 pal_portraitScreenBackground:
 	incbin "art/palettes/portraitScreen/background.bin"
-pal_00002550:
-	incbin "art/palettes/unknown/unknown13.bin"
+pal_staffText:
+	incbin "art/palettes/staff/text.bin"
 pal_optionTextBlue:
 	incbin "art/palettes/options/textBlue.bin"
 pal_optionTextRed:
@@ -1509,8 +1506,8 @@ pal_titleScreenLogo_cycle:
 	incbin "art/palettes/title/logoPurple.bin"
 pal_ruinsBattle:
 	incbin "art/palettes/game/ruins.bin"
-pal_00002710:
-	incbin "art/palettes/unknown/unknown15.bin"
+pal_ruinsBattleSatan:
+	incbin "art/palettes/game/ruins_satan.bin"
 
 
 ; These values relate to when a battle begins (when carbuncle pops the baloon)
@@ -2072,7 +2069,7 @@ loc_00002B3A:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
 loc_00002B40:
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	ANDI.b	#$F0, D0
 	BNE.w	loc_00002B68
@@ -2122,7 +2119,7 @@ loc_00002BC8:
 	MOVE.b	D0, D1
 	LSL.b	#3, D1
 	ANDI.b	#$38, D1
-	BSR.w	loc_000011D0
+	BSR.w	updateRNG
 	ANDI.b	#7, D0
 	CLR.w	D2
 	MOVE.b	D0, D2
@@ -2373,7 +2370,7 @@ loc_00002EF6:
 	MOVE.w	#$00FF, D1
 	LEA	$00FF111C, A1
 loc_00002F04:
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.w	#$00FF, D0
 	MOVE.b	(A1,D0.w), D2
 	MOVE.b	(A1,D1.w), (A1,D0.w)
@@ -3705,7 +3702,7 @@ btl_loadPartHarpy:
 	BCS.b loc_0000418E
 	MOVE.b $00(A0), $00(A1)
 	MOVE.b #$10, $08(A1)
-	BSR.w  loc_000011D0
+	BSR.w  updateRNG
 	ANDI.b #3, D0
 	ADDI.b #$F, D0
 	MOVE.b D0, $09(A1)
@@ -3791,7 +3788,7 @@ loc_00004254:
 	MOVE.b	D3, D2
 	ROR.b	#4, D2
 	ADDI.b	#$64, D2
-	BSR.w	loc_000011D0
+	BSR.w	updateRNG
 	ANDI.b	#7, D0
 	ADD.b	D2, D0
 	JSR	loc_00001218
@@ -4482,7 +4479,7 @@ loc_00004B2E:
 	DBF	D0, loc_00004B2E
 	RTS
 loc_00004BF2:
-	MOVE.w	$00FF110A, D0
+	MOVE.w	ram_pad1Held, D0
 	TST.b	$00FF1884
 	BEQ.w	loc_00004C08
 	MOVE.w	$00FF1110, D0
@@ -4495,7 +4492,7 @@ loc_00004C0A:
 	MOVE.b	$00FF1884, D0
 	EOR.b	D0, D2
 	MULU.w	#6, D2
-	LEA	$00FF110A, A2
+	LEA	ram_pad1Held, A2
 	MOVE.w	(A2,D2.w), D0
 	MOVE.b	$2(A2,D2.w), D1
 	MOVE.b	$00FF1882, D2
@@ -4932,7 +4929,7 @@ loc_0000514A:
 	BSR.w	loc_00002B26
 	BSR.w	func_updateCutsceneAnimation
 	BCS.w	loc_000051A0
-	MOVE.b	$00FF110A, D0
+	MOVE.b	ram_pad1Held, D0
 	OR.b	$00FF1110, D0
 	ANDI.b	#$F0, D0
 	BEQ.w	loc_0000516E
@@ -5358,7 +5355,7 @@ loc_00005E20:
 	MOVE.b	D1, $9(A1)
 	MOVE.w	D1, D2
 	LSL.w	#4, D2
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.b	#$0F, D0
 	OR.b	D0, D2
 	MOVE.w	D2, $26(A1)
@@ -5481,7 +5478,7 @@ loc_00005F94:
 	move.b #$25, $8(a1)
 	move.b d0, $9(a1)
 	movem.l D0, -(SP)
-	jsr loc_000011D0
+	jsr updateRNG
 	andi.w #$3F, d0
 	add.w d1, d0
 	move.w d0, $a(a1)
@@ -6970,6 +6967,7 @@ loc_00007380:
 loc_000073C8:
 	MOVE.w	#0, Z80BusReq
 	RTS
+	
 loc_000073D2:
 	CMPI.b	#8, $00A00022
 	BCS.w	loc_000073E0
@@ -7054,7 +7052,7 @@ loc_00007504:
 loc_00007506:
 	TST.b	$7(A1)
 	BNE.w	loc_0000751C
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.b	#1, D0
 	MOVE.b	D0, $7(A1)
 loc_0000751C:
@@ -7244,7 +7242,7 @@ loc_000077FE:
 	BSR.w	loc_00005022	
 	LEA	loc_000078A6, A1	
 	EORI.b	#$80, $7(A0)	
-	BSR.w	loc_000011D0	
+	BSR.w	updateRNG	
 	ANDI.w	#1, D0	
 	BSR.w	loc_00007854	
 	BCS.w	loc_00007820	
@@ -7483,7 +7481,7 @@ loc_00007B8A:
 	addq.w #1, d1
 	lsl.w #1, d1
 	move.w d1, $26(a0)
-	bsr.w loc_000011D0
+	bsr.w updateRNG
 	move.w #$0200, d1
 	bsr.w loc_00001218
 	move.l d2, $12(a0)
@@ -7554,7 +7552,7 @@ loc_00007CB2:
 loc_00007CBE:
 	MOVEQ	#0, D2
 loc_00007CC0:
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	MOVE.b	$00FF1111, D1
 	TST.b	$00FF1884
 	BEQ.w	loc_00007CD8
@@ -7567,7 +7565,7 @@ loc_00007CE0:
 	MOVE.b	D0, D1
 	TST.b	$00FF0144
 	BPL.w	loc_00007D0A
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	TST.b	$00FF0143
 	BEQ.w	loc_00007D08
 	MOVE.b	$00FF1111, D0
@@ -7589,7 +7587,7 @@ loc_00007D22:
 	EORI.b	#$80, (A2,D2.w)
 	BPL.w	loc_00007D90
 	MOVEM.l	D0, -(A7)
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	ANDI.b	#$80, D0
 	EORI.b	#$80, D0
 	MOVE.b	D0, $00FF0143
@@ -9637,9 +9635,9 @@ loc_00009F16:
 	move.w #$120, $a(a1)
 	move.w #$40, $e(a1)
 	move.w #$FFFE, $16(a1)
-	jsr loc_000011D0
+	jsr updateRNG
 	move.w d0, $18(a1)
-	jsr loc_000011D0
+	jsr updateRNG
 	move.b d0, d1
 	andi.w #$3FF, d0
 	move.w d0, $1A(a1)
@@ -9689,7 +9687,7 @@ loc_00009FC6:
 	lsl.w #2, d0
 	addi.w #$FFB0, d0
 	move.w d0, $e(a1)
-	jsr loc_000011D0
+	jsr updateRNG
 	move.b d0, d1
 	andi.w #$70, d0
 	addi.w #$1C0, d0
@@ -9697,7 +9695,7 @@ loc_00009FC6:
 	andi.b #$f, d1
 	move.b d1, $22(a1)
 	move.w #$FFFD, $12(a1)
-	jsr loc_000011D0
+	jsr updateRNG
 	move.w d0, $14(a1)
 loc_0000A028:
 	dbf d2, loc_00009FC6
@@ -9739,7 +9737,7 @@ loc_0000A092:
 	bsr.w loc_00002B26
 	cmpi.w #$FF20, ($00FF05D2).l
 	bne.w loc_00002AF2
-	btst.b #5, ($00FF110B).l
+	btst.b #5, (ram_pad1Press).l
 	bne.w loc_0000A0C8
 	subq.w #1, $26(a0)
 	beq.w loc_0000A0C8
@@ -9781,7 +9779,7 @@ loc_0000A14E:
 	move.b #1, d0
 	move.b #1, d1
 	lea (palLookupTable).l, a2
-	adda.l #(pal_00002330-palLookupTable), a2
+	adda.l #(pal_satanCut-palLookupTable), a2
 	jsr loc_00001020
 	move.b #0, $6(a0)
 	tst.b ($00FF1886).l
@@ -9850,7 +9848,7 @@ loc_0000A286:
 	MOVE.b	$00FF0A2D, D0
 	ANDI.b	#$FC, D0
 	MOVE.b	D0, $00FF0A2D
-	CLR.w	$00FF0624
+	CLR.w	ram_scanScrBuf
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
 	LEA	cut_TickCutscene, A1
@@ -9872,6 +9870,8 @@ loc_0000A2E8:
 	dc.l	loc_0000A316
 	dc.l    loc_0000A368
 	dc.l    loc_0000A3B6
+
+
 loc_0000A2F4:
 	CLR.w	D0
 	CLR.w	D1
@@ -9895,13 +9895,13 @@ loc_0000A334:
 	MOVE.b	#1, D0
 	MOVE.b	#0, D1
 	LEA	palLookupTable, A2
-	ADDA.l	#(pal_000022B0-palLookupTable), A2
+	ADDA.l	#(pal_grassCutTop-palLookupTable), A2
 	JSR	loc_00000E46
 loc_0000A34E:
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
 	LEA	palLookupTable, A2
-	ADDA.l	#(pal_000022D0-palLookupTable), A2
+	ADDA.l	#(pal_grassCutBottom-palLookupTable), A2
 	JMP	loc_00000E46
 loc_0000A368:
 	lea (art_bgZou).l, a0
@@ -9913,12 +9913,12 @@ loc_0000A382:
 	move.b #1, d0
 	move.b #0, d1
 	lea (palLookupTable), a2
-	adda.l #(pal_000022F0-palLookupTable), a2
+	adda.l #(pal_ruinsCutForeground-palLookupTable), a2
 	jsr loc_00000E46
 	move.b #3, d0
 	move.b #0, d1
 	lea (palLookupTable).l, a2
-	adda.l #(pal_00002310-palLookupTable), a2
+	adda.l #(pal_ruinsCutBackground-palLookupTable), a2
 	jmp loc_00000E46
 loc_0000A3B6:
 	lea (art_bgSatan).l, a0
@@ -9932,7 +9932,7 @@ loc_0000A3DA:
 	move.b #1, d0
 	move.b #0, d1
 	lea (palLookupTable).l, a2
-	adda.l #(pal_00002330-palLookupTable), a2
+	adda.l #(pal_satanCut-palLookupTable), a2
 	jmp loc_00000E46
 loc_0000A3F4:
 	MOVE.w	#$8B00, D0
@@ -10841,6 +10841,7 @@ loc_0000B270:
 loc_0000B28A:
 	ANDI	#$FFFE, SR
 	RTS
+	
 loc_0000B290:
 	ORI	#$0700, SR
 	MOVE.w	#$0100, Z80BusReq
@@ -10900,7 +10901,7 @@ loc_0000B338:
 	ADDQ.w	#1, $26(A0)
 	MOVE.w	$26(A0), D1
 	MOVE.w	#$006F, D0
-	LEA	$00FF0624, A1
+	LEA	ram_scanScrBuf, A1
 loc_0000B34A:
 	MOVE.w	D1, (A1)+
 	ADDQ.w	#2, A1
@@ -11287,7 +11288,7 @@ loc_0000B864:
 loc_0000B880:
 	JSR	loc_00002B26
 	ADDQ.b	#1, $26(A0)
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	BTST.l	#2, D0
 	BNE.w	loc_0000B936
@@ -11596,7 +11597,7 @@ loc_0000BC2C:
 	BCS.w	loc_0000BCAA
 	TST.b	$F(A0)
 	BNE.w	loc_0000BCA8
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	ANDI.b	#$F0, D0
 	BEQ.w	loc_0000BCA8
@@ -11837,7 +11838,7 @@ loc_0000BFEE:
 	sub.w    $26(a0), d0
 	move.w    d0, ($00FF0622).l
 	neg.w   d0
-	move.w    d0, ($00FF0624).l
+	move.w    d0, (ram_scanScrBuf).l
 	beq.w    loc_0000C00E
 	addq.w    #2, $26(a0)
 	rts
@@ -11933,7 +11934,7 @@ loc_0000C194:
 	MOVE.w	#$00F8, $A(A1)
 	MOVE.w	#$00D0, $E(A1)
 	MOVE.w	#$FF70, $00FF0622
-	MOVE.w	#$FF70, $00FF0624
+	MOVE.w	#$FF70, ram_scanScrBuf
 	CLR.w	D1
 	MOVE.b	game_curStage, D1
 	CLR.w	D0
@@ -11942,7 +11943,7 @@ loc_0000C194:
 	TST.b	$00FF0115
 	BNE.w	loc_0000C1E8
 	MOVE.w	#$FFC8, $00FF0622
-	MOVE.w	#$FFC8, $00FF0624
+	MOVE.w	#$FFC8, ram_scanScrBuf
 loc_0000C1E8:
 	MOVE.w	#$E00E, D5
 	BSR.w	loc_0000C08C
@@ -11979,7 +11980,7 @@ loc_0000C21A:
 	CMPI.w	#$FF70, $00FF0622
 	BEQ.w	loc_0000C24C
 	SUBQ.w	#2, $00FF0622
-	SUBQ.w	#2, $00FF0624
+	SUBQ.w	#2, ram_scanScrBuf
 	RTS
 loc_0000C24C:
 	SUBQ.w	#1, $26(A0)
@@ -12447,7 +12448,7 @@ loc_0000C960:
 	LEA	loc_0000C96C, A1
 	JMP	loc_00002A54
 loc_0000C96C:
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	ANDI.b	#$F0, D0
 	BNE.w	loc_0000C994
@@ -12864,7 +12865,7 @@ loc_0000CF40:
 loc_0000CF48:
 	CMPI.b	#8, $29(A0)
 	BNE.w	loc_0000CF98
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.w	#$000F, D0
 	CMPI.w	#7, D0
 	BCC.w	loc_0000CF98
@@ -12915,7 +12916,7 @@ loc_0000CFE0:
 	MOVE.w	$00FF05D2, D0
 	ADDI.w	#$00F0, D0
 	MOVE.w	D0, $E(A0)
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	BTST.l	#7, D0
 	BEQ.w	loc_0000D014
@@ -12936,7 +12937,7 @@ loc_0000D02A:
 	MOVE.b	D0, $6(A0)
 	RTS
 loc_0000D040:
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	ANDI.b	#$74, D0
 	BNE.w	loc_0000D056
@@ -14588,7 +14589,7 @@ loc_0000D908:
 	lea (loc_0000D914).l, a1
 	jmp loc_00002A54
 loc_0000D914:
-	move.b ($00FF110b).l, d0
+	move.b (ram_pad1Press).l, d0
 	or.b ($00FF1111).l, d0
 	andi.b #$F0, d0
 	bne.w loc_0000D92A
@@ -15452,7 +15453,7 @@ loc_0000EF6C:
 	CLR.w	$00FF0DE2
 	CLR.w	$00FF0DE4
 	RTS
-loc_0000EF7A:
+updateSprites:
 	TST.w	$00FF0DE4
 	BEQ.w	loc_0000EF86
 	RTS
@@ -15465,7 +15466,7 @@ loc_0000EF86:
 	MOVEQ	#-$00000040, D2
 loc_0000EFA0:
 	LEA	$00FF0E8E, A1
-	LEA	loc_0001126E, A2
+	LEA	tbl_sprMappings, A2
 	LEA	$00FF0DE7, A4
 	MOVE.w	#$003F, D0
 	MOVE.w	#1, D1
@@ -15990,7 +15991,7 @@ loc_0000F6A2:
 	MOVE.b	#$25, $8(A1)
 	MOVE.w	#$1800, $1C(A1)
 	MOVE.w	#$FFFF, $20(A1)
-	JSR	loc_000011D0
+	JSR	updateRNG
 	CLR.w	D1
 	MOVE.b	D0, D1
 	ANDI.b	#$7F, D1
@@ -16835,7 +16836,7 @@ loc_00010184:
 	ANDI.b	#$F3, D1
 	BRA.w	loc_000101AC
 loc_0001019A:
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.b	#1, D0
 	BEQ.w	loc_000101AC
 	EORI.b	#$0C, D1
@@ -18090,7 +18091,7 @@ loc_000111C8:
 	DBF	D0, loc_000111C8
 	RTS
 loc_000111D0:
-	JSR	loc_000011D0
+	JSR	updateRNG
 	ANDI.b	#$80, D0
 	MOVE.b	D0, D4
 	MOVE.w	#$0180, D0
@@ -18142,7 +18143,7 @@ loc_00011258:
 	andi #$F8FF, SR
 	rts
 	
-loc_0001126E:
+tbl_sprMappings:
 	dc.l	sprMappings_puyoRed
 	dc.l	sprMappings_puyoYellow
 	dc.l	sprMappings_attacks
@@ -24583,8 +24584,8 @@ bgmap_menuDifficulty:
     incbin "art/bgMappings/puyo/menu/difficulty.bin"
 	
 loc_0001CCDC:
-	BSR.w	loc_0001CE34
-	BSR.w	loc_0001CDE8
+	BSR.w	sndtst_LoadArleSprite
+	BSR.w	sndtst_LoadSatanSprite
 	MOVE.b	#$FF, $00FF1834
 	MOVE.w	#$E000, D5
 	MOVE.w	#$001B, D0
@@ -24602,8 +24603,9 @@ loc_0001CD0A:
 	EORI.b	#2, D6
 	DBF	D0, loc_0001CCF8
 	BRA.w	loc_0001D3B4
+
 loc_0001CD28:
-	LEA	loc_0001CE84, A1
+	LEA	sndtst_update, A1
 	JMP	loc_00002A54
 loc_0001CD34:
 	move.b #-1, ($00FF1834).l
@@ -24646,19 +24648,20 @@ loc_0001CDC6:
 	clr.b ($00FF1834).l
 	clr.b (bc_stopRunning).l
 	jmp loc_00002AF2
-loc_0001CDE8:
+	
+sndtst_LoadSatanSprite:
 	LEA	loc_0001CDF4, A1
-	JMP	loc_00002A54
+	JMP	loc_00002A54	; Unknown
 loc_0001CDF4:
-	MOVE.w	#$0180, $A(A0)
-	MOVE.w	#$0140, $E(A0)
-	MOVE.b	#$80, $6(A0)
-	MOVE.b	#$15, $8(A0)
-	MOVE.l	#loc_0001CE26, $32(A0)
-	JSR	loc_00002B26
+	MOVE.w	#$0180, $A(A0) 	; X Position
+	MOVE.w	#$0140, $E(A0) 	; Y Position
+	MOVE.b	#$80, $6(A0)	; ???
+	MOVE.b	#$15, $8(A0)	; Sprite mapping to load from the sprite mapping table
+	MOVE.l	#anim_satan_SoundTest, $32(A0)	; Pointer to anim
+	JSR	loc_00002B26	; Something to do with animation
 	JSR	func_updateCutsceneAnimation
-	JMP	loc_00002C2A
-loc_0001CE26:
+	JMP	loc_00002C2A	; Unknown
+anim_satan_SoundTest:
 	dc.b	$F1
 	dc.b	$00 
 	dc.b	$08
@@ -24669,8 +24672,9 @@ loc_0001CE26:
 	dc.b	$08 
 	dc.b	$FF
 	dc.b	$00 
-	dc.l	loc_0001CE26
-loc_0001CE34:
+	dc.l	anim_satan_SoundTest
+	
+sndtst_LoadArleSprite:
 	LEA	loc_0001CE40, A1
 	JMP	loc_00002A54
 loc_0001CE40:
@@ -24678,11 +24682,11 @@ loc_0001CE40:
 	MOVE.w	#$0140, $E(A0)
 	MOVE.b	#$80, $6(A0)
 	MOVE.b	#8, $8(A0)
-	MOVE.l	#loc_0001CE72, $32(A0)
+	MOVE.l	#anim_arle_SoundTest, $32(A0)
 	JSR	loc_00002B26
 	JSR	func_updateCutsceneAnimation
 	JMP	loc_00002C2A
-loc_0001CE72:
+anim_arle_SoundTest:
 	dc.b	$F1
 	dc.b	$00 
 	dc.b	$40
@@ -24697,60 +24701,68 @@ loc_0001CE72:
 	dc.b	$13 
 	dc.b	$FF
 	dc.b	$00 
-	dc.l	loc_0001CE72
-loc_0001CE84:
+	dc.l	anim_arle_SoundTest
+	
+sndtst_update:
 	MOVE.w	#2, D0
-	BSR.w	loc_0001D3C8
-	BSR.w	loc_0001D024
+	BSR.w	sndtst_drawStaticText
+	BSR.w	sndtst_drawIdNames
 	JSR	loc_00002B26
-	BSR.w	loc_0001D08E
-	MOVE.b	$00FF110B, D0
+	BSR.w	sndtst_drawIds
+	
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
-	BTST.l	#7, D0
-	BNE.w	loc_0001CF18
-	BTST.l	#4, D0
-	BNE.w	loc_0001CF12
-	ANDI.b	#$60, D0
-	BNE.w	loc_0001CF74
+	BTST.l	#btn_Start, D0
+	BNE.w	sndtst_exit
+	BTST.l	#btn_B, D0
+	BNE.w	sndtst_stopPlaying
+	ANDI.b	#(btnb_A|btnb_C), D0
+	BNE.w	sndtst_playID
 	MOVE.b	$00FF110C, D0
 	OR.b	$00FF1112, D0
-	BTST.l	#0, D0
-	BNE.w	loc_0001CEEC
-	BTST.l	#1, D0
-	BNE.w	loc_0001CEFC
-	BTST.l	#3, D0
-	BNE.w	loc_0001CF2A
-	BTST.l	#2, D0
-	BNE.w	loc_0001CF32
+	BTST.l	#btn_Up, D0
+	BNE.w	sndtst_moveCursorUp
+	BTST.l	#btn_Down, D0
+	BNE.w	sndtst_moveCursorDown
+	BTST.l	#btn_Right, D0
+	BNE.w	sndtst_moveCursorRight
+	BTST.l	#btn_Left, D0
+	BNE.w	sndtst_moveCursorLeft
 	RTS
-loc_0001CEEC:
+	
+sndtst_moveCursorUp:
 	SUBQ.w	#1, $26(A0)
-	BCC.w	loc_0001CEFA
+	BCC.w	@cursorNoWrap
 	MOVE.w	#5, $26(A0)
-loc_0001CEFA:
+@cursorNoWrap:
 	RTS
-loc_0001CEFC:
+	
+sndtst_moveCursorDown:
 	ADDQ.w	#1, $26(A0)
 	CMPI.w	#6, $26(A0)
-	BCS.w	loc_0001CF10
+	BCS.w	@cursorNoWrap
 	MOVE.w	#0, $26(A0)
-loc_0001CF10:
+@cursorNoWrap:
 	RTS
-loc_0001CF12:
+
+sndtst_stopPlaying:
 	JMP	loc_00007308
-loc_0001CF18:
+
+sndtst_exit:
 	CLR.b	$00FF1834
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
-loc_0001CF2A:
-	MOVE.b	#1, D1
-	BRA.w	loc_0001CF36
-loc_0001CF32:
-	MOVE.b	#$FF, D1
+
 ; This function updates values in the soundtest
-loc_0001CF36:
+sndtst_moveCursorRight:
+	MOVE.b	#1, D1
+	BRA.w	sndtst_moveCursorLR
+sndtst_moveCursorLeft:
+	MOVE.b	#$FF, D1
+	
+sndtst_moveCursorLR:
 	MOVE.w	$26(A0), D0
-	LEA	loc_0001CF6E, A1
+	LEA	tbl_sndtst_IdLimits, A1
 	MOVE.b	(A1,D0.w), D2
 	ADD.b	D1, $12(A0,D0.w)
 	BPL.w	loc_0001CF54
@@ -24767,9 +24779,10 @@ loc_0001CF62:
 	BSR.w	loc_0001D03A
 loc_0001CF6C:
 	RTS
-loc_0001CF6E:
+tbl_sndtst_IdLimits:
 	dc.b	$5F, $5F, $5F, $11, $03, $07 
-loc_0001CF74:
+
+sndtst_playID:
 	MOVE.w	$26(A0), D1
 	CLR.w	D0
 	MOVE.b	$12(A0,D1.w), D0
@@ -24821,7 +24834,7 @@ loc_0001D00E:
 	dc.b	$F6, $00, $00
 	dc.b	$F7, $00, $00 
 	even
-loc_0001D024:
+sndtst_drawIdNames:
 	MOVE.w	#2, D0
 loc_0001D028:
 	MOVEM.l	D0, -(A7)
@@ -24849,7 +24862,7 @@ loc_0001D03A:
 	BRA.w	loc_0001D6C4
 loc_0001D076:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00 
-loc_0001D08E:
+sndtst_drawIds:
 	MOVE.w	#5, D0
 	MOVE.w	#$079C, D5
 	MOVE.w	#$A500, D6
@@ -25072,7 +25085,7 @@ loc_0001D3BE:
 	MOVE.w	#$8500, (A1)+
 	DBF	D0, loc_0001D3BE
 	RTS
-loc_0001D3C8:
+sndtst_drawStaticText:
 	MOVEM.l	D0, -(A7)
 	BSR.b	loc_0001D3B4
 	MOVEM.l	(A7)+, D0
@@ -25090,10 +25103,10 @@ loc_0001D3DC:
 	DBF	D0, loc_0001D3DC
 	RTS
 loc_0001D3F4:
-	dc.l	loc_0001D4F0
-	dc.l	loc_0001D400
-	dc.l	loc_0001D604
-loc_0001D400:
+	dc.l	option_staticText
+	dc.l	imptst_staticText
+	dc.l	sndtst_staticText
+imptst_staticText:
 	dc.w	$000C 
 	dc.l	loc_0001D432
 	dc.l	loc_0001D442
@@ -25170,7 +25183,8 @@ loc_0001D4E2:
 	dc.l	$00000000
 	dc.l	$160F101E
 	dc.w	$28FF
-loc_0001D4F0:
+	
+option_staticText:
 	dc.w 	$000A
 	dc.l	loc_0001D51A
 	dc.l	loc_0001D52A
@@ -25184,9 +25198,8 @@ loc_0001D4F0:
 	dc.l	loc_0001D5F0
 loc_0001D51A:
 	dc.l	$009CA500
-	dc.l	$191A1E13
-	dc.l	$19180017
-	dc.l	$190E0FFF
+	soundTestText "OPTION MODE"
+	even
 loc_0001D52A:
 	dc.l	$0312E500
 	dc.l	$1A160B23
@@ -25253,7 +25266,8 @@ loc_0001D5F0:
 	dc.l	$1D131118
 	dc.l	$170F181E
 	dc.w	$FF00
-loc_0001D604:
+	
+sndtst_staticText:
 	dc.w 	$0008
 	dc.l	loc_0001D626
 	dc.l	loc_0001D638
@@ -25264,21 +25278,37 @@ loc_0001D604:
 	dc.l	loc_0001D680
 	dc.l	loc_0001D68C
 loc_0001D626:
-	dc.b	$01, $1A, $85, $00, $1D, $19, $1F, $18, $0E, $00, $00, $1E, $1C, $0B, $0D, $15, $FF, $00 
+	dc.b	$01, $1A, $85, $00
+	soundTestText "SOUND  TRACK"
+	even
 loc_0001D638:
-	dc.b	$0C, $8E, $E5, $00, $1A, $1C, $0F, $1D, $1D, $00, $1D, $1E, $0B, $1C, $1E, $00, $0C, $1F, $1E, $1E, $19, $18, $00, $1E, $19, $00, $0F, $22, $13, $1E, $FF, $00 
+	dc.b	$0C, $8E, $E5, $00
+	soundTestText "PRESS START BUTTON TO EXIT"
+	even
 loc_0001D658:
-	dc.b	$02, $92, $E5, $00, $1D, $0F, $02, $28, $FF, $00 
+	dc.b	$02, $92, $E5, $00
+	soundTestText "SE1:"
+	even
 loc_0001D662:
-	dc.b	$03, $92, $E5, $00, $1D, $0F, $03, $28, $FF, $00 
+	dc.b	$03, $92, $E5, $00
+	soundTestText "SE2:"
+	even
 loc_0001D66C:
-	dc.b	$04, $92, $E5, $00, $1D, $0F, $04, $28, $FF, $00 
+	dc.b	$04, $92, $E5, $00
+	soundTestText "SE3:"
+	even
 loc_0001D676:
-	dc.b	$05, $92, $E5, $00, $0C, $11, $17, $28, $FF, $00 
+	dc.b	$05, $92, $E5, $00
+	soundTestText "BGM:"
+	even
 loc_0001D680:
-	dc.b	$06, $8E, $E5, $00, $20, $19, $13, $0D, $0F, $28, $FF, $00 
+	dc.b	$06, $8E, $E5, $00
+	soundTestText "VOICE:"
+	even
 loc_0001D68C:
-	dc.b	$07, $8A, $E5, $00, $0D, $19, $17, $17, $0B, $18, $0E, $28, $FF, $00 
+	dc.b	$07, $8A, $E5, $00
+	soundTestText "COMMAND:"
+	even	
 loc_0001D69A:
 	MOVE.w	#$8500, D6
 	BTST.b	#0, $26(A0)
@@ -25307,16 +25337,16 @@ loc_0001D6E2:
 	RTS
 loc_0001D6E4:
 	MOVE.w	#0, D0
-	BSR.w	loc_0001D3C8
+	BSR.w	sndtst_drawStaticText
 	JSR	loc_00002B26
 	ADDQ.b	#1, $26(A0)
 	BSR.w	loc_0001D8E4
-	MOVE.b	$00FF110B, D0
+	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	BTST.l	#7, D0
 	BNE.w	loc_0001D72C
 	MOVE.w	#0, D0
-	MOVE.b	$00FF110B, D1
+	MOVE.b	ram_pad1Press, D1
 	BSR.w	loc_0001D74A
 	MOVE.w	#1, D0
 	MOVE.b	$00FF1111, D1
@@ -25610,10 +25640,10 @@ loc_0001DAF2:
 	dc.b	$00 
 loc_0001DAFE:
 	MOVE.w	#1, D0
-	BSR.w	loc_0001D3C8
+	BSR.w	sndtst_drawStaticText
 	JSR	loc_00002B26
 	BSR.w	loc_0001DB44
-	MOVE.b	$00FF110A, D0
+	MOVE.b	ram_pad1Held, D0
 	ANDI.b	#$C0, D0
 	EORI.b	#$C0, D0
 	BEQ.w	loc_0001DB36
@@ -25627,7 +25657,7 @@ loc_0001DB36:
 	JSR	loc_000072BE
 	BRA.w	loc_0001D6E4
 loc_0001DB44:
-	MOVE.b	$00FF110A, D0
+	MOVE.b	ram_pad1Held, D0
 	LSL.w	#8, D0
 	MOVE.b	$00FF1110, D0
 	LEA	loc_0001DB92, A2
@@ -25678,7 +25708,7 @@ loc_0001DBCA:
 	beq.w loc_0001DBFA
 	move.b #$FF, (bc_returnState).l
 loc_0001DBFA:
-	move.w D1, ($00FF0106).l
+	move.w D1, (ram_calcChecksum).l
 	rts
 loc_0001DC02:
 	MOVEM.l	A2/A1/D3/D2/D1/D0, -(A7)

@@ -16,6 +16,27 @@ vdpControl1 = $C00004
 vdpControl2 = $C00006
 
 nem_decompBuffer = $00FF3400
+; Joypad (bit numbers)
+btn_Start = 7
+btn_A = 6
+btn_C = 5
+btn_B = 4
+btn_Right = 3
+btn_Left = 2
+btn_Down = 1
+btn_Up = 0
+
+; Joypad (byte values)
+btnb_Start = $80
+btnb_A = $40
+btnb_C = $20
+btnb_B = $10
+btnb_Right = $8
+btnb_Left = $4
+btnb_Down = $2
+btnb_Up = $1
+
+
 
 ; Music / SFX Constants:
 musID_Final = $01
@@ -75,16 +96,27 @@ stgID_Rulue			= $0E
 stgID_Satan			= $0F
 
 ; Ram
+; $00FF0000 = Decomp Buffer ; 0x100 Bytes
+; $00FF0100 = Decomp Buffer2; 0x4 Bytes
+
+ram_calcChecksum = $FF0106 	; Word
 
 game_curStage = $FF0112		; Byte
 game_curCutscene = $FF0113	; Byte
 
 mus_curSong = $FF012F		; Byte
 
+ram_scanScrBuf = $FF0624	; 0x1C0 Bytes
+
 bc_programCounter = $FF0A36 ; Long
 bc_returnState = $FF0A3A	; Byte
 bc_stopRunning = $FF0A3B	; Byte
 bc_stopLoop = $FF0A3C 		; Byte
+
+ram_pad1Held = $FF110A		; Byte
+ram_pad1Press = $FF110B		; Byte
+
+randomNumber = $FF1116		; Long
 
 debug_CpuPlayer = $FF1876	; Byte
 debug_puyoDrop = $FF1877	; Byte

@@ -162,7 +162,7 @@ BC_mainMenu2: ; Second half of above transition
 	BVDPC $001F
 	BNOP
 	
-	BPAL pal_000022B0, 0
+	BPAL pal_grassCutTop, 0
 	BPAL pal_general, 1
 	BPAL pal_mainMenuMenus, 3
 	
@@ -187,8 +187,8 @@ BC_mainMenu2: ; Second half of above transition
 	
 	BJTBL $0004
 	dc.l	BC_portraitScreen
-	dc.l	BC_unknown2
-	dc.l    BC_unknown5 
+	dc.l	BC_twoPlayer
+	dc.l    BC_endless 
 	dc.l	BC_options
 BC_options:
 	BVMODE $0001
@@ -527,7 +527,7 @@ BC_normalModeEnding:
 	
 	BRUN loc_0000D908
 	
-	BPALF pal_000023F0, 0, 0
+	BPALF pal_staffBG, 0, 0
 	BPALF pal_endingArle, 1, 0
 	BPALF pal_00002230, 2, 0
 	
@@ -617,8 +617,8 @@ BC_staff3:
 	BVDPC $000A
 	BNOP
 	
-	BPALF pal_000023F0, 0, 0
-	BPALF pal_00002550, 1, 0
+	BPALF pal_staffBG, 0, 0
+	BPALF pal_staffText, 1, 0
 	
 	BWPAL
 	
@@ -692,7 +692,7 @@ BC_recordScreen1PlayerOnly:
 	BSSND
 	
 	BJMP BC_segaScreen
-BC_unknown2:
+BC_twoPlayer:
 	BRAM $00FF0128, $0000
 	BRUN loc_00007F00
 
@@ -749,7 +749,7 @@ BC_recordScreen3:
 	
 	BRAM $00FF1890, $00FF
 	BJMP BC_recordScreen1PlayerOnly
-BC_unknown5:
+BC_endless:
 
 	BVMODE $0001
 	

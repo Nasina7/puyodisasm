@@ -1140,7 +1140,7 @@ updateRNG:
 	ADD.l	D0, D1
 	ASL.l	#3, D1
 	ADD.l	D0, D1
-	MOVE.w	D1, D0 ;CB7DB46A
+	MOVE.w	D1, D0
 	SWAP	D1
 	ADD.w	D1, D0
 	MOVE.w	D0, D1

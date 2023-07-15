@@ -2243,7 +2243,7 @@ loc_00002E26:
 mus_triggerWarningMusic:
 	MOVE.b	#musID_Warning, D0
 	MOVE.b	D0, $00FF111A
-	JSR	loc_00007308
+	JSR	snd_playClearEffect
 	JMP	playSoundID
 loc_00002E62:
 	CMPI.w	#$0036, $00FF1F1C
@@ -2258,7 +2258,7 @@ loadBattleMusic:
 	RTS
 loc_00002E88:
 	MOVE.b	D0, $00FF111A
-	JSR	loc_00007308
+	JSR	snd_playClearEffect
 	JMP	playSoundID
 tbl_loadBattleMusic:
 	dc.b    musID_Morning
@@ -5782,7 +5782,7 @@ loc_0000647A:
 loc_00006490:
 	CMPI.b	#1, $00FF1882
 	BCC.w	loc_000064A6
-	JSR	loc_00007308
+	JSR	snd_playClearEffect
 	BSR.w	loc_00002B26
 loc_000064A6:
 	BSR.w	loc_00006528
@@ -6844,6 +6844,7 @@ loc_00007262:
 	nop
 	nop
 	bra.w loc_00007200
+
 loc_000072BE:
 	MOVEM.l	A2/D1, -(A7)
 	LEA	$00FF0130, A2
@@ -6861,22 +6862,22 @@ loc_000072E0:
 playSoundID:
 	MOVE.b	D0, mus_curSong
 	RTS
-loc_000072EE:
+snd_playFadeOut:
 	MOVE.b	#$F3, $00FF012C
 	MOVE.b	#$20, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-loc_00007308:
+snd_playClearEffect:
 	MOVE.b	#$F2, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-loc_00007322:
+snd_playPauseOnEffect:
 	MOVE.b	#$F6, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-loc_0000733C:
+snd_playPauseOffEffect:
 	MOVE.b	#$F7, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
@@ -7541,9 +7542,9 @@ loc_00007D22:
 	JSR	loc_00002A54
 	BCS.w	loc_00007D68
 	MOVE.b	D2, $2A(A1)
+
 loc_00007D68:
 	ORI	#$0700, SR
-loc_00007D6C:
 	BSR.w	loc_00007DE2
 	ANDI	#$F8FF, SR
 	JSR	waitForVint
@@ -7551,9 +7552,9 @@ loc_00007D6C:
 	BEQ.w	loc_00007DBA
 	MOVE.b	#$7A, D0
 	JMP	loc_000072BE
+
 loc_00007D90:
 	ORI	#$0700, SR
-loc_00007D94:
 	BSR.w	loc_00007E38
 	ANDI	#$F8FF, SR
 	JSR	waitForVint
@@ -7565,18 +7566,16 @@ loc_00007DB8:
 	RTS
 loc_00007DBA:
 	BTST.l	#$10, D2
-loc_00007DBE:
 	BNE.w	loc_00007DCC
 	BSET.l	#$10, D2
-	JSR	loc_00007322
+	JSR	snd_playPauseOnEffect
 loc_00007DCC:
 	RTS
 loc_00007DCE:
 	BTST.l	#$11, D2
-loc_00007DD2:
 	BNE.w	loc_00007DE0
 	BSET.l	#$11, D2
-	JSR	loc_0000733C
+	JSR	snd_playPauseOffEffect
 loc_00007DE0:
 	RTS
 loc_00007DE2:
@@ -7612,18 +7611,15 @@ loc_00007E2A:
 	RTS
 loc_00007E38:
 	MOVEM.l	D2/D1, -(A7)
-loc_00007E3C:
 	BSR.w	loc_00007E68
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007E46:
 	JSR	loadBGSetupVDP
-loc_00007E4C:
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
 loc_00007E54:
 	MOVE.w	(A1)+, vdpData1
-loc_00007E5A:
 	DBF	D2, loc_00007E54
 	DBF	D1, loc_00007E46
 	MOVEM.l	(A7)+, D1/D2
@@ -24743,7 +24739,7 @@ sndtst_moveCursorDown:
 	RTS
 
 sndtst_stopPlaying:
-	JMP	loc_00007308
+	JMP	snd_playClearEffect
 
 sndtst_exit:
 	CLR.b	$00FF1834
@@ -24801,7 +24797,7 @@ loc_0001CFA8:
 	dc.l	loc_0001CFC0
 	dc.l	loc_0001CFC6
 loc_0001CFB4:
-	JSR	loc_00007308
+	JSR	snd_playClearEffect
 	JMP	playSoundID
 loc_0001CFC0:
 	JMP	loc_00007360
@@ -24907,146 +24903,147 @@ loc_0001D0F8:
 loc_0001D11C:
 	ADDI.b	#$20, D1
 	RTS
+	
 soundTest_MainArray:
 	dc.l	soundTest_MusicArray
 	dc.l	soundTest_VoiceArray
 	dc.l	soundTest_CommandArray
 soundTest_MusicArray:
-	dc.l	soundTest_FinalOfPuyoPuyo
-	dc.l	soundTest_ThemeOfPuyoPuyo
-	dc.l	soundTest_BaroqueOfPuyoPuyo
-	dc.l	soundTest_CookingOfPuyoPuyo
-	dc.l	soundTest_MorningOfPuyoPuyo
-	dc.l	soundTest_ToyOfPuyoPuyo
-	dc.l	soundTest_SorrowOfPuyoPuyo
-	dc.l	soundTest_StickerOfPuyoPuyo
-	dc.l	soundTest_SunsetOfPuyoPuyo
-	dc.l	soundTest_RejectionOfPuyoPuyo
-	dc.l	soundTest_MemoriesOfPuyoPuyo
-	dc.l	soundTest_ThemeForHarpy
-	dc.l	soundTest_WarningOfPuyoPuyo
-	dc.l	soundTest_ThemeForSatan
-	dc.l	soundTest_BraveOfPuyoPuyo
-	dc.l	soundTest_OndoOfPuyoPuyo
-	dc.l	soundTest_VictoryOfPuyoPuyo
+	dc.l	@final
+	dc.l	@theme
+	dc.l	@baroque
+	dc.l	@cooking
+	dc.l	@morning
+	dc.l	@toy
+	dc.l	@sorrow
+	dc.l	@sticker
+	dc.l	@sunset
+	dc.l	@rejection
+	dc.l	@memories
+	dc.l	@harpy
+	dc.l	@warning
+	dc.l	@satan
+	dc.l	@brave
+	dc.l	@ondo
+	dc.l	@victory
 
-soundTest_FinalOfPuyoPuyo:
+@final:
 	dc.b	$01 
 	soundTestText "FINAL OF PUYOPUYO"
 	even
-soundTest_ThemeOfPuyoPuyo:
+@theme:
 	dc.b	$02 
 	soundTestText "THEME OF PUYOPUYO"
 	even
-soundTest_BaroqueOfPuyoPuyo:
+@baroque:
 	dc.b	$03 
 	soundTestText "BAROQUE OF PUYOPUYO"
 	even
-soundTest_CookingOfPuyoPuyo:
+@cooking:
 	dc.b	$04 
 	soundTestText "COOKING OF PUYOPUYO"
 	even
-soundTest_MorningOfPuyoPuyo:
+@morning:
 	dc.b	$05 
 	soundTestText "MORNING OF PUYOPUYO"
 	even
-soundTest_ToyOfPuyoPuyo:
+@toy:
 	dc.b	$06 
 	soundTestText "TOY OF PUYOPUYO"
 	even
-soundTest_SorrowOfPuyoPuyo:
+@sorrow:
 	dc.b	$07 
 	soundTestText "SORROW OF PUYOPUYO"
 	even
-soundTest_StickerOfPuyoPuyo:
+@sticker:
 	dc.b	$08 
 	soundTestText "STICKER OF PUYOPUYO"
 	even
-soundTest_SunsetOfPuyoPuyo:
+@sunset:
 	dc.b	$0A
 	soundTestText "SUNSET OF PUYOPUYO"
 	even
-soundTest_RejectionOfPuyoPuyo:
+@rejection:
 	dc.b	$0B
 	soundTestText "REJECTION OF PUYOPUYO"
 	even
-soundTest_MemoriesOfPuyoPuyo:
+@memories:
 	dc.b	$0C 
 	soundTestText "MEMORIES OF PUYOPUYO"
 	even
-soundTest_ThemeForHarpy:
+@harpy:
 	dc.b	$0D 
 	soundTestText "THEME FOR HARPY"
 	even
-soundTest_WarningOfPuyoPuyo:
+@warning:
 	dc.b	$0E 
 	soundTestText "WARNING OF PUYOPUYO"
 	even
-soundTest_ThemeForSatan:
+@satan:
 	dc.b	$0F 
 	soundTestText "THEME FOR SATAN"
 	even
-soundTest_BraveOfPuyoPuyo:
+@brave:
 	dc.b	$10 
 	soundTestText "BRAVE OF PUYOPUYO"
 	even
-soundTest_OndoOfPuyoPuyo:
+@ondo:
 	dc.b	$11 
 	soundTestText "ONDO OF PUYOPUYO"
 	even
-soundTest_VictoryOfPuyoPuyo:
+@victory:
 	dc.b	$12 
 	soundTestText "VICTORY OF PUYOPUYO"
 	even
 soundTest_VoiceArray:
-	dc.l	soundTest_Fire
-	dc.l	soundTest_Yattana
-	dc.l	soundTest_PuyoPuyo
-soundTest_Yattana:
+	dc.l	@fire
+	dc.l	@yattana
+	dc.l	@puyopuyo
+@yattana:
 	dc.b    $81
 	soundTestText "YATTANA"
 	even
-soundTest_Fire:
+@fire:
 	dc.b    $80
 	soundTestText "FIRE"
 	even
-soundTest_PuyoPuyo:
+@puyopuyo:
 	dc.b    $82
 	soundTestText "PUYO PUYO"
 	even
 soundTest_CommandArray:
-	dc.l	loc_0001D314
-	dc.l	loc_0001D320
-	dc.l	loc_0001D328
-	dc.l	loc_0001D332
-	dc.l	loc_0001D33C
-	dc.l	loc_0001D346
-	dc.l	loc_0001D350
-loc_0001D314:
+	dc.l	@all_clear
+	dc.l	@clear
+	dc.l	@fade_out
+	dc.l	@fade_in
+	dc.l	@rebirth
+	dc.l	@pause_on
+	dc.l	@pause_off
+@all_clear:
 	dc.b	$F1 
 	soundTestText "ALL CLEAR"
 	even
-loc_0001D320:
+@clear:
 	dc.b	$F2 
 	soundTestText "CLEAR"
 	even
-loc_0001D328:
+@fade_out:
 	dc.b	$F3 
 	soundTestText "FADE OUT"
 	even
-loc_0001D332:
+@fade_in:
 	dc.b	$F4 
 	soundTestText "FADE IN"
 	even
-loc_0001D33C:
+@rebirth:
 	dc.b	$F5 
 	soundTestText "REBIRTH"
 	even
-loc_0001D346:
+@pause_on:
 	dc.b	$F6 
 	soundTestText "PAUSE ON"
 	even
-loc_0001D350:
+@pause_off:
 	dc.b	$F7 
 	soundTestText "PAUSE OFF"
 	even
@@ -25075,6 +25072,7 @@ loc_0001D3A0:
 	RTS
 loc_0001D3B2:
 	RTS
+
 loc_0001D3B4:
 	LEA	$00FFC000, A1
 	MOVE.w	#$06FF, D0
@@ -25082,6 +25080,7 @@ loc_0001D3BE:
 	MOVE.w	#$8500, (A1)+
 	DBF	D0, loc_0001D3BE
 	RTS
+	
 sndtst_drawStaticText:
 	MOVEM.l	D0, -(A7)
 	BSR.b	loc_0001D3B4
@@ -25103,209 +25102,166 @@ loc_0001D3F4:
 	dc.l	option_staticText
 	dc.l	imptst_staticText
 	dc.l	sndtst_staticText
+	
 imptst_staticText:
 	dc.w	$000C 
-	dc.l	loc_0001D432
-	dc.l	loc_0001D442
-	dc.l	loc_0001D472
-	dc.l	loc_0001D48E
-	dc.l	loc_0001D49C
-	dc.l	loc_0001D4AA
-	dc.l	loc_0001D4B8
-	dc.l	loc_0001D4C6
-	dc.l	loc_0001D4D4
-	dc.l	loc_0001D4E2
-	dc.l	loc_0001D466
-	dc.l	loc_0001D482
-loc_0001D432:
+	dc.l	@input_test
+	dc.l	@press_start
+	dc.l	@pad1_pad2
+	dc.l	@button_a
+	dc.l	@button_b
+	dc.l	@button_c
+	dc.l	@button_up
+	dc.l	@button_down
+	dc.l	@button_right
+	dc.l	@button_left
+	dc.l	@to_exit
+	dc.l	@button_start
+@input_test:
 	dc.l	$009EA500
-	dc.l	$13181A1F
-	dc.l	$1E001E0F
-	dc.l	$1D1EFF00
-loc_0001D442:
+	soundTestText "INPUT TEST"
+	even
+@press_start:
 	dc.l	$0B86A500
-	dc.l	$1A1C0F1D
-	dc.l	$1D001D1E
-	dc.l	$0B1C1E00
-	dc.l	$0C1F1E1E
-	dc.l	$1918000B
-	dc.l	$180E000B
-	dc.l	$000C1F1E
-	dc.l	$1E1918FF
-loc_0001D466:
+	soundTestText "PRESS START BUTTON AND A BUTTON"
+	even
+@to_exit:
 	dc.l	$0CBAA500
-	dc.l	$1E19000F
-	dc.l	$22131EFF
-loc_0001D472:
+	soundTestText "TO EXIT"
+	even
+@pad1_pad2:
 	dc.l	$0222E500
-	dc.l	$1A0B0E02
-	dc.l	$00001A0B
-	dc.l	$0E03FF00
-loc_0001D482:
+	soundTestText "PAD1  PAD2"
+	even
+@button_start:
 	dc.l	$03168500
-	dc.l	$1D1E0B1C
-	dc.l	$1E28FF00
-loc_0001D48E:
+	soundTestText "START:"
+	even
+@button_a:
 	dc.l	$04108500
-	dc.l	$0C1F1E1E
-	dc.l	$1918000B
-	dc.w	$28FF
-loc_0001D49C:
-	dc.w 	$0510
-	dc.l	$85000C1F
-	dc.l	$1E1E1918
-	dc.l	$000C28FF
-loc_0001D4AA:
+	soundTestText "BUTTON A:"
+	even
+@button_b:
+	dc.l 	$05108500
+	soundTestText "BUTTON B:"
+	even
+@button_c:
 	dc.l	$06108500
-	dc.l	$0C1F1E1E
-	dc.l	$1918000D
-	dc.w	$28FF
-loc_0001D4B8:
-	dc.w	$0790
-	dc.l	$85000000
-	dc.l	$00000000
-	dc.l	$1F1A28FF
-loc_0001D4C6:
+	soundTestText "BUTTON C:"
+	even
+@button_up:
+	dc.l	$07908500
+	soundTestText "      UP:"
+	even
+@button_down:
 	dc.l	$08908500
-	dc.l	$00000000
-	dc.l	$0E192118
-	dc.w	$28FF
-loc_0001D4D4:
-	dc.w	$0990
-	dc.l	$85000000
-	dc.l	$001C1311
-	dc.l	$121E28FF
-loc_0001D4E2:
+	soundTestText "    DOWN:"
+	even
+@button_right:
+	dc.l	$09908500
+	soundTestText "   RIGHT:"
+	even
+@button_left:
 	dc.l	$0A908500
-	dc.l	$00000000
-	dc.l	$160F101E
-	dc.w	$28FF
+	soundTestText "    LEFT:"
+	even
 	
 option_staticText:
 	dc.w 	$000A
-	dc.l	loc_0001D51A
-	dc.l	loc_0001D52A
-	dc.l	loc_0001D546
-	dc.l	loc_0001D566
-	dc.l	loc_0001D57E
-	dc.l	loc_0001D596
-	dc.l	loc_0001D5AE
-	dc.l	loc_0001D5C4
-	dc.l	loc_0001D5DA
-	dc.l	loc_0001D5F0
-loc_0001D51A:
+	dc.l	@option_mode
+	dc.l	@p1_p2
+	dc.l	@press_start
+	dc.l	@button_a
+	dc.l	@button_b
+	dc.l	@button_c
+	dc.l	@vs_com
+	dc.l	@1p_vs_2p
+	dc.l	@sampling
+	dc.l	@key_assignment
+@option_mode:
 	dc.l	$009CA500
 	soundTestText "OPTION MODE"
 	even
-loc_0001D52A:
+@p1_p2:
 	dc.l	$0312E500
-	dc.l	$1A160B23
-	dc.l	$0F1C2E02
-	dc.l	$00000000
-	dc.l	$0000001A
-	dc.l	$160B230F
-	dc.l	$1C2E03FF
-loc_0001D546:
+	soundTestText "PLAYER-1       PLAYER-2"
+	even
+@press_start:
 	dc.l	$0C8EA500
-	dc.l	$1A1C0F1D
-	dc.l	$1D001D1E
-	dc.l	$0B1C1E00
-	dc.l	$0C1F1E1E
-	dc.l	$1918001E
-	dc.l	$19000F22
-	dc.l	$131EFF00
-loc_0001D566:
+	soundTestText "PRESS START BUTTON TO EXIT"
+	even
+@button_a:
 	dc.l	$040CE500
-	dc.l	$0B280000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$0B28FF00
-loc_0001D57E:
+	soundTestText "A:              A:"
+	even
+@button_b:
 	dc.l	$050CE500
-	dc.l	$0C280000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$0C28FF00
-loc_0001D596:
+	soundTestText "B:              B:"
+	even
+@button_c:
 	dc.l	$060CE500
-	dc.l	$0D280000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$00000000
-	dc.l	$0D28FF00
-loc_0001D5AE:
+	soundTestText "C:              C:"
+	even
+@vs_com:
 	dc.l	$078CE500
-	dc.l	$201D250D
-	dc.l	$19170016
-	dc.l	$0F200F16
-	dc.l	$00000028
-	dc.w	$FF00
-loc_0001D5C4:
-	dc.w 	$088C
-	dc.l	$E500021A
-	dc.l	$00201D25
-	dc.l	$031A0017
-	dc.l	$190E0F00
-	dc.l	$0028FF00
-loc_0001D5DA:
+	soundTestText "VS.COM LEVEL   :"
+	even
+@1p_vs_2p:
+	dc.l 	$088CE500
+	soundTestText "1P VS.2P MODE  :"
+	even
+@sampling:
 	dc.l	$098CE500
-	dc.l	$1D0B171A
-	dc.l	$16131811
-	dc.l	$00000000
-	dc.l	$00000028
-	dc.w	$FF00
-loc_0001D5F0:
-	dc.w 	$021A
-	dc.l	$E500150F
-	dc.l	$23000B1D
-	dc.l	$1D131118
-	dc.l	$170F181E
-	dc.w	$FF00
+	soundTestText "SAMPLING       :"
+	even
+@key_assignment:
+	dc.l 	$021AE500
+	soundTestText "KEY ASSIGNMENT"
+	even
 	
 sndtst_staticText:
 	dc.w 	$0008
-	dc.l	loc_0001D626
-	dc.l	loc_0001D638
-	dc.l	loc_0001D658
-	dc.l	loc_0001D662
-	dc.l	loc_0001D66C
-	dc.l	loc_0001D676
-	dc.l	loc_0001D680
-	dc.l	loc_0001D68C
-loc_0001D626:
+	dc.l	@sound_track
+	dc.l	@press_start
+	dc.l	@se1
+	dc.l	@se2
+	dc.l	@se3
+	dc.l	@bgm
+	dc.l	@voice
+	dc.l	@command
+@sound_track:
 	dc.b	$01, $1A, $85, $00
 	soundTestText "SOUND  TRACK"
 	even
-loc_0001D638:
+@press_start:
 	dc.b	$0C, $8E, $E5, $00
 	soundTestText "PRESS START BUTTON TO EXIT"
 	even
-loc_0001D658:
+@se1:
 	dc.b	$02, $92, $E5, $00
 	soundTestText "SE1:"
 	even
-loc_0001D662:
+@se2:
 	dc.b	$03, $92, $E5, $00
 	soundTestText "SE2:"
 	even
-loc_0001D66C:
+@se3:
 	dc.b	$04, $92, $E5, $00
 	soundTestText "SE3:"
 	even
-loc_0001D676:
+@bgm:
 	dc.b	$05, $92, $E5, $00
 	soundTestText "BGM:"
 	even
-loc_0001D680:
+@voice:
 	dc.b	$06, $8E, $E5, $00
 	soundTestText "VOICE:"
 	even
-loc_0001D68C:
+@command:
 	dc.b	$07, $8A, $E5, $00
 	soundTestText "COMMAND:"
 	even	
+	
 loc_0001D69A:
 	MOVE.w	#$8500, D6
 	BTST.b	#0, $26(A0)

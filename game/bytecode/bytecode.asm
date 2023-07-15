@@ -188,11 +188,11 @@ loc_000015A0:
 	
 .fadeMusic:
 	SUBQ.l	#2, bc_programCounter
-	JMP	loc_000072EE
+	JMP	snd_playFadeOut
 	
 .stopAllSound:
 	SUBQ.l	#2, bc_programCounter
-	JMP	loc_00007308
+	JMP	snd_playClearEffect
 	
 .playSoundCheckSample2:
 	JMP	cut_PlayVoice

@@ -89,12 +89,12 @@ pad macro amount, typePadding
 	
 padToPowerOfTwo: macro 
 	if (*<=$80000)
-		align $80000, $00
+		align $80000, $FF
 	elseif (*<=$100000)
-		align $100000, $00
+		align $100000, $FF
 	elseif (*<=$200000)
-		align $200000, $00
+		align $200000, $FF
 	elseif (*<=$400000)
-		align $400000, $00
+		align $400000, $FF
 	endc
 	endm

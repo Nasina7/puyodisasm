@@ -5204,7 +5204,7 @@ lookup_portraitArt:
 	dc.l	art_portraitWitch
 	dc.l	art_portraitSasoriman
 	dc.l	art_portraitHarpy
-	dc.l	art_portraitZoDaimaoh
+	dc.l	art_portraitZohDaimaoh
 	dc.l	art_portraitSchezo
 	dc.l	art_portraitMinotauros
 	dc.l	art_portraitRulue
@@ -6766,7 +6766,7 @@ z80Load_Begin:
 z80Load_Loop1:
 	BTST.b	#0, Z80BusReq
 	BNE.b	z80Load_Loop1
-	LEA	z80SoundDriver, A0
+	LEA	sound_driver, A0
 	LEA	Z80Ram, A1
 	MOVE.w	#$13FF, D0
 z80Load_LoadData: ; 000071C0
@@ -9826,7 +9826,7 @@ loc_0000A30A:
 	dc.l    loc_0000A382
 	dc.l    loc_0000A3DA
 loc_0000A316:
-	LEA	(art_defaultBg).l, A0
+	LEA	(art_bgGrass).l, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	MOVE.w	#0, D0
@@ -9845,7 +9845,7 @@ loc_0000A34E:
 	ADDA.l	#(pal_grassCutBottom-palLookupTable), A2
 	JMP	loc_00000E46
 loc_0000A368:
-	lea (art_bgZou).l, a0
+	lea (art_bgRuins).l, a0
 	move.w #$2000, d0
 	jsr graphicsDecompress
 	move.w #1, d0
@@ -14765,7 +14765,7 @@ loc_0000DCD4:
 	LEA	art_ingameAssets, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
-	LEA	art_defaultBg, A0
+	LEA	art_bgGrass, A0
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	JSR	loc_0000A3F4
@@ -25882,151 +25882,239 @@ loc_0001DE1A:
 ; Beginning of data segment
 art_grassBattle:
 	incbin "art/compressed/game/grass.bin"
-art_defaultBg:
-	incbin "art/compressed/cutscene/background.bin"
-art_bgZou:
-	incbin "art/compressed/cutscene/zouBackground.bin"
+	even
+	align $1000, $FF
+art_bgGrass:
+	incbin "art/compressed/cutscene/background/grass.bin"
+	even
+	pad $26, $FF ; Todo: What is this aligned to?
+art_bgRuins:
+	incbin "art/compressed/cutscene/background/ruins.bin"
+	even
+	align $10, $FF
 art_bgSatan:
-	incbin "art/compressed/cutscene/satanBackground.bin"
+	incbin "art/compressed/cutscene/background/satan.bin"
+	even
+	align $10, $FF
 art_winLose:
 	incbin "art/compressed/twoPlayer/twoPlayerWinLose.bin"
+	even
+	align $100, $FF
 loc_00028500:
 	incbin "art/compressed/unknown/unkCharset4.bin"
+	even
+	align $100, $FF
 art_modeNames:
 	incbin "art/compressed/record/modeNames.bin"
+	even
+	align $100, $FF
 art_gameOver:
 	incbin "art/compressed/gameover/gameover.bin"
+	even
+	align $100, $FF
 art_recordScreen:
 	incbin "art/compressed/record/recordScreen.bin"
+	even
+	align $100, $FF
 art_arleVictory:
 	incbin "art/compressed/ending/arlevictory.bin"
+	even
+	align $100, $FF
+
 art_cutsceneArle:
 	incbin "art/compressed/cutscene/general/arle.bin"
+	even
 art_cutsceneDraco:
 	incbin "art/compressed/cutscene/stage1/draco.bin"
+	even
 art_cutsceneZombie:
 	incbin "art/compressed/cutscene/stage7/zombie.bin"
+	even
 art_cutsceneSuketoudara:
 	incbin "art/compressed/cutscene/stage2/suketoudara.bin"
+	even
 art_cutsceneZoh:
 	incbin "art/compressed/cutscene/stage9/zoh.bin"
+	even
 art_cutsceneSkeletonT:
 	incbin "art/compressed/cutscene/tutorial1/skeleton-t.bin"
+	even
 art_cutsceneMinotauros:
 	incbin "art/compressed/cutscene/stage11/minotauros.bin"
+	even
 art_cutsceneSasoriman:
 	incbin "art/compressed/cutscene/stage5/sasoriman.bin"
+	even
 art_cutsceneWitch:
 	incbin "art/compressed/cutscene/stage8/witch.bin"
+	even
 art_cutsceneRulue:
 	incbin "art/compressed/cutscene/stage12/rulue.bin"
+	even
 ;art_cutsceneHarpyDuplicate:
-	incbin "art/compressed/cutscene/stage4/harpy_duplicate.bin"
+	incbin "art/compressed/cutscene/stage4/harpy.bin"
+	even
 art_cutsceneSchezo:
 	incbin "art/compressed/cutscene/stage10/schezo.bin"
+	even
 art_cutsceneSatan:
 	incbin "art/compressed/cutscene/stage13/satan.bin"
+	even
 art_cutsceneNasuGrave:
 	incbin "art/compressed/cutscene/tutorial2/nasuGrave.bin"
+	even
 art_cutsceneMummy:
 	incbin "art/compressed/cutscene/tutorial3/mummy.bin"
+	even
 art_cutsceneSukiyapotes:
 	incbin "art/compressed/cutscene/stage3/sukiyapotes.bin"
+	even
 art_cutscenePanotty:
 	incbin "art/compressed/cutscene/stage6/panotty.bin"
+	even
+	align $100, $FF
 	
 ; Cutscene Charsets
 art_cutsceneCharset_stage1:
 	incbin "art/compressed/cutscene/stage1/charset.bin"
+	even
 loc_0004700E:
 	incbin "art/compressed/cutscene/unkCharset15.bin"
+	even
 loc_00047374:
 	incbin "art/compressed/cutscene/unkCharset14.bin"
+	even
 loc_000476DC:
 	incbin "art/compressed/cutscene/unkCharset13.bin"
+	even
 art_cutsceneCharset_tutorial1:
 	incbin "art/compressed/cutscene/tutorial1/charset.bin"
+	even
 loc_000483D6:
 	incbin "art/compressed/cutscene/unkCharset11.bin"
+	even
 loc_00048ABC:
 	incbin "art/compressed/cutscene/unkCharset10.bin"
+	even
 loc_00048FBA:
 	incbin "art/compressed/cutscene/unkCharset9.bin"
+	even
 loc_00049576:
 	incbin "art/compressed/cutscene/unkCharset8.bin"
+	even
 loc_00049DE6:
 	incbin "art/compressed/cutscene/unkCharset7.bin"
+	even
 loc_0004A13E:
 	incbin "art/compressed/cutscene/unkCharset6.bin"
+	even
 loc_0004A9B0:
 	incbin "art/compressed/cutscene/unkCharset5.bin"
+	even
 loc_0004B2DE:
 	incbin "art/compressed/cutscene/unkCharset4.bin"
+	even
 loc_0004B548:
 	incbin "art/compressed/cutscene/unkCharset3.bin"
+	even
 loc_0004B9C8:
 	incbin "art/compressed/cutscene/unkCharset2.bin"
+	even
 loc_0004BEF0:
 	incbin "art/compressed/cutscene/unkCharset1.bin"
+	even
+	align $100, $FF
 	
 ; Portraits
 art_portraitArle:
-	incbin "art/compressed/portrait/arleNadja.bin"
+	incbin "art/compressed/portrait/arle.bin"
+	even
 art_portraitDraco:
-	incbin "art/compressed/portrait/dracoCentauros.bin"
+	incbin "art/compressed/portrait/draco.bin"
+	even
 art_portraitZombie:
 	incbin "art/compressed/portrait/zombie.bin"
+	even
 art_portraitSuketoudara:
 	incbin "art/compressed/portrait/suketoudara.bin"
-art_portraitZoDaimaoh:
-	incbin "art/compressed/portrait/zoDaimaoh.bin"
+	even
+art_portraitZohDaimaoh:
+	incbin "art/compressed/portrait/zoh.bin"
+	even
 art_portraitSkeletonT:
 	incbin "art/compressed/portrait/skeleton-t.bin"
+	even
 art_portraitMinotauros:
 	incbin "art/compressed/portrait/minotauros.bin"
+	even
 art_portraitSasoriman:
 	incbin "art/compressed/portrait/sasoriman.bin"
+	even
 art_portraitWitch:
 	incbin "art/compressed/portrait/witch.bin"
+	even
 art_portraitRulue:
 	incbin "art/compressed/portrait/rulue.bin"
+	even
 art_portraitHarpy:
 	incbin "art/compressed/portrait/harpy.bin"
+	even
 art_portraitSchezo:
 	incbin "art/compressed/portrait/schezo.bin"
+	even
 art_portraitSatan:
 	incbin "art/compressed/portrait/satan.bin"
+	even
 art_portraitNasu:
-	incbin "art/compressed/portrait/nasuGrave.bin"
+	incbin "art/compressed/portrait/nasu.bin"
+	even
 art_portraitSukiyapotes:
 	incbin "art/compressed/portrait/sukiyapotes.bin"
+	even
 art_portraitMummy:
 	incbin "art/compressed/portrait/mummy.bin"
+	even
 art_portraitPanotty:
 	incbin "art/compressed/portrait/panotty.bin"
-	
+	even
+	align $100, $FF
 	
 art_creditsText:
 	incbin "art/compressed/leftover/creditsText.bin"
+	even
 art_tryAgain:
 	incbin "art/compressed/twoPlayer/tryagain.bin"
+	even
 art_tutorial:
 	incbin "art/compressed/demo/tutorial.bin"
+	even
 art_optionsCharset:
 	incbin "art/compressed/options/charset.bin"
+	even
 art_cutsceneHarpy:
 	incbin "art/compressed/cutscene/stage4/harpy.bin"
+	even
+	align $1000, $FF
 art_ingameAssets:
 	incbin "art/compressed/game/puyos.bin"
+	even
+	align $80, $FF
 art_twoPlayerBackground:
 	incbin "art/compressed/twoPlayer/backgroundAndMisc.bin"
+	even
+	align $80, $FF
 art_optionsBackground:
 	incbin "art/compressed/options/background.bin"
+	even
+	align $80, $FF
 art_ruinsBattle:
 	incbin "art/compressed/game/ruins.bin"
+	even
+	align $80, $FF
 art_menuScreen:
 	incbin "art/compressed/menu/menuScreen.bin"
-
+	even
+	align $80, $FF
 
 ; Todo: The padding here seems to be aligning certain files at the end of $8000 byte boundaries
 ; 		instead of the beginning of them.  This specifically affects the sound driver and 
@@ -26034,9 +26122,9 @@ art_menuScreen:
 
 	align $8000, $FF
 sound_bank1:
-	incbin "sound/musicAndPCM1.bin"
-z80SoundDriver:
-	include "sound/driver/sound.asm"
+	incbin "sound/bank1/bank1.bin"
+sound_driver:
+	include "sound/driver.asm"
 	align $8000, $FF
 sound_bank2:
 	include "sound/bank2/bank2.asm"
@@ -26044,8 +26132,8 @@ sound_bank2:
 	
 art_titleScreen:
 	incbin "art/compressed/title/titleScreen.bin"
-	
-	padToPowerOfTwo
 	even
+	align $80, $FF
+	padToPowerOfTwo
 endOfRom:
 	END

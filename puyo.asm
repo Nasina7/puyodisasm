@@ -25907,6 +25907,12 @@ loc_00028500:
 art_modeNames:
 	incbin "art/compressed/record/modeNames.bin"
 	even
+	align $80, $FF
+; Unreferenced japanese character set.  Oddly enough, it contains some 16x16 english characters, making it the only
+; charset in the entire game to do so.
+;art_unrefCharset:
+	incbin "art/compressed/unknown/unrefCharset.bin"
+	even
 	align $100, $FF
 art_gameOver:
 	incbin "art/compressed/gameover/gameover.bin"

@@ -35,27 +35,6 @@ btnb_Left = $4
 btnb_Down = $2
 btnb_Up = $1
 
-
-
-; Music / SFX Constants:
-musID_Final = $01
-musID_Theme = $02
-musID_Baroque = $03
-musID_Cooking = $04
-musID_Morning = $05
-musID_Toy = $06
-musID_Sorrow = $07
-musID_Sticker = $08
-musID_Sunset = $A
-musID_Rejection = $B
-musID_Memories = $C
-musID_HarpyTheme = $D
-musID_Warning = $E
-musID_SatanTheme = $F
-musID_Brave = $10
-musID_Ondo = $11
-musID_Victory = $12
-
 ; Cutscene IDs:
 cutID_SkeletonT 	= $00
 cutID_Suketoudara 	= $01

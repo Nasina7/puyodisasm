@@ -47,7 +47,7 @@ BC_Bootup: ; Bootup Lookup Table
 	
 	BRUN initializeDebugFlags
 	
-	BRUN getChecksum
+	BRUN Check_GetChecksum
 
 	BJEQ BC_segaScreen
 
@@ -57,7 +57,7 @@ BC_Bootup: ; Bootup Lookup Table
 	
 	BART $A000, art_optionsCharset
 
-	BRUN loc_0001CD34
+	BRUN BadCheck_Init
 
 	BNOP
 	
@@ -103,8 +103,8 @@ BC_titleScreen:
 	
 	BART $A000, art_creditsText
 	
-	BSNDC2 $0082
-	BSND $0003
+	BSNDC2 pcmID_PuyoPuyo
+	BSND musID_Baroque
 	BVDPC $0020
 	BNOP
 	
@@ -155,7 +155,7 @@ BC_mainMenu2: ; Second half of above transition
 	
 	BART $0000, art_menuScreen
 	
-	BSND $0004
+	BSND musID_Cooking
 	BVDPC $001F
 	BNOP
 	
@@ -189,7 +189,7 @@ BC_mainMenu2: ; Second half of above transition
 	dc.l	BC_options
 BC_options:
 	BVMODE $0001
-	BSND $0004
+	BSND musID_Cooking
 	
 	BART $0000, art_optionsBackground
 	BART $A000, art_optionsCharset
@@ -197,7 +197,7 @@ BC_options:
 	
 	BNOP
 	
-	BRUN loc_0001D35C
+	BRUN Option_Init
 	
 	BNOP
 	
@@ -208,7 +208,7 @@ BC_options:
 	
 	BNOP
 	
-	BRUN loc_0001D3A0
+	BRUN Option_InitObj
 	
 	BSTOP
 	
@@ -233,7 +233,7 @@ BC_soundTest:
 	BART $0000, art_optionsBackground
 	BART $A000, art_optionsCharset
 	
-	BRUN loc_0001CCDC
+	BRUN SoundTest_Init
 	
 	BNOP
 	
@@ -242,7 +242,7 @@ BC_soundTest:
 	BPAL pal_optionsBackground, 2
 	BPAL pal_optionTextGreen, 3
 	
-	BRUN loc_0001CD28
+	BRUN SoundTest_InitObj
 	
 	BSTOP
 	
@@ -420,7 +420,7 @@ BC_gameOver:
 	
 	BART $0000, art_gameOver
 	
-	BSND $0007
+	BSND musID_Sorrow
 	BVDPC $0006
 	BNOP
 	
@@ -501,13 +501,13 @@ BC_easyModeEnding:
 	
 	BJMP BC_recordScreen1PlayerOnly
 BC_normalModeEnding:
-	BRAM $00FFFC02, $FFFF
+	BRAM rOption_SoundTestEnabled, $FFFF
 	
 	BRUN loc_0001DC02
 
 	BVMODE $0000
 	
-	BSND $0012
+	BSND musID_Victory
 	
 	BART $0000, art_arleVictory
 	
@@ -556,7 +556,7 @@ BC_credits2:
 	BRAM $00FF05D2, $FF20
 	BRAM $00FF05D4, $FF60
 	
-	BSND $0011
+	BSND musID_Ondo
 	BART $6000, art_cutsceneArle
 	BART $A000, art_tryAgain
 	BRAM $00FF0112, $0000
@@ -600,7 +600,7 @@ BC_staff2:
 	BSSND
 BC_staff3:
 	BVMODE $0001
-	BSND $000A
+	BSND musID_Sunset
 	
 	BART $0000, art_arleVictory
 	BART $A000, art_optionsCharset
@@ -647,7 +647,7 @@ BC_recordScreen1PlayerOnly:
 	
 	BRUN loc_00000BC6
 	
-	BSND $0004
+	BSND musID_Cooking
 	
 	BART $0000, art_modeNames
 	
@@ -694,7 +694,7 @@ BC_twoPlayer:
 	
 	BVDPC $0004
 	BNOP
-	BSND $0006
+	BSND musID_Toy
 	
 	BPAL pal_00002230, 0
 	BPAL pal_00002250, 1
@@ -749,7 +749,7 @@ BC_endless:
 	
 	BVDPC $0016
 	BNOP
-	BSND $0005
+	BSND musID_Morning
 	
 	BPALF pal_00002230, 0, 0
 	BPALF pal_00002250, 1, 0
@@ -842,7 +842,7 @@ BC_tutorialDemo:
 	BVDPC $0003
 	BVDPC $002A
 	BNOP
-	BSND $0004
+	BSND musID_Cooking
 	
 	BRUN loc_0000C9BA
 	BRUN loc_00010560
@@ -877,7 +877,7 @@ BC_recordScreen4:
 	
 	BRUN loc_00000BC6
 	
-	BSND $0004
+	BSND musID_Cooking
 	
 	BART $0000, art_modeNames
 	BART $2000, art_ingameAssets

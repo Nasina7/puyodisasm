@@ -57,14 +57,14 @@ bytecodeFunctionLookup:
 	MOVE.b	#$FF, bc_stopLoop
 	MOVE.b	#$FF, bc_stopRunning
 	LEA	loc_000014C2, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_000014BC
 	RTS
 loc_000014BC:
 	MOVE.w	D0, $24(A1)
 	RTS
 loc_000014C2:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 	
@@ -73,7 +73,7 @@ loc_000014C2:
 	MOVE.b	#$FF, bc_stopLoop
 	MOVE.b	#$FF, bc_stopRunning
 	LEA	loc_000014F0, A1
-	BRA.w	loc_00002A54
+	BRA.w	ObjSys_InitObjWithFunc
 loc_000014F0:
 	BSR.w	loc_00001504
 	BCC.w	loc_000014FA
@@ -181,10 +181,10 @@ loc_000015A0:
 	BRA.w	loc_00001020
 
 .playSound:
-	JMP	playSoundID
+	JMP	SndDrv_PlayMusicId
 	
 .playSoundCheckSample:
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 	
 .fadeMusic:
 	SUBQ.l	#2, bc_programCounter
@@ -192,7 +192,7 @@ loc_000015A0:
 	
 .stopAllSound:
 	SUBQ.l	#2, bc_programCounter
-	JMP	snd_playClearEffect
+	JMP	SndDrv_PlayClearEffect
 	
 .playSoundCheckSample2:
-	JMP	cut_PlayVoice
+	JMP	SndDrv_PlayVoice

@@ -53,8 +53,8 @@
 
 
 ; Some memory locations
-zPlaySoundId = 		$0000 ; The latest sound for the sound driver to play
-zPlayMusicId =		$0001 ; Same as above.  Only sometimes used compared to zPlaySoundId
+zPlaySoundId  = 	$0000 ; The latest sound for the sound driver to play
+zPlayMusicId =		$0001 ; Same as above.  Only sometimes used compared to zPlaySoundId 
 zUnkBitfield1 = 	$0021 ; Unknown bitfield, see below
 	; Bit 7-6: Unk
 	; Bit 5-4: Something to do with effects
@@ -2370,7 +2370,7 @@ sub_0EAD:
 	jr z, loc_0EF1
 	sub a
 	ld (1F68h), a
-	ld bc, zPlaySoundId
+	ld bc, zPlaySoundId 
 loc_0EBA:
 	ld a, (bc)
 	cp $F0
@@ -2912,7 +2912,7 @@ sub_1247:
 	push hl
 	ld hl, (1F00h)
 	call SwapBank
-	ld bc, zPlaySoundId
+	ld bc, zPlaySoundId 
 loc_1261:
 	ld a, (bc)
 	cp $F0

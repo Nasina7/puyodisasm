@@ -13,6 +13,7 @@ startOfRom:
 	cpu 68000
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
+	include "sound/sound_ids.asm"
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset
@@ -217,18 +218,16 @@ loc_00000353:
 	dc.w 	$0E01, $13FF, $FFFF, $0000, $19FA, $0098, $0000, $0000, $1A0F, $0EFF, $FFFF, $0001, $A75E, $022E, $0000, $0000
 	dc.w 	$0801, $10FF, $FFFF, $0001, $9B9F, $01F3, $0000, $0000, $0412, $01FF, $FFFF, $0001, $9434, $0180, $0000, $0000
 	dc.w 	$1308, $05FF, $FFFF, $0001, $8621, $0195, $0000, $0000, $1A0F, $08FF, $FFFF, $0001, $7BB0, $016F, $0000, $0000
-loc_000003F2:
-	MOVE.b	#2, $00FFFCA5
-loc_000003FA:
-	MOVE.b	#1, $00FFFCA4
-loc_00000402:
-	MOVE.b	#0, $00FFFCAC
-	MOVE.b	#2, $00FFFCA6
-	MOVE.b	#1, $00FFFCA7
-	MOVE.b	#2, $00FFFCA8
-	MOVE.b	#2, $00FFFCA9
-	MOVE.b	#1, $00FFFCAA
-	MOVE.b	#2, $00FFFCAB
+Option_InitSettings:
+	MOVE.b	#2, rOption_ComputerLevel
+	MOVE.b	#1, rOption_2PlayerMode
+	MOVE.b	#0, rOption_VoicesEnabled
+	MOVE.b	#2, rOption_Player1AButton
+	MOVE.b	#1, rOption_Player1BButton
+	MOVE.b	#2, rOption_Player1CButton
+	MOVE.b	#2, rOption_Player2AButton
+	MOVE.b	#1, rOption_Player2BButton
+	MOVE.b	#2, rOption_Player2CButton
 	RTS
 loc_0000043C:
 	NOP
@@ -240,7 +239,7 @@ loc_0000043C:
 	BNE.b	loc_0000043C
 	RTS
 loc_00000454:
-	LEA	$00FFFC02, A1
+	LEA	rOption_SoundTestEnabled, A1
 loc_00000458:
 	JSR	loc_0001DC32
 	CMP.w	$00FFFC00, D0
@@ -270,7 +269,7 @@ loc_000004A8:
 loc_000004AA:
 	DBF	D1, loc_000004A8
 	BSR.w	loc_0000033B
-	BSR.w	loc_000003F2
+	BSR.w	Option_InitSettings
 	JMP	loc_0001DC02
 loc_000004BC:
 	LEA	$00FF0000, A0
@@ -817,7 +816,7 @@ loc_00000E02:
 	dc.w 	$8004, $8124, $8230, $833C, $8407, $855E, $8600, $8700, $8800, $8900, $8A00, $8B00, $8C81, $8D2E, $8E00, $8F02, $9003, $9192, $9294
 loc_00000E28:
 	LEA	loc_00000EB4, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00000E38
 	RTS
 loc_00000E38:
@@ -827,7 +826,7 @@ loc_00000E38:
 	BRA.w	loc_00000E5C
 loc_00000E46:
 	LEA	loc_00000EB4, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00000E56
 	RTS
 loc_00000E56:
@@ -1178,7 +1177,7 @@ loc_00001236:
 	dc.w	$00B5, $00B1, $00AC, $00A7, $00A2, $009D, $0098, $0093, $008E, $0089, $0084, $007E, $0079, $0073, $006D, $0068, $0062, $005C, $0056, $0050, $004A, $0044, $003E, $0038, $0032, $002C, $0026, $001F, $0019, $0013, $000D, $0006 ;0x60
 loc_00001336:
 	lea (loc_0000135C).l, a1
-	bsr.w loc_00002A54
+	bsr.w ObjSys_InitObjWithFunc
 	bcc.w loc_00001346
 	rts
 loc_00001346:
@@ -1234,13 +1233,13 @@ cutsceneLoadMusic:
 	CLR.w	D1
 	MOVE.b	game_curStage, D1
 	MOVE.b	cutsceneSongs(PC,D1.w), D0
-	JSR	playSoundID
+	JSR	SndDrv_PlayMusicId
 	CMPI.b	#cutID_Harpy, game_curCutscene
 	BEQ.w	loc_0000206E
 	RTS
 loc_0000206E:
 	MOVE.b	#musID_HarpyTheme, D0
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 cutsceneSongs:
 	dc.b	musID_Memories
 	dc.b	musID_Memories
@@ -1925,7 +1924,8 @@ loc_00002A48:
 loc_00002A4E:
 	DBF	D0, loc_00002A30
 	RTS
-loc_00002A54:
+
+ObjSys_InitObjWithFunc:
 	BSR.w	loc_00002AB0
 	BCC.w	loc_00002AA4
 	MOVEM.l	A0/D0, -(A7)
@@ -1993,7 +1993,8 @@ loc_00002B1C:
 	MOVE.w	D0, $24(A0)
 	MOVE.l	(A7)+, $2(A0)
 	RTS
-loc_00002B26:
+
+ObjSys_UpdateObjNextOpTimer:
 	TST.w	$24(A0)
 	BEQ.w	loc_00002B3A
 	SUBQ.w	#1, $24(A0)
@@ -2003,6 +2004,7 @@ loc_00002B26:
 loc_00002B3A:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
+
 loc_00002B40:
 	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
@@ -2019,7 +2021,7 @@ loc_00002B68:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
 	
-func_updateCutsceneAnimation:
+Anim_UpdateCutsceneSprite:
 	TST.b	$22(A0)
 	BEQ.w	loc_00002B80
 	SUBQ.b	#1, $22(A0)
@@ -2071,6 +2073,7 @@ loc_00002BEA:
 	dc.b 	$30, $60, $00, $6C, $40, $46, $50, $5C
 	dc.b 	$30, $60, $00, $6C, $40, $46, $50, $5C
 	dc.b 	$30, $60, $00, $6C, $40, $46, $50, $5C
+	
 loc_00002C2A:
 	MOVE.b	$6(A0), D0
 	BSR.w	loc_00002C44
@@ -2172,8 +2175,8 @@ loc_00002D34:
 	BNE.w	loc_00002DC2
 	TST.b	$2A(A0)
 	BEQ.w	loc_00002DC2
-	MOVE.b	#$6F, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVEM.l	A1, -(A7)
 	LEA	loc_00002D8A, A1
 	BSR.w	loc_00002AB0
@@ -2204,26 +2207,26 @@ loc_00002D9A:
 	bcs.w	loc_00002AF2
 	rts
 loc_00002DC2:
-	MOVE.b	#$55, D0
+	MOVE.b	#sfxID_PlacePuyo, D0
 	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002DD6
-	MOVE.b	#$2E, D0
+	MOVE.b	#sfxID_SatanPlacePuyo, D0
 loc_00002DD6:
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 loc_00002DDC:
-	MOVE.b	#$67, D0
+	MOVE.b	#sfxID_MovePuyo, D0
 	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002DF0
-	MOVE.b	#$4A, D0
+	MOVE.b	#sfxID_SatanMovePuyo, D0
 loc_00002DF0:
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 loc_00002DF6:
-	MOVE.b	#$53, D0
+	MOVE.b	#sfxID_RotatePuyo, D0
 	CMPI.b	#cutID_Satan, game_curCutscene
 	BNE.w	loc_00002E0A
-	MOVE.b	#$2D, D0
+	MOVE.b	#sfxID_SatanRotatePuyo, D0
 loc_00002E0A:
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 loc_00002E10:
 	TST.b	$00FF1882
 	BEQ.w	loc_00002E1C
@@ -2243,8 +2246,8 @@ loc_00002E26:
 mus_triggerWarningMusic:
 	MOVE.b	#musID_Warning, D0
 	MOVE.b	D0, $00FF111A
-	JSR	snd_playClearEffect
-	JMP	playSoundID
+	JSR	SndDrv_PlayClearEffect
+	JMP	SndDrv_PlayMusicId
 loc_00002E62:
 	CMPI.w	#$0036, $00FF1F1C
 	BCS.w	loadBattleMusic
@@ -2258,8 +2261,8 @@ loadBattleMusic:
 	RTS
 loc_00002E88:
 	MOVE.b	D0, $00FF111A
-	JSR	snd_playClearEffect
-	JMP	playSoundID
+	JSR	SndDrv_PlayClearEffect
+	JMP	SndDrv_PlayMusicId
 tbl_loadBattleMusic:
 	dc.b    musID_Morning
 	dc.b    musID_Morning
@@ -2375,12 +2378,12 @@ loc_00002FFC:
 	RTS
 loc_00003006:
 	LEA	loc_00003010, A1
-	BRA.w	loc_00002A54
+	BRA.w	ObjSys_InitObjWithFunc
 loc_00003010:
 	MOVE.b	#$FF, $8(A0)
 	MOVE.l	#loc_00003048, $32(A0)
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
 	BNE.w	loc_00003034
@@ -2423,7 +2426,7 @@ loc_00003096:
 	ORI.b	#4, D0
 	MOVE.b	D0, $00FF0A2D
 	LEA	loc_00003172, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F1, $0(A1)
 	MOVE.b	#0, $2A(A1)
 	MOVE.b	#3, $7(A1)
@@ -2431,7 +2434,7 @@ loc_00003096:
 	MOVE.w	$00FF187E, $16(A1)
 	MOVEA.l	A1, A2
 	LEA	loc_00003172, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F2, $0(A1)
 	MOVE.b	#1, $2A(A1)
 	MOVE.b	#3, $7(A1)
@@ -2490,7 +2493,7 @@ loc_0000319A:
 	BSR.w	loc_000080C8
 	BSET.b	#0, $7(A0)
 	BSR.w	loc_000033EA
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#0, $7(A0)
 	BEQ.w	loc_000031E2
 	RTS
@@ -2499,7 +2502,7 @@ loc_000031E2:
 	BSR.w	loc_000087B6
 	MOVE.w	#1, D1
 	BSR.w	loc_000080EA
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#1, $7(A0)
 	BEQ.w	loc_00003202
 	RTS
@@ -2513,7 +2516,7 @@ loc_00003206:
 	MOVE.b	#0, (A1,D0.w)
 	BSR.w	loc_00003BB2
 	BSR.w	loc_000083FC
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#2, $7(A0)
 	BEQ.w	loc_00003234
 	RTS
@@ -2522,13 +2525,13 @@ loc_00003234:
 	JSR	loc_000074A0
 	BSR.w	loc_00007F1A
 	BSR.w	loc_00002E10
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, $00FF1C2C
 	JSR	loc_0000FEB8
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$FF, $00FF1C2C
 	JSR	loc_0000FEB8
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
 	LEA	$00FF1C28, A1
@@ -2538,7 +2541,7 @@ loc_00003234:
 	BEQ.w	loc_00003296
 	JSR	loc_0000F872
 loc_00003296:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	debug_puyoDrop
 	BEQ.w	loc_000032B2
 	BSR.w	loc_00004C0A
@@ -2549,7 +2552,7 @@ loc_000032B2:
 	BSR.w	loc_0000436E
 	BCS.w	loc_00006490
 	JSR	loc_0000F1E6
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $26(A0)
 	MOVE.b	$7(A0), D0
 	ANDI.b	#3, D0
@@ -2562,19 +2565,19 @@ loc_000032E0:
 	MOVEQ	#1, D0
 	BRA.w	loc_00008832
 loc_000032EC:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004EAA
 	MOVE.w	D1, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BNE.w	loc_00003330
 	BSR.w	loc_00002F94
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$9(A0)
 	BEQ.w	loc_00003206
 	BSR.w	loc_00008572
@@ -2586,31 +2589,31 @@ loc_00003330:
 	MOVE.b	#$FF, (A1,D0.w)
 	JSR	loc_0000F110
 	BSR.w	loc_00004E12
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000863E
 	BSR.w	loc_00008628
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00003EF6
 	MOVE.w	#$0018, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00003F0E
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_000087A2
 	BSR.w	loc_00003F62
 	JSR	loc_0001DC50
 	MOVE.w	#$0018, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004302
 	BSET.b	#4, $7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#4, $7(A0)
 	BEQ.w	loc_000033A6
 	BRA.w	loc_0000435E
 loc_000033A6:
 	BSR.w	loc_00008836
 	BSR.w	loc_0000888A
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $9(A0)
 	BCC.w	loc_000033C0
 	MOVE.b	#$FF, $9(A0)
@@ -2629,7 +2632,7 @@ loc_000033EA:
 	ANDI.b	#3, D0
 	BEQ.b	loc_000033C4
 	LEA	loc_0000343C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003406
 	RTS
 loc_00003406:
@@ -2656,7 +2659,7 @@ loc_0000343C:
 	CLR.w	D0
 	JSR	loc_00000C4C
 	MOVE.w	#7, $28(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8300, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -2678,9 +2681,9 @@ loc_00003478:
 	MOVE.w	#$8000, D0
 	MOVE.b	$27(A0), D0
 	JSR	loc_00000C4C
-	MOVE.b	#$6C, D0
-	JSR	loc_000072BE
-	BSR.w	loc_00002B26
+	MOVE.b	#sfxID_6C, D0
+	JSR	SndDrv_QueueSoundEffect
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0180, $28(A0)
 	MOVE.w	#$0080, D4
 	MOVE.w	#$CC0A, D5
@@ -2690,7 +2693,7 @@ loc_00003478:
 	MOVE.w	#$CC3A, D5
 	MOVE.w	#$A500, D6
 loc_000034DA:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004C0A
 	ANDI.b	#$F0, D0
 	BNE.w	loc_00003568
@@ -2726,17 +2729,17 @@ loc_0000352C:
 	MOVE.w	#$8000, D0
 	MOVE.b	$27(A0), D0
 	JSR	loc_00000C4C
-	MOVE.b	#$51, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 loc_00003566:
 	RTS
 loc_00003568:
-	MOVE.b	#$52, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 	CLR.w	$28(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0018, $28(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8800, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -2760,9 +2763,9 @@ loc_000035AE:
 	LEA	$00FF010E, A1
 	MOVE.w	$26(A0), (A1,D0.w)
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.w	$26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8300, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -2773,7 +2776,7 @@ loc_000035AE:
 	BCC.w	loc_00003606
 	RTS
 loc_00003606:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8300, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -2927,7 +2930,7 @@ loc_0000381E:
 	move.l d0, $16(a0)
 	move.b #$FC, $36(a0)
 	move.l $a(a0), $1e(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.l $1e(a0), $a(a0)
 	bsr.w loc_00002C2A
 	move.l $a(a0), $1e(a0)
@@ -2944,7 +2947,7 @@ loc_00003872:
 	bcs.w loc_00003880
 	rts
 loc_00003880:
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	addq.b #8, $36(a0)
 	move.b $9(a0), d0
 	add.b d0, $36(a0)
@@ -3061,7 +3064,7 @@ loc_00003A04:
 	CLR.w	D4
 loc_00003A08:
 	LEA	loc_00003AE2, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003A18
 	RTS
 loc_00003A18:
@@ -3098,7 +3101,7 @@ loc_00003A48:
 	ADD.w	D3, D1
 	ADD.w	D4, D2
 	LEA	loc_00003B04, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003A96
 	RTS
 loc_00003A96:
@@ -3109,7 +3112,7 @@ loc_00003A96:
 	SUBI.w	#$0010, D2
 	MOVE.b	#$FF, $36(A1)
 	LEA	loc_00003B04, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003AC2
 	RTS
 loc_00003AC2:
@@ -3159,7 +3162,7 @@ loc_00003B2A:
 	BCS.w	loc_00003B48
 	MOVE.b	#0, $6(A0)
 loc_00003B48:
-	BRA.w	func_updateCutsceneAnimation
+	BRA.w	Anim_UpdateCutsceneSprite
 loc_00003B4C:
 	MOVE.l	#loc_00003B78, $32(A0)
 	CMPI.b	#$19, $8(A0)
@@ -3211,7 +3214,7 @@ loc_00003BBC:
 	BSR.w	loc_00003D38
 	SUB.w	D7, $14(A0)
 	LEA	loc_00003DBE, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003BEC
 	RTS
 loc_00003BEC:
@@ -3243,7 +3246,7 @@ loc_00003C4A:
 	dc.w	$0003, $0002, $0000
 loc_00003C50:
 	LEA	loc_00003D84, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00003C60
 	RTS
 loc_00003C60:
@@ -3363,7 +3366,7 @@ loc_00003DBE:
 	BSR.w	loc_00005022
 	ANDI.w	#$007F, D0
 	MOVE.w	D0, $2C(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$26(A0), D0
 	CMP.w	$28(A0), D0
 	BEQ.w	loc_00003E26
@@ -3380,8 +3383,8 @@ loc_00003DBE:
 	BEQ.w	loc_00003E16
 	SUBQ.b	#2, D0
 loc_00003E16:
-	ADDI.b	#$6F, D0
-	JSR	loc_000072BE
+	ADDI.b	#sfxID_MajorGarbagePuyoFall1, D0
+	JSR	SndDrv_QueueSoundEffect
 	BSET.b	#0, $7(A0)
 loc_00003E26:
 	MOVE.b	$36(A0), D0
@@ -3527,9 +3530,9 @@ loc_00003FC0:
 	MOVE.b	#$80, D0
 	TST.b	$2A(A0)
 	BEQ.w	loc_00003FF0
-	MOVE.b	#$81, D0
+	MOVE.b	#pcmID_Yattana, D0
 loc_00003FF0:
-	JSR	cut_PlayVoice
+	JSR	SndDrv_PlayVoice
 loc_00003FF6:
 	CLR.w	D1
 	MOVE.b	$9(A0), D1
@@ -3541,12 +3544,18 @@ loc_00004008:
 	CMPI.b	#cutID_Satan, game_curCutscene
 loc_00004014:
 	BNE.w	loc_0000401C
-	MOVE.b	#$30, D0
+	MOVE.b	#sfxID_SatanPuyoClear, D0
 loc_0000401C:
-	JMP	loc_000072BE
+	JMP	SndDrv_QueueSoundEffect
 loc_00004022:
-	dc.b	$56, $57, $58, $59, $5A 
-	dc.b	$5B, $5C, $00 
+	dc.b	sfxID_PuyoClear1
+	dc.b	sfxID_PuyoClear2
+	dc.b	sfxID_PuyoClear3
+	dc.b	sfxID_PuyoClear4
+	dc.b	sfxID_PuyoClear5
+	dc.b	sfxID_PuyoClear6
+	dc.b	sfxID_PuyoClear7
+	even
 loc_0000402A:
 	LEA	loc_000040BC, A1
 	BSR.w	loc_00002AB0
@@ -3584,10 +3593,10 @@ loc_00004098:
 	MOVE.l	#loc_000042F8, $32(A1)
 	RTS
 loc_000040BC:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	btl_loadClearParticles
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
 	RTS
 loc_000040D2:
@@ -3653,7 +3662,7 @@ loc_00004190:
 	move.w #4, d0
 	bsr.w loc_00002B1C
 loc_00004198:
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b #$85, $6(a0)
 	bsr.w loc_00002C2A
 loc_000041A6:
@@ -3691,7 +3700,7 @@ loc_00004218:
 	move.w #4, d0
 	bsr.w loc_00002B1C
 loc_00004220:
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b #$83, $6(a0)
 loc_0000422A:
 	jsr loc_00002C2A
@@ -3702,7 +3711,7 @@ loc_0000432A:
 	move.w #4, d0
 loc_0000423E:
 	bsr.w loc_00002B1C
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	jmp loc_00002AF2
 	
 btl_loadPartNormal:
@@ -3736,9 +3745,9 @@ loc_000042B8:
 loc_000042BE:
 	MOVE.w	#4, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$87, $6(A0)
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
 	BSR.w	loc_00002C2A
 	BCS.w	loc_00002AF2
@@ -3757,7 +3766,7 @@ loc_000042E2:
 	dc.b	$FE
 	dc.b	$00 
 loc_000042EE:
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
 	RTS
 loc_000042F8:
@@ -3822,7 +3831,7 @@ loc_0000436E:
 	RTS
 loc_0000439C:
 	LEA	loc_00004450, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
 	MOVE.l	#loc_00004446, $32(A1)
@@ -3835,7 +3844,7 @@ loc_0000439C:
 	ORI.b	#1, $7(A0)
 	MOVEA.l	A1, A2
 	LEA	loc_000049BE, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A2, $2E(A1)
 	MOVE.l	#loc_0000442E, $32(A1)
@@ -3897,11 +3906,11 @@ loc_00004446:
 loc_00004450:
 	BSR.w	loc_00004986
 	MOVE.b	#$80, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00004484
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BSR.w	loc_000045AA
 	BSR.w	loc_000048CE
 	BSR.w	loc_00004624
@@ -3911,7 +3920,7 @@ loc_00004484:
 	MOVE.b	#0, $6(A0)
 	MOVEA.l	$36(A0), A1
 	MOVE.b	#0, $6(A1)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	RTS
 loc_0000449A:
 	BSR.w	loc_00004986
@@ -3926,7 +3935,7 @@ loc_0000449A:
 	MOVE.w	#$3000, $1E(A0)
 	MOVE.w	#1, $16(A0)
 	MOVE.b	#0, $9(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00003E84
 	BCS.w	loc_000044DE
 	RTS
@@ -3935,8 +3944,8 @@ loc_000044DE:
 	MOVE.l	#loc_0000441E, $32(A0)
 loc_000044EA:
 	CLR.b	$22(A0)
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_000044FC
 	RTS
 loc_000044FC:
@@ -3952,10 +3961,10 @@ loc_0000450A:
 	LEA	$00FF18C8, A1
 	TST.b	(A1,D0.w)
 	BNE.w	loc_00002AF2
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#6, $26(A0)
 	CLR.b	$28(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$2A(A0), D0
 	LEA	$00FF18C8, A1
 	TST.b	(A1,D0.w)
@@ -3976,7 +3985,7 @@ loc_00004576:
 	BCC.w	loc_00002AF2
 	ADDQ.b	#6, $9(A0)
 	MOVE.w	#$0030, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$2A(A0), D0
 	LEA	$00FF18C8, A1
 	TST.b	(A1,D0.w)
@@ -4310,8 +4319,8 @@ loc_00004986:
 loc_000049BE:
 	BSR.w	loc_00004A9C
 	MOVE.b	#$80, $6(A0)
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BSR.w	loc_00004A7A
 	BSR.w	loc_00004A9C
 	MOVEA.l	$2E(A0), A1
@@ -4331,7 +4340,7 @@ loc_000049E8:
 	MOVE.w	D1, $1C(A0)
 	MOVE.l	$2E(A1), $2E(A0)
 	MOVE.b	$7(A1), $7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#1, $7(A0)
 	BNE.w	loc_00004A5A
 	MOVE.w	$E(A0), D0
@@ -4339,7 +4348,7 @@ loc_000049E8:
 	MOVE.w	D0, $20(A0)
 	MOVE.w	#$3000, $1E(A0)
 	MOVE.w	#1, $16(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00003E84
 	BCS.w	loc_00004A4E
 	RTS
@@ -4347,8 +4356,8 @@ loc_00004A4E:
 	BSR.w	loc_00002DC2
 	MOVE.l	#loc_0000441E, $32(A0)
 loc_00004A5A:
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00004A68
 	RTS
 loc_00004A68:
@@ -4466,10 +4475,10 @@ loc_00004C5C:
 	CLR.w	D1
 	MOVE.b	$2A(A0), D1
 	MOVE.b	$00FF1884, D2
-	LEA	$00FFFCA6, A2
+	LEA	rOption_Player1AButton, A2
 	EOR.b	D2, D1
 	BEQ.w	loc_00004CA0
-	LEA	$00FFFCA9, A2
+	LEA	rOption_Player2AButton, A2
 loc_00004CA0:
 	LEA	loc_00004CC4, A3
 	CLR.w	D1
@@ -4830,7 +4839,7 @@ loc_0000508C:
 loc_000050AA:
 	CLR.w	$00FF18C6
 	LEA	loc_00005124, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_000050C0
 	RTS
 loc_000050C0:
@@ -4871,8 +4880,8 @@ loc_00005124:
 	BEQ.w	loc_0000514A
 	RTS
 loc_0000514A:
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_000051A0
 	MOVE.b	ram_pad1Held, D0
 	OR.b	$00FF1110, D0
@@ -4884,8 +4893,8 @@ loc_0000516E:
 	BEQ.w	loc_0000517A
 	RTS
 loc_0000517A:
-	MOVE.b	#$54, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_CarbuncleBalloonPop, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVEA.l	$2E(A0), A1
 	MOVEA.l	$2E(A1), A2
 	MOVE.w	$14(A1), D0
@@ -4899,14 +4908,14 @@ loc_000051A0:
 	BCLR.b	#1, $7(A1)
 	BCLR.b	#1, $7(A2)
 loc_000051B4:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF18C6
 	BMI.w	loc_00005262
 	MOVE.b	$00FF0144, D0
 	AND.b	$00FF0145, D0
 	BMI.w	loc_000053DC
 	BSR.w	loc_000054C4
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCC.w	loc_00005218
 	TST.w	$26(A0)
 	BEQ.w	loc_000051F6
@@ -4948,34 +4957,34 @@ loc_0000525A:
 	dc.w 	$FFFE, $0002, $FFFC, $0004
 loc_00005262:
 	LEA	loc_000052BA, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000527A
 	CLR.w	$00FF18C6
 	BRA.w	loc_000051B4
 loc_0000527A:
 	MOVE.l	A0, $2E(A1)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF18C7
 	BEQ.w	loc_0000528E
 	RTS
 loc_0000528E:
 	ANDI.b	#$7F, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF18C7
 	BNE.w	loc_000052A4
 	RTS
 loc_000052A4:
 	ORI.b	#$80, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF18C7
 	BEQ.w	loc_000051B4
 	RTS
 	
 loc_000052BA:
 	MOVE.l	#$000053D2, $32(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1	
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	BCS.w	loc_000052DA	
 	MOVE.b	$9(A0), $9(A1)	
 	RTS	
@@ -4988,9 +4997,9 @@ loc_000052DA:
 	MOVE.w	#$FFFF, $16(A0)	
 	MOVE.w	#$0A00, $1A(A0)	
 	MOVE.w	#$1800, $1C(A0)	
-	MOVE.b	#$75, D0	
-	JSR	loc_000072BE	
-	BSR.w	loc_00002B26	
+	MOVE.b	#sfxID_NoBonus, D0	
+	JSR	SndDrv_QueueSoundEffect	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVEA.l	$2E(A0), A1	
 	BSR.w	loc_00002C2A	
 	BCS.w	loc_00005332	
@@ -4999,7 +5008,7 @@ loc_000052DA:
 	RTS	
 loc_00005332:
 	CLR.b	$00FF18C7	
-	BSR.w	loc_00002B26	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	TST.b	$00FF18C7	
 	BNE.w	loc_00005348	
 	RTS	
@@ -5010,10 +5019,10 @@ loc_00005348:
 	MOVE.w	#$FFFF, $20(A0)	
 	MOVE.w	#$1800, $1C(A0)	
 	MOVE.l	#$000053C4, $32(A0)	
-	BSR.w	loc_00002B26	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVEA.l	$2E(A0), A1	
 	BSR.w	loc_00002C2A	
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	MOVE.b	$9(A0), $9(A1)	
 	MOVE.w	$A(A0), $A(A1)	
 	MOVE.w	$E(A0), D0	
@@ -5027,8 +5036,8 @@ loc_0000539A:
 	MOVE.w	$38(A0), $E(A1)	
 	MOVE.b	#$FF, $36(A1)	
 	CLR.w	$00FF18C6	
-	MOVE.b	#$55, D0	
-	BSR.w	loc_000072BE	
+	MOVE.b	#sfxID_PlacePuyo, D0	
+	BSR.w	SndDrv_QueueSoundEffect	
 	BRA.w	loc_00002AF2	
 loc_000053C4:
 	dc.b	$01, $0D, $01, $24, $01, $26, $01, $25, $FF, $00
@@ -5036,11 +5045,11 @@ loc_000053C4:
 	dc.b    $08, $09, $12, $0C, $02, $0B, $01, $0D, $FE, $00
 loc_000053DC:
 	LEA	loc_0000540C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_000051B4
 	MOVE.l	A0, $2E(A1)
 	MOVE.l	#loc_0000542C, $32(A1)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$00FF0144, D0
 	AND.b	$00FF0145, D0
 	BPL.w	loc_000051B4
@@ -5049,7 +5058,7 @@ loc_0000540C:
 	move.b ($00FF0144).l, d0
 	and.b ($00FF0145).l, d0
 	bpl.w loc_00002AF2
-	bsr.w func_updateCutsceneAnimation
+	bsr.w Anim_UpdateCutsceneSprite
 	movea.l $2e(a0), a1
 	move.b $9(a0), $9(a1)
 	rts
@@ -5155,7 +5164,7 @@ loc_00005582:
 	RTS
 ; Dead Code
 	MOVE.b	#$87, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00002C2A	
 	BCS.w	loc_00002AF2	
 	RTS	
@@ -5181,14 +5190,14 @@ loc_000055C4:
 	MOVEM.l	(A7)+, D2/A0
 	CLR.w	$00FF18AA
 	LEA	loc_00005666, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00005604
 	MOVE.w	D2, $2A(A1)
 	MOVE.b	#$FF, $8(A1)
 	MOVE.l	A0, $2E(A1)
 loc_00005604:
 	LEA	loc_00005666, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00005620
 	MOVE.w	#4, $28(A1)
 	MOVE.w	D2, $2A(A1)
@@ -5215,7 +5224,7 @@ lookup_portraitArt:
 	dc.l	art_portraitArle
 loc_00005666:
 	MOVE.w	#$FFFF, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	CMPI.b	#$90, $2A(A0)
 	BNE.w	loc_0000568A
@@ -5239,7 +5248,7 @@ loc_0000568A:
 	MOVE.l	D1, $32(A0)
 	CLR.b	$22(A0)
 loc_000056C6:
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	MOVE.w	$2A(A0), D0
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -5326,7 +5335,7 @@ loc_00005E92:
 loc_00005EA0:
 	ORI.b	#$80, $6(A0)
 	MOVE.w	#$0040, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00002C2A
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00005EBE
@@ -5335,7 +5344,7 @@ loc_00005EBE:
 	MOVE.b	#0, $6(A0)
 	MOVE.w	#8, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 loc_00005ED0:
 	CLR.w	D0
 	MOVE.b	$9(A0), D0
@@ -5363,8 +5372,8 @@ loc_00005EE0:
 	MOVE.l	D2, $16(A1)
 loc_00005F38:
 	DBF	D3, loc_00005EE0
-	MOVE.b	#$76, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_WinFirework, D0
+	JSR	SndDrv_QueueSoundEffect
 	BRA.w	loc_00002AF2
 	
 loc_00005F4A:
@@ -5447,7 +5456,7 @@ loc_00005FE8:
 loc_00005FEE:
 	BSR.w	loc_00002C2A
 	BCS.w	loc_00002AF2
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
 	RTS
 loc_00006000:
@@ -5457,10 +5466,10 @@ loc_00006000:
 	JMP	loc_00000C4C
 loc_00006010:
 	LEA	loc_0000601A, A1
-	BRA.w	loc_00002A54
+	BRA.w	ObjSys_InitObjWithFunc
 loc_0000601A:
 	MOVE.w	#7, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$9B00, D0
 	MOVE.b	$27(A0), D0
 	SWAP	D0
@@ -5469,7 +5478,7 @@ loc_0000601A:
 	BEQ.w	loc_00006040
 	RTS
 loc_00006040:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$800C, D0
 	SWAP	D0
 	MOVE.w	#$0F00, D0
@@ -5481,7 +5490,7 @@ loc_00006056:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	LEA	loc_000061E2, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_000060C2
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$27, $8(A1)
@@ -5489,7 +5498,7 @@ loc_00006056:
 	MOVE.b	$2A(A0), $2A(A1)
 	EORI.b	#1, $2A(A1)
 	LEA	loc_0000627E, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_000060C2
 	MOVE.b	#$93, $6(A1)
 	MOVE.b	#$27, $8(A1)
@@ -5534,10 +5543,10 @@ loc_0000613C:
 	DBF	D0, loc_000060CE
 	RTS
 loc_00006142:
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	#$80, $6(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	$36(A0), D0
 	MOVE.w	$38(A0), D1
 	JSR	loc_00001218
@@ -5606,7 +5615,7 @@ loc_000061E2:
 	ADDI.w	#$0040, D1
 	MOVE.w	D1, $20(A0)
 	BSR.w	loc_000060C4
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#2, $7(A1)
 	BEQ.w	loc_00002AF2
@@ -5626,8 +5635,8 @@ loc_00006238:
 	MOVE.b	#$29, $8(A0)
 	MOVE.l	#loc_00006F22, $32(A0)
 	MOVE.w	$20(A0), $E(A0)
-	BSR.w	loc_00002B26
-	JMP	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	JMP	Anim_UpdateCutsceneSprite
 loc_0000625C:
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#2, $7(A1)
@@ -5649,7 +5658,7 @@ loc_0000627E:
 	MOVE.w	#6, $28(A0)
 loc_000062A8:
 	MOVE.w	#$0020, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.b	loc_0000625C
 	TST.w	$26(A0)
 	BEQ.w	loc_000062C8
@@ -5671,9 +5680,9 @@ loc_000062E0:
 	MOVE.w	#$0010, D0
 	BSR.w	loc_00002B1C
 	JSR	loc_00002C2A
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 loc_000062FC:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000625C
 	CMPI.w	#$0090, $E(A0)
 	BCS.w	loc_00006314
@@ -5684,7 +5693,7 @@ loc_00006314:
 	CLR.l	$16(A0)
 	MOVE.w	#$2000, $1C(A0)
 	MOVE.w	#$FFFF, $20(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000625C
 	JSR	loc_00002C2A
 	CMPI.w	#$00D0, $E(A0)
@@ -5695,7 +5704,7 @@ loc_00006344:
 	BRA.b	loc_000062FC
 loc_0000634C:
 	LEA	loc_0000637C, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000635E
 	RTS
 loc_0000635E:
@@ -5710,7 +5719,7 @@ loc_0000637C:
 	JSR	loc_00001202
 	ADDI.w	#$0020, D0
 	MOVE.w	D0, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_000063A0
 	SUBQ.w	#1, $26(A0)
@@ -5719,7 +5728,7 @@ loc_000063A0:
 	MOVE.b	#$80, $6(A0)
 	MOVE.w	#$0030, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, $6(A0)
 	BRA.b	loc_0000637C
 loc_000063BA:
@@ -5741,7 +5750,7 @@ loc_000063E2:
 	ANDI	#$F8FF, SR
 	CLR.w	D3
 	LEA	loc_00006F58, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006416
 	ADDQ.w	#1, D3
 	MOVE.l	A0, $2E(A1)
@@ -5758,7 +5767,7 @@ loc_00006416:
 	MOVE.w	#5, D1
 loc_00006438:
 	LEA	loc_00006FA0, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000647A
 	BSR.w	loc_00006E6A
 	ADDQ.w	#1, D3
@@ -5782,12 +5791,12 @@ loc_0000647A:
 loc_00006490:
 	CMPI.b	#1, $00FF1882
 	BCC.w	loc_000064A6
-	JSR	snd_playClearEffect
-	BSR.w	loc_00002B26
+	JSR	SndDrv_PlayClearEffect
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 loc_000064A6:
 	BSR.w	loc_00006528
 	BSR.w	loc_000063BA
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_000064BC
 	RTS
@@ -5796,7 +5805,7 @@ loc_000064BC:
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00005022
 	ANDI.w	#$007F, D0
 	MOVE.w	#5, D1
@@ -5854,8 +5863,8 @@ loc_00006562:
 	BNE.w	loc_000065BC
 	MOVEA.l	$2E(A0), A1
 	BSR.w	loc_00002AFC
-	MOVE.b	#$61, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_Lose, D0
+	JMP	SndDrv_QueueSoundEffect
 loc_000065BC:
 	JSR	loc_0000CE9E
 	MOVE.w	$00FF05CC, D0
@@ -5883,8 +5892,8 @@ loc_00006630:
 	BSR.w	loc_00002AFC
 	BSR.w	loc_00006010
 	BSR.w	loc_00005E06
-	MOVE.b	#$13, D0
-	JMP	playSoundID
+	MOVE.b	#musID_Win, D0
+	JMP	SndDrv_PlayMusicId
 loc_00006646:
 	MOVEM.l	A1/A0, -(A7)
 	MOVEA.l	A1, A0
@@ -5901,8 +5910,8 @@ loc_00006668:
 	clr.w ($00FF0144)
 	movea.l $2E(a0), a1
 	bsr.w loc_00002AFC
-	move.b #$61, d0
-	jsr playSoundID
+	move.b #sfxID_Lose, d0
+	jsr SndDrv_PlayMusicId
 	bsr.w loc_000066C8
 	clr.w d0
 	move.b $2a(a0), d0
@@ -5929,15 +5938,15 @@ loc_000066E2:
 	lea ($00FF0144), a2
 	move.b #$FF, (a1, d0.w)
 	clr.b (a2, d0.w)
-	move.b #$61, d0
-	jmp loc_000072BE
+	move.b #sfxID_Lose, d0
+	jmp SndDrv_QueueSoundEffect
 loc_00006708:
 	MOVE.w	#$9800, D0
 	SWAP	D0
 	MOVE.w	$16(A0), D0
 	JSR	loc_00000C4C
-	MOVE.b	#$6C, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_6C, D0
+	JMP	SndDrv_QueueSoundEffect
 loc_00006722:
 	CLR.w	D0
 	MOVE.b	$00FF0114, D0
@@ -5966,8 +5975,8 @@ loc_0000675E:
 	MOVE.b	$27(A0), D0
 	ANDI.b	#3, D0
 	BNE.w	loc_0000677E
-	MOVE.b	#$2B, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_2B, D0
+	JSR	SndDrv_QueueSoundEffect
 loc_0000677E:
 	MOVE.w	#$9900, D0
 	SWAP	D0
@@ -5983,15 +5992,15 @@ loc_0000678E:
 	BSR.w	loc_00006708
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.w	$12(A0)
 	BEQ.w	loc_0000683C
 	MOVE.w	#$9900, D0
 	SWAP	D0
 	MOVE.w	$12(A0), D0
 	JSR	loc_00000C4C
-	MOVE.b	#$5D, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_Bonus, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	$12(A0), D0
 	LSR.w	#7, D0
 	BNE.w	loc_000067F0
@@ -5999,7 +6008,7 @@ loc_0000678E:
 loc_000067F0:
 	MOVE.w	D0, $28(A0)
 	MOVE.w	#$0140, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004C0A
 	ANDI.b	#$F0, D0
 	BNE.w	loc_00006820
@@ -6018,14 +6027,14 @@ loc_00006820:
 loc_0000683C:
 	MOVE.l	#$80050000, D0
 	JSR	loc_00000C4C
-	MOVE.b	#$75, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_NoBonus, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B40
 loc_00006862:
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_00006874:
@@ -6039,7 +6048,7 @@ loc_00006874:
 	BCC.w	loc_000068A4
 	BSR.w	loc_0000B568
 loc_000068A4:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#1, $7(A0)
 	BEQ.w	loc_000068B4
 	RTS
@@ -6049,7 +6058,7 @@ loc_000068B4:
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_000068D6:
@@ -6067,7 +6076,7 @@ loc_000068D6:
 	MOVE.b	D0, D1
 	ADDI.b	#9, D1
 	LEA	loc_000069A4, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006982
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	#$80, $6(A1)
@@ -6090,7 +6099,7 @@ loc_0000694A:
 	LSL.w	#2, D3
 	MOVE.l	(A4,D3.w), $32(A1)
 	LEA	loc_000095FC, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006982
 	MOVE.l	A2, $2E(A1)
 	MOVE.b	D1, $8(A1)
@@ -6104,35 +6113,35 @@ loc_000069A4:
 	MOVE.w	#$0138, $E(A0)
 	TST.b	$2A(A0)
 	BEQ.w	loc_00006A74
-	JSR	func_updateCutsceneAnimation
-	BSR.w	loc_00002B26
+	JSR	Anim_UpdateCutsceneSprite
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#3, $7(A1)
 	BEQ.w	loc_000069CC
 	RTS
 loc_000069CC:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	MOVE.w	$28(A1), D0
 	BEQ.w	loc_000069E2
-	JMP	func_updateCutsceneAnimation
+	JMP	Anim_UpdateCutsceneSprite
 loc_000069E2:
 	MOVE.b	#$95, $6(A0)
 	MOVE.w	#$1800, $1C(A0)
 	MOVE.w	#$FFFF, $20(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
 	CMPI.w	#$01B0, $E(A0)
 	BCC.w	loc_00006A0E
-	JMP	func_updateCutsceneAnimation
+	JMP	Anim_UpdateCutsceneSprite
 loc_00006A0E:
 	MOVE.w	#$0018, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
-	MOVE.b	#$70, D0
-	JSR	loc_000072BE
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	MOVE.b	#sfxID_MajorGarbagePuyoFall2, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$0C00, $38(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	$38(A0), D1
 	LEA	$00FF05D6, A1
@@ -6154,9 +6163,9 @@ loc_00006A40:
 ; Dead Data?
 	dc.b	$60, $00, $C0, $80 
 loc_00006A74:
-	JSR	func_updateCutsceneAnimation
-	BSR.w	loc_00002B26
-	JMP	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	JMP	Anim_UpdateCutsceneSprite
 loc_00006A84:
 	MOVEM.l	A0, -(A7)
 	LEA	art_cutsceneArle, A0
@@ -6164,7 +6173,7 @@ loc_00006A84:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	LEA	loc_000069A4, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006B00
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	#$80, $6(A1)
@@ -6179,7 +6188,7 @@ loc_00006A84:
 loc_00006AE6:
 	MOVEA.l	A1, A2
 	LEA	loc_00009C3C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006B00
 	MOVE.l	A2, $2E(A1)
 	MOVE.b	#8, $8(A1)
@@ -6217,28 +6226,28 @@ loc_00006B64:
 	MOVEM.l	(A7)+, D0/D1/A0
 	MOVE.w	D0, $0(A0)
 	MOVE.b	D1, $2A(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0017, D0
 	JSR	loc_00000BF2
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_general-palLookupTable), A2
 	MOVE.b	#0, D0
 	JSR	loc_00001020
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00006B10
 	MOVE.w	#4, D0
 	BSR.w	loc_00002B1C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#2, $00FF18AA
 	MOVE.b	#$0E, $7(A0)
 	BSR.w	loc_00006056
 	JSR	loc_0000837C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00006A84
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_000068D6
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
 	LEA	$00FF012A, A1
@@ -6256,9 +6265,9 @@ loc_00006B64:
 	MOVE.w	#$CCA2, D5
 	MOVE.w	#$A500, D6
 	JSR	loc_00008198
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_0000634C
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006C5E
@@ -6287,7 +6296,7 @@ loc_00006C9E:
 	BSR.w	loc_00006000
 	ANDI.b	#$FD, $7(A0)
 	MOVE.w	#3, $00FF18AA
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0080, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B40
@@ -6295,8 +6304,8 @@ loc_00006C9E:
 	MOVE.b	#$FF, $00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006CD2:
-	MOVE.b	#$52, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	BRA.w	loc_00002AF2
@@ -6312,13 +6321,13 @@ loc_00006D08:
 	BSR.w	loc_00006EB2
 	MOVE.w	#$00C0, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#1, $00FF1890
 	BSR.w	loc_0000B9FA
 	BCC.w	loc_00006D36
 	BSR.w	loc_0000B568
 loc_00006D36:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#1, $7(A0)
 	BEQ.w	loc_00006D46
 	RTS
@@ -6329,7 +6338,7 @@ loc_00006D46:
 	ANDI	#$F8FF, SR
 loc_00006D56:
 	MOVE.w	#$0080, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$00FF1883, D0
 	EORI.b	#3, D0
 	BEQ.w	loc_00006E16
@@ -6362,10 +6371,10 @@ loc_00006DC8:
 	ADDQ.b	#1, D0
 	NOT.b	D0
 	AND.b	D0, $00FF1883
-	MOVE.b	#$52, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 	BCLR.b	#0, $7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8400, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -6380,7 +6389,7 @@ loc_00006DC8:
 loc_00006E16:
 	CLR.b	bc_stopRunning
 	BCLR.b	#0, $7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
 loc_00006E2A:
 	CLR.b	$8(A0)
@@ -6430,7 +6439,7 @@ loc_00006EAC:
 	dc.b	$50, $20 
 loc_00006EB2:
 	LEA	loc_00006EFA, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006EF8
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
@@ -6449,7 +6458,7 @@ loc_00006EFA:
 	MOVEM.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	MOVE.w	$20(A0), D0
 	CMP.w	$E(A0), D0
 	BCS.w	loc_00006F1C
@@ -6500,7 +6509,7 @@ loc_00006F22:
 	dc.b	$01, $00, $00, $01, $01, $02, $02, $01, $01, $FF, $00
 	dc.l    loc_00006F22
 loc_00006F58:
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00006F88
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -6532,7 +6541,7 @@ loc_00006F94:
 	dc.b	$FE
 	dc.b	$00 
 loc_00006FA0:
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.l	$E(A0), D0
 	ADD.l	$16(A0), D0
 	MOVE.l	D0, $E(A0)
@@ -6611,7 +6620,7 @@ loc_000070AA:
 	RTS
 loc_000070B4:
 	MOVE.b	#$85, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00002C2A
 	BCS.w	loc_000070E4
 	MOVE.b	$36(A0), D0
@@ -6624,13 +6633,13 @@ loc_000070B4:
 	RTS
 loc_000070E4:
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
 loc_000070F0:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	MOVE.w	$A(A1), $A(A0)
 	MOVE.w	$E(A1), $E(A0)
 	RTS
@@ -6845,7 +6854,7 @@ loc_00007262:
 	nop
 	bra.w loc_00007200
 
-loc_000072BE:
+SndDrv_QueueSoundEffect:
 	MOVEM.l	A2/D1, -(A7)
 	LEA	$00FF0130, A2
 	MOVE.w	#3, D1
@@ -6859,15 +6868,17 @@ loc_000072DC:
 loc_000072E0:
 	MOVEM.l	(A7)+, D1/A2
 	RTS
-playSoundID:
+	
+SndDrv_PlayMusicId:
 	MOVE.b	D0, mus_curSong
 	RTS
+	
 snd_playFadeOut:
 	MOVE.b	#$F3, $00FF012C
 	MOVE.b	#$20, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-snd_playClearEffect:
+SndDrv_PlayClearEffect:
 	MOVE.b	#$F2, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
@@ -6883,14 +6894,14 @@ snd_playPauseOffEffect:
 	MOVE.b	#0, $00FF012E
 	RTS
 	
-cut_PlayVoice:
-	TST.b	$00FFFCAC
-	BNE.w	loc_00007376
-loc_00007360:
+SndDrv_PlayVoice:
+	TST.b	rOption_VoicesEnabled
+	BNE.w	SndDrv_PVRet
+SndDrv_PlayVoiceAlways:
 	MOVE.b	#$FA, $00FF012C
 	MOVE.b	D0, $00FF012D
 	MOVE.b	#$FF, $00FF012E
-loc_00007376:
+SndDrv_PVRet:
 	RTS
 	
 loc_00007378:
@@ -7021,7 +7032,7 @@ loc_00007542:
 	rts
 loc_00007558:
 	LEA	loc_000075D0, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
@@ -7054,20 +7065,20 @@ loc_000075D0:
 	ORI.b	#$80, D0
 	MOVE.b	D0, $00FF18C6
 	MOVE.b	#$FF, $00FF18C7
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF18C7	
 	BEQ.w	loc_0000760A	
 	RTS	
 loc_0000760A:
 	MOVE.w	#$0010, D0	
 	BSR.w	loc_00002B1C	
-	BSR.w	loc_00002B26	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 loc_00007616:
-	BSR.w	loc_00002B26	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVEA.l	$2E(A0), A1	
 	BTST.b	#0, $7(A1)	
 	BEQ.w	loc_00004484	
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	CMPI.w	#3, $1C(A0)	
 	BCC.w	loc_0000763C	
 	MOVE.b	#$45, $9(A0)	
@@ -7077,8 +7088,8 @@ loc_0000763C:
 	BCS.w	loc_0000764C	
 	BRA.w	loc_00004986	
 loc_0000764C:
-	MOVE.b	#$55, D0	
-	BSR.w	loc_000072BE	
+	MOVE.b	#sfxID_PlacePuyo, D0	
+	BSR.w	SndDrv_QueueSoundEffect	
 	BSR.w	loc_00005022	
 	MOVE.w	$1A(A0), D0	
 	ADDQ.w	#1, $1C(A0)	
@@ -7099,14 +7110,14 @@ loc_0000768C:
 	MOVE.w	#1, $16(A0)	
 loc_00007696:
 	MOVE.w	#$0010, $28(A0)	
-	BSR.w	loc_00002B26	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVE.b	$29(A0), D0	
 	ANDI.b	#3, D0	
 	BNE.w	loc_000076B4	
-	MOVE.b	#$5E, D0	
-	BSR.w	loc_000072BE	
+	MOVE.b	#sfxID_5E, D0	
+	BSR.w	SndDrv_QueueSoundEffect	
 loc_000076B4:
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	MOVE.w	$12(A0), D0	
 	ADD.w	D0, $A(A0)	
 	MOVE.w	$16(A0), D0	
@@ -7137,8 +7148,8 @@ loc_000076D2:
 	BEQ.w	loc_0000773C	
 	MOVE.w	#$FFFE, $12(A0)	
 loc_0000773C:
-	BSR.w	loc_00002B26	
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	BSR.w	loc_00002C2A	
 	BCS.w	loc_000077E0	
 	RTS	
@@ -7158,8 +7169,8 @@ loc_00007786:
 	BCLR.b	#0, $7(A1)	
 	MOVE.l	#$00002710, D0	
 	BSR.w	loc_00007542	
-	BSR.w	loc_00002B26	
-	BSR.w	func_updateCutsceneAnimation	
+	BSR.w	ObjSys_UpdateObjNextOpTimer	
+	BSR.w	Anim_UpdateCutsceneSprite	
 	CMPI.b	#$43, $9(A0)	
 	BCC.w	loc_000077AE	
 	RTS	
@@ -7237,7 +7248,7 @@ loc_000078A6:
 	dc.l    loc_000075C2
 loc_000078BA:
 	LEA	loc_00007910, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
@@ -7257,11 +7268,11 @@ loc_00007910:
 	BSR.w	loc_00004986
 	ADDQ.w	#8, $A(A0)
 	MOVE.b	#$80, $6(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	BTST.b	#0, $7(A1)
 	BEQ.w	loc_00004484
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	CMPI.w	#3, $1C(A0)
 	BCC.w	loc_0000794C
 	CMPI.b	#3, $9(A0)
@@ -7275,8 +7286,8 @@ loc_0000794C:
 	ADDQ.w	#8, $A(A0)
 	RTS
 loc_00007962:
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00007988
 	CMPI.w	#3, $1C(A0)
 	BCC.w	loc_00007986
@@ -7312,7 +7323,7 @@ loc_000079C0:
 	MOVE.b	#$85, $6(A0)
 	MOVE.w	#$1A00, $1C(A0)
 	MOVE.w	#$FFFF, $20(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00002C2A
 	CMPI.w	#6, $16(A0)
 	BCS.w	loc_00007A0C
@@ -7326,8 +7337,8 @@ loc_00007A1C:
 	MOVE.w	#$0148, $E(A0)
 	MOVE.l	#loc_00007A8A, $32(A0)
 	MOVE.w	#$0080, $26(A0)
-	MOVE.b	#$5F, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_5F, D0
+	BSR.w	SndDrv_QueueSoundEffect
 loc_00007A38:
 	BSR.w	loc_00007BD2
 	MOVE.b	#$B7, $6(A0)
@@ -7339,8 +7350,8 @@ loc_00007A38:
 	BNE.w	loc_00007A64
 	NEG.l	$12(A0)
 loc_00007A64:
-	BSR.w	loc_00002B26
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	BSR.w	Anim_UpdateCutsceneSprite
 	BSR.w	loc_00002C2A
 	CMPI.w	#$0170, $E(A0)
 	BCC.w	loc_00007A7C
@@ -7371,8 +7382,8 @@ loc_00007AB0:
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
-	MOVE.b	#$62, D0
-	BRA.w	loc_000072BE
+	MOVE.b	#sfxID_62, D0
+	BRA.w	SndDrv_QueueSoundEffect
 loc_00007AEE:
 	MOVE.w	#1, D1
 	CLR.l	D5
@@ -7437,7 +7448,7 @@ loc_00007BC2:
 	subq.w #1, $26(a0)
 	bsr.w loc_00002C2A
 	bcs.w loc_00002AF2
-	bra.w func_updateCutsceneAnimation
+	bra.w Anim_UpdateCutsceneSprite
 loc_00007BD2:
 	BSR.w	loc_00005022
 	MOVE.w	D0, D1
@@ -7447,7 +7458,7 @@ loc_00007BD2:
 	MOVE.w	#5, D0
 loc_00007BE8:
 	LEA	loc_00007C5E, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00007C18
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.b	#$80, $36(A1)
@@ -7485,7 +7496,7 @@ loc_00007C5E:
 	move.l #$800E0000, d0
 	jsr loc_00000C4C
 	lea loc_00007CA8, a1
-	jsr loc_00002A54
+	jsr ObjSys_InitObjWithFunc
 	move.w #$0258, $26(a1)
 	rts
 loc_00007CA8:
@@ -7539,7 +7550,7 @@ loc_00007D22:
 	MOVE.b	D0, $00FF0143
 	MOVEM.l	(A7)+, D0
 	LEA	loc_00007EA0, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_00007D68
 	MOVE.b	D2, $2A(A1)
 
@@ -7550,8 +7561,8 @@ loc_00007D68:
 	JSR	waitForVint
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_00007DBA
-	MOVE.b	#$7A, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_ComboComplete1, D0
+	JMP	SndDrv_QueueSoundEffect
 
 loc_00007D90:
 	ORI	#$0700, SR
@@ -7560,8 +7571,8 @@ loc_00007D90:
 	JSR	waitForVint
 	BTST.b	#1, $00FF1882
 	BEQ.w	loc_00007DCE
-	MOVE.b	#$7A, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_ComboComplete1, D0
+	JMP	SndDrv_QueueSoundEffect
 loc_00007DB8:
 	RTS
 loc_00007DBA:
@@ -7649,7 +7660,7 @@ loc_00007EA0:
 	addi.b #$20, d0
 	move.b #6, $8(a0)
 	move.b d0, $9(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 loc_00007ECA:
 	clr.w d0
 	move.b $2a(a0), d0
@@ -7665,7 +7676,7 @@ loc_00007ECA:
 loc_00007EFE:
 	rts
 loc_00007F00:
-	move.b    ($00FFFCA4).l, d0
+	move.b    (rOption_2PlayerMode).l, d0
 	bne.w    loc_00007F0C
 	addq.b #1, d0
 loc_00007F0C:
@@ -7681,8 +7692,8 @@ loc_00007F1A:
 	ADDA.l	#$00000294, A2
 	TST.w	$8(A2)
 	BNE.w	loc_00007F5C
-	MOVE.b	#$30, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_SatanPuyoClear, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CLR.l	D0
 	MOVE.b	$2B(A0), D0
 	ADDQ.b	#1, D0
@@ -7789,7 +7800,7 @@ loc_000080EA:
 	RTS
 loc_000080F8:
 	LEA	loc_0000815A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000810A
 	RTS
 loc_0000810A:
@@ -7838,7 +7849,7 @@ loc_00008194:
 	dc.b	$00, $01, $00, $00
 loc_00008198:
 	lea (loc_000081E6), a1
-	jsr loc_00002A54
+	jsr ObjSys_InitObjWithFunc
 	bcc.w loc_000081AA
 	rts
 loc_000081AA:
@@ -7849,7 +7860,7 @@ loc_000081AA:
 	rts
 ; Dead Code
 	lea loc_000081E6, a1
-	jsr loc_00002A54
+	jsr ObjSys_InitObjWithFunc
 	bcc.w loc_000081CE
 	rts
 loc_000081CE:
@@ -7883,8 +7894,8 @@ loc_00008212:
 	move.b d0, $F(a0)
 	lea loc_00008244, a1
 	bsr.w loc_00008310
-	move.b #$50, d0
-	jmp loc_000072BE
+	move.b #sfxID_TextboxDialogue, d0
+	jmp SndDrv_QueueSoundEffect
 loc_00008234:
 	lea loc_0000824C, a1
 	bsr.w loc_00008310
@@ -7897,7 +7908,7 @@ loc_00008254:
 	MOVE.w	#$0100, D1
 	MOVE.w	#$8500, D6
 	LEA	loc_000082AC, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000826E
 	RTS
 loc_0000826E:
@@ -8379,8 +8390,8 @@ loc_00008898:
 	MOVE.b	$00FF1882, D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_000088E0
-	MOVE.b	#$5D, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_Bonus, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CMPI.b	#$62, $2B(A0)
 	BCC.w	loc_000088DC
 	ADDQ.b	#1, $2B(A0)
@@ -8505,7 +8516,7 @@ loc_00008BC4:
 	dc.l	loc_00008EBE
 loc_00008BF4:
 	LEA	loc_00008C28, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008C04
 	RTS
 loc_00008C04:
@@ -8527,7 +8538,7 @@ loc_00008C28:
 	RTS
 loc_00008C48:
 	LEA	loc_00008C7C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008C58
 	RTS
 loc_00008C58:
@@ -8551,7 +8562,7 @@ loc_00008C9C:
 	MOVE.w	#2, $12(A0)
 	MOVE.w	#$0041, $26(A0)
 	MOVE.w	#$FF00, $00FF18AE
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
@@ -8573,15 +8584,15 @@ loc_00008C9C:
 	BEQ.w	loc_00008D04
 	RTS
 loc_00008D04:
-	MOVE.b	#$6F, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
+	JSR	SndDrv_QueueSoundEffect
 	BSR.w	loc_00008D6A
 	MOVE.b	#$8A, $6(A0)
 	CLR.l	$12(A0)
 	MOVE.w	#$0200, $1A(A0)
 	MOVE.w	#$00BC, $26(A0)
 	MOVE.w	#$FF03, $00FF18AE
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
@@ -8600,7 +8611,7 @@ loc_00008D6A:
 	BRA.w	loc_00002AB0
 loc_00008D74:
 	move.b #$40, $26(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b ($00FF05D3), d0
 	andi.b #$FE, d0
 	move.b $26(a0), d1
@@ -8619,7 +8630,7 @@ loc_00008DA6:
 	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00000E28
 	LEA	loc_00008E02, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008DD4
 	RTS
 loc_00008DD4:
@@ -8646,7 +8657,7 @@ loc_00008E28:
 	move.w #$20, d0
 	bsr.w loc_00002B1C
 loc_00008E30:
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b #3, d0
 	move.b #6, d1
 	lea palLookupTable, a2
@@ -8654,13 +8665,13 @@ loc_00008E30:
 	jsr loc_00000E46
 	move.w #$40, d0
 	bsr.w loc_00002B1C
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	clr.w $16(a0)
 	clr.w $e(a0)
 	move.w #$1800, $1c(a0)
 	move.w #$FF, $20(a0)
 	move.b #$15, $6(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	movea.l $2e(a0), a1
 	tst.b $7(a1)
 	beq.w loc_00002AF2
@@ -8674,12 +8685,12 @@ loc_00008E30:
 loc_00008EA2:
 	move.w #$68, $e(a1)
 	move.w #$FF01, ($00FF18AE).l
-	move.b #$4A, d0
-	jsr loc_000072BE
+	move.b #sfxID_SatanMovePuyo, d0
+	jsr SndDrv_QueueSoundEffect
 	bra.w loc_00002AF2
 loc_00008EBE:
 	LEA	loc_00008EFE, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008ECE
 	RTS
 loc_00008ECE:
@@ -8709,7 +8720,7 @@ loc_00008F28:
 loc_00008F32:
 	ORI.b	#$80, $6(A0)
 	LEA	loc_00008F6E, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008F48
 	RTS
 loc_00008F48:
@@ -8755,11 +8766,11 @@ loc_00008FAA:
 	clr.w d0
 	asr.l #5, d0
 	move.l d0, $16(a0)
-	move.b #$55, d0
-	jmp loc_000072BE
+	move.b #sfxID_PlacePuyo, d0
+	jmp SndDrv_QueueSoundEffect
 loc_00008FE6:
 	LEA	loc_0000900E, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00008FF6
 	RTS
 loc_00008FF6:
@@ -8773,7 +8784,7 @@ loc_0000900E:
 	MOVE.b	$7(A0), D0
 	AND.b	$7(A1), D0
 	BEQ.w	loc_00002AF2
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	BCC.w	loc_0000902E
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00002AF2
@@ -8787,7 +8798,7 @@ loc_0000903E:
 	dc.l    loc_0000903E
 loc_00009054:
 	LEA	loc_0000907E, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009064
 	RTS
 loc_00009064:
@@ -8800,7 +8811,7 @@ loc_0000907E:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	func_updateCutsceneAnimation
+	BSR.w	Anim_UpdateCutsceneSprite
 	MOVE.b	$9(A1), D0
 	ANDI.b	#3, D0
 	OR.b	$9(A0), D0
@@ -8837,7 +8848,7 @@ loc_000090EC:
 	MOVE.w	#0, D1
 loc_000090F4:
 	LEA	loc_00009112, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009104
 	RTS
 loc_00009104:
@@ -8850,7 +8861,7 @@ loc_00009112:
 	JSR	loc_00001202
 	ADDI.w	#$0018, D0
 	MOVE.w	D0, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CMPI.w	#$FF20, $00FF05D2
 	BNE.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
@@ -8900,7 +8911,7 @@ loc_000091D6:
 	RTS
 loc_000091F4:
 	LEA	loc_00009216, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009204
 	RTS
 loc_00009204:
@@ -8923,11 +8934,11 @@ loc_0000923A:
 	MOVEA.l	$2E(A0), A1
 	ADDQ.w	#1, $26(A1)
 	BSR.w	loc_000092B2
-	MOVE.b	#$6F, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.b	#2, $6(A0)
 	MOVE.w	#$4000, $14(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
@@ -8951,10 +8962,10 @@ loc_00009294:
 	RTS
 loc_000092B2:
 	LEA	loc_000092BC, A1
-	BRA.w	loc_00002A54
+	BRA.w	ObjSys_InitObjWithFunc
 loc_000092BC:
 	MOVE.w	#$001F, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$26(A0), D0
 	LSR.w	#2, D0
 	BTST.b	#0, $27(A0)
@@ -8971,7 +8982,7 @@ loc_000092EC:
 	RTS
 loc_000092F6:
 	LEA	loc_00009324, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009306
 	RTS
 loc_00009306:
@@ -8992,7 +9003,7 @@ loc_00009336:
 loc_0000933E:
 	MOVE.b	#$80, $6(A0)
 	LEA	loc_00009360, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009354
 	RTS
 loc_00009354:
@@ -9009,7 +9020,7 @@ loc_00009360:
 	RTS
 loc_0000937E:
 	CLR.b	$36(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_000093EE
@@ -9026,7 +9037,7 @@ loc_0000937E:
 	RTS
 loc_000093BC:
 	MOVE.w	#$FF02, $00FF18AE
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_000093EE
@@ -9064,7 +9075,7 @@ loc_000093F4:
 loc_00009456:
 	ADDI.b	#9, D1
 	LEA	loc_0000958C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000946A
 	RTS
 loc_0000946A:
@@ -9077,7 +9088,7 @@ loc_0000946A:
 	MOVE.w	loc_000094B0(PC,D0.w), $E(A1)
 	MOVEA.l	A1, A2
 	LEA	loc_000095FC, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_000094A0
 	RTS
 loc_000094A0:
@@ -9156,10 +9167,10 @@ loc_000095CC:
 	MOVE.l	(A2,D0.w), $32(A0)
 	CLR.w	$22(A0)
 loc_000095EC:
-	BRA.w	func_updateCutsceneAnimation
+	BRA.w	Anim_UpdateCutsceneSprite
 loc_000095F0:
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
 loc_000095FC:
 	MOVEA.l	$2E(A0), A1
@@ -9272,7 +9283,7 @@ loc_00009B7A:
 	MOVE.b	#$FF, $00FF18AC
 	MOVE.b	#0, $00FF18AD
 	LEA	loc_00009BDA, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009B9A
 	RTS
 loc_00009B9A:
@@ -9283,7 +9294,7 @@ loc_00009B9A:
 	MOVE.w	#$0068, $E(A1)
 	MOVEA.l	A1, A2
 	LEA	loc_00009C3C, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009BCA
 	RTS
 loc_00009BCA:
@@ -9312,10 +9323,10 @@ loc_00009C1A:
 	MOVE.l	(A1,D0.w), $32(A0)
 	CLR.w	$22(A0)
 loc_00009C2C:
-	BRA.w	func_updateCutsceneAnimation
+	BRA.w	Anim_UpdateCutsceneSprite
 loc_00009C30:
 	CLR.b	$7(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
 loc_00009C3C:
 	MOVEA.l	$2E(A0), A1
@@ -9349,7 +9360,7 @@ loc_00009C90:
 	dc.l    loc_00009C98
 loc_00009C98:
 	lea (loc_00009CB4).l, a1
-	bsr.w loc_00002A54
+	bsr.w ObjSys_InitObjWithFunc
 	bcc.w loc_00009CA8
 	rts
 loc_00009CA8:
@@ -9369,7 +9380,7 @@ loc_00009CB4:
 	rts
 loc_00009CDA:
 	lea (loc_00009CFC).l, a1
-	bsr.w loc_00002A54
+	bsr.w ObjSys_InitObjWithFunc
 	bcc.w loc_00009CEA
 	rts
 loc_00009CEA:
@@ -9519,7 +9530,7 @@ loc_00009E6A:
 	
 loc_00009E74:
 	move.w #$a0, $26(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	subq #1, $26(a0)
 	beq.w loc_00002AF2
 	tst.w $28(a0)
@@ -9531,16 +9542,16 @@ loc_00009E94:
 	jsr loc_00001202
 	addq.w #8, d0
 	move.w d0, $28(a0)
-	move.b #$63, d0
-	jmp loc_000072BE
+	move.b #sfxID_63, d0
+	jmp SndDrv_QueueSoundEffect
 loc_00009EAE:
 	lea (loc_00009EB8).l, a1
-	bra.w loc_00002A54
+	bra.w ObjSys_InitObjWithFunc
 loc_00009EB8:
 	clr.w $26(a0)
 	move.l #loc_00009EF8, $32(a0)
 loc_00009EC4:
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	cmpi.w #$FF30, ($00FF05D2).l
 	bcc.w loc_00002AF2
 	tst.w $26(a0)
@@ -9594,7 +9605,7 @@ loc_00009F7C:
 	dbf d2, loc_00009F16
 	rts
 loc_00009F82:
-	bsr.w func_updateCutsceneAnimation
+	bsr.w Anim_UpdateCutsceneSprite
 	move.b #$BA, $6(a0)
 loc_00009F8C:
 	btst.b #3, $9(a0)
@@ -9642,7 +9653,7 @@ loc_0000A028:
 	dbf d2, loc_00009FC6
 	rts
 loc_0000A02E:
-	bsr.w func_updateCutsceneAnimation
+	bsr.w Anim_UpdateCutsceneSprite
 	move.b #$B2, $6(a0)
 loc_0000A038:
 	btst.b #2, $9(a0)
@@ -9664,7 +9675,7 @@ loc_0000A060:
 loc_0000A072:
 	move.b #$FF, ($00FF1886).l
 	lea (loc_0000A092).l, a1
-	bsr.w loc_00002A54
+	bsr.w ObjSys_InitObjWithFunc
 	bcc.w loc_0000A08A
 	rts
 loc_0000A08A:
@@ -9675,7 +9686,7 @@ loc_0000A092:
 	jsr loc_00001202
 	addq.w #4, d0
 	move.w d0, $26(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	cmpi.w #$FF20, ($00FF05D2).l
 	bne.w loc_00002AF2
 	btst.b #5, (ram_pad1Press).l
@@ -9704,9 +9715,9 @@ loc_0000A0C8:
 	move.b $25(a0), d0
 	andi.b #1, d0
 	add.b d0, $9(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.l #loc_0000A184, $32(a0)
-	bsr.w loc_00002B26
+	bsr.w ObjSys_UpdateObjNextOpTimer
 	movea.l $32(a0), a1
 	clr.l d0
 	move.w (a1)+, d0
@@ -9726,7 +9737,7 @@ loc_0000A14E:
 	tst.b ($00FF1886).l
 	beq.w loc_0000A092
 	move.b $28(a0), d0
-	bsr.w loc_000072BE
+	bsr.w SndDrv_QueueSoundEffect
 	bra.w loc_0000A092
 loc_0000A184:
 	dc.b    $01, $80, $01, $80, $00, $00, $01, $40, $01, $80, $01, $40, $01, $80, $01, $40, $01, $40, $FF, $FF
@@ -9734,9 +9745,9 @@ loc_0000A198:
 	dc.w 	$FFC8, $003E, $FFE8, $003D, $0008, $003D
 loc_0000A1A4:
 	LEA	loc_0000A1D2, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	LEA	loc_0000A23A, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.w	#$FF20, $00FF05D2
 	MOVE.w	#$FF60, $00FF05D4
 	MOVE.w	#$FFFF, $00FF1892
@@ -9749,7 +9760,7 @@ loc_0000A1DE:
 	MOVE.w	#$FF20, $E(A0)
 	MOVE.l	#$00040000, $16(A0)
 	MOVE.w	#$0038, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0000A21E
 	MOVE.l	$16(A0), D0
@@ -9761,8 +9772,8 @@ loc_0000A1DE:
 	RTS
 loc_0000A21E:
 	MOVE.w	#0, $00FF05D2
-	MOVE.b	#$55, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_PlacePuyo, D0
+	JSR	SndDrv_QueueSoundEffect
 	CLR.b	bc_stopRunning
 	BRA.w	loc_00002AF2
 loc_0000A23A:
@@ -9773,7 +9784,7 @@ loc_0000A246:
 	MOVE.w	#$FF60, $E(A0)
 	MOVE.l	#$0002DB6D, $16(A0)
 	MOVE.w	#$0038, $26(A0)
-	BSR.w	loc_00002B26
+	BSR.w	ObjSys_UpdateObjNextOpTimer
 	CMPI.b	#stgID_Draco, game_curStage
 	BCS.w	loc_0000A286
 	MOVE.l	$16(A0), D0
@@ -9793,7 +9804,7 @@ loc_0000A286:
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
 	LEA	cut_TickCutscene, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	CLR.w	D0
 	CLR.w	D1
 	MOVE.b	game_curStage, D0
@@ -9881,7 +9892,7 @@ loc_0000A3F4:
 	ORI.b	#3, D0
 	MOVE.b	D0, $00FF0A2D
 	LEA	loc_0000A430, A1
-	BSR.w	loc_00002A54
+	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000A42E
 	MOVE.l	#$00020000, $E(A1)
 	MOVE.l	#$00018000, $16(A1)
@@ -9932,7 +9943,7 @@ loc_0000A49A:
 	dc.b	$00 
 loadSegaScreen:
 	LEA	loc_0000A4AA, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_0000A4AA:
 	ORI	#$0700, SR
 	MOVE.w	#$4000, vdpControl1
@@ -9943,30 +9954,30 @@ loc_0000A4C8:
 	MOVE.w	(A1)+, vdpData1
 	DBF	D0, loc_0000A4C8
 	ANDI	#$F8FF, SR
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0023, D0
 	JSR	loc_00000BF2
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, D0
 	LEA	pal_segaPart1, A2
 	JSR	loc_00001020
 	MOVE.w	#$003F, $26(A0)
 	BSR.w	loc_00010D0E
 	BSR.w	loc_0000A5B0
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000A5B0
 	SUBQ.w	#1, $26(A0)
 	BCS.w	loc_0000A51E
 	RTS
 loc_0000A51E:
 	BSR.w	loc_00010D0E
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	$00FF013A
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0028, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $28(A0)
 	MOVE.b	$28(A0), D0
 	ANDI.b	#1, D0
@@ -9990,7 +10001,7 @@ loc_0000A570:
 loc_0000A594:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 loc_0000A5B0:
@@ -10025,7 +10036,7 @@ loc_0000AC92:
 	MOVE.l	#loc_0000AECA, $32(A0)
 	MOVE.w	#$0200, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_0000ACBE
 	SUBQ.w	#1, $26(A0)
@@ -10044,13 +10055,13 @@ loc_0000ACDC:
 	MOVE.b	#0, $7(A0)
 	MOVE.w	#$0800, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
 	JMP	loc_00002AF2
 loc_0000AD04:
 	CLR.w	D0
-	MOVE.b	$00FFFCA5, D0
+	MOVE.b	rOption_ComputerLevel, D0
 	LSL.w	#2, D0
 	MOVE.l	loc_0000AD16(PC,D0.w), $32(A0)
 	RTS
@@ -10070,7 +10081,7 @@ loc_0000AD30:
 loc_0000AD3E:
 	MOVE.b	#$FF, (A1,D0.w)
 	LEA	loc_0000ADC2, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000AD56
 	RTS
 loc_0000AD56:
@@ -10119,7 +10130,7 @@ loc_0000ADE0:
 	CLR.b	(A1,D0.w)
 	JMP	loc_00002AF2
 loc_0000ADF4:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	RTS
 loc_0000ADFC:
 	dc.b	$00, $20
@@ -10676,7 +10687,7 @@ loc_0000B0F6:
 	ADDA.l	#(pal_general-palLookupTable), A2
 	JSR	loc_00000E28
 	LEA	loc_0000B160, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000B126
 	RTS
 loc_0000B126:
@@ -10697,9 +10708,9 @@ loc_0000B160:
 	MOVE.w	#$8500, D6
 	MOVE.w	#$0280, $28(A0)
 	BSR.b	loc_0000B152
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000B1CC
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	BSR.w	loc_00004BF2
 	MOVE.b	D0, D1
 	ANDI.b	#$F0, D0
@@ -10719,8 +10730,8 @@ loc_0000B1B4:
 	BCC.w	loc_0000B1CA
 	ADDQ.w	#1, $26(A0)
 loc_0000B1C2:
-	MOVE.b	#$51, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 loc_0000B1CA:
 	BRA.b	loc_0000B152
 loc_0000B1CC:
@@ -10732,16 +10743,16 @@ loc_0000B1CC:
 loc_0000B1DE:
 	BSR.w	loc_0000B270
 	BCC.w	loc_0000B1F0
-	MOVE.b	#$6E, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_MinorGarbagePuyoFall2, D0
+	JMP	SndDrv_QueueSoundEffect
 loc_0000B1F0:
 	MOVE.b	$27(A0), $00FF0105
-	MOVE.b	#$52, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CLR.w	$28(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0010, $28(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$28(A0), D0
 	ROR.b	#2, D0
 	ANDI.b	#$80, D0
@@ -10837,7 +10848,7 @@ loc_0000B32A:
 	RTS
 loc_0000B32C:
 	LEA	loc_0000B338, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_0000B338:
 	ADDQ.w	#1, $26(A0)
 	MOVE.w	$26(A0), D1
@@ -10853,7 +10864,7 @@ loc_0000B354:
 	SWAP	D0
 	JSR	loc_00000C4C
 	MOVE.w	#$0028, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$00B7, D0
 	LEA	$00FF0662, A1
 loc_0000B376:
@@ -10872,7 +10883,7 @@ loc_0000B388:
 	MOVE.b	#1, $27(A0)
 	CLR.b	$2A(A0)
 loc_0000B3A8:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000B460
 	ADDQ.b	#1, $2A(A0)
 	BSR.w	loc_00004BF2
@@ -10896,20 +10907,20 @@ loc_0000B3E8:
 	BCC.w	loc_0000B404
 	ADDQ.w	#1, $26(A0)
 loc_0000B3F6:
-	MOVE.b	#$51, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CLR.b	$2A(A0)
 	BRA.b	loc_0000B3A8
 loc_0000B404:
 	RTS
 	
 loc_0000B406:
-	MOVE.b	#$52, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CLR.w	$28(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0010, $28(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$26(A0), D1 ; Reads the value of the selection for 1 Player
 	MOVE.w	$28(A0), D0
 	ANDI.b	#1, D0
@@ -10924,7 +10935,7 @@ loc_0000B446:
 	MOVE.b	$27(A0), $00FF0114
 	BSR.w	loc_0000B4B4
 	CLR.b	bc_stopRunning
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	RTS
 loc_0000B460:
 	MOVE.b	$2A(A0), D0
@@ -10969,7 +10980,7 @@ loc_0000B4D4:
 	dc.b	$FF, $FF, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00 
 loc_0000B504:
 	LEA	loc_0000B52C, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000B52A
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	#6, $8(A1)
@@ -10996,7 +11007,7 @@ loc_0000B540:
 	RTS
 loc_0000B568:
 	LEA	loc_0000B5CC, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000B57A
 	RTS
 loc_0000B57A:
@@ -11036,13 +11047,13 @@ loc_0000B5CC:
 	LEA	loc_0000B71E, A1
 	BSR.w	loc_0000B792
 	MOVE.b	#$69, D0
-	BSR.w	loc_000072BE
-	JSR	loc_00002B26
+	BSR.w	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#4, D0
 loc_0000B612:
 	MOVE.b	#1, $12(A0,D0.w)
 	DBF	D0, loc_0000B612
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	D0
 	BSR.w	loc_0000B72A
 	ADDQ.b	#1, $26(A0)
@@ -11070,12 +11081,12 @@ loc_0000B66E:
 	MOVE.b	#$1A, $12(A0,D0.w)
 loc_0000B680:
 	CLR.b	$26(A0)
-	MOVE.b	#$51, D0
-	BRA.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BRA.w	SndDrv_QueueSoundEffect
 loc_0000B68C:
 	ADDQ.w	#1, $E(A0)
-	MOVE.b	#$52, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CMPI.w	#3, $E(A0)
 	BCC.w	loc_0000B6BA
 	RTS
@@ -11085,8 +11096,8 @@ loc_0000B6A4:
 	RTS
 loc_0000B6AE:
 	SUBQ.w	#1, $E(A0)
-	MOVE.b	#$51, D0
-	BRA.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BRA.w	SndDrv_QueueSoundEffect
 loc_0000B6BA:
 	MOVE.w	$A(A0), D0
 	BSR.w	loc_0000BBF4
@@ -11108,7 +11119,7 @@ loc_0000B6EC:
 	JSR	loc_00002B1C
 	MOVE.b	$25(A0), D0
 	BSR.w	loc_0000B72A
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	BCLR.b	#1, $7(A1)
 	JMP	loc_00002AF2
@@ -11198,7 +11209,7 @@ loc_0000B7E8:
 	RTS
 loc_0000B80E:
 	LEA	loc_0000B84C, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000B820
 	RTS
 loc_0000B820:
@@ -11222,12 +11233,12 @@ loc_0000B85A:
 	DBF	D0, loc_0000B85A
 loc_0000B864:
 	MOVE.l	#loc_0000B99E, $32(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0000B880
 	BRA.w	loc_0000B9B2
 loc_0000B880:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $26(A0)
 	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
@@ -11261,14 +11272,14 @@ loc_0000B8F4:
 	MOVE.b	#$1C, $12(A0,D0.w)
 loc_0000B906:
 	CLR.b	$26(A0)
-	MOVE.b	#$51, D0
-	BRA.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BRA.w	SndDrv_QueueSoundEffect
 loc_0000B912:
 	MOVE.b	#$80, $9(A0)
 	BSR.w	loc_0000B9B2
 	ADDQ.w	#1, $E(A0)
-	MOVE.b	#$52, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CMPI.w	#3, $E(A0)
 	BCC.w	loc_0000B96C
 	BRA.w	loc_0000B864
@@ -11278,14 +11289,14 @@ loc_0000B936:
 	RTS
 loc_0000B940:
 	MOVE.l	#loc_0000B9A8, $32(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0000B95C
 	BRA.w	loc_0000B9B2
 loc_0000B95C:
 	SUBQ.w	#1, $E(A0)
-	MOVE.b	#$51, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	BRA.w	loc_0000B864
 loc_0000B96C:
 	MOVE.w	$A(A0), D0
@@ -11295,7 +11306,7 @@ loc_0000B96C:
 	CLR.w	$28(A0)
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVEA.l	$2E(A0), A1
 	CLR.b	$7(A1)
 	JMP	loc_00002AF2
@@ -11385,7 +11396,7 @@ loc_0000BA7C:
 	MOVE.w	#$00C8, D1
 loc_0000BA8C:
 	LEA	loc_0000BAC8, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000BABA
 	MOVE.b	#3, $8(A1)
 	MOVE.l	#loc_0000BAF8, $32(A1)
@@ -11411,7 +11422,7 @@ loc_0000BADA:
 	BCS.w	loc_0000BAF2
 	MOVE.b	#0, $6(A0)
 loc_0000BAF2:
-	JMP	func_updateCutsceneAnimation
+	JMP	Anim_UpdateCutsceneSprite
 loc_0000BAF8:
 	dc.b	$F0
 	dc.b	$00 
@@ -11435,7 +11446,7 @@ loc_0000BAF8:
 loc_0000BB0E:
 	JSR	loc_00000BA4
 	LEA	loc_0000BC2C, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_0000BB20:
 	MOVE.w	#4, D0
 loc_0000BB24:
@@ -11531,7 +11542,7 @@ loc_0000BC2C:
 	BSR.w	loc_0000BB20
 	BSR.w	loc_0000BB4A
 	BSR.w	loc_0000BB7C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$26(A0), D1
 	BSR.w	loc_0000BD50
 	SUBQ.w	#4, $26(A0)
@@ -11549,8 +11560,8 @@ loc_0000BC2C:
 loc_0000BCA8:
 	RTS
 loc_0000BCAA:
-	MOVE.b	#$70, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_MajorGarbagePuyoFall2, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	TST.b	bc_stopRunning
 	BEQ.w	loc_0000BCD8
 	MOVE.w	#4, D0
@@ -11577,7 +11588,7 @@ loc_0000BCF2:
 	BEQ.w	loc_0000BD3C
 	MOVE.w	#$0140, D1
 	MOVE.w	D1, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$26(A0), D1
 	SUBI.w	#$0140, D1
 	BSR.w	loc_0000BD50
@@ -11585,7 +11596,7 @@ loc_0000BCF2:
 	BEQ.w	loc_0000BD32
 	RTS
 loc_0000BD32:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_0000BC2C
 loc_0000BD3C:
 	TST.b	$2A(A0)
@@ -11664,14 +11675,14 @@ loc_0000BE18:
 	clr.b   (a1)+
 	dbf    	d0, loc_0000BE18
 	lea		(loc_0000AC92).l, a1
-	jsr		loc_00002A54
+	jsr		ObjSys_InitObjWithFunc
 	lea		(loc_0000be38).l, a1
-	jsr		loc_00002A54
+	jsr		ObjSys_InitObjWithFunc
 	rts
 loc_0000BE38:
 	move.b   #$FF, $7(a0)
 	lea		 (loc_0000BF96).l, a1
-	jsr		 loc_00002A54
+	jsr		 ObjSys_InitObjWithFunc
 	bcs.w    loc_0000BE70
 	move.l   a0, $2E(a1)
 	bsr.w    loc_0000D1DA
@@ -11684,7 +11695,7 @@ loc_0000BE70:
 	move.b    #$33, $6(a0)
 	move.l    #$800, $12(a0)
 	move.l    #$200, $16(a0)
-	jsr		  loc_00002B26
+	jsr		  ObjSys_UpdateObjNextOpTimer
 	jsr		  loc_00002C2A
 	move.w    $E(a0), d0
 	neg.w     d0
@@ -11699,7 +11710,7 @@ loc_0000BEAA:
 	jsr loc_00000E46
 	move.w  #$80, d0
 	jsr  loc_00002B1C
-	jsr  loc_00002B26
+	jsr  ObjSys_UpdateObjNextOpTimer
 	clr.b    $7(a0)
 	move.w    #$B, d0
 	jsr  loc_00000BF2
@@ -11710,14 +11721,14 @@ loc_0000BEAA:
 	jsr loc_00000E46
 	move.w   #$40, d0
 	jsr  loc_00002B1C
-	jsr  loc_00002B26
+	jsr  ObjSys_UpdateObjNextOpTimer
 	move.w    #$1e, $A(a0)
 	clr.w    $C(a0)
 	move.w    #$40, $E(a0)
 	clr.w    $10(a0)
 	move.w    #$32, $12(a0)
 	clr.w    $14(a0)
-	jsr    loc_00002B26
+	jsr    ObjSys_UpdateObjNextOpTimer
 	clr.w  d0
 	lea   ($00FF0A70).l, a1
 loc_0000BF2E:
@@ -11773,7 +11784,7 @@ loc_0000BFD4:
 loc_0000BFDE:
 	bsr.w    loc_0000D1F0
 	lea    (loc_0000BFEE).l, a1
-	jmp    loc_00002A54
+	jmp    ObjSys_InitObjWithFunc
 loc_0000BFEE:
 	move.w    #$140, d0
 	sub.w    $26(a0), d0
@@ -11788,7 +11799,7 @@ loc_0000C00E:
 	bsr.w loc_0000D20A
 	move.w #$c0, d0
 	jsr loc_00002B1C
-	jsr loc_00002B26
+	jsr ObjSys_UpdateObjNextOpTimer
 	move.b #0, d0
 	move.b #4, d1
 	lea (palLookupTable).l, a2
@@ -11800,12 +11811,12 @@ loc_0000C00E:
 	jsr loc_00000E28
 	move.w #$40, d0
 	jsr loc_00002B1C
-	jsr loc_00002B26
+	jsr ObjSys_UpdateObjNextOpTimer
 	move.w #5, d0
 	bsr.w loc_0000D20A
 	move.w #$200, d0
 	jsr loc_00002B1C
-	jsr loc_00002B26
+	jsr ObjSys_UpdateObjNextOpTimer
 	clr.b (bc_stopRunning).l
 	clr.b ($00FF0A3A).l
 	jmp loc_00002AF2
@@ -11866,7 +11877,7 @@ loc_0000C162:
 	JSR	loc_00000BC6
 	BSR.w	loc_0000D1F0
 	LEA	loc_0000C21A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000C194
 	RTS
 loc_0000C194:
@@ -11914,7 +11925,7 @@ tbl_cutsceneOrder:
 	even
 loc_0000C21A:
 	MOVE.w	#$0060, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00004BF2
 	ANDI.b	#$F0, D0
 	BNE.w	loc_0000C288
@@ -11931,8 +11942,8 @@ loc_0000C24C:
 	BCS.w	loc_0000C278
 	RTS
 loc_0000C264:
-	MOVE.b	#$7A, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ComboComplete1, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$C744, D5
 	JMP	loc_00008254
 loc_0000C278:
@@ -12208,7 +12219,7 @@ loc_0000C6BE:
 loc_0000C6CC:
 	BSR.w	loc_0000C7D6
 	LEA	loc_0000C6FC, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000C6E2
 	RTS
 loc_0000C6E2:
@@ -12237,8 +12248,8 @@ loc_0000C726:
 	SWAP	D0
 	JSR	loc_00000C4C
 	MOVE.w	#$0050, $26(A0)
-	MOVE.b	#$51, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ChangeSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 loc_0000C74E:
 	SUBQ.w	#1, $26(A0)
 	BSR.w	loc_0000C780
@@ -12247,12 +12258,12 @@ loc_0000C74E:
 	BEQ.w	loc_0000C79A
 	RTS
 loc_0000C764:
-	MOVE.b	#$52, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
 	CLR.b	bc_returnState
 loc_0000C772:
 	CLR.b	bc_stopRunning
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	RTS
 loc_0000C780:
 	LEA	$00FF0922, A1
@@ -12330,7 +12341,7 @@ loc_0000C860:
 	ASR.l	#7, D0
 	MOVE.l	D0, $12(A0)
 	MOVE.l	#$FFFF9000, $16(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_0000C89C
 	SUBQ.w	#1, $26(A0)
@@ -12338,7 +12349,7 @@ loc_0000C860:
 loc_0000C89C:
 	MOVE.w	#$0080, $26(A0)
 	MOVE.l	$E(A0), $32(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.l	$32(A0), $E(A0)
 	JSR	loc_00002C2A
 	MOVE.l	$E(A0), $32(A0)
@@ -12352,7 +12363,7 @@ loc_0000C89C:
 	ADD.w	D2, $E(A0)
 	RTS
 loc_0000C8E2:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	arcade_checkCoins
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
@@ -12369,7 +12380,7 @@ loc_0000C8E2:
 	JMP	loc_00002AF2
 loc_0000C91E:
 	MOVE.b	#0, $6(A0)	
-	JSR	loc_00002B26	
+	JSR	ObjSys_UpdateObjNextOpTimer	
 	MOVE.l	#$800B0F00, D0	
 	TST.b	$00FF1884	
 	BEQ.w	loc_0000C940	
@@ -12379,7 +12390,7 @@ loc_0000C940:
 
 loc_0000C946:
 	LEA	loc_0000C96C, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000C958
 	RTS
 loc_0000C958:
@@ -12387,7 +12398,7 @@ loc_0000C958:
 	RTS
 loc_0000C960:
 	LEA	loc_0000C96C, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_0000C96C:
 	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
@@ -12438,7 +12449,7 @@ loc_0000CA14:
 	dc.w	$0100, $008E, $00E0, $008E, $00E0 
 loc_0000CA1E:
 	LEA	loc_0000CA86, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CA84
 	MOVEA.l	A1, A2
 	MOVE.b	#$80, $6(A1)
@@ -12447,12 +12458,12 @@ loc_0000CA1E:
 	MOVE.w	#$0160, $A(A1)
 	MOVE.l	#loc_0000CB4C, $32(A1)
 	LEA	loc_0000CDB2, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CA84
 	MOVE.l	A2, $2E(A1)
 	MOVE.b	#$24, $8(A1)
 	LEA	loc_0000CDEE, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CA84
 	MOVE.l	A2, $2E(A1)
 	MOVE.b	#$24, $8(A1)
@@ -12462,7 +12473,7 @@ loc_0000CA86:
 	MOVE.w	$00FF05D2, D0
 	ADDI.w	#$0160, D0
 	MOVE.w	D0, $E(A0)
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	TST.b	$9(A0)
 	BMI.w	loc_0000CAA4
 	RTS
@@ -12486,11 +12497,11 @@ loc_0000CAD0:
 	BSR.w	loc_0000CCAE
 	MOVE.w	#$0140, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$80, $6(A0)
 	MOVE.b	#$0D, $9(A0)
 	MOVE.b	#0, $36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$4800, D1
 	JSR	loc_00001218
@@ -12504,7 +12515,7 @@ loc_0000CAD0:
 	BCC.w	loc_0000CB36
 	RTS
 loc_0000CB36:
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$00FF05D2, D0
 	ADDI.w	#$0160, D0
 	MOVE.w	D0, $E(A0)
@@ -12571,7 +12582,7 @@ loc_0000CB8E:
 	MOVE.w	#7, D0
 loc_0000CB92:
 	LEA	loc_0000CBD8, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CBD2
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	#$24, $8(A1)
@@ -12612,7 +12623,7 @@ loc_0000CC0E:
 	RTS
 loc_0000CC2C:
 	MOVE.w	#$0010, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$20(A0), D0
 	ADD.w	$00FF05D2, D0
 	MOVE.w	D0, $E(A0)
@@ -12629,7 +12640,7 @@ loc_0000CC50:
 	MOVE.w	#$0100, D1
 	JSR	loc_00001218
 	MOVE.l	D2, $12(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), $E(A0)
 	JSR	loc_00002C2A
 	BCS.w	loc_0000CCA8
@@ -12641,7 +12652,7 @@ loc_0000CCA8:
 	JMP	loc_00002AF2
 loc_0000CCAE:
 	LEA	loc_0000CCFC, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000CCC0
 	RTS
 loc_0000CCC0:
@@ -12667,7 +12678,7 @@ loc_0000CD1E:
 	JMP	loc_00002AF2
 loc_0000CD24:
 	LEA	loc_0000CD54, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000CD36
 	RTS
 loc_0000CD36:
@@ -12700,11 +12711,11 @@ loc_0000CD54:
 loc_0000CD98:
 	JMP	loc_00002AF2
 loc_0000CD9E:
-	MOVE.b	#$80, D0
-	JMP	cut_PlayVoice
+	MOVE.b	#pcmID_Fire, D0
+	JMP	SndDrv_PlayVoice
 loc_0000CDA8:
-	MOVE.b	#$73, D0
-	JMP	loc_000072BE
+	MOVE.b	#sfxID_PuyoBounceOnArle, D0
+	JMP	SndDrv_QueueSoundEffect
 loc_0000CDB2:
 	MOVE.b	#0, $6(A0)
 	MOVEA.l	$2E(A0), A1
@@ -12738,7 +12749,7 @@ loc_0000CE2A:
 	MOVE.b	#$24, $8(A0)
 	MOVE.b	#5, $9(A0)
 	MOVE.w	#$0120, $A(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$00FF05D2, D0
 	ADDI.w	#$014C, D0
 	MOVE.w	D0, $E(A0)
@@ -12748,10 +12759,10 @@ loc_0000CE58:
 	BSR.w	loc_0000CEBC
 	BSR.w	loc_00010B6C
 	LEA	loc_0000CE2A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BSR.w	loc_0000CA1E
 	LEA	loc_0000CFE0, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CE9C
 	MOVE.b	#$24, $8(A1)
 	MOVE.w	#$0120, $A(A1)
@@ -12762,7 +12773,7 @@ loc_0000CE9C:
 loc_0000CE9E:
 	MOVEM.l	D0, -(A7)
 	CLR.w	D0
-	MOVE.b	$00FFFCA5, D0
+	MOVE.b	rOption_ComputerLevel, D0
 	MOVE.b	loc_0000CEB8(PC,D0.w), $00FF0104
 	MOVEM.l	(A7)+, D0
 	RTS
@@ -12824,7 +12835,7 @@ loc_0000CF48:
 loc_0000CF98:
 	RTS
 loc_0000CF9A:
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	CLR.w	D0
 	MOVE.b	$9(A0), D0
 	CMP.b	$8(A0), D0
@@ -12885,27 +12896,28 @@ loc_0000D040:
 	RTS
 loc_0000D056:
 	MOVE.w	$2A(A0), D1
-	MOVE.b	loc_0000D09C(PC,D1.w), D2
+	MOVE.b	Title_SndTstCode(PC,D1.w), D2
 	CMP.b	D2, D0
 	BEQ.w	loc_0000D06A
 	CLR.w	$2A(A0)
 	RTS
 loc_0000D06A:
 	ADDQ.w	#1, D1
-	MOVE.b	loc_0000D09C(PC,D1.w), D0
+	MOVE.b	Title_SndTstCode(PC,D1.w), D0
 	BMI.w	loc_0000D07A
 	MOVE.w	D1, $2A(A0)
 	RTS
 loc_0000D07A:
 	CLR.w	$2A(A0)
-	MOVE.b	#$66, D0
-	JSR	loc_000072BE
-	MOVE.w	$00FFFC02, D0
+	MOVE.b	#sfxID_UnlockSndTst, D0
+	JSR	SndDrv_QueueSoundEffect
+	MOVE.w	rOption_SoundTestEnabled, D0
 	NOT.w	D0
-	MOVE.w	D0, $00FFFC02
+	MOVE.w	D0, rOption_SoundTestEnabled
 	JMP	loc_0001DC02
-loc_0000D09C:
-	dc.b	$40, $40, $04, $10, $10, $04, $20, $20, $FF, $00 
+Title_SndTstCode:
+	dc.b	btnb_A, btnb_A, btnb_Left, btnb_B, btnb_B, btnb_Left, btnb_C, btnb_C, $FF
+	even
 loc_0000D0A6:
 	MOVE.b	#1, $00FF1884
 	MOVE.b	#1, $00FF1888
@@ -12915,14 +12927,14 @@ loc_0000D0A6:
 	EORI.b	#1, $00FF1884
 	EORI.b	#1, $00FF1888
 loc_0000D0D4:
-	MOVE.b	#$52, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	JSR	SndDrv_QueueSoundEffect
 	CLR.b	bc_stopRunning
 	CLR.b	bc_returnState
 	JMP	loc_00002AF2
 loc_0000D0F0:
 	LEA	loc_0000D188, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000D102
 	RTS
 loc_0000D102:
@@ -12933,7 +12945,7 @@ loc_0000D102:
 	MOVE.l	#loc_0000D162, $32(A1)
 	MOVE.w	#$0040, $26(A1)
 	LEA	loc_0000D188, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000D13A
 	RTS
 loc_0000D13A:
@@ -12989,17 +13001,17 @@ loc_0000D196:
 	MOVE.b	#$95, $6(A0)
 	MOVE.w	#$FFFF, $20(A0)
 	MOVE.w	#$0800, $1C(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
 	CMPI.w	#$00B8, $E(A0)
 	BCC.w	loc_0000D1C0
 	RTS
 loc_0000D1C0:
 	MOVE.w	#$00B8, $E(A0)
-	MOVE.b	#$55, D0
-	BSR.w	loc_000072BE
-	JSR	loc_00002B26
-	JMP	func_updateCutsceneAnimation
+	MOVE.b	#sfxID_PlacePuyo, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JMP	Anim_UpdateCutsceneSprite
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
 	MOVE.b	$00FF0A2D, D0
@@ -13014,7 +13026,7 @@ loc_0000D1F0:
 	JMP	loc_00000BA4
 loc_0000D20A:
 	LEA	loc_0000D27E, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000D21C
 	RTS
 loc_0000D21C:
@@ -13050,7 +13062,7 @@ loc_0000D28C:
 	MOVE.l	A1, $32(A0)
 	BSR.w	loc_0000D306
 	MOVE.b	$8(A0), D0
-	BSR.w	loc_000072BE
+	BSR.w	SndDrv_QueueSoundEffect
 	MOVE.w	$2A(A0), $26(A0)
 	RTS
 loc_0000D2B4:
@@ -14528,7 +14540,7 @@ loc_0000D8E0:
 
 loc_0000D908:
 	lea (loc_0000D914).l, a1
-	jmp loc_00002A54
+	jmp ObjSys_InitObjWithFunc
 loc_0000D914:
 	move.b (ram_pad1Press).l, d0
 	or.b ($00FF1111).l, d0
@@ -14588,30 +14600,30 @@ loc_0000D9F8:
 	MOVE.b	D1, $8(A1)
 	RTS
 loc_0000DA02:
-	JSR	func_updateCutsceneAnimation
-	JSR	loc_00002B26
+	JSR	Anim_UpdateCutsceneSprite
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), D0
 	ADD.w	D0, $A(A0)
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000DA20
 	RTS
 loc_0000DA20:
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_0000DA3A
 	RTS
 loc_0000DA3A:
 	MOVE.w	#$0020, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000DA56
 	RTS
 loc_0000DA56:
 	CLR.b	$7(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JMP	loc_00002AF2
 loc_0000DA66:
 	dc.b	$01, $00, $03, $03, $00, $00, $04, $00, $01, $02, $01, $07, $03, $00, $04, $00 
@@ -14658,46 +14670,46 @@ loc_0000DAF4:
 	lea (loc_0000DB16).l, a1
 	move.b $0(a1, d0.w), (game_curCutscene).l
 	lea (loc_0000DB28).l, a1
-	jmp loc_00002A54
+	jmp ObjSys_InitObjWithFunc
 loc_0000DB16:
 	dc.b	$10
 	dc.b	$00, $04, $0D, $03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $11 
 loc_0000DB28:
 	MOVE.b	#$FF, $7(A0)
 	BSR.w	loc_0000DC06
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CMPI.b	#cutID_Unk2, game_curCutscene
 	BCS.w	loc_0000DB5E
 	MOVE.w	#$002E, D0
 	JSR	loc_00000BF2
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$002F, D0
 	JSR	loc_00000BF2
 loc_0000DB5E:
 	BSR.w	loc_0000DC36
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000DDD2
 	CLR.b	$00FF1886
 	MOVE.w	#$00C0, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
 	MOVE.b	game_curStage, D0
 	BSR.w	loc_0000DEEC
 	MOVE.w	#1, $00FF18AA
 	MOVE.w	#$00A0, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CMPI.b	#$11, game_curStage
 	BCS.w	loc_0000DBC2
 	MOVE.w	#$0100, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 loc_0000DBC2:
 	CLR.b	$7(A0)
 	MOVE.w	#$0024, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000DE6A
 	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
@@ -14755,7 +14767,7 @@ loc_0000DC70:
 loc_0000DCB2:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$9000, D0
 	SWAP	D0
 	JSR	loc_00000C4C
@@ -14780,7 +14792,7 @@ loc_0000DD20:
 	MOVE.l	#loc_0000DDC4, $32(A0)
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$95, $6(A0)
 	MOVE.b	#$19, $8(A0)
 	MOVE.b	#$40, $9(A0)
@@ -14788,10 +14800,10 @@ loc_0000DD20:
 	MOVE.w	#$FF90, $E(A0)
 	MOVE.w	#$FFFF, $20(A0)
 	MOVE.w	#$1000, $1C(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), $E(A0)
 	JSR	loc_00002C2A
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.w	$E(A0), $1E(A0)
 	ADDI.w	#$FF90, $E(A0)
 	CMPI.w	#$00C0, $1E(A0)
@@ -14799,10 +14811,10 @@ loc_0000DD20:
 	RTS
 loc_0000DD92:
 	MOVE.l	#loc_0000DDAE, $32(A0)
-	MOVE.b	#$55, D0
-	BSR.w	loc_000072BE
-	JSR	loc_00002B26
-	JMP	func_updateCutsceneAnimation
+	MOVE.b	#sfxID_PlacePuyo, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JMP	Anim_UpdateCutsceneSprite
 loc_0000DDAE:
 	dc.b	$08
 	dc.b	$09 
@@ -14954,8 +14966,8 @@ loc_0000DF52:
 	MOVE.w	D0, $00C00000
 	ANDI	#$F8FF, SR
 	ADDQ.w	#2, $2A(A0)
-	MOVE.b	#$50, D0
-	BRA.w	loc_000072BE
+	MOVE.b	#sfxID_TextboxDialogue, D0
+	BRA.w	SndDrv_QueueSoundEffect
 	
 ; These are the textboxes for the end credits
 credits_LookupTextbox:
@@ -15047,7 +15059,7 @@ cut_TickCutscene:
 	LSL.w	#2, D0
 	LEA	cutsceneLookupTable, A1
 	MOVE.l	(A1,D0.w), $32(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00004BF2
 	ANDI.b	#$F0, D0
 	BNE.w	cut_EndCutscene
@@ -15087,11 +15099,11 @@ cut_CommandLookupTable:
 	dc.l	loc_0000E1A0 
 	dc.l	NULL 
 	dc.l	cut_AddWhitespace
-	dc.l	cut_PlayVoice 
+	dc.l	SndDrv_PlayVoice 
 	
 cut_EndCutscene:
 	BSR.w	loc_0000E210
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
 	
@@ -15245,8 +15257,8 @@ cut_WriteChar:
 	ANDI	#$F8FF, SR
 	
 	MOVE.w	#1, $26(A0)
-	MOVE.b	#$50, D0
-	BSR.w	loc_000072BE
+	MOVE.b	#sfxID_TextboxDialogue, D0
+	BSR.w	SndDrv_QueueSoundEffect
 loc_0000E2E0:
 	; Check for new line in textbox
 	ADDQ.w	#1, $A(A0)
@@ -15571,7 +15583,7 @@ loc_0000F1B6:
 	move.w #$FFFF, $20(a0)
 	move.w #$3000, $1c(a0)
 	move.w #1, $16(a0)
-	jsr loc_00002B26
+	jsr ObjSys_UpdateObjNextOpTimer
 	jsr loc_00002C2A
 	bcs.w loc_0000F1E0
 	rts
@@ -15583,7 +15595,7 @@ loc_0000F1E6:
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F23E
 	LEA	loc_0000F28A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000F23E
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
@@ -15657,7 +15669,7 @@ loc_0000F2DE:
 loc_0000F2E8:
 	MOVE.b	#$FF, $2D(A0)
 	CLR.w	$28(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDI.w	#$000C, $28(A0)
 	MOVE.b	$28(A0), D0
 	CMP.b	$2C(A0), D0
@@ -15669,7 +15681,7 @@ loc_0000F30E:
 	RTS
 loc_0000F318:
 	MOVE.b	#0, $7(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JMP	loc_00002AF2
 loc_0000F32A:
 	MOVEA.l	$2E(A0), A1
@@ -15834,7 +15846,7 @@ loc_0000F542:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_0000F576
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	#0, $6(A0)
 	TST.b	$2D(A1)
 	BEQ.w	loc_0000F574
@@ -15861,7 +15873,7 @@ loc_0000F59E:
 	CLR.w	$00FF18C8
 	CLR.w	$00FF2286
 	LEA	loc_0000F5B6, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_0000F5B6:
 	TST.w	$00FF18C8
 	BNE.w	loc_0000F5DE
@@ -15971,17 +15983,17 @@ loc_0000F744:
 	dc.b	$FE
 	dc.b	$00 
 loc_0000F74A:
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	#$87, $6(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0000F76E
 	RTS
 loc_0000F76E:
 	MOVE.l	#loc_0000F744, $32(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0000F788
 	RTS
 loc_0000F788:
@@ -17162,16 +17174,16 @@ loc_0001047E:
 
 loc_0001048C:
 	LEA	loc_000104A4, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	LEA	loc_00010514, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_000104A4:
 	MOVE.b	#$80, $6(A0)
 	MOVE.b	#$26, $8(A0)
 	MOVE.w	#$0120, $A(A0)
 	MOVE.w	#$0150, $E(A0)
 	MOVE.l	#loc_000104EC, $32(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
 	MOVE.b	$00FF1C2B, D0
 	BEQ.w	loc_000104E6
@@ -17179,7 +17191,7 @@ loc_000104A4:
 	MOVE.l	loc_000104F0(PC,D0.w), $32(A0)
 	CLR.b	$00FF1C2B
 loc_000104E6:
-	JMP	func_updateCutsceneAnimation
+	JMP	Anim_UpdateCutsceneSprite
 loc_000104EC:
 	dc.b	$00, $02 
 	dc.b	$FE
@@ -17206,13 +17218,13 @@ loc_00010514:
 	MOVE.w	#$0150, $A(A0)
 	MOVE.w	#$0150, $E(A0)
 	MOVE.l	#loc_0001055C, $32(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.b	$00FF1C2A
 	BEQ.w	loc_00010552
 	MOVE.l	#loc_00010558, $32(A0)
 	CLR.b	$00FF1C2A
 loc_00010552:
-	JMP	func_updateCutsceneAnimation
+	JMP	Anim_UpdateCutsceneSprite
 loc_00010558:
 	dc.b	$01
 	dc.b	$00 
@@ -17246,7 +17258,7 @@ loc_000105CC:
 	ORI.b	#4, D0
 	MOVE.b	D0, $00FF0A2D
 	LEA	loc_0001062A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	MOVE.b	#0, $2A(A1)
 	MOVE.l	#$80010000, D0
 	JSR	loc_00000C4C
@@ -17262,18 +17274,18 @@ loc_0001062A:
 	ORI	#$0700, SR
 	JSR	loc_00004CCC
 	ANDI	#$F8FF, SR
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	$00FF0104
 	MOVE.b	#7, $8(A0)
 	JSR	loc_000088E0
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 loc_00010670:
 	CLR.w	$00FF18C8
 	CMPI.b	#9, $00FF188D
 	BCS.w	loc_000106A4
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_returnState
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
@@ -17282,14 +17294,14 @@ loc_000106A4:
 	BSR.w	loc_0001083E
 	BSR.w	loc_0001085A
 	JSR	loc_00003BB2
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#2, $7(A0)
 	BEQ.w	loc_000106C8
 	RTS
 loc_000106C8:
 	JSR	loc_0000436E
 	BCS.w	loc_000107B8
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$7(A0), D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_000106FE
@@ -17303,31 +17315,31 @@ loc_000106F0:
 loc_000106FE:
 	JSR	loc_00004EAA
 	MOVE.w	D1, $26(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ORI	#$0700, SR
 	JSR	loc_00004CCC
 	ANDI	#$F8FF, SR
 	MOVE.w	#2, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_00010670
 	JSR	loc_00004E12
 	JSR	loc_0000863E
 	JSR	loc_00008628
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00003EF6
 	MOVE.w	#$0018, D0
 	JSR	loc_00002B1C
 	JSR	loc_00003F0E
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00003F62
 	MOVE.w	#$0018, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00004302
 	BSET.b	#4, $7(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BTST.b	#4, $7(A0)
 	BEQ.w	loc_000107A0
 	JMP	loc_0000435E
@@ -17342,9 +17354,9 @@ loc_000107B8:
 	MOVE.b	#$FF, $00FF18C8
 	MOVE.w	#5, $00FF188C
 	JSR	loc_000063BA
-	MOVE.b	#$61, D0
-	JSR	loc_000072BE
-	JSR	loc_00002B26
+	MOVE.b	#sfxID_Lose, D0
+	JSR	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.w	$26(A0)
 	BEQ.w	loc_000107E8
 	RTS
@@ -17363,7 +17375,7 @@ loc_00010810:
 	DBF	D1, loc_00010810
 	MOVE.w	#$00E0, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8400, D0
 	SWAP	D0
 	MOVE.b	#5, D0
@@ -17397,7 +17409,7 @@ loc_00010870:
 	dc.l	loc_00010B24
 loc_00010894:
 	LEA	loc_000108B4, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_000108A6
 	RTS
 loc_000108A6:
@@ -17405,7 +17417,7 @@ loc_000108A6:
 	MOVE.l	#loc_000108D0, $32(A1)
 	RTS
 loc_000108B4:
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	BCC.w	loc_000108C4
 	JMP	loc_00002AF2
 loc_000108C4:
@@ -17436,7 +17448,7 @@ loc_000108D0:
 loc_000108E4:
 	MOVE.b	#2, $20(A0)
 	LEA	loc_0001090A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_000108FC
 	RTS
 loc_000108FC:
@@ -17444,7 +17456,7 @@ loc_000108FC:
 	MOVE.l	#loc_00010926, $32(A1)
 	RTS
 loc_0001090A:
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	BCC.w	loc_0001091A
 	JMP	loc_00002AF2
 loc_0001091A:
@@ -17483,7 +17495,7 @@ loc_00010940:
 	MOVE.b	#3, $21(A0)
 loc_0001094C:
 	LEA	loc_0001096A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0001095E
 	RTS
 loc_0001095E:
@@ -17603,7 +17615,7 @@ loc_00010B65:
 loc_00010B6C:
 	JSR	loc_00000BA4
 	LEA	loc_00010B8A, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_00010B88
 	MOVE.w	#3, $28(A1)
 loc_00010B88:
@@ -17618,7 +17630,7 @@ loc_00010BA2:
 	BSR.w	titleScreen_fadeLogoToColor
 	MOVE.w	#$0010, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
 	MOVE.b	$00FF188A, D0
 	LSL.w	#2, D0
@@ -17633,7 +17645,7 @@ loc_00010BD8:
 	dc.l	loc_00010F8A
 loc_00010BE8:
 	LEA	loc_00010BF4, A1
-	JMP	loc_00002A54
+	JMP	ObjSys_InitObjWithFunc
 loc_00010BF4:
 	MOVE.w	#2, $26(A0)
 loc_00010BFA:
@@ -17646,14 +17658,14 @@ loc_00010BFA:
 	JSR	loc_00000E46
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	TST.b	bc_stopRunning
 	BEQ.w	loc_00010C56
 	MOVE.b	#0, D1
 	BSR.w	titleScreen_fadeLogoToColor
 	MOVE.w	#$000E, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	SUBQ.w	#1, $26(A0)
 	BNE.b	loc_00010BFA
 loc_00010C56:
@@ -17671,7 +17683,7 @@ loc_00010C7C:
 	BSR.w	loc_00010BE8
 	MOVE.w	#$0100, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	SUBQ.w	#1, $28(A0)
 	BEQ.w	loc_00010C9C
 	BRA.w	loc_00010B8A
@@ -17709,7 +17721,7 @@ loc_00010D18:
 loc_00010D20:
 	BSR.b	loc_00010D0E
 	MOVE.b	#$80, $36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$2800, D1
 	JSR	loc_00001218
@@ -17719,10 +17731,10 @@ loc_00010D20:
 	BCS.w	loc_00010D4E
 	RTS
 loc_00010D4E:
-	MOVE.b	#$5F, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_5F, D0
+	JSR	SndDrv_QueueSoundEffect
 	CLR.b	$36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$2800, D1
@@ -17737,35 +17749,35 @@ loc_00010D88:
 	CLR.b	$00FF013A
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00010C7C
 loc_00010DA2:
 	MOVE.w	#$001C, $26(A0)
 	MOVE.w	#4, $2A(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 loc_00010DB4:
 	MOVE.w	#$0014, D0
 	JSR	loc_00001202
 	ADDI.w	#$0014, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
-	MOVE.b	#$38, D0
-	JSR	loc_000072BE
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.b	#sfxID_38, D0
+	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$000C, D0
 	JSR	loc_00002B1C
 	ADDQ.w	#1, $26(A0)
 	BSR.w	loc_00011092
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	SUBQ.w	#1, $2A(A0)
 	BNE.b	loc_00010DB4
 	MOVE.w	#$0040, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$2A, $6(A0)
 	CLR.w	$12(A0)
 	MOVE.w	#$0040, $A(A0)
 	MOVE.w	#$8000, $1A(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
 	MOVE.w	$A(A0), D0
 	BPL.w	loc_00010E32
@@ -17782,15 +17794,15 @@ loc_00010E48:
 	JSR	loc_00002B1C
 	ADDQ.w	#1, $26(A0)
 	BSR.w	loc_00011092
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	$00FF013A
 	MOVE.w	#$0010, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00010C7C
 loc_00010E7A:
 	CLR.b	$36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$7E00, D1
 	JSR	loc_00001218
@@ -17804,9 +17816,9 @@ loc_00010E7A:
 loc_00010EAC:
 	MOVE.w	#$0030, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	$36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#4, $36(A0)
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
@@ -17822,12 +17834,12 @@ loc_00010EAC:
 loc_00010EF4:
 	MOVE.w	#$0060, D0
 	JSR	loc_00002B1C
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#$2A, $6(A0)
 	MOVE.w	#$FFF8, $12(A0)
 	MOVE.w	#$0080, $A(A0)
 	MOVE.w	#$C000, $1A(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00002C2A
 	MOVE.w	$A(A0), D0
 	BPL.w	loc_00010F32
@@ -17842,9 +17854,9 @@ loc_00010F44:
 	CLR.b	$36(A0)
 	MOVE.w	#$0010, $38(A0)
 	MOVE.w	#1, $12(A0)
-	MOVE.b	#$74, D0
-	JSR	loc_000072BE
-	JSR	loc_00002B26
+	MOVE.b	#sfxID_74, D0
+	JSR	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDI.b	#$14, $36(A0)
 	MOVE.w	$38(A0), D0
 	ADD.w	$12(A0), D0
@@ -17857,7 +17869,7 @@ loc_00010F82:
 	BRA.w	loc_00011120
 loc_00010F8A:
 	CLR.b	$36(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$3000, D1
 	JSR	loc_00001218
@@ -17872,22 +17884,22 @@ loc_00010FBA:
 loc_00010FC0:
 	CLR.w	$26(A0)
 	BSR.w	loc_000111A2
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0038, D0
 	JSR	loc_00002B1C
 	ADDQ.w	#2, $26(A0)
 	BSR.w	loc_0001114A
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$001C, D0
 	JSR	loc_00002B1C
 	SUBQ.w	#4, $26(A0)
 	BSR.w	loc_0001114A
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	SUBQ.w	#4, $2A(A0)
 	BCC.b	loc_00010FC0
 	CLR.b	$00FF013A
 	BSR.w	loc_000111BE
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$3000, D1
 	JSR	loc_00001218
@@ -19329,8 +19341,8 @@ loc_000154D2:
 	BNE.w	loc_0001551E
 	CMPI.b	#$0E, $1(A2)
 	BNE.w	loc_0001551E
-	MOVE.b	#$7D, D0
-	JSR	loc_000072BE
+	MOVE.b	#sfxID_7D, D0
+	JSR	SndDrv_QueueSoundEffect
 loc_0001551E:
 	RTS
 loc_00015520:
@@ -24576,1096 +24588,11 @@ bgmap_menuDifficultyLeft:
 bgmap_menuDifficultyRight:
     incbin "art/bgMappings/menu/difficultyRight.bin"
 	
-loc_0001CCDC:
-	BSR.w	sndtst_LoadArleSprite
-	BSR.w	sndtst_LoadSatanSprite
-	MOVE.b	#$FF, $00FF1834
-	MOVE.w	#$E000, D5
-	MOVE.w	#$001B, D0
-	MOVE.w	#$406C, D6
-loc_0001CCF8:
-	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
-	ADDI.w	#$0080, D5
-	MOVE.w	#$0027, D1
-loc_0001CD0A:
-	MOVE.w	D6, vdpData1
-	EORI.b	#1, D6
-	DBF	D1, loc_0001CD0A
-	ANDI	#$F8FF, SR
-	EORI.b	#2, D6
-	DBF	D0, loc_0001CCF8
-	BRA.w	loc_0001D3B4
+	include "game/options/options.asm"
 
-loc_0001CD28:
-	LEA	sndtst_update, A1
-	JMP	loc_00002A54
-loc_0001CD34:
-	move.b #-1, ($00FF1834).l
-	move.w #$E000, D5
-	move.w #$1B, D0
-	move.w #$406C, D6
-loc_0001CD48:
-	ori #$700, SR
-	jsr	loadBGSetupVDP
-	addi.w #$80, D5
-	move.w #$27, D1
-loc_0001CD5A:
-	move.w D6, (vdpData1).l
-	eori.b #1, D6
-	dbf D1, loc_0001CD5A
-	andi #$F8FF, SR
-	eori.b #2, D6
-	dbf D0, loc_0001CD48
-	bsr.w loc_0001D3B4
-	move.w #$5A0, D5
-	move.w #$A500, D6
-loc_0001CD80:
-	lea (loc_0001CDA8).l, A1
-	bsr.w loc_0001D6C4
-	move.w #$796, D5
-	move.w #$8500, D6
-	lea (loc_0001CDB2).l, A1
-	bsr.w loc_0001D6C4
-	lea (loc_0001CDC6).l, A1
-	jmp loc_00002A54
-loc_0001CDA8:
-	dc.b	$21, $0B, $1C, $18, $13, $18, $11, $25, $FF, $00
-loc_0001CDB2:
-	dc.b    $0D, $12
-	dc.b	$0F, $0D, $15, $1D, $1F, $17, $00, $13, $1D, $00, $21, $1C, $19, $18, $11, $25, $FF, $00
-loc_0001CDC6:
-	move.w #$100, D0
-	jsr loc_00002B1C
-	jsr loc_00002b40
-	clr.b ($00FF1834).l
-	clr.b (bc_stopRunning).l
-	jmp loc_00002AF2
-	
-sndtst_LoadSatanSprite:
-	LEA	loc_0001CDF4, A1
-	JMP	loc_00002A54	; Unknown
-loc_0001CDF4:
-	MOVE.w	#$0180, $A(A0) 	; X Position
-	MOVE.w	#$0140, $E(A0) 	; Y Position
-	MOVE.b	#$80, $6(A0)	; ???
-	MOVE.b	#$15, $8(A0)	; Sprite mapping to load from the sprite mapping table
-	MOVE.l	#anim_satan_SoundTest, $32(A0)	; Pointer to anim
-	JSR	loc_00002B26	; Something to do with animation
-	JSR	func_updateCutsceneAnimation
-	JMP	loc_00002C2A	; Unknown
-anim_satan_SoundTest:
-	dc.b	$F1
-	dc.b	$00 
-	dc.b	$08
-	dc.b	$08 
-	dc.b	$0C
-	dc.b	$00 
-	dc.b	$08
-	dc.b	$08 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	anim_satan_SoundTest
-	
-sndtst_LoadArleSprite:
-	LEA	loc_0001CE40, A1
-	JMP	loc_00002A54
-loc_0001CE40:
-	MOVE.w	#$00C0, $A(A0)
-	MOVE.w	#$0140, $E(A0)
-	MOVE.b	#$80, $6(A0)
-	MOVE.b	#8, $8(A0)
-	MOVE.l	#anim_arle_SoundTest, $32(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
-	JMP	loc_00002C2A
-anim_arle_SoundTest:
-	dc.b	$F1
-	dc.b	$00 
-	dc.b	$40
-	dc.b	$14 
-	dc.b	$F1
-	dc.b	$00 
-	dc.b	$20
-	dc.b	$05 
-	dc.b	$F1
-	dc.b	$00 
-	dc.b	$08
-	dc.b	$13 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	anim_arle_SoundTest
-	
-sndtst_update:
-	MOVE.w	#2, D0
-	BSR.w	sndtst_drawStaticText
-	BSR.w	sndtst_drawIdNames
-	JSR	loc_00002B26
-	BSR.w	sndtst_drawIds
-	
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
-	BTST.l	#btn_Start, D0
-	BNE.w	sndtst_exit
-	BTST.l	#btn_B, D0
-	BNE.w	sndtst_stopPlaying
-	ANDI.b	#(btnb_A|btnb_C), D0
-	BNE.w	sndtst_playID
-	MOVE.b	$00FF110C, D0
-	OR.b	$00FF1112, D0
-	BTST.l	#btn_Up, D0
-	BNE.w	sndtst_moveCursorUp
-	BTST.l	#btn_Down, D0
-	BNE.w	sndtst_moveCursorDown
-	BTST.l	#btn_Right, D0
-	BNE.w	sndtst_moveCursorRight
-	BTST.l	#btn_Left, D0
-	BNE.w	sndtst_moveCursorLeft
-	RTS
-	
-sndtst_moveCursorUp:
-	SUBQ.w	#1, $26(A0)
-	BCC.w	@cursorNoWrap
-	MOVE.w	#5, $26(A0)
-@cursorNoWrap:
-	RTS
-	
-sndtst_moveCursorDown:
-	ADDQ.w	#1, $26(A0)
-	CMPI.w	#6, $26(A0)
-	BCS.w	@cursorNoWrap
-	MOVE.w	#0, $26(A0)
-@cursorNoWrap:
-	RTS
-
-sndtst_stopPlaying:
-	JMP	snd_playClearEffect
-
-sndtst_exit:
-	CLR.b	$00FF1834
-	CLR.b	bc_stopRunning
-	JMP	loc_00002AF2
-
-; This function updates values in the soundtest
-sndtst_moveCursorRight:
-	MOVE.b	#1, D1
-	BRA.w	sndtst_moveCursorLR
-sndtst_moveCursorLeft:
-	MOVE.b	#$FF, D1
-	
-sndtst_moveCursorLR:
-	MOVE.w	$26(A0), D0
-	LEA	tbl_sndtst_IdLimits, A1
-	MOVE.b	(A1,D0.w), D2
-	ADD.b	D1, $12(A0,D0.w)
-	BPL.w	loc_0001CF54
-	MOVE.b	D2, $12(A0,D0.w)
-	SUBQ.b	#1, $12(A0,D0.w)
-loc_0001CF54:
-	MOVE.b	$12(A0,D0.w), D3
-	CMP.b	D2, D3
-	BCS.w	loc_0001CF62
-	CLR.b	$12(A0,D0.w)
-loc_0001CF62:
-	SUBQ.w	#3, D0
-	BCS.w	loc_0001CF6C
-	BSR.w	loc_0001D03A
-loc_0001CF6C:
-	RTS
-tbl_sndtst_IdLimits:
-	dc.b	$5F, $5F, $5F, $11, $03, $07 
-
-sndtst_playID:
-	MOVE.w	$26(A0), D1
-	CLR.w	D0
-	MOVE.b	$12(A0,D1.w), D0
-	SUBQ.w	#3, D1
-	BCC.w	loc_0001CF8E
-	ADDI.b	#$20, D0
-	JMP	loc_000072BE
-loc_0001CF8E:
-	LSL.w	#2, D0
-	LSL.w	#2, D1
-	LEA	soundTest_MainArray, A1
-	MOVEA.l	(A1,D1.w), A2
-	MOVEA.l	(A2,D0.w), A1
-	MOVE.b	(A1), D0
-	MOVEA.l	loc_0001CFA8(PC,D1.w), A1
-	JMP	(A1)
-loc_0001CFA8:
-	dc.l	loc_0001CFB4
-	dc.l	loc_0001CFC0
-	dc.l	loc_0001CFC6
-loc_0001CFB4:
-	JSR	snd_playClearEffect
-	JMP	playSoundID
-loc_0001CFC0:
-	JMP	loc_00007360
-loc_0001CFC6:
-	CLR.w	D0
-	MOVE.b	$17(A0), D0
-	MULU.w	#3, D0
-	MOVE.b	loc_0001D00E(PC,D0.w), $00FF012C
-	MOVE.b	loc_0001D00E+1(PC,D0.w), $00FF012D
-	MOVE.b	loc_0001D00E+2(PC,D0.w), $00FF012E
-	CMPI.b	#$F4, $00FF012C
-	BNE.w	loc_0001D00C
-	CLR.w	D0
-	MOVE.b	$15(A0), D0
-	LSL.w	#2, D0
-	LEA	soundTest_MusicArray, A1
-	MOVEA.l	(A1,D0.w), A2
-	MOVE.b	(A2), $00FF012E
-loc_0001D00C:
-	RTS
-loc_0001D00E:
-	dc.b	$F1, $00, $00
-	dc.b	$F2, $00, $00
-	dc.b 	$F3, $80, $00
-	dc.b	$F4, $80, $03
-	dc.b	$F5, $80, $00
-	dc.b	$F6, $00, $00
-	dc.b	$F7, $00, $00 
-	even
-sndtst_drawIdNames:
-	MOVE.w	#2, D0
-loc_0001D028:
-	MOVEM.l	D0, -(A7)
-	BSR.w	loc_0001D03A
-	MOVEM.l	(A7)+, D0
-	DBF	D0, loc_0001D028
-	RTS
-loc_0001D03A:
-	MOVE.w	D0, D1
-	LSL.w	#2, D1
-	LEA	soundTest_MainArray, A1
-	MOVEA.l	(A1,D1.w), A2
-	MOVE.b	$15(A0,D0.w), D1 ; Value of Sound Test Music
-	LSL.w	#2, D1
-	MOVEA.l	(A2,D1.w), A1
-	ADDQ.l	#1, A1
-	MOVE.w	D0, D5
-	LSL.w	#8, D5
-	ADDI.w	#$05A4, D5
-	MOVE.w	#$A500, D6
-	MOVEM.l	A1/D6/D5, -(A7)
-	LEA	loc_0001D076, A1
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D5/D6/A1
-	BRA.w	loc_0001D6C4
-loc_0001D076:
-	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00 
-sndtst_drawIds:
-	MOVE.w	#5, D0
-	MOVE.w	#$079C, D5
-	MOVE.w	#$A500, D6
-loc_0001D09A:
-	BSR.w	loc_0001D0F8
-	BSR.w	loc_0001D0B8
-	MOVEM.l	D5/D4/D3/D2/D1/D0, -(A7)
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5
-	SUBI.w	#$0100, D5
-	DBF	D0, loc_0001D09A
-	RTS
-loc_0001D0B8:
-	LEA	$00FF1894, A1
-	CLR.w	(A1)
-	MOVE.b	#$FF, $2(A1)
-	CMP.w	$26(A0), D0
-	BNE.w	loc_0001D0DC
-	BTST.b	#0, $00FF05C7
-	BEQ.w	loc_0001D0DC
-	RTS
-loc_0001D0DC:
-	MOVE.b	D1, D2
-	LSR.b	#4, D2
-	ANDI.b	#$0F, D1
-	ADDQ.b	#1, D2
-	ADDQ.b	#1, D1
-	MOVE.b	D2, $0(A1)
-	MOVE.b	D1, $1(A1)
-	MOVE.b	#$FF, $2(A1)
-	RTS
-loc_0001D0F8:
-	CLR.w	D1
-	MOVE.b	$12(A0,D0.w), D1
-	MOVE.w	D0, D2
-	SUBQ.w	#3, D2
-	BCS.w	loc_0001D11C
-	LSL.w	#2, D2
-	LEA	soundTest_MainArray, A1
-	MOVEA.l	(A1,D2.w), A2
-	LSL.w	#2, D1
-	MOVEA.l	(A2,D1.w), A1
-	MOVE.b	(A1)+, D1
-	RTS
-loc_0001D11C:
-	ADDI.b	#$20, D1
-	RTS
-	
-soundTest_MainArray:
-	dc.l	soundTest_MusicArray
-	dc.l	soundTest_VoiceArray
-	dc.l	soundTest_CommandArray
-soundTest_MusicArray:
-	dc.l	@final
-	dc.l	@theme
-	dc.l	@baroque
-	dc.l	@cooking
-	dc.l	@morning
-	dc.l	@toy
-	dc.l	@sorrow
-	dc.l	@sticker
-	dc.l	@sunset
-	dc.l	@rejection
-	dc.l	@memories
-	dc.l	@harpy
-	dc.l	@warning
-	dc.l	@satan
-	dc.l	@brave
-	dc.l	@ondo
-	dc.l	@victory
-
-@final:
-	dc.b	$01 
-	soundTestText "FINAL OF PUYOPUYO"
-	even
-@theme:
-	dc.b	$02 
-	soundTestText "THEME OF PUYOPUYO"
-	even
-@baroque:
-	dc.b	$03 
-	soundTestText "BAROQUE OF PUYOPUYO"
-	even
-@cooking:
-	dc.b	$04 
-	soundTestText "COOKING OF PUYOPUYO"
-	even
-@morning:
-	dc.b	$05 
-	soundTestText "MORNING OF PUYOPUYO"
-	even
-@toy:
-	dc.b	$06 
-	soundTestText "TOY OF PUYOPUYO"
-	even
-@sorrow:
-	dc.b	$07 
-	soundTestText "SORROW OF PUYOPUYO"
-	even
-@sticker:
-	dc.b	$08 
-	soundTestText "STICKER OF PUYOPUYO"
-	even
-@sunset:
-	dc.b	$0A
-	soundTestText "SUNSET OF PUYOPUYO"
-	even
-@rejection:
-	dc.b	$0B
-	soundTestText "REJECTION OF PUYOPUYO"
-	even
-@memories:
-	dc.b	$0C 
-	soundTestText "MEMORIES OF PUYOPUYO"
-	even
-@harpy:
-	dc.b	$0D 
-	soundTestText "THEME FOR HARPY"
-	even
-@warning:
-	dc.b	$0E 
-	soundTestText "WARNING OF PUYOPUYO"
-	even
-@satan:
-	dc.b	$0F 
-	soundTestText "THEME FOR SATAN"
-	even
-@brave:
-	dc.b	$10 
-	soundTestText "BRAVE OF PUYOPUYO"
-	even
-@ondo:
-	dc.b	$11 
-	soundTestText "ONDO OF PUYOPUYO"
-	even
-@victory:
-	dc.b	$12 
-	soundTestText "VICTORY OF PUYOPUYO"
-	even
-soundTest_VoiceArray:
-	dc.l	@fire
-	dc.l	@yattana
-	dc.l	@puyopuyo
-@yattana:
-	dc.b    $81
-	soundTestText "YATTANA"
-	even
-@fire:
-	dc.b    $80
-	soundTestText "FIRE"
-	even
-@puyopuyo:
-	dc.b    $82
-	soundTestText "PUYO PUYO"
-	even
-soundTest_CommandArray:
-	dc.l	@all_clear
-	dc.l	@clear
-	dc.l	@fade_out
-	dc.l	@fade_in
-	dc.l	@rebirth
-	dc.l	@pause_on
-	dc.l	@pause_off
-@all_clear:
-	dc.b	$F1 
-	soundTestText "ALL CLEAR"
-	even
-@clear:
-	dc.b	$F2 
-	soundTestText "CLEAR"
-	even
-@fade_out:
-	dc.b	$F3 
-	soundTestText "FADE OUT"
-	even
-@fade_in:
-	dc.b	$F4 
-	soundTestText "FADE IN"
-	even
-@rebirth:
-	dc.b	$F5 
-	soundTestText "REBIRTH"
-	even
-@pause_on:
-	dc.b	$F6 
-	soundTestText "PAUSE ON"
-	even
-@pause_off:
-	dc.b	$F7 
-	soundTestText "PAUSE OFF"
-	even
-loc_0001D35C:
-	MOVE.b	#$FF, $00FF1834
-	MOVE.w	#$E000, D5
-	MOVE.w	#$001B, D0
-	MOVE.w	#$006C, D6
-loc_0001D370:
-	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
-	ADDI.w	#$0080, D5
-	MOVE.w	#$0027, D1
-loc_0001D382:
-	MOVE.w	D6, vdpData1
-	EORI.b	#1, D6
-	DBF	D1, loc_0001D382
-	ANDI	#$F8FF, SR
-	EORI.b	#2, D6
-	DBF	D0, loc_0001D370
-	BRA.w	loc_0001D3B4
-loc_0001D3A0:
-	LEA	loc_0001D6E4, A1
-	JSR	loc_00002A54
-	BCC.w	loc_0001D3B2
-	RTS
-loc_0001D3B2:
-	RTS
-
-loc_0001D3B4:
-	LEA	$00FFC000, A1
-	MOVE.w	#$06FF, D0
-loc_0001D3BE:
-	MOVE.w	#$8500, (A1)+
-	DBF	D0, loc_0001D3BE
-	RTS
-	
-sndtst_drawStaticText:
-	MOVEM.l	D0, -(A7)
-	BSR.b	loc_0001D3B4
-	MOVEM.l	(A7)+, D0
-	LSL.w	#2, D0
-	MOVEA.l	loc_0001D3F4(PC,D0.w), A2
-	MOVE.w	(A2)+, D0
-	SUBQ.w	#1, D0
-loc_0001D3DC:
-	MOVEA.l	(A2)+, A1
-	MOVEM.l	A2/D0, -(A7)
-	MOVE.w	(A1)+, D5
-	MOVE.w	(A1)+, D6
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D0/A2
-	DBF	D0, loc_0001D3DC
-	RTS
-loc_0001D3F4:
-	dc.l	option_staticText
-	dc.l	imptst_staticText
-	dc.l	sndtst_staticText
-	
-imptst_staticText:
-	dc.w	$000C 
-	dc.l	@input_test
-	dc.l	@press_start
-	dc.l	@pad1_pad2
-	dc.l	@button_a
-	dc.l	@button_b
-	dc.l	@button_c
-	dc.l	@button_up
-	dc.l	@button_down
-	dc.l	@button_right
-	dc.l	@button_left
-	dc.l	@to_exit
-	dc.l	@button_start
-@input_test:
-	dc.l	$009EA500
-	soundTestText "INPUT TEST"
-	even
-@press_start:
-	dc.l	$0B86A500
-	soundTestText "PRESS START BUTTON AND A BUTTON"
-	even
-@to_exit:
-	dc.l	$0CBAA500
-	soundTestText "TO EXIT"
-	even
-@pad1_pad2:
-	dc.l	$0222E500
-	soundTestText "PAD1  PAD2"
-	even
-@button_start:
-	dc.l	$03168500
-	soundTestText "START:"
-	even
-@button_a:
-	dc.l	$04108500
-	soundTestText "BUTTON A:"
-	even
-@button_b:
-	dc.l 	$05108500
-	soundTestText "BUTTON B:"
-	even
-@button_c:
-	dc.l	$06108500
-	soundTestText "BUTTON C:"
-	even
-@button_up:
-	dc.l	$07908500
-	soundTestText "      UP:"
-	even
-@button_down:
-	dc.l	$08908500
-	soundTestText "    DOWN:"
-	even
-@button_right:
-	dc.l	$09908500
-	soundTestText "   RIGHT:"
-	even
-@button_left:
-	dc.l	$0A908500
-	soundTestText "    LEFT:"
-	even
-	
-option_staticText:
-	dc.w 	$000A
-	dc.l	@option_mode
-	dc.l	@p1_p2
-	dc.l	@press_start
-	dc.l	@button_a
-	dc.l	@button_b
-	dc.l	@button_c
-	dc.l	@vs_com
-	dc.l	@1p_vs_2p
-	dc.l	@sampling
-	dc.l	@key_assignment
-@option_mode:
-	dc.l	$009CA500
-	soundTestText "OPTION MODE"
-	even
-@p1_p2:
-	dc.l	$0312E500
-	soundTestText "PLAYER-1       PLAYER-2"
-	even
-@press_start:
-	dc.l	$0C8EA500
-	soundTestText "PRESS START BUTTON TO EXIT"
-	even
-@button_a:
-	dc.l	$040CE500
-	soundTestText "A:              A:"
-	even
-@button_b:
-	dc.l	$050CE500
-	soundTestText "B:              B:"
-	even
-@button_c:
-	dc.l	$060CE500
-	soundTestText "C:              C:"
-	even
-@vs_com:
-	dc.l	$078CE500
-	soundTestText "VS.COM LEVEL   :"
-	even
-@1p_vs_2p:
-	dc.l 	$088CE500
-	soundTestText "1P VS.2P MODE  :"
-	even
-@sampling:
-	dc.l	$098CE500
-	soundTestText "SAMPLING       :"
-	even
-@key_assignment:
-	dc.l 	$021AE500
-	soundTestText "KEY ASSIGNMENT"
-	even
-	
-sndtst_staticText:
-	dc.w 	$0008
-	dc.l	@sound_track
-	dc.l	@press_start
-	dc.l	@se1
-	dc.l	@se2
-	dc.l	@se3
-	dc.l	@bgm
-	dc.l	@voice
-	dc.l	@command
-@sound_track:
-	dc.b	$01, $1A, $85, $00
-	soundTestText "SOUND  TRACK"
-	even
-@press_start:
-	dc.b	$0C, $8E, $E5, $00
-	soundTestText "PRESS START BUTTON TO EXIT"
-	even
-@se1:
-	dc.b	$02, $92, $E5, $00
-	soundTestText "SE1:"
-	even
-@se2:
-	dc.b	$03, $92, $E5, $00
-	soundTestText "SE2:"
-	even
-@se3:
-	dc.b	$04, $92, $E5, $00
-	soundTestText "SE3:"
-	even
-@bgm:
-	dc.b	$05, $92, $E5, $00
-	soundTestText "BGM:"
-	even
-@voice:
-	dc.b	$06, $8E, $E5, $00
-	soundTestText "VOICE:"
-	even
-@command:
-	dc.b	$07, $8A, $E5, $00
-	soundTestText "COMMAND:"
-	even	
-	
-loc_0001D69A:
-	MOVE.w	#$8500, D6
-	BTST.b	#0, $26(A0)
-	BEQ.w	loc_0001D6C4
-	CMP.b	$2C(A0), D0
-	BNE.w	loc_0001D6B8
-	MOVE.w	#$C500, D6
-	BRA.w	loc_0001D6C4
-loc_0001D6B8:
-	CMP.b	$2D(A0), D0
-	BNE.w	loc_0001D6C4
-	MOVE.w	#$A500, D6
-loc_0001D6C4:
-	LEA	$00FFC002, A2
-loc_0001D6CA:
-	MOVE.b	(A1)+, D0
-	BMI.w	loc_0001D6E2
-	LSL.b	#1, D0
-	MOVE.b	D0, D6
-	MOVE.w	D6, -$2(A2,D5.w)
-	ADDQ.b	#1, D6
-	MOVE.w	D6, $7E(A2,D5.w)
-	ADDQ.w	#2, D5
-	BRA.b	loc_0001D6CA
-loc_0001D6E2:
-	RTS
-loc_0001D6E4:
-	MOVE.w	#0, D0
-	BSR.w	sndtst_drawStaticText
-	JSR	loc_00002B26
-	ADDQ.b	#1, $26(A0)
-	BSR.w	loc_0001D8E4
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
-	BTST.l	#7, D0
-	BNE.w	loc_0001D72C
-	MOVE.w	#0, D0
-	MOVE.b	ram_pad1Press, D1
-	BSR.w	loc_0001D74A
-	MOVE.w	#1, D0
-	MOVE.b	$00FF1111, D1
-	BSR.w	loc_0001D74A
-	RTS
-loc_0001D72C:
-	BSR.w	loc_0001DC02
-	CLR.b	$00FF1834
-	MOVE.b	#0, bc_returnState
-	CLR.b	bc_stopRunning
-	JMP	loc_00002AF2
-loc_0001D74A:
-	MOVE.b	#2, D2
-	CMP.b	$00FF1884, D0
-	BNE.w	loc_0001D76A
-	MOVE.b	#6, D2
-	TST.w	$00FFFC02
-	BEQ.w	loc_0001D76A
-	MOVE.b	#7, D2
-loc_0001D76A:
-	BTST.l	#0, D1
-	BNE.w	loc_0001D794
-	BTST.l	#1, D1
-	BNE.w	loc_0001D7AA
-	BTST.l	#2, D1
-	BNE.w	loc_0001D7C4
-	BTST.l	#3, D1
-	BNE.w	loc_0001D7CC
-	ANDI.b	#$70, D1
-	BNE.w	loc_0001D894
-	RTS
-loc_0001D794:
-	SUBQ.b	#1, $2C(A0,D0.w)
-	BCC.w	loc_0001D7A0
-	MOVE.b	D2, $2C(A0,D0.w)
-loc_0001D7A0:
-	MOVE.b	#$51, D0
-	JMP	loc_000072BE
-loc_0001D7AA:
-	ADDQ.b	#1, $2C(A0,D0.w)
-	CMP.b	$2C(A0,D0.w), D2
-	BCC.w	loc_0001D7BA
-	CLR.b	$2C(A0,D0.w)
-loc_0001D7BA:
-	MOVE.b	#$51, D0
-	JMP	loc_000072BE
-loc_0001D7C4:
-	MOVE.b	#$FF, D1
-	BRA.w	loc_0001D7D0
-loc_0001D7CC:
-	MOVE.b	#1, D1
-loc_0001D7D0:
-	CLR.w	D2
-	MOVE.b	$2C(A0,D0.w), D2
-	LSL.w	#2, D2
-	MOVEA.l	loc_0001D7DE(PC,D2.w), A1
-	JMP	(A1)
-loc_0001D7DE:
-	dc.l	loc_0001D7FE
-	dc.l	loc_0001D7FE
-	dc.l	loc_0001D7FE
-	dc.l	loc_0001D83C
-	dc.l	loc_0001D860
-	dc.l	loc_0001D880
-	dc.l	loc_0001D892 
-	dc.l	loc_0001D892 
-loc_0001D7FE:
-	LEA	$00FFFCA6, A1
-	TST.w	D0
-	BEQ.w	loc_0001D810
-	LEA	$00FFFCA9, A1
-loc_0001D810:
-	CLR.w	D2
-	MOVE.b	$2C(A0,D0.w), D2
-	MOVE.b	(A1,D2.w), D3
-	ADD.b	D1, D3
-	BPL.w	loc_0001D824
-	MOVE.b	#2, D3
-loc_0001D824:
-	CMPI.b	#3, D3
-	BCS.w	loc_0001D82E
-	CLR.b	D3
-loc_0001D82E:
-	MOVE.b	D3, (A1,D2.w)
-	MOVE.b	#$2B, D0
-	JMP	loc_000072BE
-loc_0001D83C:
-	ADDQ.b	#1, $00FFFCA5
-	TST.b	D1
-	BMI.w	loc_0001D84E
-	SUBQ.b	#2, $00FFFCA5
-loc_0001D84E:
-	ANDI.b	#3, $00FFFCA5
-	MOVE.b	#$2B, D0
-	JMP	loc_000072BE
-loc_0001D860:
-	MOVE.b	$00FFFCA4, D2
-	SUBQ.b	#1, D2
-	ADD.b	D1, D2
-	ANDI.b	#7, D2
-	ADDQ.b	#1, D2
-	MOVE.b	D2, $00FFFCA4
-	MOVE.b	#$2B, D0
-	JMP	loc_000072BE
-loc_0001D880:
-	EORI.b	#$FF, $00FFFCAC
-	MOVE.b	#$2B, D0
-	JMP	loc_000072BE
-loc_0001D892:
-	RTS
-loc_0001D894:
-	CMPI.b	#6, $2C(A0,D0.w)
-	BEQ.w	loc_0001D8AA
-	CMPI.b	#7, $2C(A0,D0.w)
-	BEQ.w	loc_0001D8BC
-	RTS
-loc_0001D8AA:
-	MOVE.b	#$2B, D0
-	JSR	loc_000072BE
-	MOVEM.l	(A7)+, D0
-	BRA.w	loc_0001DAFE
-loc_0001D8BC:
-	MOVE.b	#$2B, D0
-	JSR	loc_000072BE
-	MOVEM.l	(A7)+, D0
-	CLR.b	$00FF1834
-	MOVE.b	#1, bc_returnState
-	CLR.b	bc_stopRunning
-	JMP	loc_00002AF2
-loc_0001D8E4:
-	BSR.w	loc_0001D902
-	BSR.w	loc_0001D918
-	BSR.w	loc_0001D9A4
-	BSR.w	loc_0001D9EE
-	BSR.w	loc_0001DA8C
-	BSR.w	loc_0001DAB6
-	BSR.w	loc_0001DAD4
-	RTS
-loc_0001D902:
-	LEA	$00FFFCA6, A2
-	MOVE.w	#$002C, D4
-	MOVE.w	#$0410, D5
-	MOVE.w	#$C500, D6
-	BRA.w	loc_0001D92A
-loc_0001D918:
-	LEA	$00FFFCA9, A2
-	MOVE.w	#$002D, D4
-	MOVE.w	#$0430, D5
-	MOVE.w	#$A500, D6
-loc_0001D92A:
-	BTST.b	#0, $26(A0)
-	BNE.w	loc_0001D938
-	MOVE.w	#$8500, D6
-loc_0001D938:
-	SWAP	D6
-	MOVE.w	#$8500, D6
-	CLR.w	D3
-loc_0001D940:
-	CLR.w	D0
-	MOVE.b	(A2)+, D0
-	LSL.w	#2, D0
-	MOVEA.l	loc_0001D96E(PC,D0.w), A1
-	MOVEM.l	A2/D6/D5/D4/D3, -(A7)
-	CMP.b	(A0,D4.w), D3
-	BNE.w	loc_0001D958
-	SWAP	D6
-loc_0001D958:
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D3/D4/D5/D6/A2
-	ADDI.w	#$0100, D5
-	ADDQ.w	#1, D3
-	CMPI.w	#3, D3
-	BCS.b	loc_0001D940
-	RTS
-loc_0001D96E:
-	dc.l	loc_0001D97A
-	dc.l	loc_0001D988
-	dc.l	loc_0001D996
-loc_0001D97A:
-	dc.b	$18, $19, $00, $1F, $1D, $0F, $00, $00, $00, $00, $00, $00, $FF 
-	dc.b	$00 
-loc_0001D988:
-	dc.b	$1E, $1F, $1C, $18, $00, $16, $0F, $10, $1E, $00, $00, $30, $FF 
-	dc.b	$00 
-loc_0001D996:
-	dc.b	$1E, $1F, $1C, $18, $00, $1C, $13, $11, $12, $1E, $00, $31, $FF 
-	dc.b	$00 
-loc_0001D9A4:
-	MOVE.w	#$07AE, D5
-	CLR.w	D0
-	MOVE.b	$00FFFCA5, D0
-	LSL.w	#2, D0
-	MOVEA.l	loc_0001D9BE(PC,D0.w), A1
-	MOVE.b	#3, D0
-	BRA.w	loc_0001D69A
-loc_0001D9BE:
-	dc.l	loc_0001D9CE
-	dc.l	loc_0001D9D6
-	dc.l	loc_0001D9DE
-	dc.l	loc_0001D9E6
-loc_0001D9CE:
-	dc.b	$12, $0B, $1C, $0E, $0F, $1D, $1E, $FF 
-loc_0001D9D6:
-	dc.b	$12, $0B, $1C, $0E, $00, $00, $00, $FF 
-loc_0001D9DE:
-	dc.b	$18, $19, $1C, $17, $0B, $16, $00, $FF 
-loc_0001D9E6:
-	dc.b	$0F, $0B, $1D, $23, $00, $00, $00, $FF 
-loc_0001D9EE:
-	MOVE.w	#$08AE, D5
-	CLR.w	D0
-	MOVE.b	$00FFFCA4, D0
-	BEQ.w	loc_0001DA00
-	SUBQ.b	#1, D0
-loc_0001DA00:
-	LSL.w	#2, D0
-	MOVEA.l	loc_0001DA4C(PC,D0.w), A1
-	MOVEM.l	D0, -(A7)
-	MOVE.w	#$A500, D6
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D0
-	LEA	loc_0001DA34, A1
-	TST.w	D0
-	BEQ.w	loc_0001DA28
-	LEA	loc_0001DA40, A1
-loc_0001DA28:
-	MOVE.w	#$08B2, D5
-	MOVE.b	#4, D0
-	BRA.w	loc_0001D69A
-loc_0001DA34:
-	dc.b	$11, $0B, $17, $0F, $00, $17, $0B, $1E, $0D, $12, $00, $FF 
-loc_0001DA40:
-	dc.b	$11, $0B, $17, $0F, $1D, $00, $17, $0B, $1E, $0D, $12, $FF 
-loc_0001DA4C:
-	dc.l	loc_0001DA6C
-	dc.l	loc_0001DA70
-	dc.l	loc_0001DA74
-	dc.l	loc_0001DA78
-	dc.l	loc_0001DA7C
-	dc.l	loc_0001DA80
-	dc.l	loc_0001DA84
-	dc.l	loc_0001DA88
-loc_0001DA6C:
-	dc.b	$02, $00, $FF, $00 
-loc_0001DA70:
-	dc.b	$04, $00, $FF, $00 
-loc_0001DA74:
-	dc.b	$06, $00, $FF, $00 
-loc_0001DA78:
-	dc.b	$08, $00, $FF, $00 
-loc_0001DA7C:
-	dc.b	$0A, $00, $FF, $00 
-loc_0001DA80:
-	dc.b	$02, $02, $FF, $00 
-loc_0001DA84:
-	dc.b	$02, $04, $FF, $00 
-loc_0001DA88:
-	dc.b	$02, $06, $FF, $00 
-loc_0001DA8C:
-	MOVE.b	#5, D0
-	MOVE.w	#$09AE, D5
-	LEA	loc_0001DAAE, A1
-	TST.b	$00FFFCAC
-	BEQ.w	loc_0001DAAA
-	LEA	loc_0001DAB2, A1
-loc_0001DAAA:
-	BRA.w	loc_0001D69A
-loc_0001DAAE:
-	dc.b	$19, $18, $00, $FF 
-loc_0001DAB2:
-	dc.b	$19, $10, $10, $FF 
-loc_0001DAB6:
-	MOVE.b	#6, D0
-	MOVE.w	#$0A9E, D5
-	LEA	loc_0001DAC8, A1
-	BRA.w	loc_0001D69A
-loc_0001DAC8:
-	dc.b	$13, $18, $1A, $1F, $1E, $00, $1E, $0F, $1D, $1E, $FF 
-	dc.b	$00 
-loc_0001DAD4:
-	TST.w	$00FFFC02
-	BEQ.w	loc_0001DAF0
-	MOVE.b	#7, D0
-	MOVE.w	#$0B9E, D5
-	LEA	loc_0001DAF2, A1
-	BSR.w	loc_0001D69A
-loc_0001DAF0:
-	RTS
-loc_0001DAF2:
-	dc.b	$1D, $19, $1F, $18, $0E, $00, $1E, $0F, $1D, $1E, $FF 
-	dc.b	$00 
-loc_0001DAFE:
-	MOVE.w	#1, D0
-	BSR.w	sndtst_drawStaticText
-	JSR	loc_00002B26
-	BSR.w	loc_0001DB44
-	MOVE.b	ram_pad1Held, D0
-	ANDI.b	#$C0, D0
-	EORI.b	#$C0, D0
-	BEQ.w	loc_0001DB36
-	MOVE.b	$00FF1110, D0
-	ANDI.b	#$C0, D0
-	EORI.b	#$C0, D0
-	BEQ.w	loc_0001DB36
-	RTS
-loc_0001DB36:
-	MOVE.b	#$2B, D0
-	JSR	loc_000072BE
-	BRA.w	loc_0001D6E4
-loc_0001DB44:
-	MOVE.b	ram_pad1Held, D0
-	LSL.w	#8, D0
-	MOVE.b	$00FF1110, D0
-	LEA	loc_0001DB92, A2
-	MOVE.w	#$000F, D1
-loc_0001DB5C:
-	MOVE.w	(A2)+, D5
-	LEA	loc_0001DB8A, A1
-	MOVE.w	#$E500, D6
-	ROR.l	#1, D0
-	BCS.w	loc_0001DB78
-	LEA	loc_0001DB8E, A1
-	MOVE.w	#$C500, D6
-loc_0001DB78:
-	MOVEM.l	A2/D1/D0, -(A7)
-	BSR.w	loc_0001D6C4
-	MOVEM.l	(A7)+, D0/D1/A2
-	DBF	D1, loc_0001DB5C
-	RTS
-loc_0001DB8A:
-	dc.b	$19, $18, $FF, $00 
-loc_0001DB8E:
-	dc.b	$2C, $2D, $FF, $00 
-loc_0001DB92:
-	dc.b	$07, $B0, $08, $B0, $0A, $B0, $09, $B0, $05, $30, $06, $30, $04, $30, $03, $30, $07, $A4, $08, $A4, $0A, $A4, $09, $A4, $05, $24, $06, $24, $04, $24, $03, $24 
-getChecksum:
-	move.l #endOfRom-1, D0
-	addq.l #1, D0
-	lea ($200).w, A0
-	sub.l A0, D0
-	asr.l #1, D0
-	move.w D0, D2
-	subq.w #1, D2
-	swap D0
-	moveq #0, D1
-loc_0001DBCA:
-	add.w (A0)+, D1
-	dbf D2, loc_0001DBCA
-	dbf D0, loc_0001DBCA
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-	move.b #0, (bc_returnState).l
-	cmp.w (checksum).w, D1
-	beq.w loc_0001DBFA
-	move.b #$FF, (bc_returnState).l
-loc_0001DBFA:
-	move.w D1, (ram_calcChecksum).l
-	rts
 loc_0001DC02:
 	MOVEM.l	A2/A1/D3/D2/D1/D0, -(A7)
-	LEA	$00FFFC02, A1
+	LEA	rOption_SoundTestEnabled, A1
 	BSR.w	loc_0001DC32
 	MOVE.w	D0, $00FFFC00
 	LEA	$00FFFC00, A1
@@ -25695,7 +24622,7 @@ loc_0001DC50:
 	BNE.w	loc_0001DCB4
 	TST.b	$9(A0)
 	LEA	loc_0001DCB6, A1
-	JSR	loc_00002A54
+	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0001DCB4
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
@@ -25714,13 +24641,13 @@ loc_0001DCB4:
 loc_0001DCB6:
 	TST.b	$2B(A0)
 	BEQ.w	loc_0001DDAA
-	JSR	func_updateCutsceneAnimation
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	#$83, $6(A0)
-	JSR	loc_00002B26
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
-	JSR	func_updateCutsceneAnimation
-	JSR	loc_00002B26
+	JSR	Anim_UpdateCutsceneSprite
+	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$001F, $26(A0)
 	MOVE.l	#$01800000, D0
 	JSR	loc_0000500C
@@ -25735,8 +24662,8 @@ loc_0001DD02:
 	ASR.l	#5, D0
 	MOVE.l	D0, $16(A0)
 	MOVE.w	$A(A0), $1E(A0)
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	MOVE.w	$1E(A0), $A(A0)
 	JSR	loc_00002C2A
 	MOVE.w	$A(A0), $1E(A0)
@@ -25769,24 +24696,24 @@ loc_0001DD8C:
 	MOVE.b	#3, D1
 loc_0001DDA0:
 	MOVE.b	loc_0001DDD6(PC,D1.w), D0
-	JSR	loc_000072BE
+	JSR	SndDrv_QueueSoundEffect
 loc_0001DDAA:
 	MOVEM.l	A0, -(A7)
 	MOVEA.l	$2E(A0), A1
 	MOVEA.l	A1, A0
 	JSR	loc_00008432
 	MOVEM.l	(A7)+, A0
-	JSR	loc_00002B26
-	JSR	func_updateCutsceneAnimation
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0001DDD0
 	RTS
 loc_0001DDD0:
 	JMP	loc_00002AF2
 loc_0001DDD6:
-	dc.b	$7A
-	dc.b	$7B
-	dc.b	$7C
-	dc.b	$3E 
+	dc.b	sfxID_ComboComplete1
+	dc.b	sfxID_ComboComplete2
+	dc.b	sfxID_ComboComplete3
+	dc.b	sfxID_SatanThunder 
 loc_0001DDDA:
 	dc.b	$00
 	dc.b	$07 

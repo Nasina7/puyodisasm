@@ -47,6 +47,10 @@ soundTestText: macro text
 			dc.b	$2E
 		elseif (strcmp("\tempChar", "."))
 			dc.b	$25
+		elseif (strcmp("\tempChar", "<"))
+			dc.b	$30
+		elseif (strcmp("\tempChar", ">"))
+			dc.b	$31
 		elseif ("\tempChar"<$3A)
 			if ("\tempChar">$2F)
 				dc.b 	"\tempChar"-$2F

@@ -14,6 +14,7 @@ startOfRom:
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
 	include "sound/sound_ids.asm"
+	include "game/one_player/variables.asm" ; Todo: Move this to an eventual game/one_player/1p.asm
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset
@@ -218,6 +219,7 @@ loc_00000353:
 	dc.w 	$0E01, $13FF, $FFFF, $0000, $19FA, $0098, $0000, $0000, $1A0F, $0EFF, $FFFF, $0001, $A75E, $022E, $0000, $0000
 	dc.w 	$0801, $10FF, $FFFF, $0001, $9B9F, $01F3, $0000, $0000, $0412, $01FF, $FFFF, $0001, $9434, $0180, $0000, $0000
 	dc.w 	$1308, $05FF, $FFFF, $0001, $8621, $0195, $0000, $0000, $1A0F, $08FF, $FFFF, $0001, $7BB0, $016F, $0000, $0000
+	
 Option_InitSettings:
 	MOVE.b	#2, rOption_ComputerLevel
 	MOVE.b	#1, rOption_2PlayerMode
@@ -283,7 +285,7 @@ loc_000004CA:
 	BSR.w	init_initVDP
 	BSR.w	initBytecode
 	JSR	loc_0000EF6C
-	JSR	z80Load_Begin
+	JSR	SndDrv_LoadDriver
 	BSR.w	loc_00001046
 	JSR	updateSprites
 	BSR.w	loc_000007C0
@@ -650,14 +652,18 @@ loc_00000BDC:
 	ANDI.b	#$F7, D0
 	MOVE.b	D0, $00FF0A2E
 	RTS
-loc_00000BF2:
+
+Video_LoadBgMapFromId:
 	ORI	#$0700, SR
 	MOVEM.l	A3/A2/D3/D2/D1, -(A7)
+	
 	MOVE.b	#$FF, D2
+	; Load pointer to BG Map table
 	LEA	tbl_bgMappings, A2
-loc_00000C04:
 	LSL.w	#2, D0
 	MOVEA.l	(A2,D0.w), A3
+	
+	; Get length of selected table
 	MOVE.w	(A3)+, D0
 	LEA	$00FF0CDE, A2
 	MOVE.w	(A2), D1
@@ -670,7 +676,6 @@ loc_00000C04:
 	MOVE.w	#$0040, D1
 loc_00000C2A:
 	MOVE.w	(A2), D3
-loc_00000C2C:
 	MOVE.w	D1, (A2)+
 	LSL.w	#2, D3
 	ADDA.w	D3, A2
@@ -678,11 +683,9 @@ loc_00000C2C:
 	BCS.w	loc_00000C3E
 loc_00000C38:
 	MOVE.l	(A3)+, (A2)+
-loc_00000C3A:
 	DBF	D0, loc_00000C38
 loc_00000C3E:
 	MOVE.b	D2, D0
-loc_00000C40:
 	MOVEM.l	(A7)+, D1/D2/D3/A2/A3
 	ANDI	#$F8FF, SR
 	SUBQ.b	#1, D0
@@ -891,7 +894,7 @@ loc_00000F06:
 	MOVEA.l	$E(A0), A2
 	ADDA.l	#$00000062, A2
 	MOVE.w	$8(A0), D0
-	BRA.w	loc_00001020
+	BRA.w	Video_LoadPaletteIntoIndex
 loc_00000F2E:
 	MOVEA.l	$E(A1), A2
 	MOVEA.l	A2, A3
@@ -983,7 +986,7 @@ loc_00001012:
 	DBF	D0, loc_00001012
 	BRA.b	loc_00000FD8
 
-loc_00001020:
+Video_LoadPaletteIntoIndex:
 	MOVEM.l	A3/D1, -(A7)
 	ANDI.w	#3, D0
 	LSL.w	#1, D0
@@ -995,6 +998,7 @@ loc_00001020:
 	MOVE.w	#$FFFF, (A3,D0.w)
 	MOVEM.l	(A7)+, D1/A3
 	RTS
+	
 loc_00001046:
 	LEA	ram_pad1Held, A1
 loc_0000104C:
@@ -1231,10 +1235,10 @@ loc_000013B0:
 
 cutsceneLoadMusic:
 	CLR.w	D1
-	MOVE.b	game_curStage, D1
+	MOVE.b	rOnePlayer_CurStage, D1
 	MOVE.b	cutsceneSongs(PC,D1.w), D0
 	JSR	SndDrv_PlayMusicId
-	CMPI.b	#cutID_Harpy, game_curCutscene
+	CMPI.b	#cutID_Harpy, rOnePlayer_CurCutscene
 	BEQ.w	loc_0000206E
 	RTS
 loc_0000206E:
@@ -1262,7 +1266,7 @@ cutsceneSongs:
 	
 loadBattleBackground:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LSL.w	#2, D0
 	MOVEA.l	tbl_loadBattleBackground(PC,D0.w), A1
 	JMP	(A1)
@@ -1288,24 +1292,24 @@ tbl_loadBattleBackground:
 	MOVE.w	#0, D0
 	JSR	graphicsDecompress
 	MOVE.w	#3, D0
-	JMP	loc_00000BF2
+	JMP	Video_LoadBgMapFromId
 @battleLoadRuins:
 	LEA art_ruinsBattle, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 loc_00002103:
 	MOVE.w	#5, D0
-	JMP	loc_00000BF2
+	JMP	Video_LoadBgMapFromId
 battleLoadTutorialBG:
 	LEA art_optionsBackground, A0
 	MOVE.w  #0, D0
 	JSR graphicsDecompress
 	MOVE.w  #$16, D0
-	jmp loc_00000BF2
+	jmp Video_LoadBgMapFromId
 	
 loadBattlePalette:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LSL.w	#2, D0
 	MOVEA.l	tbl_loadBattlePalette(PC,D0.w), A1
 	JMP	(A1)
@@ -1330,24 +1334,24 @@ tbl_loadBattlePalette:
 	MOVE.b	#2, D0
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_grassBattle-palLookupTable), A2
-	JMP	loc_00001020
+	JMP	Video_LoadPaletteIntoIndex
 @battleLoadRuins:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_ruinsBattle-palLookupTable), A2
-	JMP loc_00001020
+	JMP Video_LoadPaletteIntoIndex
 @battleLoadRuinsSatan:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_ruinsBattleSatan-palLookupTable), A2
-	JMP loc_00001020
+	JMP Video_LoadPaletteIntoIndex
 @battleLoadTutorial:
 	MOVE.b  #2, D0
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_optionsBackground-palLookupTable), A2
-	JMP loc_00001020
+	JMP Video_LoadPaletteIntoIndex
 loc_000021D0:
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCC.w	loc_000021E0
 	BSR.w	loc_00000FB8
 loc_000021E0:
@@ -1881,6 +1885,7 @@ loc_000029CE:
 	dc.b	$1B 
 	dc.b	$FE
 	dc.b	$00 
+	
 loc_000029D6:
 	MOVE.w	#$03FF, D1
 	LEA	$00FFE000, A0
@@ -1888,6 +1893,7 @@ loc_000029D6:
 loc_000029E2:
 	MOVE.l	D0, (A0)+
 	DBF	D1, loc_000029E2
+	
 	LEA	$00FF0AD6, A2
 	MOVE.w	#3, D0
 loc_000029F2:
@@ -1896,6 +1902,7 @@ loc_000029F2:
 	DBF	D0, loc_000029F2
 loc_000029FE:
 	RTS
+	
 loc_00002A00:
 	MOVE.b	$00FF0144, D0
 loc_00002A06:
@@ -1952,6 +1959,7 @@ loc_00002AA4:
 	ORI.b	#$80, $1(A1)
 	ANDI	#$FFFE, SR
 	RTS
+
 loc_00002AB0:
 	MOVEM.l	A0/D0, -(A7)
 	LEA	$00FFE000, A0
@@ -1972,6 +1980,7 @@ loc_00002ADA:
 	MOVEM.l	(A7)+, D0/A0
 	ANDI	#$FFFE, SR
 	RTS
+	
 loc_00002AF2:
 	MOVEM.l	A2, -(A7)
 	MOVEA.l	A0, A2
@@ -1989,6 +1998,7 @@ loc_00002B0C:
 	MOVEM.l	(A7)+, D0/D1
 	MOVEM.l	(A7)+, A2
 	RTS
+	
 loc_00002B1C:
 	MOVE.w	D0, $24(A0)
 	MOVE.l	(A7)+, $2(A0)
@@ -1996,12 +2006,12 @@ loc_00002B1C:
 
 ObjSys_UpdateObjNextOpTimer:
 	TST.w	$24(A0)
-	BEQ.w	loc_00002B3A
+	BEQ.w	@SetUpdNextOpcode
 	SUBQ.w	#1, $24(A0)
-	BEQ.w	loc_00002B3A
+	BEQ.w	@SetUpdNextOpcode
 	MOVE.l	(A7)+, D0
 	RTS
-loc_00002B3A:
+@SetUpdNextOpcode:
 	MOVE.l	(A7)+, $2(A0)
 	RTS
 
@@ -2074,14 +2084,17 @@ loc_00002BEA:
 	dc.b 	$30, $60, $00, $6C, $40, $46, $50, $5C
 	dc.b 	$30, $60, $00, $6C, $40, $46, $50, $5C
 	
-loc_00002C2A:
+	
+	
+SprSys_UpdatePosInterpolate:
 	MOVE.b	$6(A0), D0
 	BSR.w	loc_00002C44
 	BSR.w	loc_00002C88
-	BSR.w	loc_00002CCC
-	BSR.w	loc_00002D00
+	BSR.w	SprSys_InterpolateX
+	BSR.w	SprSys_InterpolateY
 	ANDI	#$FFFE, SR
 	RTS
+	
 loc_00002C44:
 	BTST.l	#1, D0
 	BNE.w	loc_00002C4E
@@ -2106,23 +2119,24 @@ loc_00002C7A:
 	MOVE.b	#0, D0
 	ORI	#1, SR
 	RTS
+	
 loc_00002C88:
 	BTST.l	#0, D0
-	BNE.w	loc_00002C92
+	BNE.w	@IsEnabled
 	RTS
-loc_00002C92:
-	MOVE.l	$E(A0), D1
-	MOVE.l	$16(A0), D2
+@IsEnabled:
+	MOVE.l	$E(A0), D1 ; Y Pos
+	MOVE.l	$16(A0), D2; Y Pos Off
 	ADD.l	D2, D1
 	BTST.l	#4, D0
-	BNE.w	loc_00002CB8
+	BNE.w	@IsNotEnabled
 	SWAP	D1
 	CMPI.w	#$0080, D1
 	BCS.w	loc_00002CBE
 	CMPI.w	#$0160, D1
 	BCC.w	loc_00002CBE
 	SWAP	D1
-loc_00002CB8:
+@IsNotEnabled:
 	MOVE.l	D1, $E(A0)
 	RTS
 loc_00002CBE:
@@ -2130,51 +2144,56 @@ loc_00002CBE:
 	MOVE.b	#$FF, D0
 	ORI	#1, SR
 	RTS
-loc_00002CCC:
+	
+SprSys_InterpolateX:
 	BTST.l	#3, D0
-	BNE.w	loc_00002CD6
+	BNE.w	@IsEnabled
 	RTS
-loc_00002CD6:
+@IsEnabled:
 	MOVE.w	$A(A0), D1
 	CMP.w	$1E(A0), D1
-	BCS.w	loc_00002CE8
-	BNE.w	loc_00002CF4
+	BCS.w	@AddTowardsTarget
+	BNE.w	@SubTowardsTarget
 	RTS
-loc_00002CE8:
+@AddTowardsTarget:
 	CLR.l	D1
 	MOVE.w	$1A(A0), D1
 	ADD.l	D1, $12(A0)
 	RTS
-loc_00002CF4:
+@SubTowardsTarget:
 	CLR.l	D1
 	MOVE.w	$1A(A0), D1
 	SUB.l	D1, $12(A0)
 	RTS
-loc_00002D00:
+	
+SprSys_InterpolateY:
 	BTST.l	#2, D0
-	BNE.w	loc_00002D0A
+	BNE.w	@IsEnabled
 	RTS
-loc_00002D0A:
+@IsEnabled:
 	MOVE.w	$E(A0), D1
 	CMP.w	$20(A0), D1
-	BCS.w	loc_00002D1C
-	BNE.w	loc_00002D28
+	BCS.w	@AddTowardsTarget
+	BNE.w	@SubTowardsTarget
 	RTS
-loc_00002D1C:
+@AddTowardsTarget:
 	CLR.l	D1
 	MOVE.w	$1C(A0), D1
 	ADD.l	D1, $16(A0)
 	RTS
-loc_00002D28:
+@SubTowardsTarget:
 	CLR.l	D1
 	MOVE.w	$1C(A0), D1
 	SUB.l	D1, $16(A0)
 	RTS
+	
+; SprSys_UpdatePosInterpolate END
+
 loc_00002D34:
-	CMPI.b	#cutID_ZohDaimaoh, game_curCutscene
-	BNE.w	loc_00002DC2
+	CMPI.b	#cutID_ZohDaimaoh, rOnePlayer_CurCutscene
+	BNE.w	SndDrv_PlayPlacePuyo
 	TST.b	$2A(A0)
-	BEQ.w	loc_00002DC2
+	BEQ.w	SndDrv_PlayPlacePuyo
 	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
 	JSR	SndDrv_QueueSoundEffect
 	MOVEM.l	A1, -(A7)
@@ -2206,27 +2225,31 @@ loc_00002D9A:
 	subi.w #$20, $38(a0)
 	bcs.w	loc_00002AF2
 	rts
-loc_00002DC2:
+	
+SndDrv_PlayPlacePuyo:
 	MOVE.b	#sfxID_PlacePuyo, D0
-	CMPI.b	#cutID_Satan, game_curCutscene
-	BNE.w	loc_00002DD6
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
+	BNE.w	@NotSatan
 	MOVE.b	#sfxID_SatanPlacePuyo, D0
-loc_00002DD6:
+@NotSatan:
 	JMP	SndDrv_QueueSoundEffect
-loc_00002DDC:
+	
+SndDrv_PlayMovePuyo:
 	MOVE.b	#sfxID_MovePuyo, D0
-	CMPI.b	#cutID_Satan, game_curCutscene
-	BNE.w	loc_00002DF0
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
+	BNE.w	@NotSatan
 	MOVE.b	#sfxID_SatanMovePuyo, D0
-loc_00002DF0:
+@NotSatan:
 	JMP	SndDrv_QueueSoundEffect
-loc_00002DF6:
+	
+SndDrv_PlayRotatePuyo:
 	MOVE.b	#sfxID_RotatePuyo, D0
-	CMPI.b	#cutID_Satan, game_curCutscene
-	BNE.w	loc_00002E0A
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
+	BNE.w	@NotSatan
 	MOVE.b	#sfxID_SatanRotatePuyo, D0
-loc_00002E0A:
+@NotSatan:
 	JMP	SndDrv_QueueSoundEffect
+	
 loc_00002E10:
 	TST.b	$00FF1882
 	BEQ.w	loc_00002E1C
@@ -2235,35 +2258,37 @@ loc_00002E1C:
 	TST.b	$2A(A0)
 	BEQ.w	loc_00002E26
 	RTS
+	
 loc_00002E26:
-	CMPI.b	#cutID_Satan, game_curCutscene
-	BEQ.w	loadBattleMusic
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
+	BEQ.w	OnePlayer_LoadBattleMusic
 	CMPI.b	#musID_Warning, $00FF111A
-	BEQ.w	loc_00002E62
+	BEQ.w	@WarningAlreadyPlaying
 	CMPI.w	#$003C, $00FF1F1C
-	BCC.w	mus_triggerWarningMusic
+	BCC.w	@TriggerWarningMusic
 	RTS
-mus_triggerWarningMusic:
+@TriggerWarningMusic:
 	MOVE.b	#musID_Warning, D0
 	MOVE.b	D0, $00FF111A
 	JSR	SndDrv_PlayClearEffect
 	JMP	SndDrv_PlayMusicId
-loc_00002E62:
+@WarningAlreadyPlaying:
 	CMPI.w	#$0036, $00FF1F1C
-	BCS.w	loadBattleMusic
+	BCS.w	OnePlayer_LoadBattleMusic
 	RTS
-loadBattleMusic:
+	
+OnePlayer_LoadBattleMusic:
 	CLR.w	D1
-	MOVE.b	game_curStage, D1
-	MOVE.b	tbl_loadBattleMusic(PC,D1.w), D0
+	MOVE.b	rOnePlayer_CurStage, D1
+	MOVE.b	@BattleMusicTable(PC,D1.w), D0
 	CMP.b	$00FF111A, D0
-	BNE.w	loc_00002E88
+	BNE.w	@MusicNotYetQueued
 	RTS
-loc_00002E88:
+@MusicNotYetQueued:
 	MOVE.b	D0, $00FF111A
 	JSR	SndDrv_PlayClearEffect
 	JMP	SndDrv_PlayMusicId
-tbl_loadBattleMusic:
+@BattleMusicTable:
 	dc.b    musID_Morning
 	dc.b    musID_Morning
 	dc.b    musID_Morning
@@ -2290,7 +2315,7 @@ loc_00002EBA:
 	CMPI.b	#1, $00FF1882
 	BEQ.w	loc_00002ED6
 	CLR.w	D1
-	MOVE.b	game_curStage, D1
+	MOVE.b	rOnePlayer_CurStage, D1
 	MOVE.b	loc_00002EAA(PC,D1.w), D2
 loc_00002ED6:
 	MOVE.w	#$00FF, D1
@@ -2359,23 +2384,27 @@ loc_00002FA6:
 	RTS
 loc_00002FAE:
 	dc.w 	$000C, $0008, $0004, $0002, $0000
-loc_00002FB8:
-	CMPI.b	#stgID_Satan, game_curStage
-	BCC.w	loc_00002FFC
-	ADDQ.b	#1, game_curStage
+
+
+OnePlayer_AdvanceNextStage:
+	CMPI.b	#stgID_Satan, rOnePlayer_CurStage
+	BCC.w	@AtFinalStage
+	ADDQ.b	#1, rOnePlayer_CurStage
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
-	LEA	$00FF0116, A1
+	MOVE.b	rOnePlayer_CurCutscene, D0
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	MOVE.b	#$FF, (A1,D0.w)
 	MOVE.b	#0, bc_returnState
-	CMPI.b	#3, game_curStage
-	BNE.w	loc_00002FFA
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
+	BNE.w	@NotAtDraco
 	MOVE.b	#2, bc_returnState
-loc_00002FFA:
+@NotAtDraco:
 	RTS
-loc_00002FFC:
+@AtFinalStage:
 	MOVE.b	#1, bc_returnState
 	RTS
+	
+	
 loc_00003006:
 	LEA	loc_00003010, A1
 	BRA.w	ObjSys_InitObjWithFunc
@@ -2418,13 +2447,14 @@ loc_00003070:
 	TST.b	$00FF1882
 	BNE.w	loc_00003096
 	CLR.b	$00FF111A
-	BSR.w	loadBattleMusic
+	BSR.w	OnePlayer_LoadBattleMusic
 loc_00003096:
 	BSR.w	loc_00000BA4
 	MOVE.w	#$8B00, D0
 	MOVE.b	$00FF0A2D, D0
 	ORI.b	#4, D0
 	MOVE.b	D0, $00FF0A2D
+	
 	LEA	loc_00003172, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F1, $0(A1)
@@ -2433,6 +2463,7 @@ loc_00003096:
 	MOVE.l	$00FF187A, $A(A1)
 	MOVE.w	$00FF187E, $16(A1)
 	MOVEA.l	A1, A2
+	
 	LEA	loc_00003172, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F2, $0(A1)
@@ -2440,6 +2471,7 @@ loc_00003096:
 	MOVE.b	#3, $7(A1)
 	MOVE.l	A1, $2E(A2)
 	MOVE.l	A2, $2E(A1)
+
 	BSR.w	loc_000050AA
 	BSR.w	loc_00003006
 	JSR	loc_0000F57C
@@ -2469,6 +2501,7 @@ loc_00003150:
 	MOVE.b	#$7F, (A1,D0.w)
 loc_00003170:
 	RTS
+	
 loc_00003172:
 	JSR	loc_0000F134
 	BSR.w	loc_00003A04
@@ -2622,7 +2655,7 @@ loc_000033C0:
 loc_000033C4:
 	BCLR.b	#0, $7(A0)
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	MOVE.b	loc_000033DA(PC,D0.w), $8(A0)
 	RTS
 loc_000033DA:
@@ -2899,7 +2932,7 @@ loc_000037B8:
 	BEQ.w	loc_000037D6
 	MOVE.b	#$8A, $6(A0)
 	MOVE.w	#$4000, $1A(A0)
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_000037D6
 	RTS
 loc_000037D6:
@@ -2932,7 +2965,7 @@ loc_0000381E:
 	move.l $a(a0), $1e(a0)
 	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.l $1e(a0), $a(a0)
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 	move.l $a(a0), $1e(a0)
 	move.b $36(a0), d0
 	move.w #$4000, d1
@@ -3379,7 +3412,7 @@ loc_00003DBE:
 	EORI.b	#1, D0
 	CMPI.b	#$14, $9(A0)
 	BNE.w	loc_00003E16
-	CMPI.b	#cutID_Satan, game_curCutscene
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
 	BEQ.w	loc_00003E16
 	SUBQ.b	#2, D0
 loc_00003E16:
@@ -3541,7 +3574,7 @@ loc_00003FF6:
 	MOVE.b	#6, D1
 loc_00004008:
 	MOVE.b	loc_00004022(PC,D1.w), D0
-	CMPI.b	#cutID_Satan, game_curCutscene
+	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
 loc_00004014:
 	BNE.w	loc_0000401C
 	MOVE.b	#sfxID_SatanPuyoClear, D0
@@ -3618,7 +3651,7 @@ btl_loadClearParticles:
 	TST.b	$2A(A0)
 	BEQ.w	btl_loadPartNormal
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	tbl_loadClearParticles(PC,D0.w), A1
 	JMP	(A1)
@@ -3664,7 +3697,7 @@ loc_00004190:
 loc_00004198:
 	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b #$85, $6(a0)
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 loc_000041A6:
 	subq.w #1, $26(a0)
 	beq.w loc_000041B0
@@ -3703,7 +3736,7 @@ loc_00004220:
 	bsr.w ObjSys_UpdateObjNextOpTimer
 	move.b #$83, $6(a0)
 loc_0000422A:
-	jsr loc_00002C2A
+	jsr SprSys_UpdatePosInterpolate
 	subq.w #1, $26(a0)
 	beq.w loc_0000432A
 	rts
@@ -3749,7 +3782,7 @@ loc_000042BE:
 	MOVE.b	#$87, $6(A0)
 	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00002AF2
 	RTS
 loc_000042E2:
@@ -3940,7 +3973,7 @@ loc_0000449A:
 	BCS.w	loc_000044DE
 	RTS
 loc_000044DE:
-	BSR.w	loc_00002DC2
+	BSR.w	SndDrv_PlayPlacePuyo
 	MOVE.l	#loc_0000441E, $32(A0)
 loc_000044EA:
 	CLR.b	$22(A0)
@@ -4033,7 +4066,7 @@ loc_00004612:
 	ADD.w	D2, D0
 	MOVE.w	D0, $1A(A0)
 	MOVE.w	D3, $1E(A0)
-	BRA.w	loc_00002DDC
+	BRA.w	SndDrv_PlayMovePuyo
 loc_00004624:
 	BTST.b	#3, $7(A0)
 	BNE.w	loc_000046FE
@@ -4290,7 +4323,7 @@ loc_00004960:
 	MOVE.b	D0, $36(A1)
 	MOVE.b	D2, $2B(A0)
 	MOVE.b	D1, $38(A1)
-	BRA.w	loc_00002DF6
+	BRA.w	SndDrv_PlayRotatePuyo
 loc_00004976:
 	dc.w	$0000 
 loc_00004978:
@@ -4353,7 +4386,7 @@ loc_000049E8:
 	BCS.w	loc_00004A4E
 	RTS
 loc_00004A4E:
-	BSR.w	loc_00002DC2
+	BSR.w	SndDrv_PlayPlacePuyo
 	MOVE.l	#loc_0000441E, $32(A0)
 loc_00004A5A:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
@@ -5001,7 +5034,7 @@ loc_000052DA:
 	JSR	SndDrv_QueueSoundEffect	
 	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVEA.l	$2E(A0), A1	
-	BSR.w	loc_00002C2A	
+	BSR.w	SprSys_UpdatePosInterpolate	
 	BCS.w	loc_00005332	
 	MOVE.w	$A(A0), $A(A1)	
 	MOVE.w	$E(A0), $E(A1)	
@@ -5021,7 +5054,7 @@ loc_00005348:
 	MOVE.l	#$000053C4, $32(A0)	
 	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	MOVEA.l	$2E(A0), A1	
-	BSR.w	loc_00002C2A	
+	BSR.w	SprSys_UpdatePosInterpolate	
 	BSR.w	Anim_UpdateCutsceneSprite	
 	MOVE.b	$9(A0), $9(A1)	
 	MOVE.w	$A(A0), $A(A1)	
@@ -5158,14 +5191,14 @@ loc_0000557C:
 	DBF	D0, loc_0000550A
 	RTS
 loc_00005582:
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
 	RTS
 ; Dead Code
 	MOVE.b	#$87, $6(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00002C2A	
+	BSR.w	SprSys_UpdatePosInterpolate	
 	BCS.w	loc_00002AF2	
 	RTS	
 loc_000055A4:
@@ -5182,7 +5215,7 @@ loc_000055BC:
 loc_000055C4:
 	MOVEM.l	A0/D2, -(A7)
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	MOVEA.l	lookup_portraitArt(PC,D0.w), A0
 	MOVE.w	D1, D0
@@ -5238,7 +5271,7 @@ loc_0000568A:
 	MOVE.w	D0, $26(A0)
 	LEA	tbl_PortraitAnims, A1
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.w	$26(A0), D0
@@ -5336,7 +5369,7 @@ loc_00005EA0:
 	ORI.b	#$80, $6(A0)
 	MOVE.w	#$0040, $26(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00005EBE
 	RTS
@@ -5454,7 +5487,7 @@ loc_00005FE8:
 	subq.w #1, $26(a0)
 	rts
 loc_00005FEE:
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00002AF2
 	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_00002AF2
@@ -5662,7 +5695,7 @@ loc_000062A8:
 	BSR.b	loc_0000625C
 	TST.w	$26(A0)
 	BEQ.w	loc_000062C8
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	SUBQ.w	#1, $26(A0)
 	RTS
 loc_000062C8:
@@ -5679,7 +5712,7 @@ loc_000062E0:
 	MOVE.l	D0, $12(A0)
 	MOVE.w	#$0010, D0
 	BSR.w	loc_00002B1C
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 loc_000062FC:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
@@ -5695,7 +5728,7 @@ loc_00006314:
 	MOVE.w	#$FFFF, $20(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000625C
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	CMPI.w	#$00D0, $E(A0)
 	BCC.w	loc_00006344
 	RTS
@@ -5884,9 +5917,9 @@ loc_000065D4:
 	MOVE.l	#$05F5E0FF, $00FF187A
 loc_00006610:
 	MOVE.w	$16(A1), $00FF187E
-	CMPI.b	#stgID_Satan, game_curStage
+	CMPI.b	#stgID_Satan, rOnePlayer_CurStage
 	BEQ.w	loc_00006646
-	CMPI.b	#stgID_Mummy, game_curStage
+	CMPI.b	#stgID_Mummy, rOnePlayer_CurStage
 	BEQ.w	loc_00006646
 loc_00006630:
 	BSR.w	loc_00002AFC
@@ -5922,14 +5955,14 @@ loc_00006668:
 	bcs.w loc_000066C4
 	clr.w (a1)
 	move.b #1, (a1, d0.w)
-	move.b #cutID_Satan, (game_curCutscene)
+	move.b #cutID_Satan, (rOnePlayer_CurCutscene)
 loc_000066C4:
 	bra.w loc_00005F7A
 loc_000066C8:
 	lea (tbl_cutsceneOrder), a1
 	move.w #$F, d0
 	jsr loc_00001202
-	move.b (a1, d0.w), (game_curCutscene)
+	move.b (a1, d0.w), (rOnePlayer_CurCutscene)
 	rts
 loc_000066E2:
 	clr.w d0
@@ -6064,7 +6097,7 @@ loc_000068B4:
 loc_000068D6:
 	MOVEM.l	A0, -(A7)
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
@@ -6072,7 +6105,7 @@ loc_000068D6:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	MOVE.b	D0, D1
 	ADDI.b	#9, D1
 	LEA	loc_000069A4, A1
@@ -6090,7 +6123,7 @@ loc_000068D6:
 	LEA	loc_00006994, A3
 loc_0000694A:
 	CLR.w	D2
-	MOVE.b	game_curCutscene, D2
+	MOVE.b	rOnePlayer_CurCutscene, D2
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
 	LEA	tbl_CutsceneCharAnims, A3
@@ -6130,7 +6163,7 @@ loc_000069E2:
 	MOVE.w	#$1800, $1C(A0)
 	MOVE.w	#$FFFF, $20(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	CMPI.w	#$01B0, $E(A0)
 	BCC.w	loc_00006A0E
 	JMP	Anim_UpdateCutsceneSprite
@@ -6209,14 +6242,14 @@ loc_00006B1E:
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, D2/A0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	MOVEM.l	D0, -(A7)
 	MOVE.w	#$9401, D0
 	SWAP	D0
-	MOVE.b	#cutID_Mummy, game_curCutscene
+	MOVE.b	#cutID_Mummy, rOnePlayer_CurCutscene
 	JSR	loc_00000C4C
 	MOVEM.l	(A7)+, D0
-	MOVE.b	D0, game_curCutscene
+	MOVE.b	D0, rOnePlayer_CurCutscene
 	RTS
 loc_00006B64:
 	MOVE.w	$0(A0), D0
@@ -6228,12 +6261,12 @@ loc_00006B64:
 	MOVE.b	D1, $2A(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0017, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_general-palLookupTable), A2
 	MOVE.b	#0, D0
-	JSR	loc_00001020
+	JSR	Video_LoadPaletteIntoIndex
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_00006B10
 	MOVE.w	#4, D0
@@ -6548,7 +6581,7 @@ loc_00006FA0:
 	SWAP	D0
 	CMPI.w	#$00D0, D0
 	BCC.w	loc_00006FD4
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVE.w	$E(A0), D0
 	LEA	$00FF05D2, A2
 	MOVE.w	$32(A0), D1
@@ -6621,7 +6654,7 @@ loc_000070AA:
 loc_000070B4:
 	MOVE.b	#$85, $6(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_000070E4
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$1000, D1
@@ -6769,18 +6802,18 @@ loc_0000718C:
     dc.b    $00
 
 
-z80Load_Begin:
+SndDrv_LoadDriver:
 	MOVE.w	#$0100, Z80BusReq
-	BSR.w	z80Load_resetZ80
-z80Load_Loop1:
+	BSR.w	SndDrv_ResetZ80
+@WaitForZ80:
 	BTST.b	#0, Z80BusReq
-	BNE.b	z80Load_Loop1
+	BNE.b	@WaitForZ80
 	LEA	sound_driver, A0
 	LEA	Z80Ram, A1
 	MOVE.w	#$13FF, D0
-z80Load_LoadData: ; 000071C0
+@LoadData: ; 000071C0
 	MOVE.b	(A0)+, (A1)+
-	DBF	D0, z80Load_LoadData
+	DBF	D0, @LoadData
 	
 	; This is the code that determines where the sound data is located in rom, as well as where the z80 will load it from.
 	; The sound data must be 8KB aligned in the rom
@@ -6789,7 +6822,7 @@ z80Load_LoadData: ; 000071C0
 	MOVE.b	#((sound_bank2>>8)&$80), $00A01F02
 	MOVE.b	#((sound_bank2>>16)&$FF), $00A01F03
 	
-	BSR.w	z80Load_resetZ80
+	BSR.w	SndDrv_ResetZ80
 	MOVE.w	#0, Z80BusReq
 	NOP
 	NOP
@@ -6804,7 +6837,7 @@ loc_00007200:
 	RTS
 z80Load_unkRtsBranch:
 	RTS
-z80Load_resetZ80:
+SndDrv_ResetZ80:
 	MOVE.w	#0, Z80Reset
 	NOP
 	NOP
@@ -6824,7 +6857,7 @@ z80Load_resetZ80:
 	RTS
 loc_0000723E:
 	move.w #$100, (Z80BusReq).l
-	bsr.b    z80Load_resetZ80
+	bsr.b    SndDrv_ResetZ80
 loc_00007248:
 	btst.b #0, (Z80BusReq).l
 	bne.b loc_00007248
@@ -6843,7 +6876,7 @@ loc_00007262:
 	move.b #$C3, ($00A00000).l
 	move.b #$0, ($00A00001).l
 	move.b #$0, ($00A00002).l
-	bsr.w z80Load_resetZ80
+	bsr.w SndDrv_ResetZ80
 	move.w #0, (Z80BusReq).l
 	nop
 	nop
@@ -6873,7 +6906,7 @@ SndDrv_PlayMusicId:
 	MOVE.b	D0, mus_curSong
 	RTS
 	
-snd_playFadeOut:
+SndDrv_PlayFadeOut:
 	MOVE.b	#$F3, $00FF012C
 	MOVE.b	#$20, $00FF012D
 	MOVE.b	#0, $00FF012E
@@ -6883,12 +6916,12 @@ SndDrv_PlayClearEffect:
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-snd_playPauseOnEffect:
+SndDrv_PlayPauseOn:
 	MOVE.b	#$F6, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
 	RTS
-snd_playPauseOffEffect:
+SndDrv_PlayPauseOff:
 	MOVE.b	#$F7, $00FF012C
 	MOVE.b	#0, $00FF012D
 	MOVE.b	#0, $00FF012E
@@ -7150,7 +7183,7 @@ loc_000076D2:
 loc_0000773C:
 	BSR.w	ObjSys_UpdateObjNextOpTimer	
 	BSR.w	Anim_UpdateCutsceneSprite	
-	BSR.w	loc_00002C2A	
+	BSR.w	SprSys_UpdatePosInterpolate	
 	BCS.w	loc_000077E0	
 	RTS	
 loc_0000774E:
@@ -7324,7 +7357,7 @@ loc_000079C0:
 	MOVE.w	#$1A00, $1C(A0)
 	MOVE.w	#$FFFF, $20(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	CMPI.w	#6, $16(A0)
 	BCS.w	loc_00007A0C
 	MOVE.l	#$00060000, $16(A0)
@@ -7352,7 +7385,7 @@ loc_00007A38:
 loc_00007A64:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	Anim_UpdateCutsceneSprite
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	CMPI.w	#$0170, $E(A0)
 	BCC.w	loc_00007A7C
 	RTS
@@ -7446,7 +7479,7 @@ loc_00007B8A:
 	move.l d2, $16(a0)
 loc_00007BC2:
 	subq.w #1, $26(a0)
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 	bcs.w loc_00002AF2
 	bra.w Anim_UpdateCutsceneSprite
 loc_00007BD2:
@@ -7579,14 +7612,14 @@ loc_00007DBA:
 	BTST.l	#$10, D2
 	BNE.w	loc_00007DCC
 	BSET.l	#$10, D2
-	JSR	snd_playPauseOnEffect
+	JSR	SndDrv_PlayPauseOn
 loc_00007DCC:
 	RTS
 loc_00007DCE:
 	BTST.l	#$11, D2
 	BNE.w	loc_00007DE0
 	BSET.l	#$11, D2
-	JSR	snd_playPauseOffEffect
+	JSR	SndDrv_PlayPauseOff
 loc_00007DE0:
 	RTS
 loc_00007DE2:
@@ -7916,7 +7949,7 @@ loc_0000826E:
 	MOVE.w	D6, $E(A1)
 	MOVE.w	D5, $A(A1)
 	CLR.l	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	CMPI.b	#stgID_Draco, D0
 	BCS.w	loc_0000828C
 	SUBQ.b	#3, D0
@@ -7935,16 +7968,16 @@ loc_0000829C:
 	MOVE.b	D0, $F(A1)
 	RTS
 loc_000082AC:
-	CMPI.b	#stgID_Satan, game_curStage
-	BEQ.w	loc_000082DA
+	CMPI.b	#stgID_Satan, rOnePlayer_CurStage
+	BEQ.w	@AtSatan
 	LEA	loc_000082EE, A1
-	CMPI.b	#stgID_Draco, game_curStage
-	BCC.w	loc_000082D0
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
+	BCC.w	@AfterDraco
 	LEA	loc_000082F8, A1
-loc_000082D0:
+@AfterDraco:
 	BSR.w	loc_00008310
 	JMP	loc_00002AF2
-loc_000082DA:
+@AtSatan:
 	SUBQ.w	#4, $A(A0)
 	LEA	loc_00008302, A1
 	BSR.w	loc_00008310
@@ -8131,7 +8164,7 @@ loc_00008516:
 loc_0000854A:
 	TST.w	$26(A0)
 	BEQ.w	loc_0000855C
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	SUBQ.w	#1, $26(A0)
 loc_0000855C:
 	MOVEA.l	$32(A0), A1
@@ -8531,7 +8564,7 @@ loc_00008C28:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVE.w	$A(A0), $A(A1)
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00002AF2
@@ -8553,7 +8586,7 @@ loc_00008C7C:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVE.w	$A(A0), $A(A1)
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00008C9C
@@ -8566,7 +8599,7 @@ loc_00008C9C:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVEA.l	$36(A1), A2
 	MOVE.w	$A(A0), $A(A1)
 	MOVE.w	$A(A0), $A(A2)
@@ -8596,7 +8629,7 @@ loc_00008D04:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVEA.l	$36(A1), A2
 	MOVE.w	$A(A0), $A(A1)
 	MOVE.w	$A(A0), $A(A2)
@@ -8646,7 +8679,7 @@ loc_00008E02:
 	movea.l $2e(a0), a1
 	tst.b $7(a1)
 	beq.w loc_00002AF2
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 	move.w $a(a0), $a(a1)
 loc_00008E18:
 	move.w $e(a0), $e(a1)
@@ -8675,7 +8708,7 @@ loc_00008E30:
 	movea.l $2e(a0), a1
 	tst.b $7(a1)
 	beq.w loc_00002AF2
-	jsr loc_00002C2A
+	jsr SprSys_UpdatePosInterpolate
 	cmpi.w #$80, $e(a0)
 	bcc.w loc_00008EA2
 	move.w $e(a0), d0
@@ -8707,7 +8740,7 @@ loc_00008EFE:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00008F28
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00008F28
@@ -8736,7 +8769,7 @@ loc_00008F6E:
 	movea.l $2e(a0), a1
 	tst.b $7(a1)
 	beq.w loc_00002AF2
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 	move.w $a(a0), $a(a1)
 	move.b $36(a0), d0
 	ori.b #$80, d0
@@ -8904,7 +8937,7 @@ loc_00009152:
 loc_000091D6:
 	CMPI.w	#$FF20, $00FF05D2
 	BNE.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00002AF2
@@ -8942,7 +8975,7 @@ loc_0000923A:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
-	BSR.w	loc_00002C2A
+	BSR.w	SprSys_UpdatePosInterpolate
 	MOVEA.l	$36(A1), A2
 	MOVE.w	$A(A0), $A(A1)
 	MOVE.w	$A(A0), $A(A2)
@@ -9051,14 +9084,14 @@ loc_000093EE:
 	JMP	loc_00002AF2
 loc_000093F4:
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
 	JSR	graphicsDecompress
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	$44(A1,D0.w), A0
@@ -9067,7 +9100,7 @@ loc_000093F4:
 	MOVE.b	#$FF, $00FF18AE
 	MOVE.b	#0, $00FF18AF
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	MOVE.b	D0, D1
 	CMPI.b	#$10, D1
 	BNE.w	loc_00009456
@@ -9159,7 +9192,7 @@ loc_0000958C:
 	JMP	(A2) 
 loc_000095CC:
 	CLR.w	D1
-	MOVE.b	game_curCutscene, D1
+	MOVE.b	rOnePlayer_CurCutscene, D1
 	LEA	tbl_CutsceneCharAnims, A1
 	LSL.w	#2, D1
 	MOVEA.l	(A1,D1.w), A2
@@ -9181,7 +9214,7 @@ loc_000095FC:
 	MOVE.b	#0, $6(A0)
 	LEA	loc_00009644, A2
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	(A2,D0.w), A3
 	MOVE.b	$9(A1), D0
@@ -9611,7 +9644,7 @@ loc_00009F8C:
 	btst.b #3, $9(a0)
 	move.b #$BB, $6(a0)
 loc_00009F98:
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 loc_00009F9C:
 	move.w $e(a0), d0
 loc_00009FA0:
@@ -9661,7 +9694,7 @@ loc_0000A038:
 loc_0000A042:
 	move.b #$B7, $6(a0)
 loc_0000A048:
-	bsr.w loc_00002C2A
+	bsr.w SprSys_UpdatePosInterpolate
 	move.w $e(a0), d0
 loc_0000A050:
 	sub.w ($00FF05D2).l, d0
@@ -9726,13 +9759,13 @@ loc_0000A0C8:
 	lea (palLookupTable).l, a2
 	adda.l d0, a2
 	move.b #1, d0
-	jmp loc_00001020
+	jmp Video_LoadPaletteIntoIndex
 loc_0000A14E:
 	move.b #1, d0
 	move.b #1, d1
 	lea (palLookupTable).l, a2
 	adda.l #(pal_satanCut-palLookupTable), a2
-	jsr loc_00001020
+	jsr Video_LoadPaletteIntoIndex
 	move.b #0, $6(a0)
 	tst.b ($00FF1886).l
 	beq.w loc_0000A092
@@ -9761,7 +9794,7 @@ loc_0000A1DE:
 	MOVE.l	#$00040000, $16(A0)
 	MOVE.w	#$0038, $26(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCS.w	loc_0000A21E
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
@@ -9785,7 +9818,7 @@ loc_0000A246:
 	MOVE.l	#$0002DB6D, $16(A0)
 	MOVE.w	#$0038, $26(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCS.w	loc_0000A286
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
@@ -9807,7 +9840,7 @@ loc_0000A2AC:
 	BSR.w	ObjSys_InitObjWithFunc
 	CLR.w	D0
 	CLR.w	D1
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	MOVE.b	D1, D2
 	LSR.b	#1, D2
@@ -9827,7 +9860,7 @@ loc_0000A2E8:
 loc_0000A2F4:
 	CLR.w	D0
 	CLR.w	D1
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	LSL.w	#2, D1
 	MOVEA.l	loc_0000A30A(PC,D1.w), A2
@@ -9841,7 +9874,7 @@ loc_0000A316:
 	MOVE.w	#$2000, D0
 	JSR	graphicsDecompress
 	MOVE.w	#0, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
 	BRA.w	loc_0000A3F4
 loc_0000A334:
 	MOVE.b	#1, D0
@@ -9860,7 +9893,7 @@ loc_0000A368:
 	move.w #$2000, d0
 	jsr graphicsDecompress
 	move.w #1, d0
-	jmp loc_00000BF2
+	jmp Video_LoadBgMapFromId
 loc_0000A382:
 	move.b #1, d0
 	move.b #0, d1
@@ -9877,7 +9910,7 @@ loc_0000A3B6:
 	move.w #$2000, d0
 	jsr graphicsDecompress
 	move.w #2, d0
-	jsr loc_00000BF2
+	jsr Video_LoadBgMapFromId
 	bsr.w loc_0000A072
 	jmp loc_00001336
 loc_0000A3DA:
@@ -9941,35 +9974,41 @@ loc_0000A49A:
 	dc.b	$2F
 	dc.b	$FF
 	dc.b	$00 
-loadSegaScreen:
-	LEA	loc_0000A4AA, A1
+	
+Sega_CreateLogoObj:
+	LEA	Sega_LogoInit, A1
 	JMP	ObjSys_InitObjWithFunc
-loc_0000A4AA:
+	
+Sega_LogoInit:
 	ORI	#$0700, SR
 	MOVE.w	#$4000, vdpControl1
 	MOVE.w	#0, vdpControl1
 	LEA	art_segaLogo, A1
 	MOVE.w	#$02FF, D0
-loc_0000A4C8:
+@LoadArtData:
 	MOVE.w	(A1)+, vdpData1
-	DBF	D0, loc_0000A4C8
+	DBF	D0, @LoadArtData
 	ANDI	#$F8FF, SR
+	
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0023, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
+	
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, D0
 	LEA	pal_segaPart1, A2
-	JSR	loc_00001020
+	JSR	Video_LoadPaletteIntoIndex
 	MOVE.w	#$003F, $26(A0)
 	BSR.w	loc_00010D0E
 	BSR.w	loc_0000A5B0
+	
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000A5B0
 	SUBQ.w	#1, $26(A0)
-	BCS.w	loc_0000A51E
+	BCS.w	@TimerEnded
 	RTS
-loc_0000A51E:
+	
+@TimerEnded:
 	BSR.w	loc_00010D0E
 	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	$00FF013A
@@ -9981,29 +10020,33 @@ loc_0000A51E:
 	ADDQ.b	#1, $28(A0)
 	MOVE.b	$28(A0), D0
 	ANDI.b	#1, D0
-	BEQ.w	loc_0000A55C
+	BEQ.w	@AnimPart1Ended
 	RTS
-loc_0000A55C:
+	
+@AnimPart1Ended:
 	MOVE.w	$26(A0), D0
 	MOVE.w	#$000A, D1
 	LEA	pal_segaPart2, A1
 	LEA	$00FF0A5A, A2
-loc_0000A570:
+	
+@LoadPal2:
 	MOVE.w	(A1,D0.w), (A2)+
 	ADDQ.w	#2, D0
-	DBF	D1, loc_0000A570
+	DBF	D1, @LoadPal2
+	
 	MOVE.b	#0, D0
 	LEA	$00FF0A56, A2
-	JSR	loc_00001020
+	JSR	Video_LoadPaletteIntoIndex
 	SUBQ.w	#2, $26(A0)
-	BMI.w	loc_0000A594
+	BMI.w	@TimerIsNegative
 	RTS
-loc_0000A594:
+@TimerIsNegative:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
+
 loc_0000A5B0:
 	LEA	$00FF3000, A1
 	TST.b	$00FF013B
@@ -10031,6 +10074,7 @@ pal_segaPart2:
 	incbin "art/palettes/sega/logoPart2.bin"
 art_segaLogo:
 	incbin "art/uncompressed/segaLogo.bin"
+	
 loc_0000AC92:
 	MOVE.b	#$FF, $7(A0)
 	MOVE.l	#loc_0000AECA, $32(A0)
@@ -10120,7 +10164,7 @@ loc_0000ADC2:
 	MOVEA.l	$32(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_0000ADF4
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	CMPI.w	#$0070, $E(A0)
 	BCS.w	loc_0000ADE0
 	RTS
@@ -10701,7 +10745,7 @@ loc_0000B126:
 loc_0000B152:
 	MOVE.w	$26(A0), D0
 	ADDI.w	#$000C, D0
-	JMP	loc_00000BF2
+	JMP	Video_LoadBgMapFromId
 loc_0000B160:
 	MOVE.w	#$0100, D4
 	MOVE.w	#$D922, D5
@@ -10949,9 +10993,9 @@ loc_0000B46E:
 	CLR.w	D1
 	LEA	tbl_menuStageSelect, A1
 	MOVE.b	(A1,D0.w), D1
-	MOVE.b	D1, game_curStage
+	MOVE.b	D1, rOnePlayer_CurStage
 	LEA	tbl_cutsceneOrder, A1
-	MOVE.b	(A1,D1.w), game_curCutscene
+	MOVE.b	(A1,D1.w), rOnePlayer_CurCutscene
 	MOVE.w	$26(A0), D1
 loc_0000B4A0:
 	MOVE.w	#$9500, D0
@@ -10968,7 +11012,7 @@ loc_0000B4B4:
 	LSL.w	#4, D0
 	LEA	loc_0000B4D4, A1
 	ADDA.w	D0, A1
-	LEA	$00FF0116, A2
+	LEA	rOnePlayer_DefeatedEnemyTbl, A2
 	MOVE.w	#$000F, D0
 loc_0000B4CC:
 	MOVE.b	(A1)+, (A2)+
@@ -11696,7 +11740,7 @@ loc_0000BE70:
 	move.l    #$800, $12(a0)
 	move.l    #$200, $16(a0)
 	jsr		  ObjSys_UpdateObjNextOpTimer
-	jsr		  loc_00002C2A
+	jsr		  SprSys_UpdatePosInterpolate
 	move.w    $E(a0), d0
 	neg.w     d0
 	move.w    d0, ($00FF05D4).l
@@ -11713,7 +11757,7 @@ loc_0000BEAA:
 	jsr  ObjSys_UpdateObjNextOpTimer
 	clr.b    $7(a0)
 	move.w    #$B, d0
-	jsr  loc_00000BF2
+	jsr  Video_LoadBgMapFromId
 	clr.b  d0
 	move.b  #4, d1
 	lea (palLookupTable).l, a2
@@ -11738,7 +11782,7 @@ loc_0000BF2E:
 	bcs.b    loc_0000BF2E
 	clr.b    d0
 	lea    ($00FF0A56).l, a2
-	jmp		loc_00001020
+	jmp		Video_LoadPaletteIntoIndex
 loc_0000BF48:
 	move.w    $C(a0, d0.w), d1
 	add.w     $A(a0, d0.w), d1
@@ -11871,9 +11915,9 @@ loc_0000C14A:
 	JMP	loc_00000C4C
 loc_0000C162:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	tbl_cutsceneOrder, A1
-	MOVE.b	(A1,D0.w), game_curCutscene
+	MOVE.b	(A1,D0.w), rOnePlayer_CurCutscene
 	JSR	loc_00000BC6
 	BSR.w	loc_0000D1F0
 	LEA	loc_0000C21A, A1
@@ -11888,7 +11932,7 @@ loc_0000C194:
 	MOVE.w	#$FF70, $00FF0622
 	MOVE.w	#$FF70, ram_scanScrBuf
 	CLR.w	D1
-	MOVE.b	game_curStage, D1
+	MOVE.b	rOnePlayer_CurStage, D1
 	CLR.w	D0
 	MOVE.b	loc_0000C1FA(PC,D1.w), D0
 	BNE.w	loc_0000C1E8
@@ -11957,11 +12001,11 @@ loc_0000C288:
 	JMP	loc_00002AF2
 loc_0000C294:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LSL.w	#2, D0
 	LEA	loc_0000C3B0, A1
 	MOVEA.l	(A1,D0.w), A2
-	LEA	$00FF0116, A1
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	MOVE.w	#$0100, D6
 loc_0000C2B2:
 	MOVE.w	(A2)+, D0
@@ -12096,7 +12140,7 @@ loc_0000C536:
 	dc.b	$00, $09, $0A, $00, $00, $0A, $0A, $16, $00, $0B, $0A, $2C, $00, $0C, $0A, $42, $80, $00 
 loc_0000C548:
 	LEA	tbl_menuPortraits, A2
-	LEA	$00FF0116, A1
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	LEA	lookup_portraitArt, A3
 	MOVE.w	#$88C0, D5
 	BRA.w	loc_0000C5A4
@@ -12112,18 +12156,18 @@ tbl_menuStageSelect:
 	even
 loc_0000C56A:
 	LEA	loc_0000C640, A2
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCS.w	loc_0000C594
 	LEA	loc_0000C644, A2
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	SUBQ.b	#6, D0
 	BCC.w	loc_0000C592
 	CLR.b	D0
 loc_0000C592:
 	ADDA.w	D0, A2
 loc_0000C594:
-	LEA	$00FF0116, A1
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	LEA	lookup_portraitArt, A3
 	MOVE.w	#$2000, D5
 loc_0000C5A4:
@@ -12292,7 +12336,7 @@ loc_0000C7B2:
 	MOVE.w	D0, $00FF0A94
 	MOVE.b	#1, D0
 	LEA	$00FF0A76, A2
-	JMP	loc_00001020
+	JMP	Video_LoadPaletteIntoIndex
 loc_0000C7D6:
 	MOVE.w	#7, D0
 loc_0000C7DA:
@@ -12351,7 +12395,7 @@ loc_0000C89C:
 	MOVE.l	$E(A0), $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.l	$32(A0), $E(A0)
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	MOVE.l	$E(A0), $32(A0)
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000C8E2
@@ -12389,36 +12433,39 @@ loc_0000C940:
 	JMP	loc_00000C4C	
 
 loc_0000C946:
-	LEA	loc_0000C96C, A1
+	LEA	Sega_Update, A1
 	JSR	ObjSys_InitObjWithFunc
 	BCC.w	loc_0000C958
 	RTS
 loc_0000C958:
 	MOVE.w	#$0C00, $26(A1)
 	RTS
-loc_0000C960:
-	LEA	loc_0000C96C, A1
+	
+Sega_CreateMainObj:
+	LEA	Sega_Update, A1
 	JMP	ObjSys_InitObjWithFunc
-loc_0000C96C:
+	
+Sega_Update:
 	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
 	ANDI.b	#$F0, D0
-	BNE.w	loc_0000C994
+	BNE.w	@ButtonPressed
 	TST.w	$26(A0)
-	BNE.w	loc_0000C98A
+	BNE.w	@TimerNonZero
 	RTS
-loc_0000C98A:
+@TimerNonZero:
 	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000C9A8
+	BEQ.w	@TimerIsZero
 	RTS
-loc_0000C994:
+@ButtonPressed:
 	MOVE.b	#$FF, bc_returnState
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
-loc_0000C9A8:
+@TimerIsZero:
 	CLR.b	bc_returnState
 	CLR.b	bc_stopRunning
 	JMP	loc_00002AF2
+	
 loc_0000C9BA:
 	LEA	loc_0000C9F0, A1
 	JSR	loc_00002AB0
@@ -12447,7 +12494,7 @@ loc_0000CA12:
 	dc.w	$00EE
 loc_0000CA14:
 	dc.w	$0100, $008E, $00E0, $008E, $00E0 
-loc_0000CA1E:
+TitleScreen_CreateArleObj:
 	LEA	loc_0000CA86, A1
 	JSR	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000CA84
@@ -12486,9 +12533,9 @@ loc_0000CAA4:
 	MOVEA.l	loc_0000CABC(PC,D0.w), A1
 	JMP	(A1)
 loc_0000CABC:
-	dc.l	loc_0000CD9E
+	dc.l	TitleScreen_ArleObj_PlayFire
 	dc.l	loc_0000CAD0
-	dc.l	loc_0000CDA8
+	dc.l	TitleScreen_ArleObj_PlayBounce
 	dc.l	loc_0000CD24
 	dc.l	loc_0000CB80
 loc_0000CAD0:
@@ -12642,7 +12689,7 @@ loc_0000CC50:
 	MOVE.l	D2, $12(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), $E(A0)
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	BCS.w	loc_0000CCA8
 	MOVE.w	$E(A0), $1E(A0)
 	MOVE.w	$00FF05D2, D0
@@ -12668,7 +12715,7 @@ loc_0000CCC0:
 	MOVE.w	#$FFFE, $12(A1)
 loc_0000CCFC:
 	MOVE.w	$1E(A0), $E(A0)
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	BCS.w	loc_0000CD1E
 	MOVE.w	$E(A0), $1E(A0)
 	MOVE.w	$00FF05D2, D0
@@ -12710,12 +12757,15 @@ loc_0000CD54:
 	RTS
 loc_0000CD98:
 	JMP	loc_00002AF2
-loc_0000CD9E:
+	
+TitleScreen_ArleObj_PlayFire:
 	MOVE.b	#pcmID_Fire, D0
 	JMP	SndDrv_PlayVoice
-loc_0000CDA8:
+	
+TitleScreen_ArleObj_PlayBounce:
 	MOVE.b	#sfxID_PuyoBounceOnArle, D0
 	JMP	SndDrv_QueueSoundEffect
+	
 loc_0000CDB2:
 	MOVE.b	#0, $6(A0)
 	MOVEA.l	$2E(A0), A1
@@ -12744,7 +12794,8 @@ loc_0000CDEE:
 	MOVE.b	#$80, $6(A0)
 loc_0000CE28:
 	RTS
-loc_0000CE2A:
+	
+TitleScreen_CopyrightObjInit:
 	MOVE.b	#$80, $6(A0)
 	MOVE.b	#$24, $8(A0)
 	MOVE.b	#5, $9(A0)
@@ -12754,15 +12805,20 @@ loc_0000CE2A:
 	ADDI.w	#$014C, D0
 	MOVE.w	D0, $E(A0)
 	RTS
-loc_0000CE58:
-	BSR.w	loc_0000D0F0
-	BSR.w	loc_0000CEBC
-	BSR.w	loc_00010B6C
-	LEA	loc_0000CE2A, A1
+	
+	
+TitleScreen_Init:
+	BSR.w	TitleScreen_CreateTitlePuyos
+	BSR.w	TitleScreen_InitValues
+	BSR.w	TitleScreen_CreateTitleObj
+	
+	LEA	TitleScreen_CopyrightObjInit, A1
 	JSR	ObjSys_InitObjWithFunc
-	BSR.w	loc_0000CA1E
-	LEA	loc_0000CFE0, A1
+	BSR.w	TitleScreen_CreateArleObj
+	
+	LEA	TitleScreen_MainObjInit, A1
 	JSR	ObjSys_InitObjWithFunc
+
 	BCS.w	loc_0000CE9C
 	MOVE.b	#$24, $8(A1)
 	MOVE.w	#$0120, $A(A1)
@@ -12770,32 +12826,35 @@ loc_0000CE58:
 	MOVE.b	#$1F, $28(A1)
 loc_0000CE9C:
 	RTS
+	
 loc_0000CE9E:
 	MOVEM.l	D0, -(A7)
 	CLR.w	D0
 	MOVE.b	rOption_ComputerLevel, D0
-	MOVE.b	loc_0000CEB8(PC,D0.w), $00FF0104
+	MOVE.b	@loc_0000CEB8(PC,D0.w), $00FF0104
 	MOVEM.l	(A7)+, D0
 	RTS
-loc_0000CEB8:
+@loc_0000CEB8:
 	dc.b	$00, $02, $04, $06 
-loc_0000CEBC:
+
+TitleScreen_InitValues:
 	BSR.b	loc_0000CE9E
 	CLR.l	$00FF187A
 	CLR.l	$00FF187E
 	CLR.w	$00FF010E
 	CLR.w	$00FF0110
 	CLR.w	$00FF0144
-	CLR.w	game_curStage
+	CLR.w	rOnePlayer_CurStage
 	CLR.b	$00FF0115
 	CLR.b	$00FF0105
 	CLR.b	$00FF1884
 	MOVE.w	#$0011, D0
-	LEA	$00FF0116, A1
-loc_0000CEFE:
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
+@Loop:
 	CLR.b	(A1)+
-	DBF	D0, loc_0000CEFE
+	DBF	D0, @Loop
 	RTS
+	
 loc_0000CF06:
 	MOVE.w	$00FF05D4, D0
 	ANDI.b	#7, D0
@@ -12862,7 +12921,9 @@ loc_0000CFD2:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_0000CFD2
-loc_0000CFE0:
+	
+	
+TitleScreen_MainObjInit:
 	BSR.w	loc_0000D040
 	BSR.w	loc_0000CF06
 	MOVE.w	$00FF05D2, D0
@@ -12888,6 +12949,7 @@ loc_0000D02A:
 	ANDI.b	#$80, D0
 	MOVE.b	D0, $6(A0)
 	RTS
+	
 loc_0000D040:
 	MOVE.b	ram_pad1Press, D0
 	OR.b	$00FF1111, D0
@@ -12932,31 +12994,32 @@ loc_0000D0D4:
 	CLR.b	bc_stopRunning
 	CLR.b	bc_returnState
 	JMP	loc_00002AF2
-loc_0000D0F0:
-	LEA	loc_0000D188, A1
+	
+TitleScreen_CreateTitlePuyos:
+	LEA	TitleScreen_PuyoInit, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000D102
+	BCC.w	@Success
 	RTS
-loc_0000D102:
-	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.w	#$0154, $A(A1)
-	MOVE.w	#$0070, $E(A1)
-	MOVE.l	#loc_0000D162, $32(A1)
-	MOVE.w	#$0040, $26(A1)
-	LEA	loc_0000D188, A1
+@Success:
+	MOVE.b	#$80, $6(A1)   ; Interpolate Flags
+	MOVE.b	#$24, $8(A1)   ; mapping
+	MOVE.w	#$0154, $A(A1) ; xpos
+	MOVE.w	#$0070, $E(A1) ; ypos
+	MOVE.l	#@TitlePuyoAnim, $32(A1)
+	MOVE.w	#$0040, $26(A1); timer
+	LEA	TitleScreen_PuyoInit, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000D13A
+	BCC.w	@Success2
 	RTS
-loc_0000D13A:
+@Success2:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$24, $8(A1)
 	MOVE.w	#$00D4, $A(A1)
 	MOVE.w	#$0070, $E(A1)
-	MOVE.l	#loc_0000D162, $32(A1)
+	MOVE.l	#@TitlePuyoAnim, $32(A1)
 	MOVE.w	#$0050, $26(A1)
 	RTS
-loc_0000D162:
+@TitlePuyoAnim:
 	dc.b	$00
 	dc.b	$00 
 	dc.b	$01
@@ -12973,7 +13036,7 @@ loc_0000D162:
 	dc.b	$00 
 	dc.b	$02
 	dc.b	$02 
-loc_0000D172:
+@TitlePuyoAnimLoop:
 	dc.b	$F0, $00 
 	dc.b	$01
 	dc.b	$01 
@@ -12991,27 +13054,29 @@ loc_0000D172:
 	dc.b	$02 
 	dc.b	$FF
 	dc.b	$00 
-	dc.l	loc_0000D172
-loc_0000D188:
+	dc.l	@TitlePuyoAnimLoop
+	
+TitleScreen_PuyoInit:
 	TST.w	$26(A0)
-	BEQ.w	loc_0000D196
+	BEQ.w	@TimerIsZero
 	SUBQ.w	#1, $26(A0)
 	RTS
-loc_0000D196:
+@TimerIsZero:
 	MOVE.b	#$95, $6(A0)
 	MOVE.w	#$FFFF, $20(A0)
 	MOVE.w	#$0800, $1C(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	CMPI.w	#$00B8, $E(A0)
-	BCC.w	loc_0000D1C0
+	BCC.w	@YPosGreaterB8
 	RTS
-loc_0000D1C0:
+@YPosGreaterB8:
 	MOVE.w	#$00B8, $E(A0)
 	MOVE.b	#sfxID_PlacePuyo, D0
 	BSR.w	SndDrv_QueueSoundEffect
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JMP	Anim_UpdateCutsceneSprite
+	
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
 	MOVE.b	$00FF0A2D, D0
@@ -13092,7 +13157,7 @@ loc_0000D2F2:
 	RTS
 loc_0000D2F8:
 	MOVE.w	D1, D0
-	JMP	loc_00000BF2
+	JMP	Video_LoadBgMapFromId
 loc_0000D300:
 	move.b d1, $8(a0)
 	rts
@@ -14554,7 +14619,7 @@ loc_0000D92A:
 loc_0000D93E:
 	MOVEM.l	A0, -(A7)
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
@@ -14562,7 +14627,7 @@ loc_0000D93E:
 	JSR	graphicsDecompress
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	MOVE.b	D0, D1
 	ADDI.b	#9, D1
 	LEA	loc_0000DA02, A1
@@ -14582,7 +14647,7 @@ loc_0000D984:
 	MOVE.w	#$4000, $1C(A1)
 	MOVEA.l	A1, A2
 	CLR.w	D2
-	MOVE.b	game_curCutscene, D2
+	MOVE.b	rOnePlayer_CurCutscene, D2
 	LEA	loc_0000DA66, A3
 	CLR.w	D3
 	MOVE.b	(A3,D2.w), D3
@@ -14617,7 +14682,7 @@ loc_0000DA20:
 loc_0000DA3A:
 	MOVE.w	#$0020, $26(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000DA56
 	RTS
@@ -14666,9 +14731,9 @@ loc_0000DAEA:
 	dc.b	$00 
 loc_0000DAF4:
 	clr.w    d0
-	move.b   (game_curStage).l, d0
+	move.b   (rOnePlayer_CurStage).l, d0
 	lea (loc_0000DB16).l, a1
-	move.b $0(a1, d0.w), (game_curCutscene).l
+	move.b $0(a1, d0.w), (rOnePlayer_CurCutscene).l
 	lea (loc_0000DB28).l, a1
 	jmp ObjSys_InitObjWithFunc
 loc_0000DB16:
@@ -14678,13 +14743,14 @@ loc_0000DB28:
 	MOVE.b	#$FF, $7(A0)
 	BSR.w	loc_0000DC06
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CMPI.b	#cutID_Unk2, game_curCutscene
+	; #$11 used to be CutID_Unk2.
+	CMPI.b	#$11, rOnePlayer_CurCutscene
 	BCS.w	loc_0000DB5E
 	MOVE.w	#$002E, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$002F, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
 loc_0000DB5E:
 	BSR.w	loc_0000DC36
 	JSR	ObjSys_UpdateObjNextOpTimer
@@ -14694,13 +14760,13 @@ loc_0000DB5E:
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	BSR.w	loc_0000DEEC
 	MOVE.w	#1, $00FF18AA
 	MOVE.w	#$00A0, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CMPI.b	#$11, game_curStage
+	CMPI.b	#$11, rOnePlayer_CurStage
 	BCS.w	loc_0000DBC2
 	MOVE.w	#$0100, D0
 	JSR	loc_00002B1C
@@ -14713,15 +14779,15 @@ loc_0000DBC2:
 	BSR.w	loc_0000DE6A
 	CLR.b	bc_stopRunning
 	CLR.b	$00FF0A3A
-	ADDQ.b	#1, game_curStage
-	CMPI.b	#$12, game_curStage
+	ADDQ.b	#1, rOnePlayer_CurStage
+	CMPI.b	#$12, rOnePlayer_CurStage
 	BCC.w	loc_0000DC00
 	MOVE.b	#1, $00FF0A3A
 loc_0000DC00:
 	JMP	loc_00002AF2
 loc_0000DC06:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	loc_0000DC4E, A1
 	CLR.w	D1
 	MOVE.b	(A1,D0.w), D1
@@ -14735,7 +14801,7 @@ loc_0000DC06:
 loc_0000DC34:
 	RTS
 loc_0000DC36:
-	CMPI.b	#cutID_EasyEnding, game_curCutscene
+	CMPI.b	#cutID_EasyEnding, rOnePlayer_CurCutscene
 	BCC.w	loc_0000DC4C
 	JSR	loc_000055B0
 	BSR.w	loc_0000D93E
@@ -14783,7 +14849,7 @@ loc_0000DCD4:
 	JSR	loc_0000A3F4
 	MOVEM.l	(A7)+, D2/A0
 	MOVE.w	#$002D, D0
-	JSR	loc_00000BF2
+	JSR	Video_LoadBgMapFromId
 	MOVE.w	#$0013, D0
 	BSR.w	loc_0000DEEC
 	LEA	loc_0000DD20, A1
@@ -14802,7 +14868,7 @@ loc_0000DD20:
 	MOVE.w	#$1000, $1C(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), $E(A0)
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	JSR	Anim_UpdateCutsceneSprite
 	MOVE.w	$E(A0), $1E(A0)
 	ADDI.w	#$FF90, $E(A0)
@@ -14849,7 +14915,7 @@ loc_0000DDC4:
 	dc.l	loc_0000DDC4
 loc_0000DDD2:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	loc_0000DE48, A1
 	CLR.w	D1
 	MOVE.b	(A1,D0.w), D1
@@ -14864,7 +14930,7 @@ loc_0000DDD2:
 	MOVE.b	#0, D1
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_00002230-palLookupTable), A2
-	CMPI.b	#$11, game_curStage
+	CMPI.b	#$11, rOnePlayer_CurStage
 	BEQ.w	loc_0000DE26
 	ADDA.l	#$00000060, A2
 loc_0000DE26:
@@ -14886,7 +14952,7 @@ loc_0000DE5A:
 	dc.l    loc_0000A334
 loc_0000DE6A:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	loc_0000DEC8, A1
 	TST.b	(A1,D0.w)
 	BEQ.w	loc_0000DEAA
@@ -14899,12 +14965,12 @@ loc_0000DE6A:
 	MOVE.w	#$FF60, $00FF05D4
 loc_0000DEAA:
 	CLR.w	D1
-	MOVE.b	game_curStage, D1
+	MOVE.b	rOnePlayer_CurStage, D1
 	LEA	loc_0000DEDA, A1
 	CLR.w	D0
 	MOVE.b	(A1,D1.w), D0
 	ADDI.b	#$2C, D0
-	JMP	loc_00000BF2
+	JMP	Video_LoadBgMapFromId
 loc_0000DEC8:
 	dc.b	$00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $FF, $FF, $00 
@@ -15055,7 +15121,7 @@ credits_TextboxCarbuncle:
 	rts
 cut_TickCutscene:
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	cutsceneLookupTable, A1
 	MOVE.l	(A1,D0.w), $32(A0)
@@ -15342,22 +15408,23 @@ cutsceneLookupTable:
 	dc.l   	cutscene_Sasoriman
 	dc.l   	cutscene_Harpy
 	dc.l   	cutscene_ZohDaimaoh
+	dc.l	cutscene_Schezo
 	dc.l   	cutscene_Minotauros
 	dc.l   	cutscene_Rulue
 	dc.l   	cutscene_Satan
 	dc.l   	cutscene_Mummy
 	dc.l   	cutscene_Sukiyapotes
 	dc.l   	cutscene_Panotty
-	dc.l   	cutscene_Unk1
-	dc.l   	cutscene_Unk2
+	dc.l   	cutscene_EasyEnding
+
+cutscene_Mummy:
+	include "game/cutscene/cutscene_mummy.asm"
+	even
 cutscene_Sukiyapotes:
 	include "game/cutscene/cutscene_sukiyapotes.asm"
 	even
 cutscene_Panotty:
 	include "game/cutscene/cutscene_panotty.asm"
-	even
-cutscene_Unk1:
-	include "game/cutscene/cutscene_unk1.asm"
 	even
 cutscene_SkeletonT:
 	include "game/cutscene/cutscene_skeletont.asm"
@@ -15386,6 +15453,9 @@ cutscene_Harpy:
 cutscene_ZohDaimaoh:
 	include "game/cutscene/cutscene_zohdaimaoh.asm"
 	even
+cutscene_Schezo:
+	include "game/cutscene/cutscene_schezo.asm"
+	even
 cutscene_Minotauros:
 	include "game/cutscene/cutscene_minotauros.asm"
 	even
@@ -15395,11 +15465,8 @@ cutscene_Rulue:
 cutscene_Satan:
 	include "game/cutscene/cutscene_satan.asm"
 	even
-cutscene_Mummy:
-	include "game/cutscene/cutscene_mummy.asm"
-	even
-cutscene_Unk2:
-	include "game/cutscene/cutscene_unk2.asm"
+cutscene_EasyEnding:
+	include "game/cutscene/cutscene_easyending.asm"
 	even
 
 loc_0000EF6C:
@@ -15549,7 +15616,7 @@ loc_0000F128:
 	RTS
 loc_0000F134:
 	MOVE.b	$00FF1882, D2
-	OR.b	game_curStage, D2
+	OR.b	rOnePlayer_CurStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F18A
 	LEA	loc_0000F18C, A1
@@ -15584,14 +15651,14 @@ loc_0000F1B6:
 	move.w #$3000, $1c(a0)
 	move.w #1, $16(a0)
 	jsr ObjSys_UpdateObjNextOpTimer
-	jsr loc_00002C2A
+	jsr SprSys_UpdatePosInterpolate
 	bcs.w loc_0000F1E0
 	rts
 loc_0000F1E0:
 	jmp loc_00002AF2
 loc_0000F1E6:
 	MOVE.b	$00FF1882, D2
-	OR.b	game_curStage, D2
+	OR.b	rOnePlayer_CurStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F23E
 	LEA	loc_0000F28A, A1
@@ -15889,7 +15956,7 @@ loc_0000F5DE:
 	MOVE.b	#3, D0
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_general-palLookupTable), A2
-	JSR	loc_00001020
+	JSR	Video_LoadPaletteIntoIndex
 	JMP	loc_00002AF2
 loc_0000F600:
 	TST.w	$2A(A0)
@@ -15986,7 +16053,7 @@ loc_0000F74A:
 	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	#$87, $6(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	JSR	Anim_UpdateCutsceneSprite
 	BCS.w	loc_0000F76E
 	RTS
@@ -16004,7 +16071,7 @@ loc_0000F790:
 	MOVE.w	#5, D0
 	TST.b	$2A(A0)
 	BEQ.w	loc_0000F7A6
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 loc_0000F7A6:
 	LSL.w	#2, D0
 	MOVEA.l	loc_0000F7B2(PC,D0.w), A2
@@ -16125,7 +16192,7 @@ loc_0000F90C:
 	RTS
 loc_0000F916:
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.b	#2, D0
 	MOVEA.l	loc_0000F926(PC,D0.w), A6
 	JMP	(A6)
@@ -16728,7 +16795,7 @@ loc_000100CA:
 	OR.b	loc_00010134(PC,D2.w), D1
 	TST.b	$2A(A1)
 	BEQ.w	loc_00010106
-	CMPI.b	#stgID_Suketoudara, game_curStage
+	CMPI.b	#stgID_Suketoudara, rOnePlayer_CurStage
 	BCC.w	loc_00010106
 	TST.b	$27(A1)
 	BMI.w	loc_00010106
@@ -17612,7 +17679,7 @@ loc_00010B64:
 	dc.b	$01
 loc_00010B65:
 	dc.b	$01, $02, $01, $02, $01, $01, $02 
-loc_00010B6C:
+TitleScreen_CreateTitleObj:
 	JSR	loc_00000BA4
 	LEA	loc_00010B8A, A1
 	JSR	ObjSys_InitObjWithFunc
@@ -17701,9 +17768,9 @@ loc_00010CCC:
 	CLR.w	D0
 	MOVE.b	$00FF188F, D0
 	ADDQ.b	#3, D0
-	MOVE.b	D0, game_curStage
+	MOVE.b	D0, rOnePlayer_CurStage
 	LEA	tbl_cutsceneOrder, A1
-	MOVE.b	(A1,D0.w), game_curCutscene
+	MOVE.b	(A1,D0.w), rOnePlayer_CurCutscene
 	ADDQ.b	#1, $00FF188F
 	CMPI.b	#4, $00FF188F
 	BCC.w	loc_00010D02
@@ -17711,6 +17778,7 @@ loc_00010CCC:
 loc_00010D02:
 	CLR.b	$00FF188F
 	JMP	loc_00002AF2
+	
 loc_00010D0E:
 	LEA	$00FF3000, A1
 	MOVE.w	#$03FF, D0
@@ -17718,6 +17786,7 @@ loc_00010D18:
 	CLR.w	(A1)+
 	DBF	D0, loc_00010D18
 	RTS
+	
 loc_00010D20:
 	BSR.b	loc_00010D0E
 	MOVE.b	#$80, $36(A0)
@@ -17778,7 +17847,7 @@ loc_00010DB4:
 	MOVE.w	#$0040, $A(A0)
 	MOVE.w	#$8000, $1A(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	MOVE.w	$A(A0), D0
 	BPL.w	loc_00010E32
 	CLR.w	D0
@@ -17840,7 +17909,7 @@ loc_00010EF4:
 	MOVE.w	#$0080, $A(A0)
 	MOVE.w	#$C000, $1A(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	MOVE.w	$A(A0), D0
 	BPL.w	loc_00010F32
 	CLR.w	D0
@@ -18354,7 +18423,7 @@ loc_000145B8:
 loc_000145D8:
 	BSR.w	loc_00014890
 	CLR.w	D0
-	MOVE.b	game_curCutscene, D0
+	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00014612, A1
 	ADDA.w	D0, A1
@@ -18452,27 +18521,27 @@ loc_0001473C:
 	BSR.w	loc_00014802
 	RTS
 loc_0001474A:
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCS.w	loc_0001479C
-	CMPI.b	#stgID_Schezo, game_curStage
+	CMPI.b	#stgID_Schezo, rOnePlayer_CurStage
 	BCC.w	loc_0001477E
 	LEA	loc_000147D4, A1
 	BSR.w	loc_000147B6
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	SUBQ.b	#3, D0
 	LEA	$00FF189A, A1
 	BRA.w	loc_000147C8
 loc_0001477E:
 	LEA	loc_000147DC, A1
 	BSR.w	loc_000147B6
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	SUBI.b	#$0D, D0
 	LEA	$00FF189B, A1
 	BRA.w	loc_000147C8
 loc_0001479C:
 	LEA	loc_000147E4, A1
 	BSR.w	loc_000147B6
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	$00FF189B, A1
 	BRA.w	loc_000147C8
 loc_000147B6:
@@ -18504,11 +18573,11 @@ loc_00014802:
 	MOVE.w	#$E520, D5
 	MOVE.w	#7, D3
 	MOVE.w	#1, D4
-	CMPI.b	#stgID_Draco, game_curStage
+	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCS.w	loc_0001483A
 	MOVE.w	#$C000, D6
 	LEA	loc_0001484E, A4
-	CMPI.b	#stgID_ZohDaimaoh, game_curStage
+	CMPI.b	#stgID_ZohDaimaoh, rOnePlayer_CurStage
 	BCS.w	loc_00014836
 	LEA	loc_0001485E, A4
 loc_00014836:
@@ -19284,7 +19353,7 @@ loc_00015402:
 	RTS
 loc_00015404:
 	CLR.w	D0
-	MOVE.b	game_curStage, D0
+	MOVE.b	rOnePlayer_CurStage, D0
 	MOVE.b	loc_00015412(PC,D0.w), D2
 	RTS
 loc_00015412:
@@ -19325,7 +19394,7 @@ loc_000154C0:
 	dc.w 	$0040, $C000, $4000, $000F, $ED30, $CD34, $C034
 loc_000154D2:
 	CLR.w	D2
-	MOVE.b	game_curCutscene, D2
+	MOVE.b	rOnePlayer_CurCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -19337,7 +19406,7 @@ loc_000154D2:
 	MOVE.w	(A4)+, D5
 	MOVE.w	#$E400, D6
 	BSR.w	loadBGByteIndexYLoop
-	CMPI.b	#cutID_Panotty, game_curCutscene
+	CMPI.b	#cutID_Panotty, rOnePlayer_CurCutscene
 	BNE.w	loc_0001551E
 	CMPI.b	#$0E, $1(A2)
 	BNE.w	loc_0001551E
@@ -19347,7 +19416,7 @@ loc_0001551E:
 	RTS
 loc_00015520:
 	CLR.w	D2
-	MOVE.b	game_curCutscene, D2
+	MOVE.b	rOnePlayer_CurCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -19362,7 +19431,7 @@ loc_00015520:
 	BRA.w	loadBGByteIndexYLoop
 loc_00015550:
 	CLR.w	D2
-	MOVE.b	game_curCutscene, D2
+	MOVE.b	rOnePlayer_CurCutscene, D2
 	LSL.b	#2, D2
 	LEA	loc_00015E46, A4
 	MOVEA.l	(A4,D2.w), A3
@@ -24665,7 +24734,7 @@ loc_0001DD02:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	Anim_UpdateCutsceneSprite
 	MOVE.w	$1E(A0), $A(A0)
-	JSR	loc_00002C2A
+	JSR	SprSys_UpdatePosInterpolate
 	MOVE.w	$A(A0), $1E(A0)
 	MOVE.b	#$80, D0
 	JSR	loc_0000500C

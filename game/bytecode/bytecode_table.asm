@@ -79,9 +79,9 @@ BC_segaScreen:
 	
 	BART $A000, art_creditsText
 	
-	BRUN loadSegaScreen
+	BRUN Sega_CreateLogoObj
 	
-	BRUN loc_0000C960
+	BRUN Sega_CreateMainObj
 	
 	
 	BSTOP
@@ -108,7 +108,7 @@ BC_titleScreen:
 	BVDPC $0020
 	BNOP
 	
-	BRUN loc_0000CE58
+	BRUN TitleScreen_Init
 	
 	BPALF pal_00002230, 0, 0
 	BPALF pal_titleScreenArle, 1, 0
@@ -332,7 +332,7 @@ BC_portraitScreen:
 	
 	BDELAY $0010
 	
-	BRUN loc_00002FB8
+	BRUN OnePlayer_AdvanceNextStage
 	
 	BJEQ BC_portraitScreen
 	
@@ -402,7 +402,7 @@ BC_unknown1:
 	
 	BJNE BC_gameOver
 	
-	BRUN loc_00002FB8
+	BRUN OnePlayer_AdvanceNextStage
 	
 	BJTBL $0003
 	dc.l	BC_portraitScreen 
@@ -855,7 +855,7 @@ BC_tutorialDemo:
 	BPAL pal_grassBattle, 2
 	BPAL pal_tutorialDemoBGJoystick, 3
 
-	BRUN loc_0000C960
+	BRUN Sega_CreateMainObj
 	
 	BSTOP
 	
@@ -887,7 +887,7 @@ BC_recordScreen4:
 	BVDPC $0008
 	BNOP
 	
-	BRUN loc_0000C960
+	BRUN Sega_CreateMainObj
 	
 	BRAM $00FF1890, $00FF
 	

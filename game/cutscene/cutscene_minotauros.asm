@@ -1,119 +1,85 @@
     include "game/cutscene/macros.asm"
     include "game/cutscene/constants.asm"
 
-    WaitTime $2
-    MakeTextbox $2, $30, $9, $1, $0
-    PlayArleAnim $2
-    
-    dc.b    $e, $19, $10, $16, $2, $e, $10, $1a, $25
-    
-    PlayArleAnim $15
-    WaitTime $4
-    ClearTextbox
-    MakeTextbox $16, $30, $7, $1, $1
     PlayOpponentAnim $1
+    PlayArleAnim $b
+    MakeTextbox $14, $30, $7, $1, $1
     
-    dc.b    $4, $2d, $1b, $2e, $9, $1, $22
-    
-    PlayOpponentAnim $0
-    WaitTime $4
-    ClearTextbox
-    MakeTextbox $4, $30, $6, $1, $0
-    PlayArleAnim $c
-    
-    dc.b    $3, $3, $1a, $1a, $25, $26
+    dc.b    $d, $3, $3, $3, $3, $3, $1e
     
     WaitTime $4
     ClearTextbox
-    PlayOpponentAnim $2
     WaitTime $6
-    PlayOpponentAnim $1
-    MakeTextbox $a, $2d, $d, $2, $1
+    MakeTextbox $2, $2d, $8, $2, $0
+    PlayArleAnim $a
     
-    dc.b    $13, $d, $1, $23
+    dc.b    $25, $24, $23, $21, $27, $22, $1e
     
-    PlayOpponentAnim $0
-    TextboxNewLine
-    WaitTime $2
-    PlayOpponentAnim $1
-    
-    dc.b    $4, $2d, $10, $2f, $1b
-    
-    AddWhitespace
-    
-    dc.b    $2e, $9, $1, $1e, $7, $1e, $22
-    
-    PlayOpponentAnim $0
-    WaitTime $6
-    ClearTextbox
-    MakeTextbox $1, $2a, $e, $3, $0
-    PlayArleAnim $2
-    
-    dc.b    $24, $24, $24, $1, $1, $5, $1c, $19, $f, $9, $c, $16, $1a, $25
-    
-    PlayArleAnim $15
-    WaitTime $2
-    PlayArleAnim $e
-    
-    dc.b    $0, $19, $b, $23
-    
+    PlayArleAnim $b
     WaitTime $4
-    TextboxNewLine
-    PlayArleAnim $10
-    
-    dc.b    $12, $1e, $a, $19, $e, $8, $d, $14, $1a, $c, $19, $10, $25, $26
-    
-    PlayArleAnim $11
-    WaitTime $6
-    ClearTextbox
-    MakeTextbox $e, $2a, $b, $3, $1
-    PlayOpponentAnim $1
-    
-    dc.b    $4, $2d, $10, $30, $2f, $18, $31, $32, $9, $23
-    
-    PlayOpponentAnim $0
-    TextboxNewLine
-    WaitTime $1
-    PlayOpponentAnim $1
-    
-    dc.b    $8, $10, $33, $10, $30, $34, $35
-    
-    PlayOpponentAnim $0
-    WaitTime $1
-    TextboxNewLine
-    PlayOpponentAnim $1
-    
-    dc.b    $28, $2a, $2c, $24, $27, $29, $2b, $29, $29, $36, $1b
-    
-    PlayOpponentAnim $0
-    WaitTime $6
     CutUnkCommand2
-    PlayOpponentAnim $1
+    PlayArleAnim $a
     
-    dc.b    $1f, $16, $1f, $16, $37, $38, $10
+    dc.b    $b, $c, $6, $13, $f, $10, $14, $1e
     
-    PlayOpponentAnim $0
-    TextboxNewLine
-    WaitTime $1
-    PlayOpponentAnim $1
-    
-    dc.b    $39, $3a, $d, $e, $17, $10, $1e, $1a, $1a, $25
-    
-    PlayOpponentAnim $0
-    WaitTime $6
-    ClearTextbox
-    MakeTextbox $4, $30, $4, $1, $0
-    PlayArleAnim $14
-    
-    dc.b    $11, $0, $25, $26
-    
+    PlayArleAnim $b
     WaitTime $2
+    PlayArleAnim $a
+    
+    dc.b    $28, $b, $1, $17, $15, $b, $1, $1e
+    
+    PlayArleAnim $b
+    WaitTime $4
     ClearTextbox
-    MakeTextbox $1a, $30, $5, $1, $1
+    MakeTextbox $12, $30, $8, $1, $1
+    PlayOpponentAnim $2
+    
+    dc.b    $26, $26, $20, $29, $f, $2a, $2b, $18
+    
+    PlayOpponentAnim $0
+    WaitTime $4
     PlayOpponentAnim $3
+    PlayOpponentAnim $88
+    ClearTextbox
+    MakeTextbox $1, $30, $c, $1, $0
+    PlayArleAnim $a
     
-    dc.b    $15, $6, $1d, $1a, $25
+    dc.b    $9, $1d, $9, $16, $14, $a, $2c, $14, $8, $0, $0, $1e
     
-    WaitTime $2
+    PlayArleAnim $f
+    WaitTime $c
+    ClearTextbox
+    MakeTextbox $2, $2a, $9, $3, $0
+    PlayOpponentAnim $3
+    PlayArleAnim $12
+    
+    dc.b    $17, $15, $0, $1d
+    
+    PlayArleAnim $13
+    WaitTime $4
+    CutUnkCommand2
+    PlayArleAnim $12
+    
+    dc.b    $4, $f, $1a, $10, $1a, $10, $2d, $2e, $19, $2f, $3, $2, $1e
+    
+    PlayArleAnim $13
+    WaitTime $6
+    TextboxNewLine
+    PlayArleAnim $12
+    
+    dc.b    $7, $30, $19, $1, $1, $12, $e, $1e, $1f
+    
+    PlayArleAnim $13
+    WaitTime $8
+    ClearTextbox
+    PlayOpponentAnim $0
+    WaitTime $4
+    MakeTextbox $e, $30, $3, $1, $1
+    PlayOpponentAnim $2
+    
+    dc.b    $10, $5, $1e
+    
+    PlayOpponentAnim $0
+    WaitTime $3
     ClearTextbox
     EndCutscene

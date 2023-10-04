@@ -156,7 +156,7 @@ loc_000015A0:
 	BRA.w	graphicsDecompress
 	
 .runVDPCommand:
-	BRA.w	loc_00000BF2
+	BRA.w	Video_LoadBgMapFromId
 	
 .loadPaletteFade:
 	MOVE.b	D0, D1
@@ -178,7 +178,7 @@ loc_000015A0:
 	LEA	palLookupTable, A2
 	ADDA.l	D0, A2
 	MOVE.b	D1, D0
-	BRA.w	loc_00001020
+	BRA.w	Video_LoadPaletteIntoIndex
 
 .playSound:
 	JMP	SndDrv_PlayMusicId
@@ -188,7 +188,7 @@ loc_000015A0:
 	
 .fadeMusic:
 	SUBQ.l	#2, bc_programCounter
-	JMP	snd_playFadeOut
+	JMP	SndDrv_PlayFadeOut
 	
 .stopAllSound:
 	SUBQ.l	#2, bc_programCounter

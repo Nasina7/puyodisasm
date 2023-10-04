@@ -53,7 +53,6 @@ cutID_Mummy			= $0D
 cutID_Sukiyapotes	= $0E
 cutID_Panotty		= $0F
 cutID_EasyEnding	= $10
-cutID_Unk2			= $11
 
 ; Stage IDs:
 stgID_SkeletonT		= $00
@@ -78,9 +77,6 @@ stgID_Satan			= $0F
 ; $00FF0100 = Decomp Buffer2; 0x4 Bytes
 
 ram_calcChecksum = $FF0106 	; Word
-
-game_curStage = $FF0112		; Byte
-game_curCutscene = $FF0113	; Byte
 
 mus_curSong = $FF012F		; Byte
 

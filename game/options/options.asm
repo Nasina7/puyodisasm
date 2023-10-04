@@ -80,7 +80,7 @@ SoundTest_LoadSatanSprite:
 	MOVE.l	#@Anim_Satan, $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	Anim_UpdateCutsceneSprite
-	JMP	loc_00002C2A
+	JMP	SprSys_UpdatePosInterpolate
 @Anim_Satan:
 	dc.b	$F1
 	dc.b	$00 
@@ -105,7 +105,7 @@ SoundTest_LoadArleSprite:
 	MOVE.l	#@Anim_Arle, $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	Anim_UpdateCutsceneSprite
-	JMP	loc_00002C2A
+	JMP	SprSys_UpdatePosInterpolate
 @Anim_Arle:
 	dc.b	$F1
 	dc.b	$00 

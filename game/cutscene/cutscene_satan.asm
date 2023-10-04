@@ -1,115 +1,156 @@
     include "game/cutscene/macros.asm"
     include "game/cutscene/constants.asm"
 
-    WaitTime $2
-    MakeTextbox $16, $2d, $7, $2, $1
-    PlayOpponentAnim $1
+    MakeTextbox $c, $28, $8, $4, $1
     
-    dc.b    $2b, $2c, $2f, $32, $13
+    dc.b    $15, $4, $27
+    
+    WaitTime $3
+    TextboxNewLine
+    
+    dc.b    $31, $13, $32, $33, $6, $d, $1, $b, $34, $10, $35, $3, $11, $1, $d
+    
+    WaitTime $3
+    TextboxNewLine
+    
+    dc.b    $7, $7, $16, $21, $36, $b, $5, $26
+    
+    WaitTime $6
+    ClearTextbox
+    MakeTextbox $2, $2d, $8, $2, $0
+    PlayArleAnim $a
+    
+    dc.b    $a, $24, $24, $24
+    
+    PlayArleAnim $b
+    WaitTime $2
+    TextboxNewLine
+    PlayArleAnim $a
+    
+    dc.b    $a, $13, $2c, $2f, $2e, $14, $1e, $28
+    
+    PlayArleAnim $b
+    WaitTime $6
+    ClearTextbox
+    PlayOpponentAnim $85
+    WaitTime $24
+    MakeTextbox $e, $2a, $b, $3, $1
+    PlayOpponentAnim $2
+    
+    dc.b    $2, $2, $2, $17, $26
+    
+    PlayOpponentAnim $3
+    WaitTime $2
+    TextboxNewLine
+    PlayOpponentAnim $2
+    
+    dc.b    $23, $19, $23, $19, $37, $38, $1c, $11, $6, $d, $36, $1b, $e, $14
     
     AddWhitespace
-    
-    dc.b    $0, $c, $9, $12, $16, $12, $18, $28
-    
+    PlayOpponentAnim $3
+    WaitTime $2
     PlayOpponentAnim $2
-    WaitTime $4
-    CutUnkCommand2
-    PlayOpponentAnim $1
     
-    dc.b    $0, $4, $19, $15, $d, $33, $1a, $f, $8, $1, $25
+    dc.b    $8, $9, $1f, $20, $f, $28
     
-    PlayOpponentAnim $2
-    WaitTime $4
+    PlayOpponentAnim $3
+    WaitTime $8
+    ClearTextbox
+    PlayArleAnim $e
+    WaitTime $2
+    MakeTextbox $6, $30, $4, $1, $0
+    
+    PlayArleAnim $10
+    PlayOpponentAnim $4
+    
+    dc.b    $2b, $30, $2d, $28
+    
+    PlayArleAnim $11
+    WaitTime $2
     ClearTextbox
     WaitTime $2
-    MakeTextbox $7, $30, $4, $1, $0
-    PlayArleAnim $1
-    
-    dc.b    $2e, $2e, $2a, $29
-    
-    PlayArleAnim $0
-    WaitTime $3
-    ClearTextbox
-    MakeTextbox $16, $2d, $7, $2, $1
-    PlayOpponentAnim $3
-    
-    dc.b    $7, $7, $3, $19, $34, $14, $13, $35, $3, $b, $f, $1, $1d, $25
-    
-    PlayOpponentAnim $4
-    WaitTime $4
-    ClearTextbox
-    MakeTextbox $c, $2d, $c, $2, $1
-    PlayOpponentAnim $3
-    
-    dc.b    $2b, $2c, $2f, $32, $e, $13
-    
-    PlayOpponentAnim $2
-    WaitTime $1
-    TextboxNewLine
-    PlayOpponentAnim $3
-    
-    dc.b    $0, $c, $9, $20, $36, $37, $a, $1b, $12, $18, $30, $28
-    
-    PlayOpponentAnim $4
-    WaitTime $6
-    ClearTextbox
-    WaitTime $2
-    MakeTextbox $7, $30, $4, $1, $0
-    PlayArleAnim $1
-    
-    dc.b    $2b, $2c, $2f, $29
-    
-    PlayArleAnim $0
-    WaitTime $3
-    ClearTextbox
-    MakeTextbox $c, $2d, $c, $2, $1
-    PlayOpponentAnim $3
-    
-    dc.b    $e, $22, $6, $c, $1f, $d, $2d, $31, $18, $28
-    
-    PlayOpponentAnim $4
-    WaitTime $3
-    TextboxNewLine
-    PlayOpponentAnim $7
-    
-    dc.b    $17, $1b, $b, $f, $1, $1d, $0, $0, $0, $28, $28, $28
-    
-    WaitTime $6
-    ClearTextbox
-    WaitTime $2
-    MakeTextbox $3, $30, $8, $1, $0
-    
-    dc.b    $0, $26
-    
-    WaitTime $1
-    PlayArleAnim $8
-    
-    dc.b    $0, $12, $2, $27, $27, $27
-    
-    PlayArleAnim $7
-    WaitTime $4
-    ClearTextbox
-    MakeTextbox $16, $30, $6, $1, $1
+    MakeTextbox $10, $30, $9, $1, $1
     PlayOpponentAnim $5
-    PlayArleAnim $d
     
-    dc.b    $38, $39, $3a, $3b, $30, $28
+    dc.b    $c, $1e, $1f, $2a, $2a, $2, $28, $28, $28
     
-    PlayOpponentAnim $6
+    PlayOpponentAnim $8
     WaitTime $3
+    ClearTextbox
+    MakeTextbox $1, $2a, $b, $3, $0
+    PlayArleAnim $10
+    
+    dc.b    $2b, $2d, $30, $28
+    
+    PlayArleAnim $11
+    WaitTime $4
+    TextboxNewLine
+    PlayArleAnim $10
+    
+    dc.b    $18, $1e, $22, $1a, $0, $1d, $b, $1f
+    
+    TextboxNewLine
+    
+    dc.b    $32, $33, $6, $b, $34, $20, $1e, $b, $13, $12, $28
+    
+    PlayArleAnim $11
+    WaitTime $6
+    ClearTextbox
+    MakeTextbox $16, $30, $7, $1, $1
+    PlayOpponentAnim $6
+    
+    dc.b    $a, $13, $e, $4, $1a, $1e, $28
+    
+    PlayOpponentAnim $9
+    WaitTime $2
+    ClearTextbox
+    MakeTextbox $1, $2d, $c, $2, $0
+    PlayArleAnim $10
+    
+    dc.b    $f, $27, $f, $1d, $21
+    
+    PlayArleAnim $11
+    WaitTime $1
+    TextboxNewLine
+    PlayArleAnim $10
+    
+    dc.b    $7, $1d, $f, $7, $e, $9, $1b, $13, $19, $1e, $28, $29
+    
+    PlayArleAnim $11
+    WaitTime $4
+    ClearTextbox
+    MakeTextbox $14, $30, $8, $1, $1
+    PlayOpponentAnim $6
+    
+    dc.b    $b, $1d, $f, $1b, $39, $3a, $20, $26
+    
+    PlayOpponentAnim $9
+    WaitTime $2
+    ClearTextbox
+    MakeTextbox $4, $30, $5, $1, $0
+    PlayArleAnim $3
+    
+    dc.b    $20, $0, $0, $0, $28
+    
+    PlayArleAnim $81
+    WaitTime $4
     ClearTextbox
     MakeTextbox $c, $2a, $c, $3, $1
-    PlayOpponentAnim $5
-    
-    dc.b    $2b, $2c, $2f, $32, $10, $3c, $1, $c, $6, $1c, $21, $26
-    
     PlayOpponentAnim $6
+    
+    dc.b    $21, $14, $27
+    
+    PlayOpponentAnim $9
+    TextboxNewLine
     WaitTime $1
-    PlayOpponentAnim $5
-    
-    dc.b    $0, $c, $9, $1e, $3d, $9, $d, $35, $5, $7, $e, $11, $1f, $28
-    
     PlayOpponentAnim $6
+    
+    dc.b    $3b, $3d, $3b, $3c, $13, $23, $19, $23, $19, $37, $38, $10, $3e, $16, $1e, $d
+    
+    PlayOpponentAnim $7
+    
+    dc.b    $3f, $c, $14, $d, $19, $1e, $28
+    
     WaitTime $6
     ClearTextbox
     EndCutscene

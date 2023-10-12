@@ -192,7 +192,7 @@ mainLoop:
 	BSR.w	waitForVint
 	BSR.w	loc_00007CBE
 	BSR.w	updateControllers
-	BSR.w	runBytecode
+	BSR.w	Bytecode_Run
 	BSR.w	loc_00002A00
 	JSR	updateSprites
 	BRA.b	mainLoop
@@ -283,7 +283,7 @@ loc_000004C8:
 loc_000004CA:
 	DBF	D1, loc_000004C8
 	BSR.w	init_initVDP
-	BSR.w	initBytecode
+	BSR.w	Bytecode_Init
 	JSR	loc_0000EF6C
 	JSR	SndDrv_LoadDriver
 	BSR.w	loc_00001046
@@ -1365,7 +1365,7 @@ initializeDebugFlags:
 	rts
 	
 debug_SkipStage:
-	MOVE.b	debug_skipStages, bc_returnState
+	MOVE.b	debug_skipStages, rBytecode_Ret
 	RTS
 	
 palLookupTable:
@@ -2394,14 +2394,14 @@ OnePlayer_AdvanceNextStage:
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	MOVE.b	#$FF, (A1,D0.w)
-	MOVE.b	#0, bc_returnState
+	MOVE.b	#0, rBytecode_Ret
 	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BNE.w	@NotAtDraco
-	MOVE.b	#2, bc_returnState
+	MOVE.b	#2, rBytecode_Ret
 @NotAtDraco:
 	RTS
 @AtFinalStage:
-	MOVE.b	#1, bc_returnState
+	MOVE.b	#1, rBytecode_Ret
 	RTS
 	
 	
@@ -5876,14 +5876,14 @@ loc_0000654C:
 	movea.l $2e(a0), a1
 	bsr.w loc_00002AFC
 	clr.b ($00FF0A3A)
-	clr.b (bc_stopRunning)
+	clr.b (rBytecode_StopRun)
 	rts
 loc_00006562:
 	MOVE.w	#$FFFF, $00FF18C8
 	CLR.w	$00FF0144
 	MOVE.b	$2A(A0), D0
 	EORI.b	#1, D0
-	MOVE.b	D0, bc_returnState
+	MOVE.b	D0, rBytecode_Ret
 	MOVE.b	D0, $00FF0115
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
@@ -6068,7 +6068,7 @@ loc_0000683C:
 loc_00006862:
 	CLR.b	$7(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	BRA.w	loc_00002AF2
 loc_00006874:
 	MOVE.b	#1, $7(A0)
@@ -6092,7 +6092,7 @@ loc_000068B4:
 	ANDI	#$F8FF, SR
 	CLR.b	$7(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	BRA.w	loc_00002AF2
 loc_000068D6:
 	MOVEM.l	A0, -(A7)
@@ -6333,20 +6333,20 @@ loc_00006C9E:
 	MOVE.w	#$0080, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B40
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	MOVE.b	#$FF, $00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006CD2:
 	MOVE.b	#sfxID_ConfirmSelection, D0
 	JSR	SndDrv_QueueSoundEffect
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	CLR.b	$00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006CEC:
 	MOVE.w	#$0100, D0
 	BSR.w	loc_00002B1C
 	BSR.w	loc_00002B40
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	CLR.b	$00FF0A3A
 	BRA.w	loc_00002AF2
 loc_00006D08:
@@ -6420,7 +6420,7 @@ loc_00006DC8:
 	ANDI	#$F8FF, SR
 	BRA.w	loc_0000319A
 loc_00006E16:
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	BCLR.b	#0, $7(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
@@ -7537,7 +7537,7 @@ loc_00007CA8:
 	bcs.w loc_00007CB2
 	rts
 loc_00007CB2:
-	clr.b bc_stopRunning
+	clr.b rBytecode_StopRun
 	jmp loc_00002AF2
 loc_00007CBE:
 	MOVEQ	#0, D2
@@ -9807,7 +9807,7 @@ loc_0000A21E:
 	MOVE.w	#0, $00FF05D2
 	MOVE.b	#sfxID_PlacePuyo, D0
 	JSR	SndDrv_QueueSoundEffect
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	BRA.w	loc_00002AF2
 loc_0000A23A:
 	TST.w	$00FF1892
@@ -9844,7 +9844,7 @@ loc_0000A2AC:
 	MOVE.b	loc_0000A2D6(PC,D0.w), D1
 	MOVE.b	D1, D2
 	LSR.b	#1, D2
-	MOVE.b	D2, bc_returnState
+	MOVE.b	D2, rBytecode_Ret
 	LSL.w	#2, D1
 	MOVEA.l	loc_0000A2E8(PC,D1.w), A2
 	JMP	(A2)
@@ -10044,7 +10044,7 @@ Sega_LogoInit:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 
 loc_0000A5B0:
@@ -10100,7 +10100,7 @@ loc_0000ACDC:
 	MOVE.w	#$0800, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	CLR.b	$00FF0A3A
 	JMP	loc_00002AF2
 loc_0000AD04:
@@ -10723,332 +10723,9 @@ loc_0000B0E2:
     dc.b    $42
     dc.b    $3A
     dc.b    $4A
-loc_0000B0F6:
-	MOVE.b	#2, D0
-	MOVE.b	#0, D1
-	MOVE.b	#2, D2
-	LEA	palLookupTable, A2
-	ADDA.l	#(pal_general-palLookupTable), A2
-	JSR	loc_00000E28
-	LEA	loc_0000B160, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000B126
-	RTS
-loc_0000B126:
-	MOVE.b	#$80, $6(A1)
-	MOVE.b	#6, $8(A1)
-	MOVE.b	#$0C, $9(A1)
-	MOVE.w	#$00D6, $A(A1)
-	MOVE.b	$00FF0105, $27(A1)
-	MOVE.l	#loc_0000B266, $32(A1)
-	BRA.w	loc_0000B32C
-loc_0000B152:
-	MOVE.w	$26(A0), D0
-	ADDI.w	#$000C, D0
-	JMP	Video_LoadBgMapFromId
-loc_0000B160:
-	MOVE.w	#$0100, D4
-	MOVE.w	#$D922, D5
-	MOVE.w	#$8500, D6
-	MOVE.w	#$0280, $28(A0)
-	BSR.b	loc_0000B152
-	JSR	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_0000B1CC
-	JSR	Anim_UpdateCutsceneSprite
-	BSR.w	loc_00004BF2
-	MOVE.b	D0, D1
-	ANDI.b	#$F0, D0
-	BNE.w	loc_0000B1DE
-	BTST.l	#0, D1
-	BNE.w	loc_0000B1A4
-	BTST.l	#1, D1
-	BNE.w	loc_0000B1B4
-	RTS
-loc_0000B1A4:
-	TST.w	$26(A0)
-	BEQ.w	loc_0000B1CA
-	SUBQ.w	#1, $26(A0)
-	BRA.w	loc_0000B1C2
-loc_0000B1B4:
-	CMPI.w	#3, $26(A0)
-	BCC.w	loc_0000B1CA
-	ADDQ.w	#1, $26(A0)
-loc_0000B1C2:
-	MOVE.b	#sfxID_ChangeSelection, D0
-	BSR.w	SndDrv_QueueSoundEffect
-loc_0000B1CA:
-	BRA.b	loc_0000B152
-loc_0000B1CC:
-	MOVE.w	$26(A0), D0
-	MULU.w	#$0018, D0
-	ADDI.w	#$00D8, D0
-	MOVE.w	D0, $E(A0)
-	RTS
-loc_0000B1DE:
-	BSR.w	loc_0000B270
-	BCC.w	loc_0000B1F0
-	MOVE.b	#sfxID_MinorGarbagePuyoFall2, D0
-	JMP	SndDrv_QueueSoundEffect
-loc_0000B1F0:
-	MOVE.b	$27(A0), $00FF0105
-	MOVE.b	#sfxID_ConfirmSelection, D0
-	BSR.w	SndDrv_QueueSoundEffect
-	CLR.w	$28(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	#$0010, $28(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$28(A0), D0
-	ROR.b	#2, D0
-	ANDI.b	#$80, D0
-	MOVE.b	D0, $6(A0)
-	SUBQ.w	#1, $28(A0)
-	BEQ.w	loc_0000B22E
-	RTS
-loc_0000B22E:
-	MOVE.w	$26(A0), D0
-	MOVE.b	loc_0000B260(PC,D0.w), D1
-	MOVE.b	D1, $00FF1882
-	MOVE.b	D1, bc_returnState
-	BEQ.w	loc_0000B354
-	CMPI.b	#3, D1
-	BEQ.w	loc_0000B254
-	CLR.b	$00FF1884
-loc_0000B254:
-	CLR.b	bc_stopRunning
-	JMP	loc_00002AF2
-loc_0000B260:
-	dc.b 	$00, $01, $02, $03, $04, $00
-loc_0000B266:
-	dc.b	$08
-	dc.b	$0C 
-	dc.b	$08
-	dc.b	$0D 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_0000B266
-loc_0000B270:
-	CMPI.w	#1, $26(A0)
-	BNE.w	loc_0000B28A
-	BSR.w	loc_0000B290
-	TST.b	D0
-	BEQ.w	loc_0000B28A
-	ORI	#1, SR
-	RTS
-loc_0000B28A:
-	ANDI	#$FFFE, SR
-	RTS
 	
-loc_0000B290:
-	ORI	#$0700, SR
-	MOVE.w	#$0100, Z80BusReq
-loc_0000B29C:
-	BTST.b	#0, Z80BusReq
-	BNE.b	loc_0000B29C
-	BSR.w	loc_0000B2B8
-	MOVE.w	#0, Z80BusReq
-	ANDI	#$F8FF, SR
-	RTS
-loc_0000B2B8:
-	LEA	padData1, A1
-	BSR.w	loc_0000B2D8
-	LEA	padData2, A1
-	MOVEM.l	D0, -(A7)
-	BSR.w	loc_0000B2D8
-	MOVEM.l	(A7)+, D1
-	OR.b	D1, D0
-	RTS
-loc_0000B2D8:
-	MOVE.b	#0, (A1)
-	NOP
-	NOP
-	MOVE.b	(A1), D0
-	ANDI.b	#$0F, D0
-	MOVE.b	#$40, (A1)
-	NOP
-	NOP
-	MOVE.b	(A1), D1
-	LSL.b	#4, D1
-	ANDI.b	#$F0, D1
-	OR.b	D1, D0
-	MOVEQ	#0, D1
-	MOVE.w	#3, D2
-loc_0000B2FE:
-	LSL.b	#1, D1
-	MOVEM.l	D0, -(A7)
-	ANDI.b	#$C0, D0
-	BEQ.w	loc_0000B310
-	ORI.b	#1, D1
-loc_0000B310:
-	MOVEM.l	(A7)+, D0
-	LSL.b	#2, D0
-	DBF	D2, loc_0000B2FE
-	MOVE.b	#0, D0
-	CMPI.b	#$0D, D1
-	BEQ.w	loc_0000B32A
-; If the specified controller is not plugged in, this will get set to #$FF
-; Access to 2 Player mode will also be disabled if the second controller is unplugged
-	MOVE.b	#$FF, D0
-loc_0000B32A:
-	RTS
-loc_0000B32C:
-	LEA	loc_0000B338, A1
-	JMP	ObjSys_InitObjWithFunc
-loc_0000B338:
-	ADDQ.w	#1, $26(A0)
-	MOVE.w	$26(A0), D1
-	MOVE.w	#$006F, D0
-	LEA	ram_scanScrBuf, A1
-loc_0000B34A:
-	MOVE.w	D1, (A1)+
-	ADDQ.w	#2, A1
-	DBF	D0, loc_0000B34A
-	RTS
-loc_0000B354:
-	MOVE.w	#$9501, D0
-	SWAP	D0
-	JSR	loc_00000C4C
-	MOVE.w	#$0028, $26(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	#$00B7, D0
-	LEA	$00FF0662, A1
-loc_0000B376:
-	SUBQ.w	#8, (A1)+
-	ADDQ.w	#2, A1
-	DBF	D0, loc_0000B376
-	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000B388
-	RTS
-loc_0000B388:
-	MOVE.w	#$0100, D4
-	MOVE.w	#$D922, D5
-	MOVE.w	#$8500, D6
-	MOVE.w	#$0280, $28(A0)
-	BSR.w	loc_0000B504
-	MOVE.b	#1, $27(A0)
-	CLR.b	$2A(A0)
-loc_0000B3A8:
-	JSR	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_0000B460
-	ADDQ.b	#1, $2A(A0)
-	BSR.w	loc_00004BF2
-	ANDI.b	#$F0, D0
-	BNE.w	loc_0000B406
-	BSR.w	loc_00004BF2
-	BTST.l	#2, D0
-	BNE.w	loc_0000B3D8
-	BTST.l	#3, D0
-	BNE.w	loc_0000B3E8
-	RTS
-; This chunk of code handles the main menu selection for 1 Player
-; Specifically, it sets the bounds for where it can go
-loc_0000B3D8:
-	TST.w	$26(A0)
-	BEQ.w	loc_0000B404
-	SUBQ.w	#1, $26(A0)	
-	BRA.w	loc_0000B3F6
-loc_0000B3E8:
-	CMPI.w	#2, $26(A0)
-	BCC.w	loc_0000B404
-	ADDQ.w	#1, $26(A0)
-loc_0000B3F6:
-	MOVE.b	#sfxID_ChangeSelection, D0
-	BSR.w	SndDrv_QueueSoundEffect
-	CLR.b	$2A(A0)
-	BRA.b	loc_0000B3A8
-loc_0000B404:
-	RTS
+	include "game/menu/menu.asm"
 	
-loc_0000B406:
-	MOVE.b	#sfxID_ConfirmSelection, D0
-	BSR.w	SndDrv_QueueSoundEffect
-	CLR.w	$28(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	#$0010, $28(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$26(A0), D1 ; Reads the value of the selection for 1 Player
-	MOVE.w	$28(A0), D0
-	ANDI.b	#1, D0
-	BEQ.w	loc_0000B438
-	MOVE.w	#3, D1
-loc_0000B438:
-	BSR.w	loc_0000B4A0
-	SUBQ.w	#1, $28(A0)
-	BEQ.w	loc_0000B446
-	RTS
-loc_0000B446:
-	MOVE.b	$27(A0), $00FF0114
-	BSR.w	loc_0000B4B4
-	CLR.b	bc_stopRunning
-	JSR	ObjSys_UpdateObjNextOpTimer
-	RTS
-loc_0000B460:
-	MOVE.b	$2A(A0), D0
-	ANDI.b	#$0F, D0
-	BEQ.w	loc_0000B46E
-	RTS
-loc_0000B46E:
-	MOVE.w	#3, D1
-	BTST.b	#4, $2A(A0)
-	MOVE.w	$26(A0), D0
-	CLR.w	D1
-	LEA	tbl_menuStageSelect, A1
-	MOVE.b	(A1,D0.w), D1
-	MOVE.b	D1, rOnePlayer_CurStage
-	LEA	tbl_cutsceneOrder, A1
-	MOVE.b	(A1,D1.w), rOnePlayer_CurCutscene
-	MOVE.w	$26(A0), D1
-loc_0000B4A0:
-	MOVE.w	#$9500, D0
-	MOVE.b	loc_0000B4B0(PC,D1.w), D0
-	SWAP	D0
-	JMP	loc_00000C4C
-loc_0000B4B0:
-	dc.b	$02
-	dc.b	$01
-	dc.b	$00
-	dc.b	$03
-loc_0000B4B4:
-	MOVE.w	$26(A0), D0
-	LSL.w	#4, D0
-	LEA	loc_0000B4D4, A1
-	ADDA.w	D0, A1
-	LEA	rOnePlayer_DefeatedEnemyTbl, A2
-	MOVE.w	#$000F, D0
-loc_0000B4CC:
-	MOVE.b	(A1)+, (A2)+
-	DBF	D0, loc_0000B4CC
-	RTS
-loc_0000B4D4:
-	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 
-	dc.b	$FF, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00 
-	dc.b	$FF, $FF, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00 
-loc_0000B504:
-	LEA	loc_0000B52C, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCS.w	loc_0000B52A
-	MOVE.l	A0, $2E(A1)
-	MOVE.b	#6, $8(A1)
-	MOVE.b	#4, $9(A1)
-	MOVE.w	#$00A0, $A(A1)
-loc_0000B52A:
-	RTS
-loc_0000B52C:
-	MOVEA.l	$2E(A0), A1
-	TST.w	$26(A1)
-	BEQ.w	loc_0000B540
-	MOVE.b	#0, $6(A0)
-	RTS
-loc_0000B540:
-	MOVE.b	#$80, $6(A0)
-	MOVE.b	$36(A0), D0
-	ORI.b	#$80, D0
-	MOVE.w	#$0400, D1
-	JSR	loc_00001218
-	SWAP	D2
-	ADDI.w	#$0118, D2
-	MOVE.w	D2, $E(A0)
-	ADDQ.b	#6, $36(A0)
-	RTS
 loc_0000B568:
 	LEA	loc_0000B5CC, A1
 	JSR	ObjSys_InitObjWithFunc
@@ -11599,14 +11276,14 @@ loc_0000BC2C:
 	BEQ.w	loc_0000BCA8
 	TST.b	$2A(A0)
 	BNE.w	loc_0000BCA8
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	MOVE.b	#$FF, $2A(A0)
 loc_0000BCA8:
 	RTS
 loc_0000BCAA:
 	MOVE.b	#sfxID_MajorGarbagePuyoFall2, D0
 	BSR.w	SndDrv_QueueSoundEffect
-	TST.b	bc_stopRunning
+	TST.b	rBytecode_StopRun
 	BEQ.w	loc_0000BCD8
 	MOVE.w	#4, D0
 loc_0000BCC0:
@@ -11645,7 +11322,7 @@ loc_0000BD32:
 loc_0000BD3C:
 	TST.b	$2A(A0)
 	BNE.w	loc_0000BD4A
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 loc_0000BD4A:
 	JMP	loc_00002AF2
 loc_0000BD50:
@@ -11861,7 +11538,7 @@ loc_0000C00E:
 	move.w #$200, d0
 	jsr loc_00002B1C
 	jsr ObjSys_UpdateObjNextOpTimer
-	clr.b (bc_stopRunning).l
+	clr.b (rBytecode_StopRun).l
 	clr.b ($00FF0A3A).l
 	jmp loc_00002AF2
 loc_0000C08C:
@@ -11997,7 +11674,7 @@ loc_0000C278:
 	MOVE.b	D0, $6(A0)
 	RTS
 loc_0000C288:
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 loc_0000C294:
 	CLR.w	D0
@@ -12149,7 +11826,7 @@ tbl_menuPortraits:
 	dc.b	cutID_Harpy
 	dc.b 	$FF
 	even
-tbl_menuStageSelect:
+Menu_StageSelectTbl:
 	dc.b	stgID_SkeletonT
 	dc.b	stgID_Draco
 	dc.b	stgID_Harpy
@@ -12269,7 +11946,7 @@ loc_0000C6CC:
 loc_0000C6E2:
 	MOVE.w	#1, $12(A1)
 	MOVE.w	#$000B, $28(A1)
-	MOVE.b	#$FF, bc_returnState
+	MOVE.b	#$FF, rBytecode_Ret
 	BSR.w	loc_0000D1DA
 	RTS
 loc_0000C6FC:
@@ -12304,9 +11981,9 @@ loc_0000C74E:
 loc_0000C764:
 	MOVE.b	#sfxID_ConfirmSelection, D0
 	BSR.w	SndDrv_QueueSoundEffect
-	CLR.b	bc_returnState
+	CLR.b	rBytecode_Ret
 loc_0000C772:
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	JSR	ObjSys_UpdateObjNextOpTimer
 	RTS
 loc_0000C780:
@@ -12458,12 +12135,12 @@ Sega_Update:
 	BEQ.w	@TimerIsZero
 	RTS
 @ButtonPressed:
-	MOVE.b	#$FF, bc_returnState
-	CLR.b	bc_stopRunning
+	MOVE.b	#$FF, rBytecode_Ret
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 @TimerIsZero:
-	CLR.b	bc_returnState
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_Ret
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 	
 loc_0000C9BA:
@@ -12475,7 +12152,7 @@ loc_0000C9CC:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$1C, $8(A1)
 	CLR.w	D0
-	MOVE.b	bc_returnState, D0
+	MOVE.b	rBytecode_Ret, D0
 	LSL.b	#2, D0
 	MOVE.w	loc_0000CA12(PC,D0.w), $A(A1)
 	MOVE.w	loc_0000CA14(PC,D0.w), $E(A1)
@@ -12494,588 +12171,8 @@ loc_0000CA12:
 	dc.w	$00EE
 loc_0000CA14:
 	dc.w	$0100, $008E, $00E0, $008E, $00E0 
-TitleScreen_CreateArleObj:
-	LEA	loc_0000CA86, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCS.w	loc_0000CA84
-	MOVEA.l	A1, A2
-	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.b	#6, $9(A1)
-	MOVE.w	#$0160, $A(A1)
-	MOVE.l	#loc_0000CB4C, $32(A1)
-	LEA	loc_0000CDB2, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCS.w	loc_0000CA84
-	MOVE.l	A2, $2E(A1)
-	MOVE.b	#$24, $8(A1)
-	LEA	loc_0000CDEE, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCS.w	loc_0000CA84
-	MOVE.l	A2, $2E(A1)
-	MOVE.b	#$24, $8(A1)
-loc_0000CA84:
-	RTS
-loc_0000CA86:
-	MOVE.w	$00FF05D2, D0
-	ADDI.w	#$0160, D0
-	MOVE.w	D0, $E(A0)
-	JSR	Anim_UpdateCutsceneSprite
-	TST.b	$9(A0)
-	BMI.w	loc_0000CAA4
-	RTS
-loc_0000CAA4:
-	CLR.w	D0
-	MOVE.b	$9(A0), D0
-	LSR.b	#2, D0
-	ANDI.b	#$0F, $9(A0)
-	ANDI.b	#$1C, D0
-	MOVEA.l	loc_0000CABC(PC,D0.w), A1
-	JMP	(A1)
-loc_0000CABC:
-	dc.l	TitleScreen_ArleObj_PlayFire
-	dc.l	loc_0000CAD0
-	dc.l	TitleScreen_ArleObj_PlayBounce
-	dc.l	loc_0000CD24
-	dc.l	loc_0000CB80
-loc_0000CAD0:
-	MOVE.b	#0, $6(A0)
-	BSR.w	loc_0000CB8E
-	BSR.w	loc_0000CCAE
-	MOVE.w	#$0140, D0
-	JSR	loc_00002B1C
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.b	#$80, $6(A0)
-	MOVE.b	#$0D, $9(A0)
-	MOVE.b	#0, $36(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.b	$36(A0), D0
-	MOVE.w	#$4800, D1
-	JSR	loc_00001218
-	SWAP	D2
-	NEG.w	D2
-	ADD.w	$00FF05D2, D2
-	ADDI.w	#$01A8, D2
-	MOVE.w	D2, $E(A0)
-	ADDQ.b	#2, $36(A0)
-	CMPI.b	#$40, $36(A0)
-	BCC.w	loc_0000CB36
-	RTS
-loc_0000CB36:
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$00FF05D2, D0
-	ADDI.w	#$0160, D0
-	MOVE.w	D0, $E(A0)
-	RTS
-loc_0000CB4C:
-	dc.b	$40
-	dc.b	$06 
-	dc.b	$F0
-	dc.b	$06 
-	dc.b	$01
-	dc.b	$0B 
-	dc.b	$03
-	dc.b	$0C 
-	dc.b	$02
-	dc.b	$0B 
-	dc.b	$F0
-	dc.b	$06 
-	dc.b	$01
-	dc.b	$0B 
-	dc.b	$03
-	dc.b	$0C 
-	dc.b	$02
-	dc.b	$0B 
-	dc.b	$20
-	dc.b	$06 
-	dc.b	$02
-	dc.b	$89 
-	dc.b	$03
-	dc.b	$0A 
-	dc.b	$02
-	dc.b	$09 
-	dc.b	$18
-	dc.b	$06 
-	dc.b	$02
-	dc.b	$09 
-	dc.b	$10
-	dc.b	$0A 
-	dc.b	$04
-	dc.b	$08 
-	dc.b	$60
-	dc.b	$07 
-	dc.b	$40
-	dc.b	$B7 
-	dc.b	$01
-	dc.b	$AE 
-	dc.b	$01
-	dc.b	$CE 
-	dc.b	$01
-	dc.b	$CE 
-	dc.b	$01
-	dc.b	$CE 
-	dc.b	$01
-	dc.b	$CE 
-	dc.b	$01
-	dc.b	$CE 
-	dc.b	$00
-	dc.b	$90 
-loc_0000CB80:
-	ADDQ.w	#2, $26(A0)
-	MOVE.w	$26(A0), D0
-	ADDQ.w	#2, $E(A0)
-	RTS
-loc_0000CB8E:
-	MOVE.w	#7, D0
-loc_0000CB92:
-	LEA	loc_0000CBD8, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCS.w	loc_0000CBD2
-	MOVE.l	A0, $2E(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.b	#$15, $9(A1)
-	MOVE.b	#$80, $6(A1)
-	MOVE.w	$A(A0), $1E(A1)
-	SUBI.w	#$0038, $1E(A1)
-	MOVE.b	D0, D1
-	ROR.b	#3, D1
-	MOVE.b	D1, $36(A1)
-	MOVE.w	#$0080, $26(A1)
-loc_0000CBD2:
-	DBF	D0, loc_0000CB92
-	RTS
-loc_0000CBD8:
-	MOVE.b	$36(A0), D0
-	MOVE.w	#$4000, D1
-	JSR	loc_00001218
-	SWAP	D2
-	ADD.w	$1E(A0), D2
-	MOVE.w	D2, $A(A0)
-	MOVE.w	#$1000, D1
-	JSR	loc_00001214
-	SWAP	D2
-	ADDI.w	#$0130, D2
-	MOVE.w	$26(A0), D1
-	SUBI.w	#$0040, D1
-	BCC.w	loc_0000CC0E
-	CLR.w	D1
-loc_0000CC0E:
-	ADD.w	D1, D2
-	MOVE.w	D2, $20(A0)
-	ADD.w	$00FF05D2, D2
-	MOVE.w	D2, $E(A0)
-	SUBQ.b	#3, $36(A0)
-	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000CC2C
-	RTS
-loc_0000CC2C:
-	MOVE.w	#$0010, $26(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$20(A0), D0
-	ADD.w	$00FF05D2, D0
-	MOVE.w	D0, $E(A0)
-	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000CC50
-	RTS
-loc_0000CC50:
-	MOVE.b	#$87, $6(A0)
-	MOVE.w	$20(A0), $1E(A0)
-	MOVE.w	#$3000, $1C(A0)
-	MOVE.w	#$FFFC, $16(A0)
-	MOVE.w	#$FFFF, $20(A0)
-	MOVE.b	$36(A0), D0
-	MOVE.w	#$0100, D1
-	JSR	loc_00001218
-	MOVE.l	D2, $12(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$1E(A0), $E(A0)
-	JSR	SprSys_UpdatePosInterpolate
-	BCS.w	loc_0000CCA8
-	MOVE.w	$E(A0), $1E(A0)
-	MOVE.w	$00FF05D2, D0
-	ADD.w	D0, $E(A0)
-	RTS
-loc_0000CCA8:
-	JMP	loc_00002AF2
-loc_0000CCAE:
-	LEA	loc_0000CCFC, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000CCC0
-	RTS
-loc_0000CCC0:
-	MOVE.b	#$87, $6(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.b	#$0F, $9(A1)
-	MOVE.w	$A(A0), $A(A1)
-	ADDI.w	#$FFC8, $A(A1)
-	MOVE.w	#$0120, $1E(A1)
-	MOVE.w	#$FFFA, $16(A1)
-	MOVE.w	#$FFFF, $20(A1)
-	MOVE.w	#$3200, $1C(A1)
-	MOVE.w	#$FFFE, $12(A1)
-loc_0000CCFC:
-	MOVE.w	$1E(A0), $E(A0)
-	JSR	SprSys_UpdatePosInterpolate
-	BCS.w	loc_0000CD1E
-	MOVE.w	$E(A0), $1E(A0)
-	MOVE.w	$00FF05D2, D0
-	ADD.w	D0, $E(A0)
-	RTS
-loc_0000CD1E:
-	JMP	loc_00002AF2
-loc_0000CD24:
-	LEA	loc_0000CD54, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000CD36
-	RTS
-loc_0000CD36:
-	MOVE.l	A0, $2E(A1)
-	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.b	#$0F, $9(A1)
-	MOVE.b	#$3E, $36(A1)
-	RTS
-loc_0000CD54:
-	MOVEA.l	$2E(A0), A1
-	MOVE.b	$36(A0), D0
-	MOVE.w	#$A000, D1
-	JSR	loc_00001218
-	SWAP	D2
-	NEG.w	D2
-	ADD.w	$E(A1), D2
-	ADDI.w	#$FFB0, D2
-	MOVE.w	D2, $E(A0)
-	MOVE.w	$A(A1), D0
-	CLR.w	D1
-	MOVE.b	$36(A0), D1
-	MULU.w	#3, D1
-	ADD.w	D1, D0
-	ADDI.w	#$FFDC, D0
-	MOVE.w	D0, $A(A0)
-	SUBQ.b	#1, $36(A0)
-	BCS.w	loc_0000CD98
-	RTS
-loc_0000CD98:
-	JMP	loc_00002AF2
-	
-TitleScreen_ArleObj_PlayFire:
-	MOVE.b	#pcmID_Fire, D0
-	JMP	SndDrv_PlayVoice
-	
-TitleScreen_ArleObj_PlayBounce:
-	MOVE.b	#sfxID_PuyoBounceOnArle, D0
-	JMP	SndDrv_QueueSoundEffect
-	
-loc_0000CDB2:
-	MOVE.b	#0, $6(A0)
-	MOVEA.l	$2E(A0), A1
-	CMPI.b	#$0B, $9(A1)
-	BCS.w	loc_0000CDEC
-	CMPI.b	#$0D, $9(A1)
-	BCC.w	loc_0000CDEC
-	MOVE.w	$A(A1), $A(A0)
-	MOVE.w	$E(A1), $E(A0)
-	MOVE.b	$9(A1), $9(A0)
-	ADDQ.b	#7, $9(A0)
-	MOVE.b	#$80, $6(A0)
-loc_0000CDEC:
-	RTS
-loc_0000CDEE:
-	MOVE.b	#0, $6(A0)
-	MOVEA.l	$2E(A0), A1
-	CMPI.b	#9, $9(A1)
-	BCS.w	loc_0000CE28
-	CMPI.b	#$0B, $9(A1)
-	BCC.w	loc_0000CE28
-	MOVE.w	$A(A1), $A(A0)
-	MOVE.w	$E(A1), $E(A0)
-	MOVE.b	$9(A1), $9(A0)
-	ADDQ.b	#7, $9(A0)
-	MOVE.b	#$80, $6(A0)
-loc_0000CE28:
-	RTS
-	
-TitleScreen_CopyrightObjInit:
-	MOVE.b	#$80, $6(A0)
-	MOVE.b	#$24, $8(A0)
-	MOVE.b	#5, $9(A0)
-	MOVE.w	#$0120, $A(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$00FF05D2, D0
-	ADDI.w	#$014C, D0
-	MOVE.w	D0, $E(A0)
-	RTS
-	
-	
-TitleScreen_Init:
-	BSR.w	TitleScreen_CreateTitlePuyos
-	BSR.w	TitleScreen_InitValues
-	BSR.w	TitleScreen_CreateTitleObj
-	
-	LEA	TitleScreen_CopyrightObjInit, A1
-	JSR	ObjSys_InitObjWithFunc
-	BSR.w	TitleScreen_CreateArleObj
-	
-	LEA	TitleScreen_MainObjInit, A1
-	JSR	ObjSys_InitObjWithFunc
 
-	BCS.w	loc_0000CE9C
-	MOVE.b	#$24, $8(A1)
-	MOVE.w	#$0120, $A(A1)
-	MOVE.b	#7, $29(A1)
-	MOVE.b	#$1F, $28(A1)
-loc_0000CE9C:
-	RTS
-	
-loc_0000CE9E:
-	MOVEM.l	D0, -(A7)
-	CLR.w	D0
-	MOVE.b	rOption_ComputerLevel, D0
-	MOVE.b	@loc_0000CEB8(PC,D0.w), $00FF0104
-	MOVEM.l	(A7)+, D0
-	RTS
-@loc_0000CEB8:
-	dc.b	$00, $02, $04, $06 
-
-TitleScreen_InitValues:
-	BSR.b	loc_0000CE9E
-	CLR.l	$00FF187A
-	CLR.l	$00FF187E
-	CLR.w	$00FF010E
-	CLR.w	$00FF0110
-	CLR.w	$00FF0144
-	CLR.w	rOnePlayer_CurStage
-	CLR.b	$00FF0115
-	CLR.b	$00FF0105
-	CLR.b	$00FF1884
-	MOVE.w	#$0011, D0
-	LEA	rOnePlayer_DefeatedEnemyTbl, A1
-@Loop:
-	CLR.b	(A1)+
-	DBF	D0, @Loop
-	RTS
-	
-loc_0000CF06:
-	MOVE.w	$00FF05D4, D0
-	ANDI.b	#7, D0
-	BNE.w	loc_0000CF40
-	MOVE.w	#$9600, D0
-	SWAP	D0
-	MOVE.w	$28(A0), D0
-	JSR	loc_00000C4C
-	BSR.w	loc_0000CF48
-	SUBQ.b	#1, $29(A0)
-	BCC.w	loc_0000CF36
-	MOVE.b	#$0B, $29(A0)
-loc_0000CF36:
-	SUBQ.b	#1, $28(A0)
-	ANDI.b	#$1F, $28(A0)
-loc_0000CF40:
-	SUBQ.w	#1, $00FF05D4
-	RTS
-loc_0000CF48:
-	CMPI.b	#8, $29(A0)
-	BNE.w	loc_0000CF98
-	JSR	updateRNG
-	ANDI.w	#$000F, D0
-	CMPI.w	#7, D0
-	BCC.w	loc_0000CF98
-	LEA	loc_0000CF9A, A1
-	JSR	loc_00002AB0
-	BCS.w	loc_0000CF98
-	MULU.w	#$000C, D0
-	MOVE.w	$28(A0), D1
-	ANDI.w	#$FF00, D1
-	ADDI.w	#$E002, D1
-	ADD.w	D1, D0
-	MOVE.w	D0, $26(A1)
-	MOVE.w	#$00E0, $28(A1)
-	MOVE.l	#loc_0000CFD2, $32(A1)
-loc_0000CF98:
-	RTS
-loc_0000CF9A:
-	JSR	Anim_UpdateCutsceneSprite
-	CLR.w	D0
-	MOVE.b	$9(A0), D0
-	CMP.b	$8(A0), D0
-	BEQ.w	loc_0000CFC2
-	MOVE.b	D0, $8(A0)
-	ORI.w	#$9C00, D0
-	SWAP	D0
-	MOVE.w	$26(A0), D0
-	JSR	loc_00000C4C
-loc_0000CFC2:
-	SUBQ.w	#1, $28(A0)
-	BEQ.w	loc_0000CFCC
-	RTS
-loc_0000CFCC:
-	JMP	loc_00002AF2
-loc_0000CFD2:
-	dc.b	$08, $02 
-	dc.b	$0A
-	dc.b	$01 
-	dc.b	$08
-	dc.b	$02 
-	dc.b	$0A
-	dc.b	$03 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	loc_0000CFD2
-	
-	
-TitleScreen_MainObjInit:
-	BSR.w	loc_0000D040
-	BSR.w	loc_0000CF06
-	MOVE.w	$00FF05D2, D0
-	ADDI.w	#$00F0, D0
-	MOVE.w	D0, $E(A0)
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
-	BTST.l	#7, D0
-	BEQ.w	loc_0000D014
-	JSR	arcade_checkCoins
-	BCC.w	loc_0000D0A6
-loc_0000D014:
-	BRA.w	loc_0000D018
-loc_0000D018:
-	MOVE.b	#4, D0
-	JSR	arcade_checkCoins
-	BCC.w	loc_0000D02A
-	MOVE.b	#3, D0
-loc_0000D02A:
-	MOVE.b	D0, $9(A0)
-	MOVE.w	$00FF05C6, D0
-	LSL.b	#3, D0
-	ANDI.b	#$80, D0
-	MOVE.b	D0, $6(A0)
-	RTS
-	
-loc_0000D040:
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
-	ANDI.b	#$74, D0
-	BNE.w	loc_0000D056
-	RTS
-loc_0000D056:
-	MOVE.w	$2A(A0), D1
-	MOVE.b	Title_SndTstCode(PC,D1.w), D2
-	CMP.b	D2, D0
-	BEQ.w	loc_0000D06A
-	CLR.w	$2A(A0)
-	RTS
-loc_0000D06A:
-	ADDQ.w	#1, D1
-	MOVE.b	Title_SndTstCode(PC,D1.w), D0
-	BMI.w	loc_0000D07A
-	MOVE.w	D1, $2A(A0)
-	RTS
-loc_0000D07A:
-	CLR.w	$2A(A0)
-	MOVE.b	#sfxID_UnlockSndTst, D0
-	JSR	SndDrv_QueueSoundEffect
-	MOVE.w	rOption_SoundTestEnabled, D0
-	NOT.w	D0
-	MOVE.w	D0, rOption_SoundTestEnabled
-	JMP	loc_0001DC02
-Title_SndTstCode:
-	dc.b	btnb_A, btnb_A, btnb_Left, btnb_B, btnb_B, btnb_Left, btnb_C, btnb_C, $FF
-	even
-loc_0000D0A6:
-	MOVE.b	#1, $00FF1884
-	MOVE.b	#1, $00FF1888
-	MOVE.b	$00FF1111, D0
-	BTST.l	#7, D0
-	BNE.w	loc_0000D0D4
-	EORI.b	#1, $00FF1884
-	EORI.b	#1, $00FF1888
-loc_0000D0D4:
-	MOVE.b	#sfxID_ConfirmSelection, D0
-	JSR	SndDrv_QueueSoundEffect
-	CLR.b	bc_stopRunning
-	CLR.b	bc_returnState
-	JMP	loc_00002AF2
-	
-TitleScreen_CreateTitlePuyos:
-	LEA	TitleScreen_PuyoInit, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	@Success
-	RTS
-@Success:
-	MOVE.b	#$80, $6(A1)   ; Interpolate Flags
-	MOVE.b	#$24, $8(A1)   ; mapping
-	MOVE.w	#$0154, $A(A1) ; xpos
-	MOVE.w	#$0070, $E(A1) ; ypos
-	MOVE.l	#@TitlePuyoAnim, $32(A1)
-	MOVE.w	#$0040, $26(A1); timer
-	LEA	TitleScreen_PuyoInit, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	@Success2
-	RTS
-@Success2:
-	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$24, $8(A1)
-	MOVE.w	#$00D4, $A(A1)
-	MOVE.w	#$0070, $E(A1)
-	MOVE.l	#@TitlePuyoAnim, $32(A1)
-	MOVE.w	#$0050, $26(A1)
-	RTS
-@TitlePuyoAnim:
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$01
-	dc.b	$01 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$02
-	dc.b	$02 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$01
-	dc.b	$01 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$02
-	dc.b	$02 
-@TitlePuyoAnimLoop:
-	dc.b	$F0, $00 
-	dc.b	$01
-	dc.b	$01 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$02
-	dc.b	$02 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$01
-	dc.b	$01 
-	dc.b	$00
-	dc.b	$00 
-	dc.b	$02
-	dc.b	$02 
-	dc.b	$FF
-	dc.b	$00 
-	dc.l	@TitlePuyoAnimLoop
-	
-TitleScreen_PuyoInit:
-	TST.w	$26(A0)
-	BEQ.w	@TimerIsZero
-	SUBQ.w	#1, $26(A0)
-	RTS
-@TimerIsZero:
-	MOVE.b	#$95, $6(A0)
-	MOVE.w	#$FFFF, $20(A0)
-	MOVE.w	#$0800, $1C(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	SprSys_UpdatePosInterpolate
-	CMPI.w	#$00B8, $E(A0)
-	BCC.w	@YPosGreaterB8
-	RTS
-@YPosGreaterB8:
-	MOVE.w	#$00B8, $E(A0)
-	MOVE.b	#sfxID_PlacePuyo, D0
-	BSR.w	SndDrv_QueueSoundEffect
-	JSR	ObjSys_UpdateObjNextOpTimer
-	JMP	Anim_UpdateCutsceneSprite
+	include "game/title_screen/title_screen.asm"
 	
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
@@ -14613,7 +13710,7 @@ loc_0000D914:
 	bne.w loc_0000D92A
 	rts
 loc_0000D92A:
-	clr.b (bc_stopRunning).l
+	clr.b (rBytecode_StopRun).l
 	move.b #2, ($00FF0A3A).l
 	jmp loc_00002AF2
 loc_0000D93E:
@@ -14777,7 +13874,7 @@ loc_0000DBC2:
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000DE6A
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	CLR.b	$00FF0A3A
 	ADDQ.b	#1, rOnePlayer_CurStage
 	CMPI.b	#$12, rOnePlayer_CurStage
@@ -15170,7 +14267,7 @@ cut_CommandLookupTable:
 cut_EndCutscene:
 	BSR.w	loc_0000E210
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 	
 cut_TextboxNewLine:
@@ -17353,8 +16450,8 @@ loc_00010670:
 	MOVE.w	#$0020, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
-	CLR.b	bc_returnState
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_Ret
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 loc_000106A4:
 	CLR.b	$9(A0)
@@ -17716,7 +16813,7 @@ loc_00010BE8:
 loc_00010BF4:
 	MOVE.w	#2, $26(A0)
 loc_00010BFA:
-	TST.b	bc_stopRunning
+	TST.b	rBytecode_StopRun
 	BEQ.w	loc_00010C56
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
@@ -17726,7 +16823,7 @@ loc_00010BFA:
 	MOVE.w	#8, D0
 	JSR	loc_00002B1C
 	JSR	ObjSys_UpdateObjNextOpTimer
-	TST.b	bc_stopRunning
+	TST.b	rBytecode_StopRun
 	BEQ.w	loc_00010C56
 	MOVE.b	#0, D1
 	BSR.w	titleScreen_fadeLogoToColor
@@ -17755,13 +16852,13 @@ loc_00010C7C:
 	BEQ.w	loc_00010C9C
 	BRA.w	loc_00010B8A
 loc_00010C9C:
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	MOVE.b	$00FF188E, D0
 	ADDQ.b	#1, D0
-	MOVE.b	D0, bc_returnState
+	MOVE.b	D0, rBytecode_Ret
 	ANDI.b	#1, D0
 	MOVE.b	D0, $00FF188E
-	CMPI.b	#2, bc_returnState
+	CMPI.b	#2, rBytecode_Ret
 	BEQ.w	loc_00010CCC
 	JMP	loc_00002AF2
 loc_00010CCC:

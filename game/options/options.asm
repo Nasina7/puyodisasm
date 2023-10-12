@@ -66,7 +66,7 @@ BadCheck_Update:
 	jsr loc_00002B1C
 	jsr loc_00002b40
 	clr.b ($00FF1834).l
-	clr.b (bc_stopRunning).l
+	clr.b (rBytecode_StopRun).l
 	jmp loc_00002AF2
 	
 SoundTest_LoadSatanSprite:
@@ -170,7 +170,7 @@ SoundTest_ClearAudio:
 
 SoundTest_Exit:
 	CLR.b	$00FF1834
-	CLR.b	bc_stopRunning
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 
 SoundTest_MoveCursorRight:
@@ -744,8 +744,8 @@ Option_Update:
 loc_0001D72C:
 	BSR.w	loc_0001DC02
 	CLR.b	$00FF1834
-	MOVE.b	#0, bc_returnState
-	CLR.b	bc_stopRunning
+	MOVE.b	#0, rBytecode_Ret
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 loc_0001D74A:
 	MOVE.b	#2, D2
@@ -862,8 +862,8 @@ loc_0001D8BC:
 	JSR	SndDrv_QueueSoundEffect
 	MOVEM.l	(A7)+, D0
 	CLR.b	$00FF1834
-	MOVE.b	#1, bc_returnState
-	CLR.b	bc_stopRunning
+	MOVE.b	#1, rBytecode_Ret
+	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 loc_0001D8E4:
 	BSR.w	loc_0001D902
@@ -1118,10 +1118,10 @@ Check_GetChecksum:
 	nop
 	nop
 	nop
-	move.b #0, (bc_returnState).l
+	move.b #0, (rBytecode_Ret).l
 	cmp.w (checksum).w, D1
 	beq.w @ChecksumPass
-	move.b #$FF, (bc_returnState).l
+	move.b #$FF, (rBytecode_Ret).l
 @ChecksumPass:
 	move.w D1, (ram_calcChecksum).l
 	rts

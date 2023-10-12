@@ -41,7 +41,7 @@
 
 	include "game/bytecode/bytecode_macros.asm"
 	
-BC_Bootup: ; Bootup Lookup Table
+Bytecode_Bootup: ; Bootup Lookup Table
 
 	BRUN loc_00000FB8
 	
@@ -49,7 +49,7 @@ BC_Bootup: ; Bootup Lookup Table
 	
 	BRUN Check_GetChecksum
 
-	BJEQ BC_segaScreen
+	BJEQ Bytecode_SegaScreen
 
 	BVMODE $0001
 	
@@ -72,7 +72,7 @@ BC_Bootup: ; Bootup Lookup Table
 	BPAL pal_blank, 2
 	
 	BNOP
-BC_segaScreen:
+Bytecode_SegaScreen:
 	BRUN loc_00000FB8
 	
 	BVMODE $0001
@@ -96,7 +96,7 @@ BC_segaScreen:
 	BRAM $00FF05D2, $0000
 	
 	BNOP
-BC_titleScreen:
+Bytecode_TitleScreen:
 	BVMODE $0000
 	
 	BART $0000, art_titleScreen
@@ -116,7 +116,7 @@ BC_titleScreen:
 	BPALF pal_titleScreenLogo_cycle, 3, 0
 	
 	BSTOP
-BC_mainMenu:
+Bytecode_MainMenu:
 
 	BRUN loc_000029D6
 	
@@ -140,13 +140,13 @@ BC_mainMenu:
 	BSSND
 	
 	BJTBL $0004
-	dc.l	BC_mainMenu2
-	dc.l    BC_tutorialDemo
-	dc.l	BC_unknown6
-	dc.l	BC_normalModeEnding
+	dc.l	Bytecode_MainMenu2
+	dc.l    Bytecode_TutorialDemo
+	dc.l	Bytecode_Unknown6
+	dc.l	Bytecode_NormalModeEnding
 	
 	
-BC_mainMenu2: ; Second half of above transition
+Bytecode_MainMenu2: ; Second half of above transition
 	BVMODE $0000
 	
 	BART $A000, art_creditsText
@@ -165,7 +165,7 @@ BC_mainMenu2: ; Second half of above transition
 	
 	BNOP
 	
-	BRUN loc_0000B0F6
+	BRUN MenuScreen_Init
 	
 	BSTOP
 	
@@ -183,11 +183,11 @@ BC_mainMenu2: ; Second half of above transition
 	BSSND
 	
 	BJTBL $0004
-	dc.l	BC_portraitScreen
-	dc.l	BC_twoPlayer
-	dc.l    BC_endless 
-	dc.l	BC_options
-BC_options:
+	dc.l	Bytecode_PortraitScreen
+	dc.l	Bytecode_TwoPlayer
+	dc.l    Bytecode_Endless 
+	dc.l	Bytecode_Options
+Bytecode_Options:
 	BVMODE $0001
 	BSND musID_Cooking
 	
@@ -222,10 +222,10 @@ BC_options:
 	BSSND
 	BNOP
 	
-	BJNE BC_soundTest
+	BJNE Bytecode_SoundTest
 	
-	BJMP BC_titleScreen
-BC_soundTest:
+	BJMP Bytecode_TitleScreen
+Bytecode_SoundTest:
 	BVMODE $0001
 	
 	BART $6000, art_cutsceneArle
@@ -256,8 +256,8 @@ BC_soundTest:
 	
 	BRUN loc_000029D6
 	
-	BJMP BC_options
-BC_portraitScreen:
+	BJMP Bytecode_Options
+Bytecode_PortraitScreen:
 	BVMODE $0000
 
 	BART $8000, art_recordScreen
@@ -316,7 +316,7 @@ BC_portraitScreen:
 	
 	BRUN debug_SkipStage
 	
-	BJEQ BC_unknown1
+	BJEQ Bytecode_Unknown1
 	
 	BWPAL
 	
@@ -334,11 +334,11 @@ BC_portraitScreen:
 	
 	BRUN OnePlayer_AdvanceNextStage
 	
-	BJEQ BC_portraitScreen
+	BJEQ Bytecode_PortraitScreen
 	
-	BJMP BC_segaScreen
+	BJMP Bytecode_SegaScreen
 	
-BC_unknown1:
+Bytecode_Unknown1:
 	BWPAL
 	BNOP
 	
@@ -400,15 +400,15 @@ BC_unknown1:
 	
 	BSSND
 	
-	BJNE BC_gameOver
+	BJNE Bytecode_GameOver
 	
 	BRUN OnePlayer_AdvanceNextStage
 	
 	BJTBL $0003
-	dc.l	BC_portraitScreen 
-	dc.l	BC_normalModeEnding 
-	dc.l	BC_easyModeEnding 
-BC_gameOver:
+	dc.l	Bytecode_PortraitScreen 
+	dc.l	Bytecode_NormalModeEnding 
+	dc.l	Bytecode_EasyModeEnding 
+Bytecode_GameOver:
 	BVMODE $0001
 	
 	BRUN loc_00000BDC
@@ -452,14 +452,13 @@ BC_gameOver:
 	
 	BRUN loc_000029D6
 	
-	BJEQ BC_portraitScreen
+	BJEQ Bytecode_PortraitScreen
 	
 	BRAM $00FF1890, $0000
 	
-	BJMP BC_recordScreen1PlayerOnly
+	BJMP Bytecode_RecordScreen1PlayerOnly
 	
-; Loads Easy Mode Ending
-BC_easyModeEnding:
+Bytecode_EasyModeEnding:
 	BRAM $00FF0112, $1010
 
 	BVMODE $0001
@@ -499,8 +498,9 @@ BC_easyModeEnding:
 	
 	BRAM $00FF1890, $0000
 	
-	BJMP BC_recordScreen1PlayerOnly
-BC_normalModeEnding:
+	BJMP Bytecode_RecordScreen1PlayerOnly
+	
+Bytecode_NormalModeEnding:
 	BRAM rOption_SoundTestEnabled, $FFFF
 	
 	BRUN loc_0001DC02
@@ -524,7 +524,7 @@ BC_normalModeEnding:
 	
 	BSTOP
 	
-	BJEQ BC_credits
+	BJEQ Bytecode_Credits
 	
 	BPAL pal_blank, 0
 	BPAL pal_blank, 1
@@ -535,8 +535,8 @@ BC_normalModeEnding:
 	BSSND
 	BNOP
 	
-	BJMP BC_credits2
-BC_credits:
+	BJMP Bytecode_Credits2
+Bytecode_Credits:
 	
 	BPALF pal_blank, 1, 4
 	BPALF pal_blank, 2, 4
@@ -548,7 +548,7 @@ BC_credits:
 	BRUN loc_000029D6
 	BSSND
 	BDELAY $00C0
-BC_credits2:
+Bytecode_Credits2:
 	BDELAY $0080
 	
 	BVMODE $0001
@@ -560,7 +560,7 @@ BC_credits2:
 	BART $6000, art_cutsceneArle
 	BART $A000, art_tryAgain
 	BRAM $00FF0112, $0000
-BC_credits3:
+Bytecode_Credits3:
 	BRUN loc_0000DAF4
 	BRUN loc_0000D908
 
@@ -568,10 +568,10 @@ BC_credits3:
 	BNOP
 	
 	BJTBL $0003
-	dc.l	BC_staff2
-	dc.l	BC_credits3
-	dc.l	BC_staff
-BC_staff:
+	dc.l	Bytecode_Staff2
+	dc.l	Bytecode_Credits3
+	dc.l	Bytecode_Staff
+Bytecode_Staff:
 
 	BPAL pal_blank, 0
 	BPAL pal_blank, 1
@@ -583,9 +583,9 @@ BC_staff:
 	BSSND
 	BNOP
 	
-	BJMP BC_staff3
+	BJMP Bytecode_Staff3
 	
-BC_staff2:
+Bytecode_Staff2:
 	BMUSF
 	
 	BPALF pal_blank, 0, 6
@@ -598,7 +598,7 @@ BC_staff2:
 	BRUN loc_000029D6
 	BDELAY $0080
 	BSSND
-BC_staff3:
+Bytecode_Staff3:
 	BVMODE $0001
 	BSND musID_Sunset
 	
@@ -618,7 +618,7 @@ BC_staff3:
 	
 	BSTOP
 	
-	BJEQ BC_recordScreen
+	BJEQ Bytecode_RecordScreen
 	
 	BPAL pal_blank, 0
 	BPAL pal_blank, 1
@@ -628,8 +628,8 @@ BC_staff3:
 	BNOP
 	BSSND
 	BRAM $00FF1890, $0000
-	BJMP BC_recordScreen1PlayerOnly
-BC_recordScreen:
+	BJMP Bytecode_RecordScreen1PlayerOnly
+Bytecode_RecordScreen:
 	BMUSF
 	BRUN loc_000029D6
 	
@@ -641,7 +641,7 @@ BC_recordScreen:
 	BRUN loc_000029D6
 	BSSND
 	BRAM $00FF1890, $0000
-BC_recordScreen1PlayerOnly:
+Bytecode_RecordScreen1PlayerOnly:
 
 	BVMODE $0000
 	
@@ -682,8 +682,8 @@ BC_recordScreen1PlayerOnly:
 	
 	BSSND
 	
-	BJMP BC_segaScreen
-BC_twoPlayer:
+	BJMP Bytecode_SegaScreen
+Bytecode_TwoPlayer:
 	BRAM $00FF0128, $0000
 	BRUN loc_00007F00
 
@@ -702,7 +702,7 @@ BC_twoPlayer:
 	BPAL pal_000023D0, 3
 	
 	BRAM $00FF1108, $0802
-BC_unknown3:
+Bytecode_Unknown3:
 	BRAM $00FF0112, $0000
 	
 	BPAL pal_00002230, 0
@@ -714,14 +714,14 @@ BC_unknown3:
 	
 	BSTOP
 	
-	BJNE BC_recordScreen3
+	BJNE Bytecode_RecordScreen3
 	BRUN loc_000029D6
 	
 	BVDPC $0004
 	BNOP
 	
-	BJMP BC_unknown3
-BC_recordScreen3:
+	BJMP Bytecode_Unknown3
+Bytecode_RecordScreen3:
 	BRAM $00FF1108, $1003
 	
 	BMUSF
@@ -738,8 +738,8 @@ BC_recordScreen3:
 	BSSND
 	
 	BRAM $00FF1890, $00FF
-	BJMP BC_recordScreen1PlayerOnly
-BC_endless:
+	BJMP Bytecode_RecordScreen1PlayerOnly
+Bytecode_Endless:
 
 	BVMODE $0001
 	
@@ -781,8 +781,8 @@ BC_endless:
 	
 	BRAM $00FF1890, $0100
 	
-	BJMP BC_recordScreen1PlayerOnly
-BC_unknown6:
+	BJMP Bytecode_RecordScreen1PlayerOnly
+Bytecode_Unknown6:
 	BRAM $00FF1882, $0400
 
 	BVMODE $0001
@@ -825,10 +825,10 @@ BC_unknown6:
 	
 	BNOP
 	
-	BJNE BC_titleScreen
-	BJMP BC_recordScreen4
-; Loads Tutorial Demo
-BC_tutorialDemo:
+	BJNE Bytecode_TitleScreen
+	BJMP Bytecode_RecordScreen4
+
+Bytecode_TutorialDemo:
 	BRAM $00FF1882, $0400
 	BRAM $00FF0112, $0303
 
@@ -870,9 +870,9 @@ BC_tutorialDemo:
 	
 	BSSND
 	
-	BJNE BC_titleScreen
-	BJMP BC_recordScreen4
-BC_recordScreen4:
+	BJNE Bytecode_TitleScreen
+	BJMP Bytecode_RecordScreen4
+Bytecode_RecordScreen4:
 	BVMODE $0000
 	
 	BRUN loc_00000BC6
@@ -914,7 +914,7 @@ BC_recordScreen4:
 	
 	BSSND
 	
-	BJNE BC_titleScreen
+	BJNE Bytecode_TitleScreen
 	
-	BJMP BC_segaScreen
+	BJMP Bytecode_SegaScreen
 	

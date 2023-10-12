@@ -82,11 +82,6 @@ mus_curSong = $FF012F		; Byte
 
 ram_scanScrBuf = $FF0624	; 0x1C0 Bytes
 
-bc_programCounter = $FF0A36 ; Long
-bc_returnState = $FF0A3A	; Byte
-bc_stopRunning = $FF0A3B	; Byte
-bc_stopLoop = $FF0A3C 		; Byte
-
 ram_pad1Held = $FF110A		; Byte
 ram_pad1Press = $FF110B		; Byte
 

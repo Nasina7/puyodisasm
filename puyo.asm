@@ -640,6 +640,7 @@ loc_00000BBE:
 	CLR.w	(A1)+
 	DBF	D0, loc_00000BBE
 	RTS
+
 loc_00000BC6:
 	MOVE.w	#$8C00, D0
 	MOVE.b	$00FF0A2E, D0
@@ -709,7 +710,7 @@ loc_00000C5C:
 	ANDI	#$FFFE, SR
 	RTS
 	
-graphicsDecompress:
+System_DecompressComp:
 	ORI	#$0700, SR
 	MOVE.w	D0, D1
 	ANDI.w	#$3FFF, D1
@@ -1290,20 +1291,20 @@ tbl_loadBattleBackground:
 @battleLoadGrass:
 	LEA	art_grassBattle, A0
 	MOVE.w	#0, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVE.w	#3, D0
 	JMP	Video_LoadBgMapFromId
 @battleLoadRuins:
 	LEA art_ruinsBattle, A0
 	MOVE.w  #0, D0
-	JSR graphicsDecompress
+	JSR System_DecompressComp
 loc_00002103:
 	MOVE.w	#5, D0
 	JMP	Video_LoadBgMapFromId
 battleLoadTutorialBG:
 	LEA art_optionsBackground, A0
 	MOVE.w  #0, D0
-	JSR graphicsDecompress
+	JSR System_DecompressComp
 	MOVE.w  #$16, D0
 	jmp Video_LoadBgMapFromId
 	
@@ -1357,7 +1358,7 @@ loc_000021D0:
 loc_000021E0:
 	RTS
 	
-initializeDebugFlags:
+Debug_InitDebugFlags:
 	move.b #-1, (debug_CpuPlayer).l
 	move.b #0, (debug_puyoDrop).l
 	move.b #0, (debug_skipStages).l
@@ -1886,21 +1887,20 @@ loc_000029CE:
 	dc.b	$FE
 	dc.b	$00 
 	
-loc_000029D6:
+ObjMgr_InitObjSystem:
 	MOVE.w	#$03FF, D1
 	LEA	$00FFE000, A0
 	MOVEQ	#0, D0
-loc_000029E2:
+@Loop:
 	MOVE.l	D0, (A0)+
-	DBF	D1, loc_000029E2
+	DBF	D1, @Loop
 	
 	LEA	$00FF0AD6, A2
 	MOVE.w	#3, D0
-loc_000029F2:
+@Loop2:
 	CLR.w	(A2)
 	ADDA.l	#$00000082, A2
-	DBF	D0, loc_000029F2
-loc_000029FE:
+	DBF	D0, @Loop2
 	RTS
 	
 loc_00002A00:
@@ -5219,7 +5219,7 @@ loc_000055C4:
 	LSL.w	#2, D0
 	MOVEA.l	lookup_portraitArt(PC,D0.w), A0
 	MOVE.w	D1, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, D2/A0
 	CLR.w	$00FF18AA
 	LEA	loc_00005666, A1
@@ -5520,7 +5520,7 @@ loc_00006056:
 	MOVEM.l	A0, -(A7)
 	LEA	art_winLose, A0
 	MOVE.w	#$4000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, A0
 	LEA	loc_000061E2, A1
 	BSR.w	ObjSys_InitObjWithFunc
@@ -6102,7 +6102,7 @@ loc_000068D6:
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
@@ -6203,7 +6203,7 @@ loc_00006A84:
 	MOVEM.l	A0, -(A7)
 	LEA	art_cutsceneArle, A0
 	MOVE.w	#$6000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, A0
 	LEA	loc_000069A4, A1
 	BSR.w	ObjSys_InitObjWithFunc
@@ -6220,7 +6220,7 @@ loc_00006A84:
 	MOVE.l	#loc_00006B0C, $32(A1)
 loc_00006AE6:
 	MOVEA.l	A1, A2
-	LEA	loc_00009C3C, A1
+	LEA	Cutscene_ObjArleStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006B00
 	MOVE.l	A2, $2E(A1)
@@ -6240,7 +6240,7 @@ loc_00006B1E:
 	LEA	lookup_portraitArt, A1
 	MOVEA.l	$40(A1), A0
 	MOVE.w	#$2000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, D2/A0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	MOVEM.l	D0, -(A7)
@@ -6255,7 +6255,7 @@ loc_00006B64:
 	MOVE.w	$0(A0), D0
 	MOVE.b	$2A(A0), D1
 	MOVEM.l	A0/D1/D0, -(A7)
-	JSR	loc_000029D6
+	JSR	ObjMgr_InitObjSystem
 	MOVEM.l	(A7)+, D0/D1/A0
 	MOVE.w	D0, $0(A0)
 	MOVE.b	D1, $2A(A0)
@@ -6801,7 +6801,6 @@ loc_0000718C:
     dc.b    $00
     dc.b    $00
 
-
 SndDrv_LoadDriver:
 	MOVE.w	#$0100, Z80BusReq
 	BSR.w	SndDrv_ResetZ80
@@ -6957,7 +6956,6 @@ loc_00007380:
 loc_000073C8:
 	MOVE.w	#0, Z80BusReq
 	RTS
-	
 loc_000073D2:
 	CMPI.b	#8, $00A00022
 	BCS.w	loc_000073E0
@@ -9089,14 +9087,14 @@ loc_000093F4:
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
 	LEA	loc_00009504, A1
 	MOVEA.l	$44(A1,D0.w), A0
 	MOVE.w	#0, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVE.b	#$FF, $00FF18AE
 	MOVE.b	#0, $00FF18AF
 	CLR.w	D0
@@ -9312,7 +9310,7 @@ tbl_CutsceneCharAnims:
 	include "anim/cutscene/rulue.asm"
 	include "anim/cutscene/satan.asm"
 
-loc_00009B7A:
+Cutscene_InitObj:
 	MOVE.b	#$FF, $00FF18AC
 	MOVE.b	#0, $00FF18AD
 	LEA	loc_00009BDA, A1
@@ -9326,7 +9324,7 @@ loc_00009B9A:
 	MOVE.w	#$00E0, $A(A1)
 	MOVE.w	#$0068, $E(A1)
 	MOVEA.l	A1, A2
-	LEA	loc_00009C3C, A1
+	LEA	Cutscene_ObjArleStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	BCC.w	loc_00009BCA
 	RTS
@@ -9361,7 +9359,7 @@ loc_00009C30:
 	CLR.b	$7(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BRA.w	loc_00002AF2
-loc_00009C3C:
+Cutscene_ObjArleStart:
 	MOVEA.l	$2E(A0), A1
 	TST.b	$7(A1)
 	BEQ.w	loc_00002AF2
@@ -9513,19 +9511,23 @@ loc_00009DF2:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_00009DF2
+	
 loc_00009DFC:
 	dc.l	$0017FE00
 loc_00009E00:
 	dc.l	$04170518
 	dc.w	$FF00
 	dc.l    loc_00009E00
+	
 loc_00009E0A:
 	dc.w    $0006
 	dc.w	$FE00
+	
 loc_00009E0E:
 	dc.w    $0406	
 	dc.l	$0507FF00	
 	dc.l	loc_00009E0E
+	
 loc_00009E18:
 	dc.b	$F0
 	dc.b	$06 
@@ -9534,6 +9536,7 @@ loc_00009E18:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_00009E18
+	
 loc_00009E22:
 	dc.b	$00, $09, $FE, $00
 loc_00009E26:
@@ -9557,9 +9560,8 @@ loc_00009E58:
 loc_00009E62:
 	dc.b	$04, $0B, $08, $11, $00, $12, $FE, $00
 loc_00009E6A:
-	dc.b    $43, $F9
-	dc.l    loc_00009E74
-	dc.b    $60, $00, $8B, $E2
+	lea 	(loc_00009E74).l, a1
+	bra.w	ObjSys_InitObjWithFunc
 	
 loc_00009E74:
 	move.w #$a0, $26(a0)
@@ -9836,7 +9838,7 @@ loc_0000A286:
 	CLR.w	ram_scanScrBuf
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
-	LEA	cut_TickCutscene, A1
+	LEA	Cutscene_ControllerObj, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	CLR.w	D0
 	CLR.w	D1
@@ -9872,7 +9874,7 @@ loc_0000A30A:
 loc_0000A316:
 	LEA	(art_bgGrass).l, A0
 	MOVE.w	#$2000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVE.w	#0, D0
 	JSR	Video_LoadBgMapFromId
 	BRA.w	loc_0000A3F4
@@ -9891,7 +9893,7 @@ loc_0000A34E:
 loc_0000A368:
 	lea (art_bgRuins).l, a0
 	move.w #$2000, d0
-	jsr graphicsDecompress
+	jsr System_DecompressComp
 	move.w #1, d0
 	jmp Video_LoadBgMapFromId
 loc_0000A382:
@@ -9908,7 +9910,7 @@ loc_0000A382:
 loc_0000A3B6:
 	lea (art_bgSatan).l, a0
 	move.w #$2000, d0
-	jsr graphicsDecompress
+	jsr System_DecompressComp
 	move.w #2, d0
 	jsr Video_LoadBgMapFromId
 	bsr.w loc_0000A072
@@ -11858,7 +11860,7 @@ loc_0000C5AA:
 	LSL.w	#2, D0
 	MOVEA.l	(A3,D0.w), A0
 	MOVE.w	#0, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/A0/A1/A2/A3
 	MOVE.w	#0, D5
 	TST.b	(A1,D0.w)
@@ -13721,7 +13723,7 @@ loc_0000D93E:
 	LEA	loc_00009504, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, A0
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
@@ -13807,7 +13809,7 @@ loc_0000DA88:
 	MOVE.w	#$4000, $1C(A1)
 	MOVE.l	#loc_0000DAEA, $32(A1)
 	MOVEA.l	A1, A2
-	LEA	loc_00009C3C, A1
+	LEA	Cutscene_ObjArleStart, A1
 	JSR	loc_00002AB0
 	BCC.w	loc_0000DADE
 	RTS
@@ -13922,7 +13924,7 @@ loc_0000DC70:
 	LEA	lookup_portraitArt, A1
 	MOVEA.l	$40(A1), A0
 	MOVE.w	#0, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, D2/A0
 	BSR.w	loc_0000DA76
 	LEA	loc_0000DCB2, A1
@@ -13939,10 +13941,10 @@ loc_0000DCD4:
 	MOVEM.l	A0/D2, -(A7)
 	LEA	art_ingameAssets, A0
 	MOVE.w	#$2000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	LEA	art_bgGrass, A0
 	MOVE.w	#$2000, D0
-	JSR	graphicsDecompress
+	JSR	System_DecompressComp
 	JSR	loc_0000A3F4
 	MOVEM.l	(A7)+, D2/A0
 	MOVE.w	#$002D, D0
@@ -14055,7 +14057,7 @@ loc_0000DE6A:
 	BEQ.w	loc_0000DEAA
 	JSR	loc_00000FB8
 	MOVEM.l	A0, -(A7)
-	JSR	loc_000029D6
+	JSR	ObjMgr_InitObjSystem
 	MOVEM.l	(A7)+, A0
 	JSR	loc_00000BA4
 	MOVE.w	#$FF20, $00FF05D2
@@ -14216,21 +14218,28 @@ credits_TextboxCarbuncle:
 	
 ; Dead Code
 	rts
-cut_TickCutscene:
+	
+
+; Object Parameters:
+; $A-$B: X Pos in Textbox | $C-$D: Y Pos in Textbox
+; $10-$15: Textbox config
+; $26-$27: Wait Timer
+; $32-$35: Cutscene Pointer
+Cutscene_ControllerObj:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
-	LEA	cutsceneLookupTable, A1
+	LEA	Cutscene_CutLookupTbl, A1
 	MOVE.l	(A1,D0.w), $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	loc_00004BF2
 	ANDI.b	#$F0, D0
-	BNE.w	cut_EndCutscene
+	BNE.w	CutCmd_End
 	TST.w	$26(A0)
-	BEQ.w	loc_0000E11A
+	BEQ.w	@StepCutscene
 	SUBQ.w	#1, $26(A0)
 	RTS
-loc_0000E11A:
+@StepCutscene:
 	; Grab a byte from the cutscene pointer (A2), and store the increased pointer
 	MOVEA.l	$32(A0), A2
 	CLR.w	D0
@@ -14239,40 +14248,40 @@ loc_0000E11A:
 	
 	; If the hightest bit isn't set, branch to E26C
 	OR.b	D0, D0
-	BPL.w	cut_WriteChar
+	BPL.w	CutCmd_WriteChar
 	
 	; If the highest bit was set, run code depending on it
 	ANDI.b	#$7F, D0
 	LSL.w	#2, D0
-	MOVEA.l	cut_CommandLookupTable(PC,D0.w), A3
+	MOVEA.l	@Commands(PC,D0.w), A3
 	
 	; Get the next byte (argument to upcoming function call?)
 	CLR.w	D0
 	MOVE.b	(A2)+, D0
 	MOVE.l	A2, $32(A0)
 	JMP	(A3)
-cut_CommandLookupTable:
-	dc.l	cut_EndCutscene
-	dc.l	cut_MakeTextbox
-	dc.l	cut_ClearTextbox
-	dc.l	cut_WaitTime
-	dc.l	cut_PlayArleAnim
-	dc.l	cut_PlayOpponentAnim
-	dc.l	cut_TextboxNewLine
+@Commands:
+	dc.l	CutCmd_End
+	dc.l	CutCmd_MakeTxtbox
+	dc.l	CutCmd_ClearTxtbox
+	dc.l	CutCmd_Wait
+	dc.l	CutCmd_PlayArleAnim
+	dc.l	CutCmd_PlayOpponentAnim
+	dc.l	CutCmd_NewLine
 	dc.l	loc_0000E1A0 
 	dc.l	NULL 
-	dc.l	cut_AddWhitespace
+	dc.l	CutCmd_Whitespace
 	dc.l	SndDrv_PlayVoice 
 	
-cut_EndCutscene:
+CutCmd_End:
 	BSR.w	loc_0000E210
 	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 	
-cut_TextboxNewLine:
+CutCmd_NewLine:
 	SUBQ.l	#1, $32(A0)
-loc_0000E186:
+CutCmd_NewLine2:
 ; Preform newline in textbox (if out of bounds, set to start of textbox
 	CLR.w	$A(A0)
 	ADDQ.w	#1, $C(A0)
@@ -14292,7 +14301,7 @@ loc_0000E1A0:
 	SWAP	D0
 	JMP	loc_00000C4C
 	
-cut_MakeTextbox:
+CutCmd_MakeTxtbox:
 	; Make copies of argument
 	MOVE.w	D0, D1
 	MOVE.w	D0, D2
@@ -14344,7 +14353,7 @@ cut_MakeTextbox:
 	MOVE.b	#$FF, $7(A0)
 	RTS
 	
-cut_ClearTextbox:
+CutCmd_ClearTxtbox:
 	SUBQ.l	#1, $32(A0)
 loc_0000E210:
 	TST.b	$7(A0)
@@ -14365,26 +14374,27 @@ loc_0000E22E:
 	OR.w	$E(A0), D0
 	RTS
 	
-cut_AddWhitespace:
+CutCmd_Whitespace:
 	SUBQ.l	#1, $32(A0)
-	BRA.w	loc_0000E2E0
+	BRA.w	CutCmd_Whitespace2
 	
-cut_WaitTime:
+CutCmd_Wait:
 	MULU.w	#$000A, D0
 	MOVE.w	D0, $26(A0)
 	RTS
 	
-cut_PlayArleAnim:
+CutCmd_PlayArleAnim:
 	ORI.w	#$FF00, D0
 	MOVE.w	D0, $00FF18AC
 	RTS
 	
-cut_PlayOpponentAnim:
+CutCmd_PlayOpponentAnim:
 	ORI.w	#$FF00, D0
 	MOVE.w	D0, $00FF18AE
 	RTS
 	
-cut_WriteChar:
+CutCmd_WriteChar:
+	; Load X and Y pos, and run some calcs to determine location in VRAM BG
 	MOVE.w	$A(A0), D1
 	MOVE.w	$C(A0), D2
 	LSL.w	#1, D1
@@ -14396,6 +14406,7 @@ cut_WriteChar:
 	MOVE.w	$12(A0), D5
 	ADD.w	D1, D5
 	ADD.w	D2, D5
+	; Calculate tile num for the top left of the letter to draw
 	MOVE.w	D0, D1
 	ANDI.b	#$0F, D0
 	LSL.w	#1, D0
@@ -14405,29 +14416,29 @@ cut_WriteChar:
 	ORI.w	#$8000, D0
 	ORI	#$0700, SR
 	
+	; Setup the VDP to draw at the location in D5, and draw the top of the letter
 	BSR.w	loadBGSetupVDP
 	MOVE.w	D0, vdpData1 ; Write top left of letter
 	ADDQ.w	#1, D0
 	MOVE.w	D0, vdpData1 ; Write top right of letter
 	ADDI.w	#$0080, D5
-	
-	
+	; Same thing, but for the bottom
 	BSR.w	loadBGSetupVDP
 	ADDI.w	#$001F, D0
 	MOVE.w	D0, vdpData1 ; Write bottom left of letter
 	ADDQ.w	#1, D0
 	MOVE.w	D0, vdpData1 ; Write bottom right of letter
 	ANDI	#$F8FF, SR
-	
+	; Set the wait timer to 1 frame, and play a sound effect
 	MOVE.w	#1, $26(A0)
 	MOVE.b	#sfxID_TextboxDialogue, D0
 	BSR.w	SndDrv_QueueSoundEffect
-loc_0000E2E0:
-	; Check for new line in textbox
+CutCmd_Whitespace2:
+	; Increment position of cursor in textbox, and check for a new line.
 	ADDQ.w	#1, $A(A0)
 	MOVE.w	$A(A0), D0
 	CMP.w	$E(A0), D0
-	BCC.w	loc_0000E186
+	BCC.w	CutCmd_NewLine2
 	RTS
 	
 	
@@ -14495,7 +14506,7 @@ loc_0000E3B8:
 loc_0000E3C6:
 	JMP	loc_00002AF2
 
-cutsceneLookupTable:
+Cutscene_CutLookupTbl:
 	dc.l   	cutscene_SkeletonT
 	dc.l   	cutscene_Suketoudara
 	dc.l   	cutscene_Zombie

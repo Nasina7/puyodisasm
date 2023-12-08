@@ -155,7 +155,7 @@ BytecodeOP_LoadArt:
 	MOVEA.l	rBytecode_PC, A1
 	MOVEA.l	(A1)+, A0
 	MOVE.l	A1, rBytecode_PC
-	BRA.w	graphicsDecompress
+	BRA.w	System_DecompressComp
 	
 BytecodeOP_RunVDPCommand:
 	BRA.w	Video_LoadBgMapFromId

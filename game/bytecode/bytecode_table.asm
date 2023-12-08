@@ -45,7 +45,7 @@ Bytecode_Bootup: ; Bootup Lookup Table
 
 	BRUN loc_00000FB8
 	
-	BRUN initializeDebugFlags
+	BRUN Debug_InitDebugFlags
 	
 	BRUN Check_GetChecksum
 
@@ -88,7 +88,7 @@ Bytecode_SegaScreen:
 	
 	BPAL pal_blank, 0
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BNOP
 	
@@ -118,7 +118,7 @@ Bytecode_TitleScreen:
 	BSTOP
 Bytecode_MainMenu:
 
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BPAL pal_blank, 0
 	BPAL pal_blank, 1
@@ -178,7 +178,7 @@ Bytecode_MainMenu2: ; Second half of above transition
 
 	BNOP
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -217,7 +217,7 @@ Bytecode_Options:
 	BPAL pal_blank, 2
 	BPAL pal_blank, 3
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	BNOP
@@ -254,7 +254,7 @@ Bytecode_SoundTest:
 	BNOP
 	BSSND
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BJMP Bytecode_Options
 Bytecode_PortraitScreen:
@@ -285,7 +285,7 @@ Bytecode_PortraitScreen:
 	
 	BNOP
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BVMODE $0001
 	
@@ -296,7 +296,7 @@ Bytecode_PortraitScreen:
 	BRAM $00FF05D2, $FF20
 	BRAM $00FF05D4, $FF60
 	
-	BRUN loc_00009B7A
+	BRUN Cutscene_InitObj
 	
 	BRUN loc_000093F4
 	BRUN loc_0000A1A4
@@ -328,7 +328,7 @@ Bytecode_PortraitScreen:
 	BNOP
 	BSSND
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BDELAY $0010
 	
@@ -396,7 +396,7 @@ Bytecode_Unknown1:
 	
 	BWPAL
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -450,7 +450,7 @@ Bytecode_GameOver:
 	
 	BRUN loc_00000BA4
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BJEQ Bytecode_PortraitScreen
 	
@@ -492,7 +492,7 @@ Bytecode_EasyModeEnding:
 	
 	BWPAL
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -530,7 +530,7 @@ Bytecode_NormalModeEnding:
 	BPAL pal_blank, 1
 	BPAL pal_blank, 2
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	BNOP
@@ -545,7 +545,7 @@ Bytecode_Credits:
 	BWPAL
 	
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	BSSND
 	BDELAY $00C0
 Bytecode_Credits2:
@@ -578,7 +578,7 @@ Bytecode_Staff:
 	BPAL pal_blank, 2
 	BPAL pal_blank, 3
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	BNOP
@@ -595,7 +595,7 @@ Bytecode_Staff2:
 	
 	BDELAY $0070
 	BWPAL
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	BDELAY $0080
 	BSSND
 Bytecode_Staff3:
@@ -624,21 +624,21 @@ Bytecode_Staff3:
 	BPAL pal_blank, 1
 	
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	BNOP
 	BSSND
 	BRAM $00FF1890, $0000
 	BJMP Bytecode_RecordScreen1PlayerOnly
 Bytecode_RecordScreen:
 	BMUSF
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BPALF pal_blank, 0, 0
 	BPALF pal_blank, 1, 0
 	
 	BDELAY $0010
 	BWPAL
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	BSSND
 	BRAM $00FF1890, $0000
 Bytecode_RecordScreen1PlayerOnly:
@@ -678,7 +678,7 @@ Bytecode_RecordScreen1PlayerOnly:
 	
 	BWPAL
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -715,7 +715,7 @@ Bytecode_Unknown3:
 	BSTOP
 	
 	BJNE Bytecode_RecordScreen3
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BVDPC $0004
 	BNOP
@@ -733,7 +733,7 @@ Bytecode_RecordScreen3:
 	
 	BWPAL
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -775,7 +775,7 @@ Bytecode_Endless:
 	
 	BWPAL
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -816,7 +816,7 @@ Bytecode_Unknown6:
 	
 	BSTOP
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BPAL pal_blank, 0
 	BPAL pal_blank, 1
@@ -866,7 +866,7 @@ Bytecode_TutorialDemo:
 	
 	BNOP
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	
@@ -900,7 +900,7 @@ Bytecode_RecordScreen4:
 	
 	BSTOP
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BMUSF
 	
@@ -910,7 +910,7 @@ Bytecode_RecordScreen4:
 	
 	BNOP 
 	
-	BRUN loc_000029D6
+	BRUN ObjMgr_InitObjSystem
 	
 	BSSND
 	

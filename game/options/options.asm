@@ -73,10 +73,10 @@ SoundTest_LoadSatanSprite:
 	LEA	@SatanInit, A1
 	JMP	ObjSys_InitObjWithFunc
 @SatanInit:
-	MOVE.w	#$0180, $A(A0)
-	MOVE.w	#$0140, $E(A0)
+	MOVE.w	#$0180, Obj_XPos(A0)
+	MOVE.w	#$0140, Obj_YPos(A0)
 	MOVE.b	#$80, $6(A0)
-	MOVE.b	#$15, $8(A0)
+	MOVE.b	#SprMapID_Satan, Obj_SprMap(A0)
 	MOVE.l	#@Anim_Satan, $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	Anim_UpdateCutsceneSprite
@@ -98,10 +98,10 @@ SoundTest_LoadArleSprite:
 	LEA	@ArleInit, A1
 	JMP	ObjSys_InitObjWithFunc
 @ArleInit:
-	MOVE.w	#$00C0, $A(A0)
-	MOVE.w	#$0140, $E(A0)
+	MOVE.w	#$00C0, Obj_XPos(A0)
+	MOVE.w	#$0140, Obj_YPos(A0)
 	MOVE.b	#$80, $6(A0)
-	MOVE.b	#8, $8(A0)
+	MOVE.b	#SprMapID_Arle, Obj_SprMap(A0)
 	MOVE.l	#@Anim_Arle, $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	JSR	Anim_UpdateCutsceneSprite

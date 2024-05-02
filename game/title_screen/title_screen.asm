@@ -59,7 +59,7 @@ loc_0000CAD0:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$4800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	NEG.w	D2
 	ADD.w	$00FF05D2, D2
@@ -156,12 +156,12 @@ loc_0000CBD2:
 loc_0000CBD8:
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$4000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$1E(A0), D2
 	MOVE.w	D2, $A(A0)
 	MOVE.w	#$1000, D1
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	SWAP	D2
 	ADDI.w	#$0130, D2
 	MOVE.w	$26(A0), D1
@@ -194,7 +194,7 @@ loc_0000CC50:
 	MOVE.w	#$FFFF, $20(A0)
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$0100, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $12(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$1E(A0), $E(A0)
@@ -250,7 +250,7 @@ loc_0000CD54:
 	MOVEA.l	$2E(A0), A1
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$A000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	NEG.w	D2
 	ADD.w	$E(A1), D2

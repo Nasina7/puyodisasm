@@ -80,7 +80,9 @@ ram_calcChecksum = $FF0106 	; Word
 
 mus_curSong = $FF012F		; Byte
 
-ram_scanScrBuf = $FF0624	; 0x1C0 Bytes
+; Goes until FF09A1
+rScrollXScanFront = $FF0622
+rScrollXScanBack = $FF0624
 
 ram_pad1Held = $FF110A		; Byte
 ram_pad1Press = $FF110B		; Byte
@@ -92,4 +94,34 @@ debug_puyoDrop = $FF1877	; Byte
 debug_skipStages = $FF1878	; Byte
 debug_unknown = $FF1879		; Byte
 
+ObjectBuffer = $FFE000
+
 SystemStack = $FFFC00
+
+; Struct constants for objects
+; 0 - Something to do with animation / updating?
+; 1 - ???
+; 2-5 - Pointer to update function
+; 6 - Render Flags (Bit 7 to enable animation)
+; 7 - ???
+Obj_SprMap = $8 ; 8 (Sprite Mapping ID)
+Obj_AnmFrm = $9 ; 9 (Animation Frame)
+Obj_XPos = $A ; A-B (X Pos)
+; C-D?
+Obj_YPos = $E ; E-F (Y Pos)
+; 10-21?
+Obj_AnmTmr = $22 ; 22 (Time until next frame of anim)
+; 23-31?
+Obj_Anim = $32 ; 32-35 (Pointer to current anim)
+; 36-3F?
+
+; Sprite Mapping IDs
+SprMapID_Arle = $08
+SprMapID_Zombie = $0B
+SprMapID_Satan = $15
+SprMapID_Carbuncle = $19
+SprMapID_BigPuyo = $1A
+SprMapID_Birds = $1B
+SprMapID_Credits = $1C
+SprMapID_Lightning = $1D
+SprMapID_GameOverTxt = $29

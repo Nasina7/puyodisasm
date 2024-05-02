@@ -586,8 +586,8 @@ loc_0000095A:
 	BNE.w	loc_0000098C
 	MOVE.w	#$7800, vdpControl1
 	MOVE.w	#2, vdpControl1
-	MOVE.w	$00FF0622, vdpData1
-	MOVE.w	ram_scanScrBuf, vdpData1
+	MOVE.w	rScrollXScanFront, vdpData1
+	MOVE.w	rScrollXScanBack, vdpData1
 	RTS
 loc_0000098C:
 	TST.w	$00FF0134
@@ -615,7 +615,7 @@ loc_0000099E:
 	MOVE.w	#0, Z80BusReq
 	RTS
 loc_000009FA:
-	LEA	$00FF0622, A1
+	LEA	rScrollXScanFront, A1
 	MOVE.w	#$7800, vdpControl1
 	MOVE.w	#2, vdpControl1
 	MOVE.w	#$01FF, D0
@@ -630,7 +630,7 @@ mis_00000A20:
 	
 loc_00000BA4:
 	MOVE.w	#$01FF, D0
-	LEA	$00FF0622, A1
+	LEA	rScrollXScanFront, A1
 loc_00000BAE:
 	CLR.w	(A1)+
 	DBF	D0, loc_00000BAE
@@ -803,7 +803,7 @@ loc_00000D66:
 	MOVE.b	D1, (A3)+
 	DBF	D0, loc_00000D64
 	CLR.l	$00FF05D2
-	CLR.l	$00FF0622
+	CLR.l	rScrollXScanFront
 	RTS
 vdp_vdpRegTable:
 	dc.l	init_initVDPValues
@@ -1161,25 +1161,28 @@ loc_00001202:
 	SWAP	D0
 	MOVEM.l	(A7)+, D1
 	RTS
-loc_00001214:
+
+
+SignedCosWithMul:
 	ADDI.b	#$40, D0
-loc_00001218:
+SignedSinWithMul:
 	MOVEM.w	D0, -(A7)
 	ANDI.w	#$007F, D0
 	LSL.w	#1, D0
-	MOVE.w	loc_00001236(PC,D0.w), D2
+	MOVE.w	@SineTable(PC,D0.w), D2
 	MULU.w	D1, D2
 	MOVEM.w	(A7)+, D0
 	OR.b	D0, D0
-	BPL.w	loc_00001234
+	BPL.w	@IsPositive
 	NEG.l	D2
-loc_00001234:
+@IsPositive:
 	RTS
-loc_00001236:
+@SineTable:
 	dc.w	$0000, $0006, $000D, $0013, $0019, $001F, $0026, $002C, $0032, $0038, $003E, $0044, $004A, $0050, $0056, $005C, $0062, $0068, $006D, $0073, $0079, $007E, $0084, $0089, $008E, $0093, $0098, $009D, $00A2, $00A7, $00AC, $00B1 
 	dc.w	$00B5, $00B9, $00BE, $00C2, $00C6, $00CA, $00CE, $00D1, $00D5, $00D8, $00DC, $00DF, $00E2, $00E5, $00E7, $00EA, $00ED, $00EF, $00F1, $00F3, $00F5, $00F7, $00F8, $00FA, $00FB, $00FC, $00FD, $00FE, $00FF, $00FF, $0100, $0100 ;0x20
 	dc.w	$0100, $0100, $0100, $00FF, $00FF, $00FE, $00FD, $00FC, $00FB, $00FA, $00F8, $00F7, $00F5, $00F3, $00F1, $00EF, $00ED, $00EA, $00E7, $00E5, $00E2, $00DF, $00DC, $00D8, $00D5, $00D1, $00CE, $00CA, $00C6, $00C2, $00BE, $00B9 ;0x40
 	dc.w	$00B5, $00B1, $00AC, $00A7, $00A2, $009D, $0098, $0093, $008E, $0089, $0084, $007E, $0079, $0073, $006D, $0068, $0062, $005C, $0056, $0050, $004A, $0044, $003E, $0038, $0032, $002C, $0026, $001F, $0019, $0013, $000D, $0006 ;0x60
+
 loc_00001336:
 	lea (loc_0000135C).l, a1
 	bsr.w ObjSys_InitObjWithFunc
@@ -1210,7 +1213,7 @@ loc_00001384:
 	bcc.w loc_00001394
 	rts
 loc_00001394:
-	bsr.w loc_00001218
+	bsr.w SignedSinWithMul
 	swap d2
 	asl.w #1, d2
 	move.w d2, -(a2)
@@ -1226,7 +1229,7 @@ loc_000013B0:
 	andi.b #$FC, d0
 	move.b d0, ($00FF0A2D).l
 	clr.b ($00FF0136).l
-	clr.w (ram_scanScrBuf).l
+	clr.w (rScrollXScanBack).l
 	bra.w loc_00002AF2
 	rts
 	rts
@@ -1889,7 +1892,7 @@ loc_000029CE:
 	
 ObjMgr_InitObjSystem:
 	MOVE.w	#$03FF, D1
-	LEA	$00FFE000, A0
+	LEA	ObjectBuffer, A0
 	MOVEQ	#0, D0
 @Loop:
 	MOVE.l	D0, (A0)+
@@ -1915,7 +1918,7 @@ loc_00002A06:
 	EORI.b	#2, D1
 	OR.b	D0, D1
 	ORI.b	#$0C, D1
-	LEA	$00FFE000, A0
+	LEA	ObjectBuffer, A0
 	MOVE.w	#$003F, D0
 loc_00002A30:
 	MOVE.b	$0(A0), D2
@@ -1936,7 +1939,7 @@ ObjSys_InitObjWithFunc:
 	BSR.w	loc_00002AB0
 	BCC.w	loc_00002AA4
 	MOVEM.l	A0/D0, -(A7)
-	LEA	$00FFE000, A0
+	LEA	ObjectBuffer, A0
 	MOVE.w	#$003F, D0
 loc_00002A6A:
 	BTST.b	#7, $1(A0)
@@ -1962,7 +1965,7 @@ loc_00002AA4:
 
 loc_00002AB0:
 	MOVEM.l	A0/D0, -(A7)
-	LEA	$00FFE000, A0
+	LEA	ObjectBuffer, A0
 	MOVE.w	#$003F, D0
 loc_00002ABE:
 	TST.w	$0(A0)
@@ -2032,15 +2035,15 @@ loc_00002B68:
 	RTS
 	
 Anim_UpdateCutsceneSprite:
-	TST.b	$22(A0)
+	TST.b	Obj_AnmTmr(A0)
 	BEQ.w	loc_00002B80
-	SUBQ.b	#1, $22(A0)
+	SUBQ.b	#1, Obj_AnmTmr(A0)
 	RTS
 loc_00002B80:
-	MOVEA.l	$32(A0), A2
+	MOVEA.l	Obj_Anim(A0), A2
 	CMPI.b	#$FE, (A2) ; Check if Anim has ended
-	BCS.w	loc_00002BA6
-	BNE.w	loc_00002B96
+	BCS.w	loc_00002BA6 ; Less than FE
+	BNE.w	loc_00002B96 ; Is FF
 	ORI	#1, SR
 	RTS
 loc_00002B96:
@@ -2055,10 +2058,10 @@ loc_00002BA6:
 	BCS.w	loc_00002BB4
 	BSR.w	loc_00002BC8
 loc_00002BB4:
-	MOVE.b	D0, $22(A0)
+	MOVE.b	D0, Obj_AnmTmr(A0)
 	MOVE.b	(A2)+, D0
-	MOVE.b	D0, $9(A0)
-	MOVE.l	A2, $32(A0)
+	MOVE.b	D0, Obj_AnmFrm(A0)
+	MOVE.l	A2, Obj_Anim(A0)
 	ANDI	#$FFFE, SR
 	RTS
 loc_00002BC8:
@@ -2215,7 +2218,7 @@ loc_00002D8A:
 	move.w #5, d3
 loc_00002D9A:
 	andi.b #$7F, d0
-	bsr.w	loc_00001218
+	bsr.w	SignedSinWithMul
 	swap d2
 	move.w d2, (a1)+
 	clr.w (a1)+
@@ -2897,7 +2900,7 @@ loc_0000373C:
 	MOVE.b	$26(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$0800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$34(A0), D2
 	MOVE.w	D2, $E(A0)
@@ -2911,12 +2914,12 @@ loc_00003766:
 	MOVE.w	$34(A0), D1
 	SUBI.w	#$0078, D1
 	LSL.w	#8, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$34(A0), D2
 	MOVE.w	D2, $E(A0)
 	MOVE.w	#$3000, D1
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	SWAP	D2
 	SUBI.w	#$0030, D2
 	TST.b	$2A(A0)
@@ -2969,7 +2972,7 @@ loc_0000381E:
 	move.l $a(a0), $1e(a0)
 	move.b $36(a0), d0
 	move.w #$4000, d1
-	jsr loc_00001218
+	jsr SignedSinWithMul
 	swap d2
 	tst.b $2a(a0)
 	beq.w loc_00003872
@@ -2987,7 +2990,7 @@ loc_00003880:
 	move.b $36(a0), d0
 	ori.b #$80, d0
 	move.w #$800, d1
-	jsr loc_00001218
+	jsr SignedSinWithMul
 	swap d2
 	addi.w #$E8, d2
 	move.w d2, $e(a0)
@@ -3427,7 +3430,7 @@ loc_00003E26:
 	LEA	$00FF05D2, A2
 loc_00003E3C:
 	ANDI.b	#$7F, D0
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, (A2,D3.w)
 	ADDI.b	#$20, D0
@@ -3720,9 +3723,9 @@ loc_000041C2:
 	MOVE.w $0E(A0), $0E(A1)
 	MOVE.w #$18, $26(A1)
 	MOVEM.l D0,-(SP)
-	JSR loc_00001218
+	JSR SignedSinWithMul
 	MOVE.l D2, $12(A1)
-	JSR loc_00001214
+	JSR SignedCosWithMul
 	MOVE.l D2, $16(A1)
 	MOVEM.l (SP)+,D0
 	ADDI.b  #$40, D0
@@ -3768,9 +3771,9 @@ loc_00004254:
 	BSR.w	updateRNG
 	ANDI.b	#7, D0
 	ADD.b	D2, D0
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $12(A1)
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	MOVE.l	D2, $16(A1)
 loc_000042B8:
 	DBF	D3, loc_00004254
@@ -3876,6 +3879,7 @@ loc_0000439C:
 	MOVE.w	#0, $20(A1)
 	ORI.b	#1, $7(A0)
 	MOVEA.l	A1, A2
+	
 	LEA	loc_000049BE, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	$0(A0), $0(A1)
@@ -4415,11 +4419,11 @@ loc_00004A9C:
 	MOVEA.l	$2E(A0), A1
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$1000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$A(A1), D2
 	MOVE.w	D2, $A(A0)
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	SWAP	D2
 	NEG.w	D2
 	ADD.w	$E(A1), D2
@@ -4877,8 +4881,8 @@ loc_000050AA:
 	RTS
 loc_000050C0:
 	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$19, $8(A1)
-	MOVE.b	#9, $9(A1)
+	MOVE.b	#SprMapID_Carbuncle, Obj_SprMap(A1)
+	MOVE.b	#9, Obj_AnmFrm(A1)
 	MOVE.b	#$FF, $36(A1)
 	MOVE.l	A2, $2E(A1)
 	CLR.w	D0
@@ -5148,7 +5152,7 @@ loc_000054D0:
 	LSL.b	#2, D0
 	ORI.b	#$80, D0
 	MOVE.w	#$1800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$20(A0), D2
 	MOVE.w	D2, $E(A0)
@@ -5180,10 +5184,10 @@ loc_0000550A:
 	ADDI.w	#$0280, D0
 	MOVE.w	D0, D1
 	MOVE.b	D3, D0
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $12(A1)
 	ADDQ.b	#5, D0
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	MOVE.l	D2, $16(A1)
 	MOVE.w	#$0014, $26(A1)
 	MOVEM.l	(A7)+, D0
@@ -5195,12 +5199,16 @@ loc_00005582:
 	BCS.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
 	RTS
-; Dead Code
+
+; Dead Code.  Originally, it seems like the particle effects that appear when
+; carbuncle pops the balloon at the beginning of a match were supposed to fall
+; down instead of spreading out.  Removing the above RTS restores this behavior.
 	MOVE.b	#$87, $6(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	SprSys_UpdatePosInterpolate	
 	BCS.w	loc_00002AF2	
 	RTS	
+
 loc_000055A4:
 	MOVE.w	#$8000, D1
 	MOVE.w	#$8500, D2
@@ -5399,9 +5407,9 @@ loc_00005EE0:
 	MOVE.b	D3, D0
 	LSL.b	#5, D0
 	MOVE.w	#$0100, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $12(A1)
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	MOVE.l	D2, $16(A1)
 loc_00005F38:
 	DBF	D3, loc_00005EE0
@@ -5582,13 +5590,13 @@ loc_00006142:
 	JSR	Anim_UpdateCutsceneSprite
 	MOVE.b	$36(A0), D0
 	MOVE.w	$38(A0), D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$1E(A0), D2
 	MOVE.w	D2, $A(A0)
 	ADDI.b	#$28, D0
 	ASR.w	#1, D1
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	SWAP	D2
 	ADD.w	$20(A0), D2
 	MOVE.w	D2, $E(A0)
@@ -5657,7 +5665,7 @@ loc_000061E2:
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$1000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$20(A0), D2
 	MOVE.w	D2, $E(A0)
@@ -6182,7 +6190,7 @@ loc_00006A0E:
 loc_00006A40:
 	ANDI.b	#$7F, D0
 	MOVEM.l	D0, -(A7)
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVEM.l	(A7)+, D0
 	SWAP	D2
 	MOVE.w	D2, (A1)+
@@ -6211,20 +6219,20 @@ loc_00006A84:
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#$FF, $7(A1)
-	MOVE.b	#8, $8(A1)
-	MOVE.w	#$00C0, $A(A1)
-	MOVE.l	#loc_00006B02, $32(A1)
+	MOVE.b	#SprMapID_Arle, Obj_SprMap(A1)
+	MOVE.w	#$00C0, Obj_XPos(A1)
+	MOVE.l	#loc_00006B02, Obj_Anim(A1)
 	MOVE.b	$2A(A0), $2A(A1)
 	EORI.b	#1, $2A(A1)
 	BEQ.w	loc_00006AE6
-	MOVE.l	#loc_00006B0C, $32(A1)
+	MOVE.l	#loc_00006B0C, Obj_Anim(A1)
 loc_00006AE6:
 	MOVEA.l	A1, A2
 	LEA	Cutscene_ObjArleStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_00006B00
 	MOVE.l	A2, $2E(A1)
-	MOVE.b	#8, $8(A1)
+	MOVE.b	#SprMapID_Arle, Obj_SprMap(A1)
 loc_00006B00:
 	RTS
 loc_00006B02:
@@ -6477,14 +6485,14 @@ loc_00006EB2:
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
 	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$29, $8(A1)
+	MOVE.b	#SprMapID_GameOverTxt, Obj_SprMap(A1)
 	BSR.w	loc_00005064
 	ADDI.w	#$0030, D0
-	MOVE.w	D0, $A(A1)
+	MOVE.w	D0, Obj_XPos(A1)
 	ADDI.w	#$0040, D1
 	MOVE.w	D1, $20(A1)
-	MOVE.w	#$0168, $E(A1)
-	MOVE.l	#loc_00006F22, $32(A1)
+	MOVE.w	#$0168, Obj_YPos(A1)
+	MOVE.l	#loc_00006F22, Obj_Anim(A1)
 loc_00006EF8:
 	RTS
 loc_00006EFA:
@@ -6658,7 +6666,7 @@ loc_000070B4:
 	BCS.w	loc_000070E4
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$1000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$1E(A0), D2
 	MOVE.w	D2, $A(A0)
@@ -7064,16 +7072,17 @@ loc_00007542:
 loc_00007558:
 	LEA	loc_000075D0, A1
 	BSR.w	ObjSys_InitObjWithFunc
+	; This does not check if the object was successfully created!!!
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
-	MOVE.b	#$19, $8(A1)
-	MOVE.b	#$45, $9(A1)
+	MOVE.b	#SprMapID_Carbuncle, Obj_SprMap(A1)
+	MOVE.b	#$45, Obj_AnmFrm(A1)
 	MOVE.w	#2, $1A(A1)
 	MOVE.w	#1, $1C(A1)
 	MOVE.w	#0, $1E(A1)
 	MOVE.w	#0, $20(A1)
-	MOVE.l	#loc_000075A6, $32(A1)
+	MOVE.l	#loc_000075A6, Obj_Anim(A1)
 	ORI.b	#1, $7(A0)
 	RTS
 loc_000075A6:
@@ -7283,14 +7292,14 @@ loc_000078BA:
 	MOVE.b	$0(A0), $0(A1)
 	MOVE.l	A0, $2E(A1)
 	MOVE.b	$2A(A0), $2A(A1)
-	MOVE.b	#$1A, $8(A1)
-	MOVE.b	#3, $9(A1)
+	MOVE.b	#SprMapID_BigPuyo, Obj_SprMap(A1)
+	MOVE.b	#3, Obj_AnmFrm(A1)
 	MOVE.w	#2, $1A(A1)
 	MOVE.w	#1, $1C(A1)
 	MOVE.w	#0, $1E(A1)
 	MOVE.w	#0, $20(A1)
 	MOVE.b	#1, $2B(A1)
-	MOVE.l	#loc_0000790E, $32(A1)
+	MOVE.l	#loc_0000790E, Obj_Anim(A1)
 	ORI.b	#1, $7(A0)
 	RTS
 loc_0000790E:
@@ -7471,9 +7480,9 @@ loc_00007B8A:
 	move.w d1, $26(a0)
 	bsr.w updateRNG
 	move.w #$0200, d1
-	bsr.w loc_00001218
+	bsr.w SignedSinWithMul
 	move.l d2, $12(a0)
-	bsr.w loc_00001214
+	bsr.w SignedCosWithMul
 	move.l d2, $16(a0)
 loc_00007BC2:
 	subq.w #1, $26(a0)
@@ -7515,7 +7524,7 @@ loc_00007C5E:
 	move.b $36(a0), d0
 	ori.b #$80, d0
 	move.w $38(a0), d1
-	bsr.w loc_00001218
+	bsr.w SignedSinWithMul
 	swap d2
 	lea $00FF05D2, a1
 	move.w $26(a0), d0
@@ -8605,7 +8614,7 @@ loc_00008C9C:
 	LSL.b	#1, D0
 	ORI.b	#$80, D0
 	MOVE.w	#$2000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$E(A0), D2
 	MOVE.w	D2, $E(A1)
@@ -8772,7 +8781,7 @@ loc_00008F6E:
 	move.b $36(a0), d0
 	ori.b #$80, d0
 	move.w #$4000, d1
-	jsr loc_00001218
+	jsr SignedSinWithMul
 	swap d2
 	add.w $e(a0), d2
 loc_00008F9C:
@@ -8849,14 +8858,14 @@ loc_0000907E:
 	MOVE.b	D0, $9(A1)
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$1800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$1E(A0), D2
 	MOVE.w	D2, $A(A1)
 	MOVE.b	$36(A0), D0
 	LSL.b	#1, D0
 	MOVE.w	#$0800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$20(A0), D2
 	MOVE.w	D2, $E(A1)
@@ -8927,9 +8936,9 @@ loc_00009152:
 	JSR	loc_00001202
 	ADDI.b	#$70, D0
 	MOVE.w	#$0180, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $12(A1)
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	MOVE.l	D2, $16(A1)
 	BRA.w	loc_00009112
 loc_000091D6:
@@ -8983,7 +8992,7 @@ loc_0000923A:
 	ORI.b	#$80, D0
 	MOVE.w	#$0800, D1
 loc_00009294:
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	$E(A0), D2
 	MOVE.w	D2, $E(A1)
@@ -9018,9 +9027,9 @@ loc_000092F6:
 	RTS
 loc_00009306:
 	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$0B, $8(A1)
-	MOVE.b	#6, $9(A1)
-	MOVE.w	#$0060, $E(A1)
+	MOVE.b	#SprMapID_Zombie, Obj_SprMap(A1)
+	MOVE.b	#6, Obj_AnmFrm(A1)
+	MOVE.w	#$0060, Obj_YPos(A1)
 	MOVE.l	A0, $2E(A1)
 	RTS
 loc_00009324:
@@ -9057,7 +9066,7 @@ loc_0000937E:
 	BEQ.w	loc_000093EE
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$3000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	NEG.w	D2
 	ADDI.w	#$0060, D2
@@ -9438,7 +9447,7 @@ loc_00009D24:
 	ori.b #$80, d0
 	move.w #$800, d1
 loc_00009D3C:
-	jsr loc_00001218
+	jsr SignedSinWithMul
 	swap d2
 	add.w $e(a0), d2
 	move.w d2, $e(a1)
@@ -9617,10 +9626,10 @@ loc_00009F16:
 	lea (loc_00009F82).l, a1
 	bsr.w loc_00002AB0
 	bcs.w loc_00009F7C
-	move.b #$1b, $8(a1)
-	move.l #loc_00009FB0, $32(a1)
-	move.w #$120, $a(a1)
-	move.w #$40, $e(a1)
+	move.b #SprMapID_Birds, Obj_SprMap(a1)
+	move.l #loc_00009FB0, Obj_Anim(a1)
+	move.w #$120, Obj_XPos(a1)
+	move.w #$40, Obj_YPos(a1)
 	move.w #$FFFE, $16(a1)
 	jsr updateRNG
 	move.w d0, $18(a1)
@@ -9666,19 +9675,19 @@ loc_00009FC6:
 	lea (loc_0000A02E).l, a1
 	bsr.w loc_00002AB0
 	bcs.w loc_0000A028
-	move.b #$1b, $8(a1)
-	move.l #loc_0000A060, $32(a1)
+	move.b #SprMapID_Birds, Obj_SprMap(a1)
+	move.l #loc_0000A060, Obj_Anim(a1)
 	move.w #$140, $1c(a1)
 	move.l #$FFFF8000, $16(a1)
 	move.w d2, d0
 	lsl.w #2, d0
 	addi.w #$FFB0, d0
-	move.w d0, $e(a1)
+	move.w d0, Obj_YPos(a1)
 	jsr updateRNG
 	move.b d0, d1
 	andi.w #$70, d0
 	addi.w #$1C0, d0
-	move.w d0, $a(a1)
+	move.w d0, Obj_XPos(a1)
 	andi.b #$f, d1
 	move.b d1, $22(a1)
 	move.w #$FFFD, $12(a1)
@@ -9707,16 +9716,16 @@ loc_0000A060:
 	dc.b    $03, $02 ;0x220
 	dc.b	$02, $03, $01, $04, $01, $05, $02, $04, $02, $03, $FF, $00
 	dc.l    loc_0000A060
-loc_0000A072:
+Cutscene_ThunderObjInit:
 	move.b #$FF, ($00FF1886).l
-	lea (loc_0000A092).l, a1
+	lea (Cutscene_ThunderObjStart).l, a1
 	bsr.w ObjSys_InitObjWithFunc
-	bcc.w loc_0000A08A
+	bcc.w @AllocSuccess
 	rts
-loc_0000A08A:
-	move.b #$1D, $8(a1)
+@AllocSuccess:
+	move.b #SprMapID_Lightning, Obj_SprMap(a1)
 	rts
-loc_0000A092:
+Cutscene_ThunderObjStart:
 	move.w #$80, d0
 	jsr loc_00001202
 	addq.w #4, d0
@@ -9770,14 +9779,14 @@ loc_0000A14E:
 	jsr Video_LoadPaletteIntoIndex
 	move.b #0, $6(a0)
 	tst.b ($00FF1886).l
-	beq.w loc_0000A092
+	beq.w Cutscene_ThunderObjStart
 	move.b $28(a0), d0
 	bsr.w SndDrv_QueueSoundEffect
-	bra.w loc_0000A092
+	bra.w Cutscene_ThunderObjStart
 loc_0000A184:
 	dc.b    $01, $80, $01, $80, $00, $00, $01, $40, $01, $80, $01, $40, $01, $80, $01, $40, $01, $40, $FF, $FF
 loc_0000A198:
-	dc.w 	$FFC8, $003E, $FFE8, $003D, $0008, $003D
+	dc.w 	$FFC8, sfxID_SatanThunder, $FFE8, sfxID_SatanThunderSmall, $0008, sfxID_SatanThunderSmall
 loc_0000A1A4:
 	LEA	loc_0000A1D2, A1
 	BSR.w	ObjSys_InitObjWithFunc
@@ -9835,7 +9844,7 @@ loc_0000A286:
 	MOVE.b	$00FF0A2D, D0
 	ANDI.b	#$FC, D0
 	MOVE.b	D0, $00FF0A2D
-	CLR.w	ram_scanScrBuf
+	CLR.w	rScrollXScanBack
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
 	LEA	Cutscene_ControllerObj, A1
@@ -9913,7 +9922,7 @@ loc_0000A3B6:
 	jsr System_DecompressComp
 	move.w #2, d0
 	jsr Video_LoadBgMapFromId
-	bsr.w loc_0000A072
+	bsr.w Cutscene_ThunderObjInit
 	jmp loc_00001336
 loc_0000A3DA:
 	move.b #1, d0
@@ -9942,7 +9951,7 @@ loc_0000A438:
 	ADD.l	D2, (A0,D0.w)
 	ADDQ.l	#8, D0
 	DBF	D1, loc_0000A438
-	LEA	$00FF0622, A2
+	LEA	rScrollXScanFront, A2
 	MOVE.w	#$01DC, D0
 	MOVE.w	$00FF05D4, D1
 	SUBI.w	#$FF60, D1
@@ -10769,7 +10778,7 @@ loc_0000B5CC:
 	ADDI.w	#$0702, D5
 	LEA	loc_0000B71E, A1
 	BSR.w	loc_0000B792
-	MOVE.b	#$69, D0
+	MOVE.b	#sfxID_69, D0
 	BSR.w	SndDrv_QueueSoundEffect
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#4, D0
@@ -11491,7 +11500,7 @@ loc_0000BF96:
 	move.w #$120, d1
 	move.w #$1f, d3
 loc_0000BFB4:
-	jsr loc_00001218
+	jsr SignedSinWithMul
 	swap d2
 	add.w $a(a1), d2
 	move.w #0, (a2)+
@@ -11511,15 +11520,15 @@ loc_0000BFDE:
 loc_0000BFEE:
 	move.w    #$140, d0
 	sub.w    $26(a0), d0
-	move.w    d0, ($00FF0622).l
+	move.w    d0, (rScrollXScanFront).l
 	neg.w   d0
-	move.w    d0, (ram_scanScrBuf).l
+	move.w    d0, (rScrollXScanBack).l
 	beq.w    loc_0000C00E
 	addq.w    #2, $26(a0)
 	rts
 loc_0000C00E:
 	move.w #6, d0
-	bsr.w loc_0000D20A
+	bsr.w HowToPlay_TextObjInit
 	move.w #$c0, d0
 	jsr loc_00002B1C
 	jsr ObjSys_UpdateObjNextOpTimer
@@ -11536,7 +11545,7 @@ loc_0000C00E:
 	jsr loc_00002B1C
 	jsr ObjSys_UpdateObjNextOpTimer
 	move.w #5, d0
-	bsr.w loc_0000D20A
+	bsr.w HowToPlay_TextObjInit
 	move.w #$200, d0
 	jsr loc_00002B1C
 	jsr ObjSys_UpdateObjNextOpTimer
@@ -11608,8 +11617,8 @@ loc_0000C194:
 	MOVE.b	#1, $9(A1)
 	MOVE.w	#$00F8, $A(A1)
 	MOVE.w	#$00D0, $E(A1)
-	MOVE.w	#$FF70, $00FF0622
-	MOVE.w	#$FF70, ram_scanScrBuf
+	MOVE.w	#$FF70, rScrollXScanFront
+	MOVE.w	#$FF70, rScrollXScanBack
 	CLR.w	D1
 	MOVE.b	rOnePlayer_CurStage, D1
 	CLR.w	D0
@@ -11617,8 +11626,8 @@ loc_0000C194:
 	BNE.w	loc_0000C1E8
 	TST.b	$00FF0115
 	BNE.w	loc_0000C1E8
-	MOVE.w	#$FFC8, $00FF0622
-	MOVE.w	#$FFC8, ram_scanScrBuf
+	MOVE.w	#$FFC8, rScrollXScanFront
+	MOVE.w	#$FFC8, rScrollXScanBack
 loc_0000C1E8:
 	MOVE.w	#$E00E, D5
 	BSR.w	loc_0000C08C
@@ -11652,10 +11661,10 @@ loc_0000C21A:
 	BSR.w	loc_00004BF2
 	ANDI.b	#$F0, D0
 	BNE.w	loc_0000C288
-	CMPI.w	#$FF70, $00FF0622
+	CMPI.w	#$FF70, rScrollXScanFront
 	BEQ.w	loc_0000C24C
-	SUBQ.w	#2, $00FF0622
-	SUBQ.w	#2, ram_scanScrBuf
+	SUBQ.w	#2, rScrollXScanFront
+	SUBQ.w	#2, rScrollXScanBack
 	RTS
 loc_0000C24C:
 	SUBQ.w	#1, $26(A0)
@@ -11903,213 +11912,8 @@ loc_0000C640:
 	dc.b	$00, $04, $0D, $FF 
 loc_0000C644:
 	dc.b	$03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $FF 
-loc_0000C652:
-	ORI	#$0700, SR
-	MOVE.w	#$CC08, D5
-	BSR.w	loc_0000C696
-	MOVE.w	#$CC48, D5
-	BSR.w	loc_0000C696
-	MOVE.w	#$E000, D5
-	MOVE.w	#7, D0
-	MOVE.w	#$41F0, D1
-loc_0000C672:
-	JSR	loadBGSetupVDP
-	ADDI.w	#$0080, D5
-	MOVE.w	#$0027, D2
-loc_0000C680:
-	MOVE.w	D1, vdpData1
-	DBF	D2, loc_0000C680
-	ADDQ.w	#1, D1
-	DBF	D0, loc_0000C672
-	ANDI	#$F8FF, SR
-	RTS
-loc_0000C696:
-	JSR	loadBGSetupVDP
-	ADDI.w	#$0080, D5
-	MOVE.w	#$0017, D0
-	MOVE.w	#$2160, D1
-loc_0000C6A8:
-	MOVE.w	D1, vdpData1
-	ADDQ.w	#1, D1
-	DBF	D0, loc_0000C6A8
-	JSR	loadBGSetupVDP
-	MOVE.w	#$0017, D0
-loc_0000C6BE:
-	MOVE.w	D1, vdpData1
-	ADDQ.w	#1, D1
-	DBF	D0, loc_0000C6BE
-	RTS
-loc_0000C6CC:
-	BSR.w	loc_0000C7D6
-	LEA	loc_0000C6FC, A1
-	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000C6E2
-	RTS
-loc_0000C6E2:
-	MOVE.w	#1, $12(A1)
-	MOVE.w	#$000B, $28(A1)
-	MOVE.b	#$FF, rBytecode_Ret
-	BSR.w	loc_0000D1DA
-	RTS
-loc_0000C6FC:
-	BSR.w	loc_00004BF2
-	BTST.l	#7, D0
-	BEQ.w	loc_0000C716
-	JSR	arcade_checkCoins
-	BCS.w	loc_0000C716
-	BRA.w	loc_0000C764
-loc_0000C716:
-	ANDI.b	#$70, D0
-	BNE.w	loc_0000C726
-	TST.w	$26(A0)
-	BNE.w	loc_0000C74E
-loc_0000C726:
-	SUBQ.w	#1, $28(A0)
-	BCS.w	loc_0000C772
-	MOVE.w	#$9200, D0
-	MOVE.b	$29(A0), D0
-	SWAP	D0
-	JSR	loc_00000C4C
-	MOVE.w	#$0050, $26(A0)
-	MOVE.b	#sfxID_ChangeSelection, D0
-	JSR	SndDrv_QueueSoundEffect
-loc_0000C74E:
-	SUBQ.w	#1, $26(A0)
-	BSR.w	loc_0000C780
-	MOVE.b	$27(A0), D0
-	ANDI.b	#3, D0
-	BEQ.w	loc_0000C79A
-	RTS
-loc_0000C764:
-	MOVE.b	#sfxID_ConfirmSelection, D0
-	BSR.w	SndDrv_QueueSoundEffect
-	CLR.b	rBytecode_Ret
-loc_0000C772:
-	CLR.b	rBytecode_StopRun
-	JSR	ObjSys_UpdateObjNextOpTimer
-	RTS
-loc_0000C780:
-	LEA	$00FF0922, A1
-	SUBQ.w	#2, (A1)
-	MOVE.w	(A1), D0
-	MOVE.w	#$000F, D1
-loc_0000C78E:
-	MOVE.w	D0, (A1)+
-	MOVE.w	#0, (A1)+
-	DBF	D1, loc_0000C78E
-	RTS
-loc_0000C79A:
-	MOVE.w	$A(A0), D0
-	ADD.w	$12(A0), D0
-	CMPI.w	#6, D0
-	BCS.w	loc_0000C7B2
-	NEG.w	$12(A0)
-	MOVE.w	$A(A0), D0
-loc_0000C7B2:
-	MOVE.w	D0, $A(A0)
-	ADDQ.w	#2, D0
-	LSL.w	#1, D0
-	MOVE.w	D0, D1
-	LSL.w	#4, D0
-	OR.w	D1, D0
-	MOVE.w	D0, $00FF0A94
-	MOVE.b	#1, D0
-	LEA	$00FF0A76, A2
-	JMP	Video_LoadPaletteIntoIndex
-loc_0000C7D6:
-	MOVE.w	#7, D0
-loc_0000C7DA:
-	LEA	loc_0000C826, A1
-	JSR	loc_00002AB0
-	BCS.w	loc_0000C810
-	MOVE.b	#$83, $6(A1)
-	MOVE.b	#$1F, $8(A1)
-	MOVE.b	D0, $9(A1)
-	MOVE.w	D0, D1
-	LSL.w	#1, D1
-	MOVE.w	loc_0000C816(PC,D1.w), $1E(A1)
-	LSL.b	#4, D1
-	MOVE.b	D1, $36(A1)
-	MOVE.w	#$00A0, $38(A1)
-loc_0000C810:
-	DBF	D0, loc_0000C7DA
-	RTS
-loc_0000C816:
-	dc.w	$00C8, $00E0, $00F8, $0110, $0130, $0148, $0160, $0178 
-loc_0000C826:
-	MOVE.b	$36(A0), D0
-	MOVE.w	$38(A0), D1
-	JSR	loc_00001218
-	ASR.l	#8, D2
-	ADDI.w	#$0120, D2
-	MOVE.w	D2, $A(A0)
-	ADDI.b	#$10, D0
-	JSR	loc_00001214
-	ASR.l	#8, D2
-	ADDI.w	#$00F0, D2
-	MOVE.w	D2, $E(A0)
-	ADDQ.b	#2, $36(A0)
-	SUBQ.w	#1, $38(A0)
-	BCS.w	loc_0000C860
-	RTS
-loc_0000C860:
-	CLR.w	D0
-	MOVE.b	$9(A0), D0
-	LSL.w	#3, D0
-	MOVE.w	D0, $26(A0)
-	CLR.b	$36(A0)
-	MOVE.w	$1E(A0), D0
-	SUBI.w	#$0120, D0
-	SWAP	D0
-	ASR.l	#7, D0
-	MOVE.l	D0, $12(A0)
-	MOVE.l	#$FFFF9000, $16(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	TST.w	$26(A0)
-	BEQ.w	loc_0000C89C
-	SUBQ.w	#1, $26(A0)
-	RTS
-loc_0000C89C:
-	MOVE.w	#$0080, $26(A0)
-	MOVE.l	$E(A0), $32(A0)
-	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.l	$32(A0), $E(A0)
-	JSR	SprSys_UpdatePosInterpolate
-	MOVE.l	$E(A0), $32(A0)
-	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000C8E2
-	MOVE.b	$27(A0), D0
-	ORI.b	#$80, D0
-	MOVE.w	#$7800, D1
-	JSR	loc_00001218
-	SWAP	D2
-	ADD.w	D2, $E(A0)
-	RTS
-loc_0000C8E2:
-	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	arcade_checkCoins
-	MOVE.b	$36(A0), D0
-	ORI.b	#$80, D0
-	MOVE.w	#$1800, D1
-	JSR	loc_00001218
-	SWAP	D2
-	ADDI.w	#$00B8, D2
-	MOVE.w	D2, $E(A0)
-	ADDQ.b	#2, $36(A0)
-	RTS
-; Dead Code
-	TST.b	$9(A0)
-	BEQ.w	loc_0000C91E
-	JMP	loc_00002AF2
-loc_0000C91E:
-	MOVE.b	#0, $6(A0)	
-	JSR	ObjSys_UpdateObjNextOpTimer	
-	MOVE.l	#$800B0F00, D0	
-	TST.b	$00FF1884	
-	BEQ.w	loc_0000C940	
-	MOVE.l	#$80100F00, D0	
-loc_0000C940:
-	JMP	loc_00000C4C	
+
+	include "game/game_over/game_over.asm"
 
 loc_0000C946:
 	LEA	Sega_Update, A1
@@ -12152,12 +11956,12 @@ loc_0000C9BA:
 	RTS
 loc_0000C9CC:
 	MOVE.b	#$80, $6(A1)
-	MOVE.b	#$1C, $8(A1)
+	MOVE.b	#SprMapID_Credits, Obj_SprMap(A1)
 	CLR.w	D0
 	MOVE.b	rBytecode_Ret, D0
 	LSL.b	#2, D0
-	MOVE.w	loc_0000CA12(PC,D0.w), $A(A1)
-	MOVE.w	loc_0000CA14(PC,D0.w), $E(A1)
+	MOVE.w	loc_0000CA12(PC,D0.w), Obj_XPos(A1)
+	MOVE.w	loc_0000CA14(PC,D0.w), Obj_YPos(A1)
 	RTS
 loc_0000C9F0:
 	JSR	arcade_checkCoins
@@ -12188,79 +11992,81 @@ loc_0000D1F0:
 	ANDI.b	#$FC, D0
 	MOVE.b	D0, $00FF0A2D
 	JMP	loc_00000BA4
-loc_0000D20A:
-	LEA	loc_0000D27E, A1
+
+
+HowToPlay_TextObjInit:
+	LEA	@TextObjStart, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000D21C
+	BCC.w	@AllocSuccess
 	RTS
-loc_0000D21C:
+@AllocSuccess:
 	MOVEM.l	D1, -(A7)
 	LSL.w	#2, D0
 	MOVE.w	D0, D1
 	CMPI.w	#$0020, D1
-	BCS.w	loc_0000D230
+	BCS.w	@UnkBranch
 	MOVE.w	#$001C, D1
-loc_0000D230:
-	LEA	loc_0000D25E, A2
+@UnkBranch:
+	LEA	@UnkTbl, A2
 	MOVE.w	(A2,D1.w), $28(A1)
 	MOVE.w	$2(A2,D1.w), $2A(A1)
 	MOVEM.l	(A7)+, D1
-	MOVE.b	#$50, $8(A1)
-	LEA	loc_0000D34A, A2
+	MOVE.b	#sfxID_TextboxDialogue, $8(A1)
+	LEA	@TextEntries, A2
 	MOVE.l	(A2,D0.w), $32(A1)
 	MOVE.l	A0, $2E(A1)
 	RTS
-loc_0000D25E:
+@UnkTbl:
 	dc.w 	$0080, $0001, $0080, $0001, $0080, $0001, $0080, $0001
 	dc.w 	$0080, $0000, $0100, $0003, $0100, $0001, $0080, $0001
-loc_0000D27E:
+@TextObjStart:
 	TST.w	$26(A0)
-	BEQ.w	loc_0000D28C
+	BEQ.w	@RunNextEntry
 	SUBQ.w	#1, $26(A0)
 	RTS
-loc_0000D28C:
+@RunNextEntry:
 	MOVEA.l	$32(A0), A1
 	MOVE.w	(A1)+, D0
 	CMPI.b	#$FF, -$2(A1)
-	BEQ.w	loc_0000D2B4
+	BEQ.w	@RunCommand
 	MOVE.l	A1, $32(A0)
-	BSR.w	loc_0000D306
+	BSR.w	@PrintCharacter
 	MOVE.b	$8(A0), D0
 	BSR.w	SndDrv_QueueSoundEffect
 	MOVE.w	$2A(A0), $26(A0)
 	RTS
-loc_0000D2B4:
+@RunCommand:
 	ANDI.w	#$00FF, D0
 	MOVE.w	(A1)+, D1
 	MOVE.l	A1, $32(A0)
-	MOVEA.l	loc_0000D2C4(PC,D0.w), A1
+	MOVEA.l	@CommandTable(PC,D0.w), A1
 	JMP	(A1)
-loc_0000D2C4:
-	dc.l	loc_0000D2E6
-	dc.l	loc_0000D2EC
-	dc.l	loc_0000D2F2
-	dc.l	loc_0000D2F8
-	dc.l    loc_0000D2DC
-	dc.l    loc_0000D300
-loc_0000D2DC:
+@CommandTable:
+	dc.l	@UnkCmd0
+	dc.l	@UnkCmd1
+	dc.l	@UnkCmd2
+	dc.l	@UnkCmd3
+	dc.l    @UnkCmd4
+	dc.l    @UnkCmd5
+@UnkCmd4:
 	movea.l $2E(a0), a1
 	move.b d1, $7(a1)
 	rts
-loc_0000D2E6:
+@UnkCmd0:
 	JMP	loc_00002AF2
-loc_0000D2EC:
+@UnkCmd1:
 	MOVE.w	D1, $26(A0)
 	RTS
-loc_0000D2F2:
+@UnkCmd2:
 	MOVE.w	D1, $12(A0)
 	RTS
-loc_0000D2F8:
+@UnkCmd3:
 	MOVE.w	D1, D0
 	JMP	Video_LoadBgMapFromId
-loc_0000D300:
+@UnkCmd5:
 	move.b d1, $8(a0)
 	rts
-loc_0000D306:
+@PrintCharacter:
 	ORI	#$0700, SR
 	EORI.w	#$8000, D0
 	MOVE.w	$12(A0), D5
@@ -12277,30 +12083,34 @@ loc_0000D306:
 	ANDI	#$F8FF, SR
 	ADDQ.w	#4, $12(A0)
 	RTS
-loc_0000D34A:
-    dc.l    loc_0000D730
-    dc.l    loc_0000D7A4
-    dc.l    loc_0000D7C0
-    dc.l    loc_0000D81A
-    dc.l    loc_0000D830
-    dc.l    loc_0000D886
-    dc.l    loc_0000D8E0
-    dc.l    loc_0000D48C
-    dc.l    loc_0000D4CA
-    dc.l    loc_0000D524
-    dc.l    loc_0000D580
-    dc.l    loc_0000D5C2
-    dc.l    loc_0000D61A
-    dc.l    loc_0000D6AC
-    dc.l    loc_0000D6AE
-    dc.l 	NULL
-    dc.l    loc_0000D3A6
-    dc.l    loc_0000D3BE
-    dc.l    loc_0000D3DE
-    dc.l    loc_0000D3F8
-    dc.l    loc_0000D410
-    dc.l    loc_0000D42A
-    dc.l    loc_0000D44A
+
+; This table is somewhat out of order, and also has a lot of unused entries
+; The unused entries seem like they relate to graphics data that is no longer loaded.
+; No idea what they would've originally said.  Need to investigate further.
+@TextEntries:
+    dc.l    loc_0000D730 ; Unused?		(Corrupts the graphics?)
+    dc.l    loc_0000D7A4 ; Unused?		(Displays nothing?)
+    dc.l    loc_0000D7C0 ; Unused?		(Corrupts the graphics?)
+    dc.l    loc_0000D81A ; Unused?		(Displays nothing?)
+    dc.l    loc_0000D830 ; Unused?		(Corrupts the graphics?)
+    dc.l    loc_0000D886 ; Unused?		(41aI\n\nso-zoda??kut?u-)
+    dc.l    loc_0000D8E0 ; Unused?		(Displays nothing?)
+    dc.l    loc_0000D48C ; Used: 1st
+    dc.l    loc_0000D4CA ; Used: 2nd
+    dc.l    loc_0000D524 ; Used: 3rd
+    dc.l    loc_0000D580 ; Used: 4th
+    dc.l    loc_0000D5C2 ; Used: 5th
+    dc.l    loc_0000D61A ; Used: 6th
+    dc.l    loc_0000D6AC ; Used: 7th
+    dc.l    loc_0000D6AE ; Used: 14th
+    dc.l 	NULL		 ; Unused
+    dc.l    loc_0000D3A6 ; Unused? 		(First, two chains.) (Might actually be used, need to double check later.)
+    dc.l    loc_0000D3BE ; Used: 8th
+    dc.l    loc_0000D3DE ; Used: 9th
+    dc.l    loc_0000D3F8 ; Used: 10th
+    dc.l    loc_0000D410 ; Used: 11th
+    dc.l    loc_0000D42A ; Used: 12th
+    dc.l    loc_0000D44A ; Used: 13th
 loc_0000D3A6:
     dc.b    $FF
     dc.b    $0C
@@ -13715,6 +13525,7 @@ loc_0000D92A:
 	clr.b (rBytecode_StopRun).l
 	move.b #2, ($00FF0A3A).l
 	jmp loc_00002AF2
+
 loc_0000D93E:
 	MOVEM.l	A0, -(A7)
 	CLR.w	D0
@@ -14581,17 +14392,20 @@ loc_0000EF6C:
 	CLR.w	$00FF0DE2
 	CLR.w	$00FF0DE4
 	RTS
+	
+	
+	
 updateSprites:
 	TST.w	$00FF0DE4
 	BEQ.w	loc_0000EF86
 	RTS
 loc_0000EF86:
-	LEA	$00FFE000, A0
-	MOVEQ	#$00000040, D2
+	LEA	ObjectBuffer, A0
+	MOVEQ	#$40, D2
 	TST.w	$00FF0DE2
 	BEQ.w	loc_0000EFA0
 	LEA	$00FFEFC0, A0
-	MOVEQ	#-$00000040, D2
+	MOVEQ	#-$40, D2
 loc_0000EFA0:
 	LEA	$00FF0E8E, A1
 	LEA	tbl_sprMappings, A2
@@ -14654,11 +14468,11 @@ loc_0000F060:
 	RTS
 loc_0000F068:
 	CLR.w	D2
-	MOVE.b	$8(A0), D2
+	MOVE.b	Obj_SprMap(A0), D2
 	LSL.w	#2, D2
 	MOVEA.l	(A2,D2.w), A5
 	CLR.w	D2
-	MOVE.b	$9(A0), D2
+	MOVE.b	Obj_AnmFrm(A0), D2
 	LSL.w	#2, D2
 	MOVEA.l	(A5,D2.w), A3
 	MOVE.w	(A3)+, D2
@@ -14677,7 +14491,7 @@ loc_0000F09C:
 loc_0000F0A6:
 	ADDQ.w	#1, D1
 	MOVE.w	(A3)+, D3
-	ADD.w	$E(A0), D3
+	ADD.w	Obj_YPos(A0), D3
 	SUB.w	$00FF05D2, D3
 	MOVE.w	D3, (A1)+
 	MOVE.b	(A3)+, (A1)+
@@ -14685,12 +14499,15 @@ loc_0000F0A6:
 	MOVE.b	(A3)+, (A4)+
 	MOVE.w	(A3)+, (A1)+
 	MOVE.w	(A3)+, D3
-	ADD.w	$A(A0), D3
+	ADD.w	Obj_XPos(A0), D3
 	BNE.w	loc_0000F0CE
 	ADDQ.w	#1, D3
 loc_0000F0CE:
 	MOVE.w	D3, (A1)+
 	RTS
+	
+; End of updateSprites
+	
 loc_0000F0D2:
 	MOVEM.l	A2/D4/D3, -(A7)
 	MOVE.b	D2, D3
@@ -15127,13 +14944,13 @@ loc_0000F6A2:
 	ANDI.b	#$5F, D0
 	ADDI.b	#$90, D0
 	MOVE.l	#loc_0000F73E, $32(A1)
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVE.l	D2, $16(A1)
 	ASL.l	#4, D2
 	SWAP	D2
 	ADDI.w	#$0110, D2
 	MOVE.w	D2, $E(A1)
-	JSR	loc_00001214
+	JSR	SignedCosWithMul
 	MOVE.l	D2, $12(A1)
 	ASL.l	#4, D2
 	SWAP	D2
@@ -16564,7 +16381,7 @@ loc_0001084A:
 	CLR.w	D0
 	MOVE.b	$00FF188D, D0
 	ADDQ.b	#7, D0
-	JMP	loc_0000D20A
+	JMP	HowToPlay_TextObjInit
 loc_0001085A:
 	CLR.w	D0
 	MOVE.b	$00FF188D, D0
@@ -16744,7 +16561,7 @@ loc_00010A84:
 	MOVE.b	loc_00010A9B(PC,D0.w), D1
 	BMI.w	loc_00010A96
 	MOVE.w	D1, D0
-	JSR	loc_0000D20A
+	JSR	HowToPlay_TextObjInit
 loc_00010A96:
 	RTS
 loc_00010A98:
@@ -16901,7 +16718,7 @@ loc_00010D20:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$2800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, $00FF05D2
 	SUBQ.b	#2, $36(A0)
@@ -16915,7 +16732,7 @@ loc_00010D4E:
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$2800, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADDI.w	#$0038, D2
 	BSR.w	loc_0001103E
@@ -16982,7 +16799,7 @@ loc_00010E7A:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$7E00, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, $26(A0)
 	BSR.w	loc_000110F0
@@ -17000,7 +16817,7 @@ loc_00010EAC:
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$0C00, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADDI.w	#$007E, D2
 	MOVE.w	D2, $26(A0)
@@ -17049,7 +16866,7 @@ loc_00010F8A:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$3000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, $00FF05D2
 	CMPI.b	#$40, $36(A0)
@@ -17079,7 +16896,7 @@ loc_00010FC0:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$36(A0), D0
 	MOVE.w	#$3000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, $00FF05D2
 	CMPI.b	#$80, $36(A0)
@@ -17170,7 +16987,7 @@ loc_00011120:
 	MOVE.w	#$0037, D3
 	LEA	$00FF06E2, A1
 loc_00011134:
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, (A1)+
 	CLR.w	(A1)+
@@ -17231,7 +17048,7 @@ loc_000111D0:
 loc_000111EE:
 	MOVEM.l	D0, -(A7)
 	LSR.w	#1, D0
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	MOVEM.l	(A7)+, D0
 	SWAP	D2
 	ADDI.w	#$00A0, D2
@@ -17250,7 +17067,7 @@ loc_00011218:
 	LEA	$00FF06E2, A1
 	MOVE.w	#$008F, D3
 loc_00011226:
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	MOVE.w	D2, (A1)+
 	CLR.w	(A1)+
@@ -23853,7 +23670,7 @@ loc_0001DD52:
 	LSL.b	#2, D1
 	OR.b	D1, D0
 	MOVE.w	#$6000, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADD.w	D2, $A(A0)
 	SUBQ.w	#1, $26(A0)

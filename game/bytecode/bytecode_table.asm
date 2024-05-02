@@ -424,7 +424,7 @@ Bytecode_GameOver:
 	BVDPC $0006
 	BNOP
 	
-	BRUN loc_0000C652
+	BRUN GameOver_InitVDP
 	
 	BPALF pal_general, 0, 0
 	BPALF pal_general, 1, 0
@@ -433,7 +433,7 @@ Bytecode_GameOver:
 	
 	BWPAL
 	
-	BRUN loc_0000C6CC
+	BRUN GameOver_Init
 	
 	BSTOP
 	

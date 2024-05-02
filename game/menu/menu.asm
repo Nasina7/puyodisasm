@@ -181,7 +181,7 @@ MenuScreen_InitCloudScroll:
 	ADDQ.w	#1, $26(A0)
 	MOVE.w	$26(A0), D1
 	MOVE.w	#$006F, D0
-	LEA	ram_scanScrBuf, A1
+	LEA	rScrollXScanBack, A1
 @Loop:
 	MOVE.w	D1, (A1)+
 	ADDQ.w	#2, A1
@@ -332,7 +332,7 @@ Menu_LoadEasyMessage:
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$0400, D1
-	JSR	loc_00001218
+	JSR	SignedSinWithMul
 	SWAP	D2
 	ADDI.w	#$0118, D2
 	MOVE.w	D2, $E(A0)

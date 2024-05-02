@@ -31,8 +31,8 @@ sfxID_SatanPuyoClear = $30
 ; 31: Pretty sure this one is used, but I didn't come across it in the code at first glance
 ; 32-37: ???
 sfxID_38 = $38
-; 33-3C: ???
-; 3D: This is definitely used (Satan Cutscene).  Need to look into
+; 38-3C: ???
+sfxID_SatanThunderSmall = $3D
 sfxID_SatanThunder = $3E
 ; 3F-49: ???
 sfxID_SatanMovePuyo = $4A
@@ -82,6 +82,7 @@ sfxID_ComboComplete2 = $7B
 sfxID_ComboComplete3 = $7C
 sfxID_7D = $7D
 ; 7E: ???
+; 7F: ??? (Doesn't appear in the sound test, but is a valid ID in the driver.
 
 ; PCM
 pcmID_Fire = $80

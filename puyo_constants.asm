@@ -94,6 +94,8 @@ debug_puyoDrop = $FF1877	; Byte
 debug_skipStages = $FF1878	; Byte
 debug_unknown = $FF1879		; Byte
 
+rMissionMode_CurBoard = $FF1889 ; Byte
+
 ObjectBuffer = $FFE000
 
 SystemStack = $FFFC00

@@ -503,7 +503,7 @@ Option_Init:
 Option_InitObj:
 	LEA	Option_Update, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	@Ret	; lol
+	BCC.w	@Ret
 	RTS
 @Ret:
 	RTS

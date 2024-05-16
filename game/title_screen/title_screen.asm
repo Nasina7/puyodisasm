@@ -291,6 +291,7 @@ loc_0000CDB2:
 	MOVE.b	#$80, $6(A0)
 loc_0000CDEC:
 	RTS
+
 loc_0000CDEE:
 	MOVE.b	#0, $6(A0)
 	MOVEA.l	$2E(A0), A1
@@ -373,7 +374,7 @@ TitleScreen_ScrollBG:
 	MOVE.w	#$9600, D0
 	SWAP	D0
 	MOVE.w	$28(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	BSR.w	loc_0000CF48
 	SUBQ.b	#1, $29(A0)
 	BCC.w	loc_0000CF36
@@ -415,7 +416,7 @@ loc_0000CF9A:
 	ORI.w	#$9C00, D0
 	SWAP	D0
 	MOVE.w	$26(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 loc_0000CFC2:
 	SUBQ.w	#1, $28(A0)
 	BEQ.w	loc_0000CFCC

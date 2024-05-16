@@ -5,12 +5,14 @@
 ; # Analysis Region: 0x00000000 - 0x00080000
 ; ########################################################################################
 
-; This flag fixes miscellaneous bugs in the codebase.  0 = False, 1 = True.
-fixBugs = 0
+; Note: This file is encoded in Shift-JIS format.  If the below line looks like Japanese text, then
+;		the encoding has been set up correctly.
+;“ú–{Œê
 
 startOfRom:
 	include "tools/Macros - More CPUs.asm"
 	cpu 68000
+	include "build_flags.asm"
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
 	include "sound/sound_ids.asm"
@@ -325,7 +327,7 @@ VerticalInterrupt:
 	BSR.w	loc_00000880
 	BSR.w	loc_0000095A
 	BSR.w	loc_0000075A
-	JSR	loc_000143E2
+	JSR	Video_LoadQueuedBgMaps
 	BSR.w	updateRNG
 	TST.w	$00FF1834
 	BEQ.w	loc_00000568
@@ -454,6 +456,7 @@ loc_00000748:
 	ADDA.l #$20, A1
 	DBF D0, loc_00000738
 	RTS
+
 loc_0000075A:
 	LEA	$00FF0A3E, A2
 	LEA	$00FF0A56, A3
@@ -486,6 +489,7 @@ loc_000007B4:
 	DBF	D2, loc_000007AE
 	MOVEM.l	(A7)+, A3
 	RTS
+
 loc_000007C0:
 	TST.w	$00FF0DE4
 	BNE.w	loc_000007CC
@@ -654,10 +658,9 @@ loc_00000BDC:
 	MOVE.b	D0, $00FF0A2E
 	RTS
 
-Video_LoadBgMapFromId:
+Video_QueueBgMapFromId:
 	ORI	#$0700, SR
 	MOVEM.l	A3/A2/D3/D2/D1, -(A7)
-	
 	MOVE.b	#$FF, D2
 	; Load pointer to BG Map table
 	LEA	tbl_bgMappings, A2
@@ -666,38 +669,51 @@ Video_LoadBgMapFromId:
 	
 	; Get length of selected table
 	MOVE.w	(A3)+, D0
+	
+	; Load queue table index into D1
 	LEA	$00FF0CDE, A2
 	MOVE.w	(A2), D1
+	
+	; Add the BG table length into D1
 	ADD.w	D0, D1
+	
+	; If index is less than the max, go to C2A
 	CMPI.w	#$0041, D1
-	BCS.w	loc_00000C2A
+	BCS.w	@IndexNotInvalid
 	CLR.b	D2
 	SUBI.w	#$0040, D1
 	MOVE.w	D1, D0
 	MOVE.w	#$0040, D1
-loc_00000C2A:
+@IndexNotInvalid:
+	; Move the original CDE table index into D3
 	MOVE.w	(A2), D3
+	
+	; Write the new index into the table
 	MOVE.w	D1, (A2)+
+	
+	; Calculate the start of the copy operation
 	LSL.w	#2, D3
 	ADDA.w	D3, A2
 	SUBQ.w	#1, D0
-	BCS.w	loc_00000C3E
-loc_00000C38:
+	BCS.w	@Finish
+
+	; Copy from the bg table to the new index
+@LoadTable:
 	MOVE.l	(A3)+, (A2)+
-	DBF	D0, loc_00000C38
-loc_00000C3E:
+	DBF	D0, @LoadTable
+@Finish:
 	MOVE.b	D2, D0
 	MOVEM.l	(A7)+, D1/D2/D3/A2/A3
 	ANDI	#$F8FF, SR
 	SUBQ.b	#1, D0
 	RTS
 
-loc_00000C4C:
+Video_QueueBgMapSpecial:
 	CMPI.w	#$0040, $00FF0CDE
-	BCS.b	loc_00000C5C
+	BCS.b	@QueueNotFull
 	ORI	#1, SR
 	RTS
-loc_00000C5C:
+@QueueNotFull:
 	ORI	#$0700, SR
 	MOVEM.l	A2/D1, -(A7)
 	LEA	$00FF0CDE, A2
@@ -1296,20 +1312,20 @@ tbl_loadBattleBackground:
 	MOVE.w	#0, D0
 	JSR	System_DecompressComp
 	MOVE.w	#3, D0
-	JMP	Video_LoadBgMapFromId
+	JMP	Video_QueueBgMapFromId
 @battleLoadRuins:
 	LEA art_ruinsBattle, A0
 	MOVE.w  #0, D0
 	JSR System_DecompressComp
 loc_00002103:
 	MOVE.w	#5, D0
-	JMP	Video_LoadBgMapFromId
+	JMP	Video_QueueBgMapFromId
 battleLoadTutorialBG:
 	LEA art_optionsBackground, A0
 	MOVE.w  #0, D0
 	JSR System_DecompressComp
 	MOVE.w  #$16, D0
-	jmp Video_LoadBgMapFromId
+	jmp Video_QueueBgMapFromId
 	
 loadBattlePalette:
 	CLR.w	D0
@@ -2425,7 +2441,7 @@ loc_00003034:
 	MOVE.w	#$8A00, D0
 	MOVE.b	$8(A0), D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00003048:
 	dc.b	$F3
 	dc.b	$00 
@@ -2482,7 +2498,7 @@ loc_00003096:
 	CMPI.b	#2, $00FF1882
 	BNE.w	loc_0000312E
 	MOVE.l	#$800F0000, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	BSR.w	loc_00007F5E
 loc_0000312E:
 	RTS
@@ -2493,7 +2509,7 @@ loc_00003130:
 	BNE.w	loc_0000314A
 	MOVE.l	#$80060000, D0
 loc_0000314A:
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00003150:
 	MOVE.b	$00FF1882, D2
 	BTST.l	#2, D2
@@ -2693,14 +2709,14 @@ loc_0000343C:
 	ADDQ.b	#3, D0
 	SWAP	D0
 	CLR.w	D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.w	#7, $28(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$8300, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.w	$28(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	SUBQ.w	#1, $28(A0)
 	BCS.w	loc_00003478
 	RTS
@@ -2716,7 +2732,7 @@ loc_00003478:
 	SWAP	D0
 	MOVE.w	#$8000, D0
 	MOVE.b	$27(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.b	#sfxID_6C, D0
 	JSR	SndDrv_QueueSoundEffect
 	BSR.w	ObjSys_UpdateObjNextOpTimer
@@ -2757,14 +2773,14 @@ loc_0000352C:
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.w	$26(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	ADD.w	D1, $26(A0)
 	MOVE.w	#$8800, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.w	#$8000, D0
 	MOVE.b	$27(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.b	#sfxID_ChangeSelection, D0
 	JSR	SndDrv_QueueSoundEffect
 loc_00003566:
@@ -2784,7 +2800,7 @@ loc_00003568:
 	ANDI.b	#2, D1
 	ROR.w	#2, D1
 	OR.w	D1, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	SUBQ.w	#1, $28(A0)
 	BEQ.w	loc_000035AE
 	RTS
@@ -2806,7 +2822,7 @@ loc_000035AE:
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.w	$26(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	ADDQ.w	#1, $26(A0)
 	CMPI.w	#8, $26(A0)
 	BCC.w	loc_00003606
@@ -2817,13 +2833,13 @@ loc_00003606:
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.b	#$FF, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.w	#$8000, D0
 	MOVE.b	$2A(A0), D0
 	ADDQ.b	#3, D0
 	SWAP	D0
 	MOVE.w	#$FF00, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVEA.l	$2E(A0), A1
 	BCLR.b	#0, $7(A1)
 	BRA.w	loc_00002AF2
@@ -3851,7 +3867,7 @@ loc_0000435E:
 	SWAP	D0
 	MOVE.w	#$8900, D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000436E:
 	BSR.w	loc_000038D2
 	CMPI.b	#$19, D0
@@ -4465,9 +4481,40 @@ loc_00004B2E:
 	DBF	D0, loc_00004B2E
 	RTS
 	
-; Large Dead Code
-mis_00004B38:
-	include "game/unused/unused3.asm"
+; In prototype footage of the game, the record screen makes mention of a mission mode not seen in the final arcade
+; or megadrive releases.  This mission mode also doesn't appear to have been selectable in the prototype's title screen.
+; This seems to be a remnant of what was finished for it.
+
+; To see this code in action, uncomment the RTS above this comment, and in RAM, set rMissionMode_CurBoard (FF1889) to 
+; values 1, 2, or 3.  Then, load into endless mode (or any mode), select any difficulty, and place a puyo.
+	tst.b (rMissionMode_CurBoard)
+	bne.w @LoadTable
+	rts
+@LoadTable:
+	MOVEM.l	A2, -(A7)
+	suba.l #$48, a2
+	clr.w d0
+	move.b (rMissionMode_CurBoard), d0
+	subq.b #1, d0
+	mulu.w #$26, d0
+	lea (MissionMode_BoardTable), a1
+	adda.w d0, a1
+	move.w #$23, d0
+@LoadTableLoop:
+	move.b (a1)+, (a2)+
+	move.b #$FF, (a2)+
+	dbf d0, @LoadTableLoop
+	movea.l $32(a0), a2
+	move.w (a1)+, $26(a2)
+	MOVEM.l	(A7)+, A2
+	rts
+MissionMode_BoardTable:
+	; Board 1
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $80, $90, $00, $00, $00, $00, $80, $90, $00, $00, $00, $00, $D0, $80, $90, $00, $00, $D0, $D0, $80, $90, $00, $00, $05, $03
+	; Board 2
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $B0, $C0, $00, $00, $00, $00, $D0, $B0, $C0, $00, $00, $00, $D0, $B0, $C0, $00, $00, $00, $D0, $B0, $C0, $00, $00, $05, $04 
+	; Board 3
+	dc.b	$00, $00, $00, $C0, $00, $00, $00, $00, $00, $90, $00, $00, $00, $00, $80, $90, $00, $B0, $00, $00, $D0, $80, $00, $B0, $00, $D0, $80, $90, $00, $C0, $C0, $D0, $80, $90, $B0, $B0, $05, $00
 
 loc_00004BF2:
 	MOVE.w	ram_pad1Held, D0
@@ -5298,7 +5345,7 @@ loc_000056C6:
 loc_000056DC:
 	MOVE.b	D0, $8(A0)
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 tbl_PortraitAnims:
 	dc.l	animtbl_PortraitSkeletonT
 	dc.l	animtbl_PortraitSuketoudara
@@ -5504,7 +5551,7 @@ loc_00006000:
 	MOVE.w	#$800A, D0
 	SWAP	D0
 	MOVE.b	$2A(A0), D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00006010:
 	LEA	loc_0000601A, A1
 	BRA.w	ObjSys_InitObjWithFunc
@@ -5514,7 +5561,7 @@ loc_0000601A:
 	MOVE.w	#$9B00, D0
 	MOVE.b	$27(A0), D0
 	SWAP	D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_00006040
 	RTS
@@ -5523,7 +5570,7 @@ loc_00006040:
 	MOVE.w	#$800C, D0
 	SWAP	D0
 	MOVE.w	#$0F00, D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00006056:
 	MOVEM.l	A0, -(A7)
 	LEA	art_winLose, A0
@@ -5985,7 +6032,7 @@ loc_00006708:
 	MOVE.w	#$9800, D0
 	SWAP	D0
 	MOVE.w	$16(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.b	#sfxID_6C, D0
 	JMP	SndDrv_QueueSoundEffect
 loc_00006722:
@@ -6022,7 +6069,7 @@ loc_0000677E:
 	MOVE.w	#$9900, D0
 	SWAP	D0
 	MOVE.w	$12(A0), D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000678E:
 	TST.b	$2A(A0)
 	BEQ.w	loc_00006874
@@ -6039,7 +6086,7 @@ loc_0000678E:
 	MOVE.w	#$9900, D0
 	SWAP	D0
 	MOVE.w	$12(A0), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.b	#sfxID_Bonus, D0
 	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	$12(A0), D0
@@ -6063,11 +6110,11 @@ loc_00006820:
 	MOVE.w	$12(A0), D0
 	JSR	loc_00008832
 	MOVE.l	#$99000000, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	BRA.w	loc_00006862
 loc_0000683C:
 	MOVE.l	#$80050000, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.b	#sfxID_NoBonus, D0
 	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$0080, D0
@@ -6255,7 +6302,7 @@ loc_00006B1E:
 	MOVE.w	#$9401, D0
 	SWAP	D0
 	MOVE.b	#cutID_Mummy, rOnePlayer_CurCutscene
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVEM.l	(A7)+, D0
 	MOVE.b	D0, rOnePlayer_CurCutscene
 	RTS
@@ -6269,7 +6316,7 @@ loc_00006B64:
 	MOVE.b	D1, $2A(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0017, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_general-palLookupTable), A2
@@ -6332,7 +6379,7 @@ loc_00006C8E:
 	SWAP	D0
 	MOVE.w	#$0F00, D0
 	MOVE.b	$2A(A0), D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00006C9E:
 	BSR.w	loc_00006000
 	ANDI.b	#$FD, $7(A0)
@@ -6406,7 +6453,7 @@ loc_00006DB8:
 	SWAP	D0
 	MOVE.w	#$0F00, D0
 	MOVE.b	$2A(A0), D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00006DC8:
 	MOVE.b	$2A(A0), D0
 	ADDQ.b	#1, D0
@@ -6420,7 +6467,7 @@ loc_00006DC8:
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.b	#5, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	BSR.w	loc_00006E2A
 	BSR.w	loc_00004B26
 	ORI	#$0700, SR
@@ -6563,7 +6610,7 @@ loc_00006F6E:
 	MOVE.w	#$8400, D0
 	MOVE.b	$2A(A1), D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_00006F88:
 	MOVEA.l	$2E(A0), A1
 	SUBQ.w	#1, $26(A1)
@@ -7534,7 +7581,7 @@ loc_00007C5E:
 	rts
 ; Dead Code
 	move.l #$800E0000, d0
-	jsr loc_00000C4C
+	jsr Video_QueueBgMapSpecial
 	lea loc_00007CA8, a1
 	jsr ObjSys_InitObjWithFunc
 	move.w #$0258, $26(a1)
@@ -7833,7 +7880,7 @@ loc_000080D6:
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
 	MOVE.w	$16(A0), D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_000080EA:
 	CMPI.b	#2, $00FF1882
 	BEQ.w	loc_000080F8
@@ -8041,7 +8088,7 @@ loc_0000837C:
 	move.w #$A500, d6
 	bsr.w loc_000083B0
 	move.l #$800D0000, d0
-	jmp loc_00000C4C
+	jmp Video_QueueBgMapSpecial
 loc_000083B0:
 	divu.w #$a, d0
 	tst.b d0
@@ -8227,7 +8274,7 @@ loc_00008628:
 	ADDI.b	#$86, D0
 	ROL.w	#8, D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000863E:
 	BSR.w	loc_00005022
 	ADDA.l	#$000001E0, A2
@@ -8397,7 +8444,7 @@ loc_00008836:
 	ADDI.b	#$81, D0
 	ROL.w	#8, D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000884C:
 	ADD.l	D0, $E(A0)
 	TST.w	$E(A0)
@@ -8832,7 +8879,7 @@ loc_0000902E:
 	MOVE.w	#$8F00, D0
 	MOVE.b	$9(A0), D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000903E:
 	dc.b	$F1, $00, $08, $01, $0C, $00, $04, $01, $10, $00, $0C, $01, $08, $00, $0C, $01, $FF, $00
 	dc.l    loc_0000903E
@@ -9885,7 +9932,7 @@ loc_0000A316:
 	MOVE.w	#$2000, D0
 	JSR	System_DecompressComp
 	MOVE.w	#0, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 	BRA.w	loc_0000A3F4
 loc_0000A334:
 	MOVE.b	#1, D0
@@ -9904,7 +9951,7 @@ loc_0000A368:
 	move.w #$2000, d0
 	jsr System_DecompressComp
 	move.w #1, d0
-	jmp Video_LoadBgMapFromId
+	jmp Video_QueueBgMapFromId
 loc_0000A382:
 	move.b #1, d0
 	move.b #0, d1
@@ -9921,7 +9968,7 @@ loc_0000A3B6:
 	move.w #$2000, d0
 	jsr System_DecompressComp
 	move.w #2, d0
-	jsr Video_LoadBgMapFromId
+	jsr Video_QueueBgMapFromId
 	bsr.w Cutscene_ThunderObjInit
 	jmp loc_00001336
 loc_0000A3DA:
@@ -10003,7 +10050,7 @@ Sega_LogoInit:
 	
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$0023, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 	
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, D0
@@ -11001,7 +11048,12 @@ loc_0000B8F4:
 	MOVE.w	$E(A0), D0
 	SUBQ.b	#1, $12(A0,D0.w)
 	BPL.w	loc_0000B906
-	MOVE.b	#$1C, $12(A0,D0.w)
+	; See build_flags.asm for more details
+	if fFixBestRecordWrap == 1
+		MOVE.b	#$1B, $12(A0,D0.w)
+	else
+		MOVE.b	#$1C, $12(A0,D0.w)
+	endif
 loc_0000B906:
 	CLR.b	$26(A0)
 	MOVE.b	#sfxID_ChangeSelection, D0
@@ -11445,7 +11497,7 @@ loc_0000BEAA:
 	jsr  ObjSys_UpdateObjNextOpTimer
 	clr.b    $7(a0)
 	move.w    #$B, d0
-	jsr  Video_LoadBgMapFromId
+	jsr  Video_QueueBgMapFromId
 	clr.b  d0
 	move.b  #4, d1
 	lea (palLookupTable).l, a2
@@ -11598,9 +11650,9 @@ loc_0000C12C:
 	dc.b	$61, $CD, $CE, $90, $A5, $A6, $A7, $C8, $C9, $40, $2D, $80, $6D, $9A, $9B, $9C, $CA, $CB, $21, $CC, $2D, $80, $6D, $9A, $9B, $9C, $CA, $CB, $21, $CC 
 loc_0000C14A:
 	MOVE.l	#$97000000, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.l	#$9A000000, D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000C162:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurStage, D0
@@ -12062,7 +12114,7 @@ HowToPlay_TextObjInit:
 	RTS
 @UnkCmd3:
 	MOVE.w	D1, D0
-	JMP	Video_LoadBgMapFromId
+	JMP	Video_QueueBgMapFromId
 @UnkCmd5:
 	move.b d1, $8(a0)
 	rts
@@ -13657,10 +13709,10 @@ loc_0000DB28:
 	CMPI.b	#$11, rOnePlayer_CurCutscene
 	BCS.w	loc_0000DB5E
 	MOVE.w	#$002E, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$002F, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 loc_0000DB5E:
 	BSR.w	loc_0000DC36
 	JSR	ObjSys_UpdateObjNextOpTimer
@@ -13746,7 +13798,7 @@ loc_0000DCB2:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$9000, D0
 	SWAP	D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	JMP	loc_00002AF2
 loc_0000DCD4:
 	MOVEM.l	A0/D2, -(A7)
@@ -13759,7 +13811,7 @@ loc_0000DCD4:
 	JSR	loc_0000A3F4
 	MOVEM.l	(A7)+, D2/A0
 	MOVE.w	#$002D, D0
-	JSR	Video_LoadBgMapFromId
+	JSR	Video_QueueBgMapFromId
 	MOVE.w	#$0013, D0
 	BSR.w	loc_0000DEEC
 	LEA	loc_0000DD20, A1
@@ -13880,7 +13932,7 @@ loc_0000DEAA:
 	CLR.w	D0
 	MOVE.b	(A1,D1.w), D0
 	ADDI.b	#$2C, D0
-	JMP	Video_LoadBgMapFromId
+	JMP	Video_QueueBgMapFromId
 loc_0000DEC8:
 	dc.b	$00
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $FF, $FF, $00 
@@ -13893,16 +13945,12 @@ loc_0000DEEC:
 	MOVEA.l	(A1,D0.w), A2
 	MOVE.w	#$9100, D0
 	SWAP	D0
-
-	; D0 here contains the upper half of loc_0000D908, which is normally expected to be 0000.  Shifting the rom
-	; beyond a certain point causes D0 to have a non-zero value, which breaks the below code.
-	if fixBugs == 1
-		; Clearing the lower half of D0 fixes the above issue.
+	; See build_flags.asm for more information.
+	if fFixCreditsShiftability == 1
 		move.w #$0000, d0
 	endif
-	
 	OR.l	(A2), D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	LEA	loc_0000DF2C, A1
 	JSR	loc_00002AB0
 	BCC.w	loc_0000DF18
@@ -14110,7 +14158,7 @@ loc_0000E1A0:
 	BSR.w	loc_0000E22E
 	ORI.w	#$8E00, D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 	
 CutCmd_MakeTxtbox:
 	; Make copies of argument
@@ -14155,7 +14203,7 @@ CutCmd_MakeTxtbox:
 	SWAP	D0
 	
 	; ?
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	
 	; ?
 	BSR.w	loc_0000E2F2
@@ -14175,7 +14223,7 @@ loc_0000E21A:
 	BSR.w	loc_0000E22E
 	ORI.w	#$8D00, D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000E22E:
 	MOVE.w	$12(A0), D0
 	SWAP	D0
@@ -15697,8 +15745,14 @@ loc_00010094:
 loc_0001009A:
 	RTS
 loc_0001009C:
-	ANDI.w	#$FD8F, D0
-	ANDI.b	#$F3, D1
+	; See build_flags.asm for more information
+	if fFixAiControlBug == 1
+		ANDI.w	#0, D0
+		ANDI.b	#0, D1
+	else
+		ANDI.w	#$FD8F, D0
+		ANDI.b	#$F3, D1
+	endif
 	MOVEM.l	A2/A1/D3/D2, -(A7)
 	MOVEA.l	$2E(A0), A1
 	LEA	$00FF1C28, A2
@@ -16253,7 +16307,7 @@ loc_000105CC:
 	JSR	ObjSys_InitObjWithFunc
 	MOVE.b	#0, $2A(A1)
 	MOVE.l	#$80010000, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	JSR	loc_00003006
 	JMP	loc_0001048C
 loc_0001062A:
@@ -16371,7 +16425,7 @@ loc_00010810:
 	MOVE.w	#$8400, D0
 	SWAP	D0
 	MOVE.b	#5, D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	BRA.w	loc_00010670
 loc_0001083E:
 	TST.b	$00FF188C
@@ -17227,70 +17281,85 @@ sprMappings_bgLightning:
 sprMappings_scoreText:
 	include "art/spriteMappings/game/score.asm"
 	
-loc_000143E2:
+; ---------- File Start: game/bg_mappings.asm ----------
+; This contains the majority of the code and data related to background mappings
+
+Video_LoadQueuedBgMaps:
+	; Load index into D0.  If it's zero, return.
 	MOVE.w	$00FF0CDE, D0
-	BEQ.w	loc_0001442C
+	BEQ.w	@NoBGsToLoad
+	
+	; Backup index and initialize variables
 	MOVE.w	$00FF0CDE, $00FF0DE0
 	CLR.w	$00FF0CDE
 	CLR.w	D2
+	
+	; Load ???? into D2
 	MOVE.b	$00FF0A32, D2
+	
+	; Load 16-bit value into D1
 	ANDI.b	#3, D2
 	LSL.b	#1, D2
 	MOVE.w	loc_0001442E(PC,D2.w), D1
+	
+	; Decrease D0 index by 1 and load A2 with the table pointer
 	SUBQ.w	#1, D0
 	LEA	$00FF0CE0, A2
-loc_00014416:
+	
+	; For each non-loaded index in the table, load it.
+@BgLoadLoop:
 	MOVEM.l	A2/D1/D0, -(A7)
-	BSR.w	loc_00014436
+	BSR.w	Video_LoadBGQueueEntry	; Loads the actual mapping
 	MOVEM.l	(A7)+, D0/D1/A2
 	ADDA.l	#4, A2
-	DBF	D0, loc_00014416
-loc_0001442C:
+	DBF	D0, @BgLoadLoop
+@NoBGsToLoad:
 	RTS
 loc_0001442E:
-	dc.b	$00, $40 
+	dc.w	$0040 
 	dc.w	$0080
-	dc.b	$01, $00 
+	dc.w	$0100 
 	dc.w	$0100
-loc_00014436:
-	MOVE.b	(A2), D2
-	BPL.w	loadBGMappings
-	BRA.w	loc_00014440
-loc_00014440:
+
+Video_LoadBGQueueEntry:
+	MOVE.b	(A2), D2 ; First byte in queued 4 byte entry
+	BPL.w	loadBGMappings ; If the entry is a BG mapping table pointer, load that instead.
+	BRA.w	@UnkBranch ; Useless branch?
+@UnkBranch:
 	ANDI.w	#$007F, D2
 	LSL.w	#2, D2
 	MOVEA.l	loc_0001444C(PC,D2.w), A4
 	JMP	(A4)
 loc_0001444C:
-	dc.l	loc_0001514A
-	dc.l	loc_00015204
-	dc.l	loc_00015212
-	dc.l	loc_00014E82 
-	dc.l	loc_0001531A
-	dc.l	loc_000154D2
-	dc.l	loc_0001529E
-	dc.l	loc_000152AC
-	dc.l	loc_00014CF8 
-	dc.l	loc_00014B54
-	dc.l	loc_00014B14
-	dc.l	loc_0001493C 
-	dc.l	loc_00014A64
-	dc.l	loc_00014AEA
-	dc.l	loc_00014A50 
-	dc.l	loc_000149F8 
-	dc.l	loc_00015520 
-	dc.l	loc_000155DE 
-	dc.l	loc_000149C2
-	dc.l	loc_000148E2 
-	dc.l	loc_00015550 
-	dc.l	loc_0001557C
-	dc.l	loc_000148B8
-	dc.l	loc_0001473C
-	dc.l	loc_00014652
-	dc.l	loc_000146A2
-	dc.l	loc_000145B8
-	dc.l	loc_0001451E
-	dc.l	loc_000144C0
+	dc.l	loc_0001514A ; 0x80
+	dc.l	loc_00015204 ; 0x81
+	dc.l	loc_00015212 ; 0x82
+	dc.l	loc_00014E82 ; 0x83
+	dc.l	loc_0001531A ; 0x84
+	dc.l	loc_000154D2 ; 0x85
+	dc.l	loc_0001529E ; 0x86
+	dc.l	loc_000152AC ; 0x87
+	dc.l	loc_00014CF8 ; 0x88
+	dc.l	loc_00014B54 ; 0x89
+	dc.l	loc_00014B14 ; 0x8A
+	dc.l	loc_0001493C ; 0x8B
+	dc.l	loc_00014A64 ; 0x8C
+	dc.l	loc_00014AEA ; 0x8D
+	dc.l	loc_00014A50 ; 0x8E
+	dc.l	loc_000149F8 ; 0x8F
+	dc.l	loc_00015520 ; 0x90
+	dc.l	loc_000155DE ; 0x91
+	dc.l	BgLoad_GameOverNumber ; 0x92
+	dc.l	loc_000148E2 ; 0x93
+	dc.l	loc_00015550 ; 0x94
+	dc.l	loc_0001557C ; 0x95 (Menu screen stuff?)
+	dc.l	loc_000148B8 ; 0x96
+	dc.l	loc_0001473C ; 0x97
+	dc.l	loc_00014652 ; 0x98
+	dc.l	loc_000146A2 ; 0x99
+	dc.l	loc_000145B8 ; 0x9A
+	dc.l	loc_0001451E ; 0x9B
+	dc.l	loc_000144C0 ; 0x9C
 loc_000144C0:
 	MOVE.w	$2(A2), D5
 	LEA	loc_000144E2, A4
@@ -17611,7 +17680,9 @@ loc_000149AC:
 	DBF	D0, loc_000149AC
 	MOVE.w	#$C4DF, vdpData1
 	RTS
-loc_000149C2:
+
+; ----- $92 Start -----
+BgLoad_GameOverNumber:
 	CLR.w	D0
 	MOVE.b	$1(A2), D0
 	LSL.w	#6, D0
@@ -17619,16 +17690,18 @@ loc_000149C2:
 	ORI.w	#$A000, D0
 	MOVE.w	#$C70C, D5
 	MOVE.w	#6, D4
-loc_000149DA:
+@YLoop:
 	BSR.w	loadBGSetupVDP
 	ADDI.w	#$0080, D5
 	MOVE.w	#7, D3
-loc_000149E6:
+@XLoop:
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
-	DBF	D3, loc_000149E6
-	DBF	D4, loc_000149DA
+	DBF	D3, @XLoop
+	DBF	D4, @YLoop
 	RTS
+; ----- $92 End -----
+
 loc_000149F8:
 	MOVE.w	#6, D3
 	MOVE.w	#2, D4
@@ -18368,6 +18441,8 @@ loc_00015550:
 	MOVE.w	(A4)+, D5
 	MOVE.w	#$8100, D6
 	BRA.w	loadBGByteIndexYLoop
+
+; ----- $95 Start -----
 loc_0001557C:
 	MOVE.w	#2, D0
 	MOVE.w	#$EA08, D5
@@ -18401,6 +18476,8 @@ loc_000155C8:
 	DBF	D4, loc_000155C0
 	SUBI.w	#$06EA, D5
 	RTS
+; ----- $95 End -----
+
 loc_000155DE:
 	CLR.w	D3
 	MOVE.b	$1(A2), D3
@@ -23581,6 +23658,7 @@ bgmap_menuDifficultyLeft:
     incbin "art/bgMappings/menu/difficultyLeft.bin"
 bgmap_menuDifficultyRight:
     incbin "art/bgMappings/menu/difficultyRight.bin"
+; ---------- File End: game/bg_mappings.asm ----------
 	
 	include "game/options/options.asm"
 

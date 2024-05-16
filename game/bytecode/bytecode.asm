@@ -158,7 +158,7 @@ BytecodeOP_LoadArt:
 	BRA.w	System_DecompressComp
 	
 BytecodeOP_RunVDPCommand:
-	BRA.w	Video_LoadBgMapFromId
+	BRA.w	Video_QueueBgMapFromId
 	
 BytecodeOP_LoadPalFade:
 	MOVE.b	D0, D1

@@ -72,7 +72,7 @@ GameOver_Init:
 	MOVE.w	#$9200, D0
 	MOVE.b	$29(A0), D0
 	SWAP	D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.w	#$0050, $26(A0)
 	MOVE.b	#sfxID_ChangeSelection, D0
 	JSR	SndDrv_QueueSoundEffect
@@ -223,4 +223,4 @@ GameOver_Init:
 	BEQ.w	@UnkBranch2	
 	MOVE.l	#$80100F00, D0	
 @UnkBranch2:
-	JMP	loc_00000C4C	
+	JMP	Video_QueueBgMapSpecial	

@@ -21,7 +21,7 @@ MenuScreen_Init:
 MenuScreen_UpdateBGMapMenuSel:
 	MOVE.w	$26(A0), D0
 	ADDI.w	#$000C, D0
-	JMP	Video_LoadBgMapFromId
+	JMP	Video_QueueBgMapFromId
 	
 MenuScreen_MainObjInit:
 	MOVE.w	#$0100, D4
@@ -191,7 +191,7 @@ MenuScreen_InitCloudScroll:
 MenuScreen_InitDifficultySel:
 	MOVE.w	#$9501, D0
 	SWAP	D0
-	JSR	loc_00000C4C
+	JSR	Video_QueueBgMapSpecial
 	MOVE.w	#$0028, $26(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	#$00B7, D0
@@ -288,7 +288,7 @@ loc_0000B4A0:
 	MOVE.w	#$9500, D0
 	MOVE.b	loc_0000B4B0(PC,D1.w), D0
 	SWAP	D0
-	JMP	loc_00000C4C
+	JMP	Video_QueueBgMapSpecial
 loc_0000B4B0:
 	dc.b	$02
 	dc.b	$01

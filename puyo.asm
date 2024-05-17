@@ -6154,7 +6154,7 @@ loc_000068D6:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
-	LEA	loc_00009504, A1
+	LEA	Cutscene_ArtTable, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
 	JSR	System_DecompressComp
@@ -9140,14 +9140,14 @@ loc_000093F4:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
-	LEA	loc_00009504, A1
+	LEA	Cutscene_ArtTable, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
 	JSR	System_DecompressComp
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
-	LEA	loc_00009504, A1
+	LEA	Cutscene_ArtTable, A1
 	MOVEA.l	$44(A1,D0.w), A0
 	MOVE.w	#0, D0
 	JSR	System_DecompressComp
@@ -9194,7 +9194,7 @@ loc_000094B0:
 loc_000094F2:
 	dc.b 	$80, $80, $00, $80, $00, $80, $80, $80, $80
 	dc.b 	$80, $80, $80, $80, $80, $80, $80, $80, $00
-loc_00009504:
+Cutscene_ArtTable:
 	dc.l	art_cutsceneSkeletonT
 	dc.l	art_cutsceneSuketoudara
 	dc.l	art_cutsceneZombie
@@ -9212,23 +9212,23 @@ loc_00009504:
 	dc.l	art_cutsceneSukiyapotes
 	dc.l	art_cutscenePanotty
 	dc.l	art_cutsceneSatan
-	dc.l	art_cutsceneCharset_tutorial1
-	dc.l	loc_00047374
-	dc.l	loc_0004700E
+	dc.l	art_cutsceneCharset_lesson1
+	dc.l	art_cutsceneCharset_stage2
+	dc.l	art_cutsceneCharset_stage7
 	dc.l	art_cutsceneCharset_stage1
-	dc.l	loc_0004B2DE
-	dc.l	loc_00048FBA
-	dc.l	loc_00048ABC
-	dc.l	loc_00049DE6
-	dc.l	loc_000476DC
-	dc.l	loc_0004A13E
-	dc.l	loc_000483D6
-	dc.l	loc_00049576
-	dc.l	loc_0004A9B0
-	dc.l	loc_0004B548
-	dc.l	loc_0004B9C8
-	dc.l	loc_0004BEF0
-	dc.l	loc_00028500
+	dc.l	art_cutsceneCharset_lesson2
+	dc.l	art_cutsceneCharset_stage8
+	dc.l	art_cutsceneCharset_stage5
+	dc.l	art_cutsceneCharset_stage4
+	dc.l	art_cutsceneCharset_stage9
+	dc.l	art_cutsceneCharset_stage10
+	dc.l	art_cutsceneCharset_stage11
+	dc.l	art_cutsceneCharset_stage12
+	dc.l	art_cutsceneCharset_stage13
+	dc.l	art_cutsceneCharset_lesson3
+	dc.l	art_cutsceneCharset_stage3
+	dc.l	art_cutsceneCharset_stage6
+	dc.l	art_cutsceneCharset_lessonEnd
 loc_0000958C:
 	TST.w	$00FF05D2
 	BEQ.w	loc_000095F0
@@ -13583,7 +13583,7 @@ loc_0000D93E:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurCutscene, D0
 	LSL.w	#2, D0
-	LEA	loc_00009504, A1
+	LEA	Cutscene_ArtTable, A1
 	MOVEA.l	(A1,D0.w), A0
 	MOVE.w	#$8000, D0
 	JSR	System_DecompressComp
@@ -23899,8 +23899,8 @@ art_winLose:
 	incbin "art/compressed/twoPlayer/twoPlayerWinLose.bin"
 	even
 	align $100, $FF
-loc_00028500:
-	incbin "art/compressed/unknown/unkCharset4.bin"
+art_cutsceneCharset_lessonEnd:
+	incbin "art/compressed/cutscene/lesson_end/charset.bin"
 	even
 	align $100, $FF
 art_modeNames:
@@ -23910,7 +23910,7 @@ art_modeNames:
 ; Unreferenced japanese character set.  Oddly enough, it contains some 16x16 english characters, making it the only
 ; charset in the entire game to do so.
 ;art_unrefCharset:
-	incbin "art/compressed/unknown/unrefCharset.bin"
+	incbin "art/compressed/unrefCharset.bin"
 	even
 	align $100, $FF
 art_gameOver:
@@ -23942,7 +23942,7 @@ art_cutsceneZoh:
 	incbin "art/compressed/cutscene/stage9/zoh.bin"
 	even
 art_cutsceneSkeletonT:
-	incbin "art/compressed/cutscene/tutorial1/skeleton-t.bin"
+	incbin "art/compressed/cutscene/lesson1/skeleton-t.bin"
 	even
 art_cutsceneMinotauros:
 	incbin "art/compressed/cutscene/stage11/minotauros.bin"
@@ -23966,10 +23966,10 @@ art_cutsceneSatan:
 	incbin "art/compressed/cutscene/stage13/satan.bin"
 	even
 art_cutsceneNasuGrave:
-	incbin "art/compressed/cutscene/tutorial2/nasuGrave.bin"
+	incbin "art/compressed/cutscene/lesson2/nasuGrave.bin"
 	even
 art_cutsceneMummy:
-	incbin "art/compressed/cutscene/tutorial3/mummy.bin"
+	incbin "art/compressed/cutscene/lesson3/mummy.bin"
 	even
 art_cutsceneSukiyapotes:
 	incbin "art/compressed/cutscene/stage3/sukiyapotes.bin"
@@ -23983,50 +23983,50 @@ art_cutscenePanotty:
 art_cutsceneCharset_stage1:
 	incbin "art/compressed/cutscene/stage1/charset.bin"
 	even
-loc_0004700E:
-	incbin "art/compressed/cutscene/unkCharset15.bin"
+art_cutsceneCharset_stage7:
+	incbin "art/compressed/cutscene/stage7/charset.bin"
 	even
-loc_00047374:
-	incbin "art/compressed/cutscene/unkCharset14.bin"
+art_cutsceneCharset_stage2:
+	incbin "art/compressed/cutscene/stage2/charset.bin"
 	even
-loc_000476DC:
-	incbin "art/compressed/cutscene/unkCharset13.bin"
+art_cutsceneCharset_stage9:
+	incbin "art/compressed/cutscene/stage9/charset.bin"
 	even
-art_cutsceneCharset_tutorial1:
-	incbin "art/compressed/cutscene/tutorial1/charset.bin"
+art_cutsceneCharset_lesson1:
+	incbin "art/compressed/cutscene/lesson1/charset.bin"
 	even
-loc_000483D6:
-	incbin "art/compressed/cutscene/unkCharset11.bin"
+art_cutsceneCharset_stage11:
+	incbin "art/compressed/cutscene/stage11/charset.bin"
 	even
-loc_00048ABC:
-	incbin "art/compressed/cutscene/unkCharset10.bin"
+art_cutsceneCharset_stage5:
+	incbin "art/compressed/cutscene/stage5/charset.bin"
 	even
-loc_00048FBA:
-	incbin "art/compressed/cutscene/unkCharset9.bin"
+art_cutsceneCharset_stage8:
+	incbin "art/compressed/cutscene/stage8/charset.bin"
 	even
-loc_00049576:
-	incbin "art/compressed/cutscene/unkCharset8.bin"
+art_cutsceneCharset_stage12:
+	incbin "art/compressed/cutscene/stage12/charset.bin"
 	even
-loc_00049DE6:
-	incbin "art/compressed/cutscene/unkCharset7.bin"
+art_cutsceneCharset_stage4:
+	incbin "art/compressed/cutscene/stage4/charset.bin"
 	even
-loc_0004A13E:
-	incbin "art/compressed/cutscene/unkCharset6.bin"
+art_cutsceneCharset_stage10:
+	incbin "art/compressed/cutscene/stage10/charset.bin"
 	even
-loc_0004A9B0:
-	incbin "art/compressed/cutscene/unkCharset5.bin"
+art_cutsceneCharset_stage13:
+	incbin "art/compressed/cutscene/stage13/charset.bin"
 	even
-loc_0004B2DE:
-	incbin "art/compressed/cutscene/unkCharset4.bin"
+art_cutsceneCharset_lesson2:
+	incbin "art/compressed/cutscene/lesson2/charset.bin"
 	even
-loc_0004B548:
-	incbin "art/compressed/cutscene/unkCharset3.bin"
+art_cutsceneCharset_lesson3:
+	incbin "art/compressed/cutscene/lesson3/charset.bin"
 	even
-loc_0004B9C8:
-	incbin "art/compressed/cutscene/unkCharset2.bin"
+art_cutsceneCharset_stage3:
+	incbin "art/compressed/cutscene/stage3/charset.bin"
 	even
-loc_0004BEF0:
-	incbin "art/compressed/cutscene/unkCharset1.bin"
+art_cutsceneCharset_stage6:
+	incbin "art/compressed/cutscene/stage6/charset.bin"
 	even
 	align $100, $FF
 	

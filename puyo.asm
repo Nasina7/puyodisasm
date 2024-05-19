@@ -2560,7 +2560,7 @@ SndDrv_PlayRotatePuyo:
 	JMP	SndDrv_QueueSoundEffect
 	
 loc_00002E10:
-	TST.b	$00FF1882
+	TST.b	rCurGameMode
 	BEQ.w	loc_00002E1C
 	RTS
 loc_00002E1C:
@@ -2621,7 +2621,7 @@ loc_00002EAA:
 	dc.b	$05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05 
 loc_00002EBA:
 	MOVE.b	#4, D2
-	CMPI.b	#1, $00FF1882
+	CMPI.b	#1, rCurGameMode
 	BEQ.w	loc_00002ED6
 	CLR.w	D1
 	MOVE.b	rOnePlayer_CurStage, D1
@@ -2653,7 +2653,7 @@ loc_00002F04:
 loc_00002F2A:
 	MOVE.b	(A1)+, (A2)+
 	DBF	D1, loc_00002F2A
-	CMPI.b	#1, $00FF1882
+	CMPI.b	#1, rCurGameMode
 	BEQ.w	loc_00002F3E
 	RTS
 loc_00002F3E:
@@ -2753,7 +2753,7 @@ loc_00003070:
 	CLR.w	$00FF05CA
 	CLR.w	$00FF05D0
 	CLR.b	$00FF1883
-	TST.b	$00FF1882
+	TST.b	rCurGameMode
 	BNE.w	loc_00003096
 	CLR.b	$00FF111A
 	BSR.w	OnePlayer_LoadBattleMusic
@@ -2785,7 +2785,7 @@ loc_00003096:
 	BSR.w	loc_00003006
 	JSR	loc_0000F57C
 	BSR.w	loc_00003130
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BNE.w	loc_0000312E
 	MOVE.l	#$800F0000, D0
 	JSR	Video_QueueBgMapSpecial
@@ -2794,14 +2794,14 @@ loc_0000312E:
 	RTS
 loc_00003130:
 	MOVE.l	#$80000000, D0
-	MOVE.b	$00FF1882, D1
+	MOVE.b	rCurGameMode, D1
 	ANDI.b	#3, D1
 	BNE.w	loc_0000314A
 	MOVE.l	#$80060000, D0
 loc_0000314A:
 	JMP	Video_QueueBgMapSpecial
 loc_00003150:
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	BTST.l	#2, D2
 	BNE.w	loc_00003170
 	CLR.w	D0
@@ -2817,7 +2817,7 @@ loc_00003172:
 	MOVE.b	$00FF1888, D0
 	CMP.b	$2A(A0), D0
 	BEQ.w	loc_0000319A
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_0000319A
 	BRA.w	loc_00006D56
 loc_0000319A:
@@ -2970,7 +2970,7 @@ loc_000033C4:
 loc_000033DA:
 	dc.b 	$07, $09, $0B, $08, $09, $0A, $0B, $0C, $0D, $0E, $0F, $11, $11, $12, $12, $13
 loc_000033EA:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	BEQ.b	loc_000033C4
 	LEA	loc_0000343C, A1
@@ -3055,7 +3055,7 @@ loc_00003510:
 	CMPI.w	#4, $26(A0)
 	BCC.w	loc_00003566
 loc_0000351E:
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BNE.w	loc_0000352C
 	ASL.b	#1, D1
 loc_0000352C:
@@ -3136,7 +3136,7 @@ loc_00003606:
 loc_00003642:
 	MOVE.w	#4, D0
 	MOVE.w	#$0108, D1
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BNE.w	loc_0000365A
 	MOVE.w	#$0120, D1
 loc_0000365A:
@@ -3166,7 +3166,7 @@ loc_0000365A:
 	ADDI.w	#$0010, $E(A1)
 loc_000036CA:
 	SUBI.w	#$0010, D1
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BNE.w	loc_000036DC
 	SUBQ.w	#8, D1
 loc_000036DC:
@@ -3250,7 +3250,7 @@ loc_000037D6:
 loc_000037DE:
 	BRA.w	loc_00002AF2
 loc_000037E2:
-	cmpi.b #1, ($00FF1882).l
+	cmpi.b #1, (rCurGameMode).l
 	bne.w loc_00002AF2
 	move.b #0, d1
 	move.b $9(a0), d0
@@ -3327,7 +3327,7 @@ loc_000038D2:
 	ADDQ.w	#1, $1E(A1)
 	RTS
 loc_00003904:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_000039A4
 	CMPI.b	#1, D0
@@ -3350,7 +3350,7 @@ loc_0000392C:
 	MOVE.b	loc_0000396A(PC,D0.w), D2
 	MOVE.b	D2, D0
 	MOVEM.l	(A7)+, D2
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BEQ.w	loc_00003970
 	RTS
 loc_00003964:
@@ -3411,11 +3411,11 @@ loc_00003A08:
 	RTS
 loc_00003A18:
 	MOVE.l	A1, $32(A0)
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BNE.w	loc_00003A2E
 	MOVE.w	#$FFFF, $20(A1)
 loc_00003A2E:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	OR.b	$2A(A0), D0
 	CMPI.b	#5, D0
 	BNE.w	loc_00003A40
@@ -3431,7 +3431,7 @@ loc_00003A48:
 	MOVEA.l	A1, A2
 	MOVEM.l	(A7)+, D3/D4
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.b	#1, D0
 	OR.b	$2A(A0), D0
@@ -3567,7 +3567,7 @@ loc_00003BEC:
 	MOVE.b	$2A(A0), $2A(A1)
 	BSET.b	#2, $7(A0)
 	MOVE.w	#2, D0
-	TST.b	$00FF1882
+	TST.b	rCurGameMode
 	BNE.w	loc_00003C2A
 	CMPI.b	#3, $00FF0104
 	BCC.w	loc_00003C2A
@@ -3864,7 +3864,7 @@ loc_00003FC0:
 	ADDQ.w	#2, D4
 	CMPI.w	#$0090, D4
 	BCS.b	loc_00003F8E
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BNE.w	loc_00003FF6
 	CLR.w	D1
 	CMPI.b	#1, $9(A0)
@@ -3954,7 +3954,7 @@ loc_000040D2:
 	dc.b	$00 
 	
 btl_loadClearParticles:
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	ANDI.b	#3, D2
 	BNE.w	btl_loadPartNormal
 	TST.b	$2A(A0)
@@ -4834,7 +4834,7 @@ loc_00004C0A:
 	LEA	ram_pad1Held, A2
 	MOVE.w	(A2,D2.w), D0
 	MOVE.b	$2(A2,D2.w), D1
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	BTST.l	#2, D2
 	BNE.w	loc_00004C50
 	LSL.b	#1, D2
@@ -4848,7 +4848,7 @@ loc_00004C56:
 	MOVEM.l	(A7)+, D2/A2
 	RTS
 loc_00004C5C:
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	BTST.l	#2, D2
 	BNE.w	loc_00004CC2
 	LSL.b	#1, D2
@@ -5205,7 +5205,7 @@ loc_00005048:
 	dc.w 	$1C80, $C134, $0000, $00FF, $1FEA, $C104, $0000
 loc_00005064:
 	CLR.w	D1
-	MOVE.b	$00FF1882, D1
+	MOVE.b	rCurGameMode, D1
 	ANDI.b	#3, D1
 	LSL.b	#1, D1
 	OR.b	$2A(A0), D1
@@ -5234,7 +5234,7 @@ loc_000050C0:
 	MOVE.b	#$FF, $36(A1)
 	MOVE.l	A2, $2E(A1)
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.b	#3, D0
 	MOVE.w	loc_00005104(PC,D0.w), $A(A1)
@@ -5255,7 +5255,7 @@ loc_00005108:
 	dc.l 	$01200108
 	dc.l    loc_0000274A
 loc_00005124:
-	CMPI.b	#1, $00FF1882
+	CMPI.b	#1, rCurGameMode
 	BNE.w	loc_0000514A
 	MOVEA.l	$2E(A0), A1
 	MOVEA.l	$2E(A1), A2
@@ -5459,7 +5459,7 @@ loc_0000543E:
 loc_00005454:
 	MOVE.w	#$001E, D0
 	MOVE.w	#0, D1
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	ANDI.b	#3, D2
 	BNE.w	loc_00005472
 	MOVE.w	#$0016, D0
@@ -6178,7 +6178,7 @@ loc_0000647A:
 	MOVE.w	D3, $26(A0)
 	RTS
 loc_00006490:
-	CMPI.b	#1, $00FF1882
+	CMPI.b	#1, rCurGameMode
 	BCC.w	loc_000064A6
 	JSR	SndDrv_PlayClearEffect
 	BSR.w	ObjSys_UpdateObjNextOpTimer
@@ -6204,7 +6204,7 @@ loc_000064E2:
 	ADDQ.w	#4, D0
 	DBF	D1, loc_000064E2
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.b	#2, D0
 	MOVEA.l	loc_00006500(PC,D0.w), A2
@@ -6218,7 +6218,7 @@ loc_00006510:
 	dc.w	$0020, $0014, $0000, $0004, $0010, $0024, $0B00, $0900, $0700, $0800, $0A00, $0B00 
 loc_00006528:
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	LSL.b	#2, D0
 	MOVEA.l	loc_00006538(PC,D0.w), A2
 	JMP	(A2)
@@ -6287,7 +6287,7 @@ loc_00006646:
 	MOVEM.l	A1/A0, -(A7)
 	MOVEA.l	A1, A0
 	MOVE.l	$00FF187A, $A(A0)
-	MOVE.b	$00FF1882, $00FF1890
+	MOVE.b	rCurGameMode, $00FF1890
 	BSR.w	loc_0000B9FA
 	MOVEM.l	(A7)+, A0/A1
 	BRA.b	loc_00006630
@@ -6432,7 +6432,7 @@ loc_00006874:
 	MOVE.w	#$0080, D0
 	JSR	loc_00002B1C
 	JSR	loc_00002B40
-	MOVE.b	$00FF1882, $00FF1890
+	MOVE.b	rCurGameMode, $00FF1890
 	BSR.w	loc_0000B9FA
 	BCC.w	loc_000068A4
 	BSR.w	loc_0000B568
@@ -6955,7 +6955,7 @@ loc_00006FE0:
 loc_00006FEC:
 	MOVEA.l	$2E(A0), A1
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	LSL.b	#1, D0
 	OR.b	$2A(A1), D0
 	MOVE.b	loc_00007006(PC,D0.w), D1
@@ -6965,7 +6965,7 @@ loc_00007006:
 	dc.b 	$00, $FF, $FF, $FF, $00
 	dc.b 	$00, $00, $00, $00, $00
 loc_00007010:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_0000701C
 loc_0000701C:
 	MOVE.w	#3, D0
@@ -7364,7 +7364,7 @@ loc_0000749A:
 	DBF	D0, loc_0000746E
 	RTS
 loc_000074A0:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	EORI.b	#2, D0
 	OR.b	$2B(A0), D0
 	BNE.w	loc_00007504
@@ -7903,7 +7903,7 @@ loc_00007CC0:
 	BEQ.w	loc_00007CD8
 	EXG	D0, D1
 loc_00007CD8:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 loc_00007CE0:
 	BNE.w	loc_00007D0A
 	OR.b	D1, D0
@@ -7947,7 +7947,7 @@ loc_00007D68:
 	BSR.w	loc_00007DE2
 	ANDI	#$F8FF, SR
 	JSR	waitForVint
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00007DBA
 	MOVE.b	#sfxID_ComboComplete1, D0
 	JMP	SndDrv_QueueSoundEffect
@@ -7957,7 +7957,7 @@ loc_00007D90:
 	BSR.w	loc_00007E38
 	ANDI	#$F8FF, SR
 	JSR	waitForVint
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00007DCE
 	MOVE.b	#sfxID_ComboComplete1, D0
 	JMP	SndDrv_QueueSoundEffect
@@ -8072,7 +8072,7 @@ loc_00007F0C:
 	move.b d0, ($00FF012B).l
 	rts
 loc_00007F1A:
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BNE.w	loc_00007F5C
 	TST.w	$16(A0)
 	BEQ.w	loc_00007F5C
@@ -8173,7 +8173,7 @@ loc_00008096:
 	dc.b	$00, $00, $00, $00, $00, $00, $00, $C1, $C2, $00, $00, $00, $C3, $C4, $00, $00, $D1, $C5, $C6, $00, $00, $D2, $C7, $C8, $00, $D1, $D3, $C9, $CA, $00, $D2, $D4 ;0x100
 	dc.b	$CB, $CC, $D1, $D3, $D3, $CD, $CE, $D2, $D4, $D4, $CF, $D0 ;0x120
 loc_000080C8:
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BEQ.w	loc_000080D6
 	RTS
 loc_000080D6:
@@ -8183,7 +8183,7 @@ loc_000080D6:
 	MOVE.w	$16(A0), D0
 	JMP	Video_QueueBgMapSpecial
 loc_000080EA:
-	CMPI.b	#2, $00FF1882
+	CMPI.b	#2, rCurGameMode
 	BEQ.w	loc_000080F8
 	RTS
 loc_000080F8:
@@ -8415,7 +8415,7 @@ loc_000083CA:
 	rts
 	rts
 loc_000083FC:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BNE.w	loc_0000849A
 	LEA	$00FF18D0, A1
 	CLR.w	D0
@@ -8530,7 +8530,7 @@ loc_0000855C:
 loc_0000856C:
 	JMP	loc_00002AF2
 loc_00008572:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00008580
 	RTS
 loc_00008580:
@@ -8545,7 +8545,7 @@ loc_00008592:
 	MOVE.w	$00FF05CE, D0
 	MOVE.w	$00FF05D0, D1
 	BEQ.w	loc_000085B6
-	CMPI.b	#1, $00FF1882
+	CMPI.b	#1, rCurGameMode
 	BNE.w	loc_000085B6
 	SUBQ.w	#1, D1
 loc_000085B6:
@@ -8582,7 +8582,7 @@ loc_0000863E:
 	BSR.w	loc_00008766
 	BSR.w	loc_000080C8
 	CLR.w	D0
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_0000866E
 	MOVE.b	$2B(A0), D0
 	CMPI.b	#$62, D0
@@ -8700,7 +8700,7 @@ loc_000087B2:
 	BRA.w	loc_0000884C
 loc_000087B6:
 	CLR.w	D0
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.w	#2, D0
 	MOVEA.l	loc_000087CA(PC,D0.w), A1
@@ -8775,7 +8775,7 @@ loc_00008898:
 	MOVE.b	$8(A0), D0
 	ANDI.b	#7, D0
 	BNE.w	loc_000088D8
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_000088E0
 	MOVE.b	#sfxID_Bonus, D0
@@ -8790,7 +8790,7 @@ loc_000088D8:
 loc_000088DC:
 	BRA.w	loc_000088E0
 loc_000088E0:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_000088FA
 	CMPI.b	#1, D0
@@ -11173,7 +11173,7 @@ MenuScreen_PressedABCStart:
 @DelayTimerDone:
 	MOVE.w	$26(A0), D0
 	MOVE.b	@BcReturnTbl(PC,D0.w), D1
-	MOVE.b	D1, $00FF1882
+	MOVE.b	D1, rCurGameMode
 	MOVE.b	D1, rBytecode_Ret
 	BEQ.w	MenuScreen_InitDifficultySel
 	CMPI.b	#3, D1
@@ -16066,7 +16066,7 @@ loc_0000F128:
 	MOVEM.l	(A7)+, A1
 	RTS
 loc_0000F134:
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	OR.b	rOnePlayer_CurStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F18A
@@ -16108,7 +16108,7 @@ loc_0000F1B6:
 loc_0000F1E0:
 	jmp loc_00002AF2
 loc_0000F1E6:
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	OR.b	rOnePlayer_CurStage, D2
 	OR.b	$2A(A0), D2
 	BNE.w	loc_0000F23E
@@ -16207,7 +16207,7 @@ loc_0000F32A:
 	ANDI.b	#3, D0
 	CMPI.b	#3, D0
 	BNE.w	loc_0000F37A
-	TST.b	$00FF1882
+	TST.b	rCurGameMode
 	BNE.w	loc_0000F358
 	TST.w	$00FF18C8
 	BNE.w	loc_0000F37A
@@ -16383,7 +16383,7 @@ loc_0000F57C:
 loc_0000F588:
 	MOVE.w	D1, (A2)+
 	DBF	D0, loc_0000F588
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	BEQ.w	loc_0000F59E
 	RTS
@@ -16595,7 +16595,7 @@ loc_0000F86A:
 loc_0000F872:
 	RTS
 loc_0000F874:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	BTST.l	#2, D0
 	BNE.w	loc_0000F89C
 	LSL.b	#1, D0
@@ -17034,7 +17034,7 @@ loc_0000FE5E:
 	BCC.b	loc_0000FE4E
 	RTS
 loc_0000FE66:
-	MOVE.b	$00FF1882, D0
+	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.b	#1, D0
 	OR.b	$2A(A0), D0
@@ -18813,7 +18813,7 @@ loc_0001444C:
 	dc.l	loc_00015204 ; 0x81
 	dc.l	loc_00015212 ; 0x82
 	dc.l	loc_00014E82 ; 0x83
-	dc.l	loc_0001531A ; 0x84
+	dc.l	BgLoad_BattleCrumbleFloor ; 0x84
 	dc.l	loc_000154D2 ; 0x85
 	dc.l	loc_0001529E ; 0x86
 	dc.l	loc_000152AC ; 0x87
@@ -19420,7 +19420,7 @@ loc_00014CF8:
 	LEA	loc_00014D5A, A4
 	ADDA.w	D2, A4
 	MOVE.w	#1, D2
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00014D3C
 	MOVE.w	#3, D2
 loc_00014D3C:
@@ -19456,7 +19456,7 @@ loc_00014D5A:
 	dc.w 	$04E0, $057E, $056C, $056C, $056C, $056C
 	dc.w 	$04E1, $057F, $056D, $056D, $056D, $056D
 loc_00014E4A:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00014E6C
 	CLR.w	D5
 	MOVE.b	$3(A2), D5
@@ -19478,7 +19478,7 @@ loc_00014E6C:
 	RTS
 loc_00014E82:
 	CLR.w	D2
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	ANDI.b	#2, D2
 	OR.b	$1(A2), D2
 	LSL.b	#2, D2
@@ -19759,14 +19759,16 @@ loc_00015302:
 	BSR.w	loc_000157A2
 	MOVEM.l	(A7)+, D2
 	BRA.w	loc_00015244
-loc_0001531A:
-	BSR.w	loc_000153E6
+	
+; ----- $84 Start -----
+BgLoad_BattleCrumbleFloor:
+	BSR.w	@GetCrumbleMapNumber
 	LSL.b	#1, D2
 	OR.b	$1(A2), D2
 	MOVE.b	$00FF1884, D0
 	EOR.b	D0, D2
 	LSL.w	#2, D2
-	LEA	loc_00015422, A4
+	LEA	@CrumbleMappingsTable, A4
 	MOVEA.l	(A4,D2.w), A3
 	CLR.w	D2
 	MOVE.b	$3(A2), D2
@@ -19778,13 +19780,13 @@ loc_0001531A:
 	MOVE.w	$A(A3), D3
 	MOVE.w	#1, D4
 	MOVE.w	$C(A3), D5
-	BSR.w	loc_000153D8
+	BSR.w	@loc_000153D8
 	TST.b	$3(A2)
-	BEQ.w	loc_00015372
+	BEQ.w	@loc_00015372
 	CMPI.b	#5, $3(A2)
-	BEQ.w	loc_0001539C
+	BEQ.w	@loc_0001539C
 	RTS
-loc_00015372:
+@loc_00015372:
 	MOVE.w	$6(A3), D6
 	MOVE.w	#$000B, D3
 	MOVE.w	#1, D4
@@ -19796,7 +19798,7 @@ loc_00015372:
 	MOVE.w	$E(A3), D5
 	BSR.w	loadBGClearYLoop
 	RTS
-loc_0001539C:
+@loc_0001539C:
 	MOVE.w	$4(A3), D3
 	MULU.w	#6, D3
 	MOVEA.l	$0(A3), A4
@@ -19805,69 +19807,144 @@ loc_0001539C:
 	MOVE.w	#$000B, D3
 	MOVE.w	#1, D4
 	MOVE.w	$10(A3), D5
-	BSR.w	loc_000153D8
+	BSR.w	@loc_000153D8
 	MOVE.w	$6(A3), D6
 	MOVE.w	$A(A3), D3
 	MOVE.w	#1, D4
 	MOVE.w	$C(A3), D5
 	MOVEA.l	$0(A3), A4
-	BSR.w	loc_000153D8
+	BSR.w	@loc_000153D8
 	RTS
-loc_000153D8:
+@loc_000153D8:
 	CMPI.w	#$0040, $4(A3)
 	BCS.w	loadBGByteIndexYLoop
 	BRA.w	loadBGWordIndexYLoop
-loc_000153E6:
+
+@GetCrumbleMapNumber:
 	CLR.w	D2
-	MOVE.b	$00FF1882, D2
+	MOVE.b	rCurGameMode, D2
 	ANDI.b	#3, D2
-	BEQ.w	loc_00015404
+	BEQ.w	@InStoryMode
 	CMPI.b	#1, D2
-	BEQ.w	loc_00015402
+	BEQ.w	@InVSMode
 	MOVE.b	#3, D2
-loc_00015402:
+@InVSMode:
 	RTS
-loc_00015404:
+@InStoryMode:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurStage, D0
-	MOVE.b	loc_00015412(PC,D0.w), D2
+	MOVE.b	@StageMappingTable(PC,D0.w), D2
 	RTS
-loc_00015412:
-	dc.b $03, $03, $03, $00, $00, $00, $00, $00
-	dc.b $00, $00, $00, $02, $02, $02, $02, $02
-loc_00015422:
-	dc.l	loc_00015442
-	dc.l	loc_00015454
-	dc.l	loc_00015466
-	dc.l	loc_00015478
-	dc.l	loc_0001548A
-	dc.l	loc_0001549C
-	dc.l	loc_000154AE
-	dc.l	loc_000154C0
-loc_00015442:
-	dc.l	loc_000157F6
-	dc.w	$0020, $C000, $4000, $000F, $ED00, $CD04, $C004 
-loc_00015454:
-	dc.l	loc_000157F6
-	dc.w	$0020, $C000, $4000, $000F, $ED30, $CD34, $C034 
-loc_00015466:
-	dc.l    loc_00015976
-	dc.w 	$0020, $E000, $6000, $000F, $ED00, $CD04, $C004
-loc_00015478:
-	dc.l	loc_00015976
-	dc.w 	$0020, $E000, $6000, $000F, $ED30, $CD34, $C034
-loc_0001548A:
-	dc.l	loc_000158CE
-	dc.w 	$0018, $C000, $4000, $000B, $ED04, $CD04, $C004
-loc_0001549C:
-	dc.l	loc_000158CE
-	dc.w 	$0018, $C000, $4000, $000B, $ED34, $CD34, $C034
-loc_000154AE:
-	dc.l	loc_00015A4E
-	dc.w 	$0040, $C000, $4000, $000F, $ED00, $CD04, $C004
-loc_000154C0:
-	dc.l	loc_00015BFE
-	dc.w 	$0040, $C000, $4000, $000F, $ED30, $CD34, $C034
+@StageMappingTable: ; Goes in order from Lesson 1-3, then to Stage 1-13.
+	dc.b 3
+	dc.b 3
+	dc.b 3
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 0
+	dc.b 2
+	dc.b 2
+	dc.b 2
+	dc.b 2
+	dc.b 2
+@CrumbleMappingsTable:
+	dc.l	@Grass1PSide
+	dc.l	@Grass2PSide
+	dc.l	@Cabin1PSide
+	dc.l	@Cabin2PSide
+	dc.l	@Stone1PSide
+	dc.l	@Stone2PSide
+	dc.l	@Puzzle1PSide
+	dc.l	@Puzzle2PSide
+	
+; Format for below data:
+; 	dc.l	Mapping Data Pointer
+;	dc.w	Tiles per frame
+;	dc.w	Palette (Plane Attribute) - High Priority
+;	dc.w	Palette (Plane Attribute) - Low Priority
+;	dc.w	Width of Frame
+;	dc.w	Position - Frame (Plane B)
+;	dc.w	Position - Tiles to Clear (Plane A)
+;	dc.w	Position - Tiles to Redraw (Plane A)
+@Grass1PSide:
+	dc.l	bgmap_grassCrumbleFloor
+	dc.w	32
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	15
+	dc.w	$ED00
+	dc.w	$CD04
+	dc.w	$C004 
+@Grass2PSide:
+	dc.l	bgmap_grassCrumbleFloor
+	dc.w	32
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	15
+	dc.w	$ED30
+	dc.w	$CD34
+	dc.w	$C034 
+@Cabin1PSide:
+	dc.l    bgmap_cabinCrumbleFloor
+	dc.w 	32
+	dc.w	$E000
+	dc.w	$6000
+	dc.w	15
+	dc.w	$ED00
+	dc.w	$CD04
+	dc.w	$C004
+@Cabin2PSide:
+	dc.l	bgmap_cabinCrumbleFloor
+	dc.w 	32
+	dc.w	$E000
+	dc.w	$6000
+	dc.w	15
+	dc.w	$ED30
+	dc.w	$CD34
+	dc.w	$C034
+@Stone1PSide:
+	dc.l	bgmap_stoneCrumbleFloor
+	dc.w 	24
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	11
+	dc.w	$ED04
+	dc.w	$CD04
+	dc.w	$C004
+@Stone2PSide:
+	dc.l	bgmap_stoneCrumbleFloor
+	dc.w 	24
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	11
+	dc.w	$ED34
+	dc.w	$CD34
+	dc.w	$C034
+@Puzzle1PSide:
+	dc.l	bgmap_puzzleCrumbleFloor1P
+	dc.w 	64
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	15
+	dc.w	$ED00
+	dc.w	$CD04
+	dc.w	$C004
+@Puzzle2PSide:
+	dc.l	bgmap_puzzleCrumbleFloor2P
+	dc.w 	64
+	dc.w	$C000
+	dc.w	$4000
+	dc.w	15
+	dc.w	$ED30
+	dc.w	$CD34
+	dc.w	$C034
+; ----- $84 End -----
+
 loc_000154D2:
 	CLR.w	D2
 	MOVE.b	rOnePlayer_CurCutscene, D2
@@ -20159,59 +20236,49 @@ loc_000157DA:
 	ANDI.w	#3, D7
 	MOVE.w	D7, vdpControl1
 	RTS
-loc_000157F6:
-	dc.b	$8E, $8F, $90, $91, $92, $93, $94, $95, $8E, $8F, $90, $91, $92, $93, $94, $95, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7 
-	dc.b	$8E, $8F, $90, $91, $B9, $BA, $BB, $BC, $BD, $BE, $BF, $C0, $92, $93, $94, $95, $A0, $A1, $A2, $C1, $C2, $C3, $C4, $C5, $C6, $C7, $C8, $C9, $A4, $A5, $A6, $A7 ;0x20
-	dc.b	$8E, $8F, $CA, $CB, $CC, $CD, $CE, $77, $CF, $D0, $D1, $D2, $D3, $D4, $94, $95, $A0, $A1, $D5, $D6, $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $E0, $A6, $A7 ;0x40
-	dc.b	$8E, $8F, $E1, $E2, $74, $75, $76, $77, $78, $79, $7A, $7B, $74, $75, $94, $95, $A0, $A1, $E3, $E4, $E5, $E6, $E7, $E8, $E9, $EA, $EB, $EC, $ED, $EE, $A6, $A7 ;0x60
-	dc.b	$8E, $8F, $72, $73, $74, $75, $76, $77, $78, $79, $7A, $7B, $74, $75, $94, $95, $A0, $A1, $84, $85, $86, $87, $88, $89, $8A, $8B, $8C, $8D, $86, $87, $A6, $A7 ;0x80
-	dc.b	$8E, $8F, $90, $91, $92, $93, $94, $95, $8E, $8F, $90, $91, $92, $93, $94, $95, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7 ;0xA0
-	dc.b	$03, $04, $05, $06, $07, $08, $01, $02, $03, $04, $05, $06, $13, $14, $15, $16, $17, $18, $11, $12, $13, $14, $15, $16 ;0xC0
-loc_000158CE:
-	dc.b	$09, $0B, $09, $0B, $09, $0B, $09, $0B, $09, $0B, $09, $0B, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $09, $0B, $0D, $0F, $11, $13, $11, $13 
-	dc.b	$0D, $0F, $09, $0B, $0A, $0C, $0E, $10, $12, $14, $12, $14, $0E, $10, $0A, $0C, $0D, $0F, $11, $13, $05, $07, $05, $07, $11, $13, $0D, $0F, $0E, $10, $12, $14 ;0x20
-	dc.b	$15, $16, $15, $16, $12, $14, $0E, $10, $11, $13, $05, $07, $05, $07, $05, $07, $05, $07, $11, $13, $12, $14, $15, $16, $06, $08, $06, $08, $15, $16, $12, $14 ;0x40
-	dc.b	$01, $07, $05, $07, $05, $07, $05, $07, $05, $07, $05, $07, $02, $08, $06, $08, $06, $08, $06, $08, $06, $08, $06, $08, $09, $0B, $09, $0B, $09, $0B, $09, $0B ;0x60
-	dc.b	$09, $0B, $09, $0B, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $0A, $0C, $19, $1A, $1B, $1C, $1D, $1E, $E7, $E6, $E5, $E4, $E3, $E2, $28, $29, $2A, $2B ;0x80
-	dc.b	$2C, $2D, $F4, $F3, $F2, $F1, $F0, $EF
-loc_00015976:
-	dc.b    $1B, $18, $15, $14, $15, $16, $17, $18, $19, $15, $16, $1A, $1B, $18, $15, $1A, $3B, $38, $35, $34, $35, $36, $37, $38 ;0xA0
-	dc.b	$39, $35, $36, $3A, $3B, $38, $35, $34, $1B, $18, $15, $14, $15, $1C, $FF, $FF, $FF, $FF, $13, $1A, $1B, $18, $15, $1A, $3B, $38, $35, $34, $35, $3C, $13, $18 ;0xC0
-	dc.b	$19, $1C, $33, $3A, $3B, $38, $35, $34, $1B, $18, $15, $1C, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $13, $18, $15, $1A, $3B, $38, $35, $3C, $13, $1C, $FF, $FF ;0xE0
-	dc.b	$FF, $FF, $13, $1C, $33, $38, $35, $34, $1B, $1C, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $13, $1A, $3B, $3C, $13, $1C, $00, $00, $00, $00 ;0x100
-	dc.b	$00, $00, $00, $00, $13, $1C, $33, $34, $1B, $1C, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $13, $1A, $3B, $3C, $00, $00, $00, $00, $00, $00 ;0x120
-	dc.b	$00, $00, $00, $00, $00, $00, $33, $34, $1B, $18, $15, $14, $15, $16, $17, $18, $19, $15, $16, $1A, $1B, $18, $15, $1A, $3B, $38, $35, $34, $35, $36, $37, $38 ;0x140
-	dc.b	$39, $35, $36, $3A, $3B, $38, $35, $34, $13, $14, $15, $16, $17, $16, $1C, $05, $02, $0A, $01, $02, $33, $34, $35, $36, $37, $36, $3C, $05, $01, $02, $06, $05 ;0x160
-loc_00015A4E:
-	dc.b	$C0, $05, $C0, $06, $C0, $25, $C0, $26, $C0, $27, $C0, $28, $A0, $1D, $A0, $1E, $A0, $1F, $A0, $20, $A0, $25, $A0, $26, $A0, $27, $A0, $28, $80, $05, $80, $06 ;0x180
-	dc.b	$C0, $07, $C0, $08, $C0, $29, $C0, $2A, $C0, $2B, $C0, $2C, $A0, $21, $A0, $22, $A0, $23, $A0, $24, $A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $80, $07, $80, $08 ;0x1A0
-	dc.b	$C0, $05, $C0, $06, $C0, $25, $C0, $26, $C0, $3D, $C0, $3E, $A0, $3F, $A0, $40, $A0, $41, $A0, $42, $A0, $43, $A0, $44, $A0, $27, $A0, $28, $80, $05, $80, $06 ;0x1C0
-	dc.b	$C0, $07, $C0, $08, $C0, $29, $C0, $2A, $C0, $45, $C0, $46, $A0, $47, $A0, $48, $A0, $49, $A0, $4A, $A0, $4B, $A0, $4C, $A0, $2B, $A0, $2C, $80, $07, $80, $08 ;0x1E0
-	dc.b	$C0, $05, $C0, $06, $C0, $25, $C0, $4D, $C0, $4E, $C0, $4F, $A0, $50, $A0, $51, $A0, $52, $A0, $53, $A0, $54, $A0, $55, $A0, $56, $A0, $28, $80, $05, $80, $06 ;0x200
-	dc.b	$C0, $07, $C0, $08, $C0, $29, $C0, $57, $C0, $58, $C0, $59, $A0, $5A, $A0, $5B, $A0, $5C, $A0, $5D, $A0, $5E, $A0, $5F, $A0, $60, $A0, $2C, $80, $07, $80, $08 ;0x220
-	dc.b	$C0, $05, $C0, $06, $C0, $61, $C0, $62, $C0, $00, $C0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $63, $A0, $64, $A0, $65, $80, $05, $80, $06 ;0x240
-	dc.b	$C0, $07, $C0, $08, $C0, $66, $C0, $67, $C0, $68, $C0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $69, $A0, $6A, $A0, $6B, $80, $07, $80, $08 ;0x260
-	dc.b	$C0, $05, $C0, $06, $C0, $00, $C0, $00, $C0, $00, $C0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $80, $05, $80, $06 ;0x280
-	dc.b	$C0, $07, $C0, $08, $C0, $00, $C0, $00, $C0, $00, $C0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $80, $07, $80, $08 ;0x2A0
-	dc.b	$C0, $05, $C0, $06, $C0, $25, $C0, $26, $C0, $27, $C0, $28, $A0, $1D, $A0, $1E, $A0, $1F, $A0, $20, $A0, $25, $A0, $26, $A0, $27, $A0, $28, $80, $05, $80, $06 ;0x2C0
-	dc.b	$C0, $07, $C0, $08, $C0, $29, $C0, $2A, $C0, $2B, $C0, $2C, $A0, $21, $A0, $22, $A0, $23, $A0, $24, $A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $80, $07, $80, $08 ;0x2E0
-	dc.b	$C0, $1F, $C0, $20, $80, $15, $80, $16, $A0, $25, $A0, $26, $A0, $27, $A0, $28, $80, $05, $80, $06, $A0, $1D, $A0, $1E, $C0, $23, $C0, $24, $80, $17, $80, $18 ;0x300
-	dc.b	$A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $80, $07, $80, $08, $A0, $21, $A0, $22
-loc_00015BFE:
-	dc.b    $80, $05, $80, $06, $A0, $25, $A0, $26, $A0, $27, $A0, $28, $A0, $1D, $A0, $1E ;0x320
-	dc.b	$A0, $1F, $A0, $20, $C0, $25, $C0, $26, $C0, $27, $C0, $28, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $A0, $21, $A0, $22 ;0x340
-	dc.b	$A0, $23, $A0, $24, $C0, $29, $C0, $2A, $C0, $2B, $C0, $2C, $C0, $07, $C0, $08, $80, $05, $80, $06, $A0, $25, $A0, $26, $A0, $3D, $A0, $3E, $A0, $3F, $A0, $40 ;0x360
-	dc.b	$A0, $41, $A0, $42, $C0, $43, $C0, $44, $C0, $27, $C0, $28, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $29, $A0, $2A, $A0, $45, $A0, $46, $A0, $47, $A0, $48 ;0x380
-	dc.b	$A0, $49, $A0, $4A, $C0, $4B, $C0, $4C, $C0, $2B, $C0, $2C, $C0, $07, $C0, $08, $80, $05, $80, $06, $A0, $25, $A0, $4D, $A0, $4E, $A0, $4F, $A0, $50, $A0, $51 ;0x3A0
-	dc.b	$A0, $52, $A0, $53, $C0, $54, $C0, $55, $C0, $56, $C0, $28, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $29, $A0, $57, $A0, $58, $A0, $59, $A0, $5A, $A0, $5B ;0x3C0
-	dc.b	$A0, $5C, $A0, $5D, $C0, $5E, $C0, $5F, $C0, $60, $C0, $2C, $C0, $07, $C0, $08, $80, $05, $80, $06, $A0, $61, $A0, $62, $A0, $00, $A0, $00, $A0, $00, $A0, $00 ;0x3E0
-	dc.b	$A0, $00, $A0, $00, $C0, $00, $C0, $63, $C0, $64, $C0, $65, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $66, $A0, $67, $A0, $68, $A0, $00, $A0, $00, $A0, $00 ;0x400
-	dc.b	$A0, $00, $A0, $00, $C0, $00, $C0, $69, $C0, $6A, $C0, $6B, $C0, $07, $C0, $08, $80, $05, $80, $06, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00 ;0x420
-	dc.b	$A0, $00, $A0, $00, $C0, $00, $C0, $00, $C0, $00, $C0, $00, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00, $A0, $00 ;0x440
-	dc.b	$A0, $00, $A0, $00, $C0, $00, $C0, $00, $C0, $00, $C0, $00, $C0, $07, $C0, $08, $80, $05, $80, $06, $A0, $25, $A0, $26, $A0, $27, $A0, $28, $A0, $1D, $A0, $1E ;0x460
-	dc.b	$A0, $1F, $A0, $20, $C0, $25, $C0, $26, $C0, $27, $C0, $28, $C0, $05, $C0, $06, $80, $07, $80, $08, $A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $A0, $21, $A0, $22 ;0x480
-	dc.b	$A0, $23, $A0, $24, $C0, $29, $C0, $2A, $C0, $2B, $C0, $2C, $C0, $07, $C0, $08, $A0, $1F, $A0, $20, $80, $15, $80, $16, $A0, $25, $A0, $26, $A0, $27, $A0, $28 ;0x4A0
-	dc.b	$80, $05, $80, $06, $C0, $1D, $C0, $1E, $A0, $23, $A0, $24, $80, $17, $80, $18, $A0, $29, $A0, $2A, $A0, $2B, $A0, $2C, $80, $07, $80, $08, $C0, $21, $C0, $22 ;0x4C0
+
+; Frame 1 seems to be included twice for each of these.  Need to investigate why.
+bgmap_grassCrumbleFloor:
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_2.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_3.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_4.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_5.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/grass/board_top.bin"
+bgmap_stoneCrumbleFloor:
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_2.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_3.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_4.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_5.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/stone/board_top.bin"
+bgmap_cabinCrumbleFloor:
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_2.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_3.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_4.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_5.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/cabin/board_top.bin"
+bgmap_puzzleCrumbleFloor1P:
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_2.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_3.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_4.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_5.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/1p_board_top.bin"
+bgmap_puzzleCrumbleFloor2P:
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_2.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_3.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_4.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_5.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_frame_1.bin"
+	incbin "art/bgMappings/battle/floor_crumble/puzzle/2p_board_top.bin"
+
 loc_00015DAE:
 	dc.b	$00, $09, $00, $06, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $40, $41, $42, $43, $44, $45 
 	dc.b	$46, $47, $48, $49, $60, $61, $62, $63, $64, $65, $66, $67, $68, $69, $80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $A0, $A1, $A2, $A3, $A4, $A5, $A6, $A7 ;0x20
@@ -24677,13 +24744,13 @@ bgdata_battle2P:
 	dc.l    @bottomLeft
 	dc.l    @bottomRight
 @topLeft:
-	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $E, $C000, $E0
+	bgmac_ByteIndex bgmap_batCabinTopLeft, $20, $E, $C000, $E0
 @topRight:
-	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $E, $C040, $E0
+	bgmac_ByteIndex bgmap_batCabinTopRight, $8, $E, $C040, $E0
 @bottomLeft:
-	bgmac_ByteIndex bgmap_twoPlayerBottomLeft, $20, $C, $C700, $E0
+	bgmac_ByteIndex bgmap_batCabinBottomLeft, $20, $C, $C700, $E0
 @bottomRight:
-	bgmac_ByteIndex bgmap_twoPlayerBottomRight, $8, $C, $C740, $E0
+	bgmac_ByteIndex bgmap_batCabinBottomRight, $8, $C, $C740, $E0
 	
 
 bgdata_battle2P_2:
@@ -24701,25 +24768,25 @@ bgdata_battle2P_2:
 	dc.l   bgdata_unkClear1
 	dc.l   bgdata_unkClear2
 @topLeft:
-	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $E, $C000, $E0
+	bgmac_ByteIndex bgmap_batCabinTopLeft, $20, $E, $C000, $E0
 @topRight:
-	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $E, $C040, $E0
+	bgmac_ByteIndex bgmap_batCabinTopRight, $8, $E, $C040, $E0
 @bottomLeft:
-	bgmac_ByteIndex bgmap_twoPlayerBottomLeft, $20, $E, $C700, $E0
+	bgmac_ByteIndex bgmap_batCabinBottomLeft, $20, $E, $C700, $E0
 @bottomRight:
-	bgmac_ByteIndex bgmap_twoPlayerBottomRight, $8, $E, $C740, $E0
+	bgmac_ByteIndex bgmap_batCabinBottomRight, $8, $E, $C740, $E0
 @bakTopLeft:
-	bgmac_ByteIndex bgmap_twoPlayerBakTopLeft, $20, $E, $E000, $60
+	bgmac_ByteIndex bgmap_batBakCabinTopLeft, $20, $E, $E000, $60
 @bakTopRight:
-	bgmac_ByteIndex bgmap_twoPlayerBakTopRight, $8, $E, $E040, $60
+	bgmac_ByteIndex bgmap_batBakCabinTopRight, $8, $E, $E040, $60
 @bakBottomLeft:
-	bgmac_ByteIndex bgmap_twoPlayerBakBottomLeft, $20, $E, $E700, $60
+	bgmac_ByteIndex bgmap_batBakCabinBottomLeft, $20, $E, $E700, $60
 @bakBottomRight:
-	bgmac_ByteIndex bgmap_twoPlayerBakBottomRight, $8, $E, $E740, $60
+	bgmac_ByteIndex bgmap_batBakCabinBottomRight, $8, $E, $E740, $60
 @topLeftUnk:
-	bgmac_ByteIndex bgmap_twoPlayerTopLeft, $20, $2, $E000, $60
+	bgmac_ByteIndex bgmap_batCabinTopLeft, $20, $2, $E000, $60
 @topRightUnk:
-	bgmac_ByteIndex bgmap_twoPlayerTopRight, $8, $2, $E040, $60
+	bgmac_ByteIndex bgmap_batCabinTopRight, $8, $2, $E040, $60
 	
 	
 bgdata_battleRuins:
@@ -24731,13 +24798,13 @@ bgdata_battleRuins:
 	dc.l    bgdata_unkClear1
 	dc.l    bgdata_unkClear2
 @left:
-	bgmac_ByteIndex bgmap_batRuinsLeft, $20, $1C, $C000, $C0
+	bgmac_ByteIndex bgmap_batStoneLeft, $20, $1C, $C000, $C0
 @right:
-	bgmac_ByteIndex bgmap_batRuinsRight, $8, $1C, $C040, $C0
+	bgmac_ByteIndex bgmap_batStoneRight, $8, $1C, $C040, $C0
 @bakLeft:
-	bgmac_ByteIndex bgmap_batRuinsBakLeft, $20, $1C, $E000, $40
+	bgmac_ByteIndex bgmap_batBakStoneLeft, $20, $1C, $E000, $40
 @bakRight:	
-	bgmac_ByteIndex bgmap_batRuinsBakRight, $8, $1C, $E040, $40
+	bgmac_ByteIndex bgmap_batBakStoneRight, $8, $1C, $E040, $40
 	
 	
 bgdata_battleTutorial:
@@ -24757,25 +24824,25 @@ bgdata_battleTutorial:
 @clear1:
 	bgmac_Clear $28, $04, $D01C, $8000
 @topLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialPalTopLeft, $20, $0E, $C000, $8000
+	bgmac_ByteIndexPal bgmap_batPuzzleTopLeft, bgmap_batPalPuzzleTopLeft, $20, $0E, $C000, $8000
 @topRight:
-	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialPalTopRight, $8, $0E, $C040, $8000
+	bgmac_ByteIndexPal bgmap_batPuzzleTopRight, bgmap_batPalPuzzleTopRight, $8, $0E, $C040, $8000
 @bottomLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialBottomLeft, bgmap_batTutorialPalBottomLeft, $20, $0E, $C700, $8000
+	bgmac_ByteIndexPal bgmap_batPuzzleBottomLeft, bgmap_batPalPuzzleBottomLeft, $20, $0E, $C700, $8000
 @bottomRight:
-	bgmac_ByteIndexPal bgmap_batTutorialBottomRight, bgmap_batTutorialPalBottomRight, $8, $0E, $C740, $8000
+	bgmac_ByteIndexPal bgmap_batPuzzleBottomRight, bgmap_batPalPuzzleBottomRight, $8, $0E, $C740, $8000
 @bakTopLeft:
-	bgmac_ByteIndex bgmap_batTutorialBakTopLeft, $20, $E, $E000, $40
+	bgmac_ByteIndex bgmap_batBakPuzzleTopLeft, $20, $E, $E000, $40
 @bakTopRight:
-	bgmac_ByteIndex bgmap_batTutorialBakTopRight, $8, $E, $E040, $40
+	bgmac_ByteIndex bgmap_batBakPuzzleTopRight, $8, $E, $E040, $40
 @bakBottomLeft:
-	bgmac_ByteIndex bgmap_batTutorialBakBottomLeft, $20, $E, $E700, $40
+	bgmac_ByteIndex bgmap_batBakPuzzleBottomLeft, $20, $E, $E700, $40
 @bakBottomRight:
-	bgmac_ByteIndex bgmap_batTutorialBakBottomRight, $8, $E, $E740, $40
+	bgmac_ByteIndex bgmap_batBakPuzzleBottomRight, $8, $E, $E740, $40
 @unkTopLeft:
-	bgmac_ByteIndexPal bgmap_batTutorialTopLeft, bgmap_batTutorialPalTopLeft, $20, $2, $E000, $0000
+	bgmac_ByteIndexPal bgmap_batPuzzleTopLeft, bgmap_batPalPuzzleTopLeft, $20, $2, $E000, $0000
 @unkTopRight:
-	bgmac_ByteIndexPal bgmap_batTutorialTopRight, bgmap_batTutorialPalTopRight, $8, $2, $E040, $0000
+	bgmac_ByteIndexPal bgmap_batPuzzleTopRight, bgmap_batPalPuzzleTopRight, $8, $2, $E040, $0000
 	
 
 bgdata_cutsceneGrassTreesTop:
@@ -25060,54 +25127,54 @@ bgmap_titlePu2:
     incbin "art/bgMappings/title/secondPu.bin"
 bgmap_titleYo2:
     incbin "art/bgMappings/title/secondYo.bin"
-bgmap_twoPlayerTopLeft:
-    incbin "art/bgMappings/twoplayer/topLeft.bin"
-bgmap_twoPlayerTopRight:
-    incbin "art/bgMappings/twoplayer/topRight.bin"
-bgmap_twoPlayerBottomLeft:
-    incbin "art/bgMappings/twoplayer/bottomLeft.bin"
-bgmap_twoPlayerBottomRight:
-    incbin "art/bgMappings/twoplayer/bottomRight.bin"
-bgmap_twoPlayerBakTopLeft:
-    incbin "art/bgMappings/twoplayer/backdropTopLeft.bin"
-bgmap_twoPlayerBakTopRight:
-    incbin "art/bgMappings/twoplayer/backdropTopRight.bin"
-bgmap_twoPlayerBakBottomLeft:
-    incbin "art/bgMappings/twoplayer/backdropBottomLeft.bin"
-bgmap_twoPlayerBakBottomRight:
-    incbin "art/bgMappings/twoplayer/backdropBottomRight.bin"
-bgmap_batRuinsLeft:
-    incbin "art/bgMappings/battle/ruins/left.bin"
-bgmap_batRuinsRight:
-    incbin "art/bgMappings/battle/ruins/right.bin"
-bgmap_batRuinsBakLeft:
-    incbin "art/bgMappings/battle/ruins/backdropLeft.bin"
-bgmap_batRuinsBakRight:
-    incbin "art/bgMappings/battle/ruins/backdropRight.bin"
-bgmap_batTutorialTopLeft:
-    incbin "art/bgMappings/battle/tutorial/topLeft.bin"
-bgmap_batTutorialPalTopLeft:
-    incbin "art/bgMappings/battle/tutorial/pal_topLeft.bin"
-bgmap_batTutorialTopRight:
-    incbin "art/bgMappings/battle/tutorial/topRight.bin"
-bgmap_batTutorialPalTopRight:
-    incbin "art/bgMappings/battle/tutorial/pal_topRight.bin"
-bgmap_batTutorialBottomLeft:
-    incbin "art/bgMappings/battle/tutorial/bottomLeft.bin"
-bgmap_batTutorialPalBottomLeft:
-    incbin "art/bgMappings/battle/tutorial/pal_bottomLeft.bin"
-bgmap_batTutorialBottomRight:
-    incbin "art/bgMappings/battle/tutorial/bottomRight.bin"
-bgmap_batTutorialPalBottomRight:
-    incbin "art/bgMappings/battle/tutorial/pal_bottomRight.bin"
-bgmap_batTutorialBakTopLeft:
-    incbin "art/bgMappings/battle/tutorial/backdropTopLeft.bin"
-bgmap_batTutorialBakTopRight:
-    incbin "art/bgMappings/battle/tutorial/backdropTopRight.bin"
-bgmap_batTutorialBakBottomLeft:
-    incbin "art/bgMappings/battle/tutorial/backdropBottomLeft.bin"
-bgmap_batTutorialBakBottomRight:
-    incbin "art/bgMappings/battle/tutorial/backdropBottomRight.bin"
+bgmap_batCabinTopLeft:
+    incbin "art/bgMappings/battle/cabin/topLeft.bin"
+bgmap_batCabinTopRight:
+    incbin "art/bgMappings/battle/cabin/topRight.bin"
+bgmap_batCabinBottomLeft:
+    incbin "art/bgMappings/battle/cabin/bottomLeft.bin"
+bgmap_batCabinBottomRight:
+    incbin "art/bgMappings/battle/cabin/bottomRight.bin"
+bgmap_batBakCabinTopLeft:
+    incbin "art/bgMappings/battle/cabin/backdropTopLeft.bin"
+bgmap_batBakCabinTopRight:
+    incbin "art/bgMappings/battle/cabin/backdropTopRight.bin"
+bgmap_batBakCabinBottomLeft:
+    incbin "art/bgMappings/battle/cabin/backdropBottomLeft.bin"
+bgmap_batBakCabinBottomRight:
+    incbin "art/bgMappings/battle/cabin/backdropBottomRight.bin"
+bgmap_batStoneLeft:
+    incbin "art/bgMappings/battle/stone/left.bin"
+bgmap_batStoneRight:
+    incbin "art/bgMappings/battle/stone/right.bin"
+bgmap_batBakStoneLeft:
+    incbin "art/bgMappings/battle/stone/backdropLeft.bin"
+bgmap_batBakStoneRight:
+    incbin "art/bgMappings/battle/stone/backdropRight.bin"
+bgmap_batPuzzleTopLeft:
+    incbin "art/bgMappings/battle/puzzle/topLeft.bin"
+bgmap_batPalPuzzleTopLeft:
+    incbin "art/bgMappings/battle/puzzle/pal_topLeft.bin"
+bgmap_batPuzzleTopRight:
+    incbin "art/bgMappings/battle/puzzle/topRight.bin"
+bgmap_batPalPuzzleTopRight:
+    incbin "art/bgMappings/battle/puzzle/pal_topRight.bin"
+bgmap_batPuzzleBottomLeft:
+    incbin "art/bgMappings/battle/puzzle/bottomLeft.bin"
+bgmap_batPalPuzzleBottomLeft:
+    incbin "art/bgMappings/battle/puzzle/pal_bottomLeft.bin"
+bgmap_batPuzzleBottomRight:
+    incbin "art/bgMappings/battle/puzzle/bottomRight.bin"
+bgmap_batPalPuzzleBottomRight:
+    incbin "art/bgMappings/battle/puzzle/pal_bottomRight.bin"
+bgmap_batBakPuzzleTopLeft:
+    incbin "art/bgMappings/battle/puzzle/backdropTopLeft.bin"
+bgmap_batBakPuzzleTopRight:
+    incbin "art/bgMappings/battle/puzzle/backdropTopRight.bin"
+bgmap_batBakPuzzleBottomLeft:
+    incbin "art/bgMappings/battle/puzzle/backdropBottomLeft.bin"
+bgmap_batBakPuzzleBottomRight:
+    incbin "art/bgMappings/battle/puzzle/backdropBottomRight.bin"
 bgmap_segaLogo:
     incbin "art/bgMappings/sega/logo.bin"
 bgmap_demoPatch1:
@@ -26295,7 +26362,7 @@ loc_0001DC46:
 	NOT.w	D0
 	RTS
 loc_0001DC50:
-	BTST.b	#1, $00FF1882
+	BTST.b	#1, rCurGameMode
 	BNE.w	loc_0001DCB4
 	TST.b	$9(A0)
 	LEA	loc_0001DCB6, A1

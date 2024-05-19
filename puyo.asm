@@ -26799,7 +26799,7 @@ art_menuScreen:
 
 	align $8000, $FF
 sound_bank1:
-	incbin "sound/bank1/bank1.bin"
+	include "sound/bank1/bank1.asm"
 sound_driver:
 	include "sound/driver.asm"
 	align $8000, $FF

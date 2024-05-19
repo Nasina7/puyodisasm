@@ -513,13 +513,13 @@ tbl_commands:
 	ptrZ80 CmdJump ; 3 Byte Command
 	ptrZ80 sub_0338
 	ptrZ80 sub_037E
-	ptrZ80 sub_0387
+	ptrZ80 CmdSetPitchEnvelope
 	ptrZ80 sub_03C0
 	ptrZ80 sub_03D9
 	ptrZ80 sub_036F
 	ptrZ80 sub_03BC
 	ptrZ80 sub_038B
-	ptrZ80 sub_038F
+	ptrZ80 CmdIncreaseRootPitch
 	ptrZ80 sub_03A6
 	ptrZ80 sub_04CC
 	ptrZ80 sub_0336
@@ -541,7 +541,7 @@ tbl_commands:
 	ptrZ80 sub_0412
 	ptrZ80 sub_04A8
 	ptrZ80 sub_0469
-	ptrZ80 sub_04E3
+	ptrZ80 sub_04E3 ; 0x9F
 	ptrZ80 sub_034F
 	ptrZ80 sub_0491
 	ptrZ80 sub_049B
@@ -619,7 +619,7 @@ sub_037E:
 	exx
 	jp loc_0149
 
-sub_0387:
+CmdSetPitchEnvelope:
 	ld (ix+03h), a
 	ret
 
@@ -627,7 +627,7 @@ sub_038B:
 	ld (ix+02h), a
 	ret
 
-sub_038F:
+CmdIncreaseRootPitch:
 	cp 80h
 loc_0391:
 	jr z, loc_039A

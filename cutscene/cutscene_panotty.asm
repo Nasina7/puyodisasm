@@ -1,5 +1,5 @@
-    include "game/cutscene/macros.asm"
-    include "game/cutscene/constants.asm"
+    include "cutscene/macros.asm"
+    include "cutscene/constants.asm"
 
     PlayOpponentAnim $89
     PlayArleAnim $6

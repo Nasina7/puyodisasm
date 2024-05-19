@@ -1,5 +1,5 @@
-    include "game/cutscene/macros.asm"
-    include "game/cutscene/constants.asm"
+    include "cutscene/macros.asm"
+    include "cutscene/constants.asm"
 
     WaitTime $2
     MakeTextbox $16, $2d, $7, $2, $1

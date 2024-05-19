@@ -23,6 +23,13 @@ fFixBestRecordWrap = 0
 ; good to have a fix for it.
 fFixObjectInits = 0
 
+; Todo: This flag is not set up yet.  (Need to disassemble sound bank 1 first)
+; Warning of Puyo Puyo is set to loop continually, incrementing the pitch of some of the instruments for each loop.
+; The song never sets the instrument pitch back downwards, so it'll continue to increment forever until the pitch
+; overflows, causing odd sound issues.  Easiest way to hear this is to go into the sound test and listen to song 0E 
+; for a while.
+fFixWarningOfPuyo = 0
+
 ; ---------- Optimization ----------
 
 ; Todo: This flag is not set up yet.

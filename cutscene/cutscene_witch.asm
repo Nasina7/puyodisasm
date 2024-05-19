@@ -1,5 +1,5 @@
-    include "game/cutscene/macros.asm"
-    include "game/cutscene/constants.asm"
+    include "cutscene/macros.asm"
+    include "cutscene/constants.asm"
 
     MakeTextbox $10, $28, $9, $4, $1
     

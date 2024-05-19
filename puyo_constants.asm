@@ -78,11 +78,20 @@ stgID_Satan			= $0F
 
 ram_calcChecksum = $FF0106 	; Word
 
+rOnePlayer_CurStage = $FF0112
+rOnePlayer_CurCutscene = $FF0113
+rOnePlayer_DefeatedEnemyTbl = $FF0116
+
 mus_curSong = $FF012F		; Byte
 
 ; Goes until FF09A1
 rScrollXScanFront = $FF0622
 rScrollXScanBack = $FF0624
+
+rBytecode_PC = $FF0A36 				; Long
+rBytecode_Ret = $FF0A3A				; Byte
+rBytecode_StopRun = $FF0A3B			; Byte
+rBytecode_StopLoop = $FF0A3C 		; Byte
 
 ram_pad1Held = $FF110A		; Byte
 ram_pad1Press = $FF110B		; Byte
@@ -99,6 +108,16 @@ rMissionMode_CurBoard = $FF1889 ; Byte
 ObjectBuffer = $FFE000
 
 SystemStack = $FFFC00
+rOption_SoundTestEnabled = $00FFFC02
+rOption_2PlayerMode = $00FFFCA4
+rOption_ComputerLevel = $00FFFCA5
+rOption_Player1AButton = $00FFFCA6
+rOption_Player1BButton = $00FFFCA7
+rOption_Player1CButton = $00FFFCA8
+rOption_Player2AButton = $00FFFCA9
+rOption_Player2BButton = $00FFFCAA
+rOption_Player2CButton = $00FFFCAB
+rOption_VoicesEnabled = $00FFFCAC
 
 ; Struct constants for objects
 ; 0 - Something to do with animation / updating?

@@ -1,45 +1,4 @@
-; Type 0000 = Stop Executing Bytecode
-
-; Type 0001 = NOP?
-
-; Type 0002.XXXX = Delay for number of frames
-
-; Type 0003 = Wait for Palette Fade to finish
-
-; Type 0004.XXXXXXXX.YYYY = Write YYYY to XXXXXXXX
-
-; Type 0005.XXXXXXXX = Branch to XXXXXXXX
-
-; Type 0006.XXXXXXXX = Jump Lookup Table Execution to XXXXXXXX
-; Type 0007.XXXXXXXX = Above, but only if functionReturnState = 0
-; Type 0008.XXXXXXXX = Above, but only if functionReturnState != 0
-
-; Type 0009.XXXX = Defines a lookup table of size XXXX?
-
-; Type 000A.XXXX = Something that sets up the VDP Registers???
-;				   If XXXX is greater than 3, then this operation is invalid
-
-; Type 000B.XXXX.YYYYYYYY = Load Art Data at YYYYYYYY into VRAM address XXXX
-
-; Type 000C.XXXX = Call VDP Plane Commands
-
-; Type 000D.XXXX = Load Palette
-
-; Type 000E.XXXX.YYYY = Load Palette with Fade In
-
-; Type 000F.XXXX = Play Sound
-
-; Type 0010.XXXX = Play Sound (Check if samples are allowed)
-
-; Type 0011 = Fade out music
-
-; Type 0012 = Stop all Sounds
-
-; Type 0013.XXXX = Identical to 0010??
-
-; Type 0014 - FFFF = INVALID
-
-	include "game/bytecode/bytecode_macros.asm"
+	include "bytecode/macros.asm"
 	
 Bytecode_Bootup: ; Bootup Lookup Table
 

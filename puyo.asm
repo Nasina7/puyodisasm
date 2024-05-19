@@ -16,7 +16,6 @@ startOfRom:
 	include "puyo_constants.asm"
 	include "puyo_macros.asm"
 	include "sound/sound_ids.asm"
-	include "game/one_player/variables.asm" ; Todo: Move this to an eventual game/one_player/1p.asm
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset
@@ -629,8 +628,98 @@ loc_00000A14:
 	RTS
 	
 ; Large Dead Code
-mis_00000A20:
-	include "game/unused/unused1.asm"
+; Note: Nothing that I know of in the disassembly references $FF0138.
+dead_00000A20:
+	tst.b ($00FF0138).l
+	bne.w dead_00000A2C
+	rts
+dead_00000A2C:
+	clr.b ($00FF0138).l
+	move.w #$100, (Z80BusReq)
+dead_00000A3A:
+	btst.b #0, (Z80BusReq)
+dead_00000A42:
+	bne.b dead_00000A3A
+	lea (vdpControl1), a0
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	ori.b #$10, d0
+	move.w d0, (a0)
+	move.w #$9404, (a0)
+	move.w #$9300, (a0)
+	move.w #$96E8, (a0)
+	move.w #$9500, (a0)
+	move.w #$977F, (a0)
+	move.w #$5000, (a0)
+	move.w #$80, ($00FF1106)
+	move.w ($00FF1106), (a0)
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	move.w d0, (a0)
+	move.w #0, (Z80BusReq)
+	lea ($00FFD000), a1
+	lea ($00FF3000), a2
+	move.w ($00FF0138), d0
+	mulu.w #$800, d0
+	adda.l d0, a2
+	move.w #$3FF, d0
+dead_00000AB0:
+	move.w (a2)+, (a1)+
+	dbf d0, dead_00000AB0
+	move.w #$100, (Z80BusReq)
+dead_00000ABE:
+	btst.b #0, (Z80BusReq)
+	bne.b dead_00000ABE
+	lea (vdpControl1), a0
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	ori.b #$10, d0
+	move.w d0, (a0)
+	move.w #$9404, (a0)
+	move.w #$9300, (a0)
+	move.w #$96E8, (a0)
+	move.w #$9500, (a0)
+	move.w #$977F, (a0)
+	move.w #$6000, (a0)
+	move.w #$80, ($00FF1106)
+	move.w ($00FF1106), (a0)
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	move.w d0, (a0)
+	move.w #0, (Z80BusReq)
+	lea ($00FFD000), a1
+	lea ($00FF3000), a2
+	move.w ($00FF0138), d0
+	addq.b #8, d0
+	andi.b #$F, d0
+	mulu.w #$800, d0
+	adda.l d0, a2
+	move.w #$3FF, d0
+dead_00000B3A:
+	move.w (a2)+, (a1)+
+	dbf d0, dead_00000B3A
+	move.w #$100, (Z80BusReq)
+dead_00000B48:
+	btst.b #0, (Z80BusReq)
+	bne.b dead_00000B48
+	lea (vdpControl1), a0
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	ori.b #$10, d0
+	move.w d0, (a0)
+	move.w #$9404, (a0)
+	move.w #$9300, (a0)
+	move.w #$96E8, (a0)
+	move.w #$9500, (a0)
+	move.w #$977F, (a0)
+	move.w #$6800, (a0)
+	move.w #$80, ($00FF1106)
+	move.w ($00FF1106), (a0)
+	move.w #$8100, d0
+	move.b ($00FF0A23), d0
+	move.w d0, (a0)
+	move.w #0, (Z80BusReq)
+	rts
 	
 loc_00000BA4:
 	MOVE.w	#$01FF, D0
@@ -1250,8 +1339,209 @@ loc_000013B0:
 	rts
 	rts
 
-	include "game/bytecode/bytecode.asm"
-	include "game/bytecode/bytecode_table.asm"
+; ---------- File Start: bytecode.asm ----------
+; This contains the majority of the code related to the game's bytecode table
+Bytecode_Init:
+	MOVE.l	#Bytecode_Bootup, rBytecode_PC
+	CLR.b	rBytecode_Ret
+	CLR.b	rBytecode_StopRun
+	RTS
+	
+Bytecode_Run:
+	TST.b	rBytecode_StopRun
+	BEQ.w	@StepBytecode
+	RTS
+@StepBytecode:
+	CLR.b	rBytecode_StopLoop
+	MOVEA.l	rBytecode_PC, A0
+	MOVE.w	(A0)+, D1
+	MOVE.w	(A0)+, D0
+	MOVE.l	A0, rBytecode_PC
+	ASL.w	#2, D1
+	MOVEA.l	@OpcodeTbl(PC,D1.w), A0
+	JSR	(A0)
+	TST.b	rBytecode_StopLoop
+	BEQ.b	@StepBytecode
+	RTS
+@OpcodeTbl:
+	dc.l	BytecodeOP_Stop
+	dc.l	BytecodeOP_Nop
+	dc.l	BytecodeOP_Delay
+	dc.l	BytecodeOP_WaitPal
+	dc.l	BytecodeOP_WriteRAM
+	dc.l	BytecodeOP_RunFunc
+	dc.l	BytecodeOP_Jump
+	dc.l	BytecodeOP_JumpEQ
+	dc.l	BytecodeOP_JumpNE
+	dc.l	BytecodeOP_JumpTbl
+	dc.l	BytecodeOP_SetVDP
+	dc.l	BytecodeOP_LoadArt
+	dc.l	BytecodeOP_RunVDPCommand
+	dc.l	BytecodeOP_LoadPal
+	dc.l	BytecodeOP_LoadPalFade
+	dc.l	BytecodeOP_PlaySnd
+	dc.l	BytecodeOP_PlaySndCheckSample
+	dc.l	BytecodeOP_FadeMusic
+	dc.l	BytecodeOP_StopAllSound
+	dc.l	BytecodeOP_PlaySndCheckSample2
+	
+BytecodeOP_Stop:
+	SUBQ.l	#2, rBytecode_PC
+	MOVE.b	#$FF, rBytecode_StopLoop
+	MOVE.b	#$FF, rBytecode_StopRun
+	RTS
+	
+BytecodeOP_Nop:
+	SUBQ.l	#2, rBytecode_PC
+	MOVE.b	#$FF, rBytecode_StopLoop
+	RTS
+	
+BytecodeOP_Delay:
+	MOVE.b	#$FF, rBytecode_StopLoop
+	MOVE.b	#$FF, rBytecode_StopRun
+	LEA	@DelayObjInit, A1
+	BSR.w	ObjSys_InitObjWithFunc
+	BCC.w	@ObjCreateSuccess
+	RTS
+@ObjCreateSuccess:
+	MOVE.w	D0, $24(A1)
+	RTS
+@DelayObjInit:
+	BSR.w	ObjSys_UpdateObjNextOpTimer
+	CLR.b	rBytecode_StopRun
+	BRA.w	loc_00002AF2
+	
+BytecodeOP_WaitPal:
+	SUBQ.l	#2, rBytecode_PC
+	MOVE.b	#$FF, rBytecode_StopLoop
+	MOVE.b	#$FF, rBytecode_StopRun
+	LEA	@WaitPalObjInit, A1
+	BRA.w	ObjSys_InitObjWithFunc
+@WaitPalObjInit:
+	BSR.w	@loc_00001504
+	BCC.w	@loc_000014FA
+	RTS
+@loc_000014FA:
+	CLR.b	rBytecode_StopRun
+	BRA.w	loc_00002AF2
+@loc_00001504:
+	LEA	$00FF0AD6, A2
+	MOVE.w	#3, D0
+@Loop:
+	TST.w	(A2)
+	BNE.w	@loc_00001524
+	ADDA.l	#$00000082, A2
+	DBF	D0, @Loop
+	ANDI	#$FFFE, SR
+	RTS
+@loc_00001524:
+	ORI	#1, SR
+	RTS
+	
+BytecodeOP_WriteRAM:
+	MOVEA.l	rBytecode_PC, A0
+	SWAP	D0
+	MOVE.w	(A0)+, D0
+	MOVE.w	(A0)+, D1
+	MOVE.l	A0, rBytecode_PC
+	MOVEA.l	D0, A0
+	MOVE.w	D1, (A0)
+	RTS
+	
+BytecodeOP_RunFunc:
+	MOVEA.l	rBytecode_PC, A0
+	SWAP	D0
+	MOVE.w	(A0)+, D0
+	MOVE.l	A0, rBytecode_PC
+	MOVEA.l	D0, A0
+	JMP	(A0)
+	
+BytecodeOP_Jump:
+	MOVEA.l	rBytecode_PC, A0
+	SWAP	D0
+	MOVE.w	(A0), D0
+	MOVE.l	D0, rBytecode_PC
+	RTS
+
+BytecodeOP_JumpEQ:
+	TST.b	rBytecode_Ret
+	BEQ.b	BytecodeOP_Jump
+	ADDQ.l	#2, rBytecode_PC
+	RTS
+	
+BytecodeOP_JumpNE:
+	TST.b	rBytecode_Ret
+	BNE.b	BytecodeOP_Jump
+	ADDQ.l	#2, rBytecode_PC
+	RTS
+	
+BytecodeOP_JumpTbl:
+	MOVEA.l	rBytecode_PC, A0
+	CLR.w	D1
+	MOVE.b	rBytecode_Ret, D1
+	CMP.w	D0, D1
+	BCS.w	@NotOOB
+	MOVE.w	D0, D1
+	SUBQ.w	#1, D1
+@NotOOB:
+	LSL.w	#2, D1
+	MOVE.l	(A0,D1.w), D2
+	MOVE.l	D2, rBytecode_PC
+	RTS
+	
+BytecodeOP_SetVDP:
+	BRA.w	bc_setVDPMode
+	
+BytecodeOP_LoadArt:
+	MOVEA.l	rBytecode_PC, A1
+	MOVEA.l	(A1)+, A0
+	MOVE.l	A1, rBytecode_PC
+	BRA.w	System_DecompressComp
+	
+BytecodeOP_RunVDPCommand:
+	BRA.w	Video_QueueBgMapFromId
+	
+BytecodeOP_LoadPalFade:
+	MOVE.b	D0, D1
+	LSR.w	#3, D0
+	ANDI.l	#$00001FFF, D0
+	LEA	palLookupTable, A2
+	ADDA.l	D0, A2
+	MOVE.b	D1, D0
+	MOVEA.l	rBytecode_PC, A0
+	MOVE.b	(A0)+, D1
+	MOVE.b	(A0)+, D2
+	MOVE.l	A0, rBytecode_PC
+	BRA.w	loc_00000E46
+	
+BytecodeOP_LoadPal:
+	MOVE.b	D0, D1
+	LSR.w	#3, D0
+	ANDI.l	#$00001FFF, D0
+	LEA	palLookupTable, A2
+	ADDA.l	D0, A2
+	MOVE.b	D1, D0
+	BRA.w	Video_LoadPaletteIntoIndex
+
+BytecodeOP_PlaySnd:
+	JMP	SndDrv_PlayMusicId
+	
+BytecodeOP_PlaySndCheckSample:
+	JMP	SndDrv_QueueSoundEffect
+	
+BytecodeOP_FadeMusic:
+	SUBQ.l	#2, rBytecode_PC
+	JMP	SndDrv_PlayFadeOut
+	
+BytecodeOP_StopAllSound:
+	SUBQ.l	#2, rBytecode_PC
+	JMP	SndDrv_PlayClearEffect
+	
+BytecodeOP_PlaySndCheckSample2:
+	JMP	SndDrv_PlayVoice
+
+	include "bytecode/table.asm"
+; ---------- File End: bytecode.asm ----------
 
 cutsceneLoadMusic:
 	CLR.w	D1
@@ -4181,9 +4471,20 @@ loc_0000473C:
 	MOVE.w	D0, $28(A0)
 	RTS
 
-; Large Dead Code
-mis_0000474A:
-	include "game/unused/unused2.asm"
+; Dead Code
+dead_0000474A:
+	clr.w d0
+	move.b $2B(a1), d0
+	subq.b #8, d0
+	lsr.b #2, d0
+	cmpi.b #8, d0
+	bcs.w dead_00004760
+	move.b #7, d0
+dead_00004760:
+	neg.w d0
+	addi.w #$11, d0
+	move.w d0, $28(a0)
+	rts
 	
 loc_0000476C:
 	MOVE.w	$20(A0), D2
@@ -10781,8 +11082,348 @@ loc_0000B0E2:
     dc.b    $42
     dc.b    $3A
     dc.b    $4A
+
+; ---------- File Start: game/main_menu.asm ----------
+; This contains almost all code relating to how the game's main menu works.
+MenuScreen_Init:
+	MOVE.b	#2, D0
+	MOVE.b	#0, D1
+	MOVE.b	#2, D2
+	LEA	palLookupTable, A2
+	ADDA.l	#(pal_general-palLookupTable), A2
+	JSR	loc_00000E28
+	LEA	MenuScreen_MainObjInit, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	@ObjectCreateSuccess
+	RTS
+@ObjectCreateSuccess:
+	MOVE.b	#$80, $6(A1)
+	MOVE.b	#6, $8(A1)
+	MOVE.b	#$0C, $9(A1)
+	MOVE.w	#$00D6, $A(A1)
+	MOVE.b	$00FF0105, $27(A1)
+	MOVE.l	#MenuScreen_MenuPuyoAnim, $32(A1)
+	BRA.w	MenuScreen_InitCloudScroll
 	
-	include "game/menu/menu.asm"
+MenuScreen_UpdateBGMapMenuSel:
+	MOVE.w	$26(A0), D0
+	ADDI.w	#$000C, D0
+	JMP	Video_QueueBgMapFromId
+	
+MenuScreen_MainObjInit:
+	MOVE.w	#$0100, D4
+	MOVE.w	#$D922, D5
+	MOVE.w	#$8500, D6
+	MOVE.w	#$0280, $28(A0)
+	BSR.b	MenuScreen_UpdateBGMapMenuSel
+	JSR	ObjSys_UpdateObjNextOpTimer
+	BSR.w	loc_0000B1CC
+	JSR	Anim_UpdateCutsceneSprite
+	BSR.w	loc_00004BF2
+	MOVE.b	D0, D1
+	ANDI.b	#$F0, D0
+	BNE.w	MenuScreen_PressedABCStart
+	BTST.l	#btn_Up, D1
+	BNE.w	@PressedUp
+	BTST.l	#btn_Down, D1
+	BNE.w	@PressedDown
+	RTS
+@PressedUp:
+	TST.w	$26(A0)
+	BEQ.w	@BoundsCheckAtEnd
+	SUBQ.w	#1, $26(A0)
+	BRA.w	@PlayChangeSelection
+@PressedDown:
+	CMPI.w	#3, $26(A0)
+	BCC.w	@BoundsCheckAtEnd
+	ADDQ.w	#1, $26(A0)
+@PlayChangeSelection:
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
+@BoundsCheckAtEnd:
+	BRA.b	MenuScreen_UpdateBGMapMenuSel
+	
+loc_0000B1CC:
+	MOVE.w	$26(A0), D0
+	MULU.w	#$0018, D0
+	ADDI.w	#$00D8, D0
+	MOVE.w	D0, $E(A0)
+	RTS
+	
+MenuScreen_PressedABCStart:
+	BSR.w	MenuScreen_Check2PController
+	BCC.w	@2PlayerNotDisabled
+	MOVE.b	#sfxID_MinorGarbagePuyoFall2, D0
+	JMP	SndDrv_QueueSoundEffect
+@2PlayerNotDisabled:
+	MOVE.b	$27(A0), $00FF0105
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	CLR.w	$28(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	#$0010, $28(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$28(A0), D0
+	ROR.b	#2, D0
+	ANDI.b	#$80, D0
+	MOVE.b	D0, $6(A0)
+	SUBQ.w	#1, $28(A0)
+	BEQ.w	@DelayTimerDone
+	RTS
+@DelayTimerDone:
+	MOVE.w	$26(A0), D0
+	MOVE.b	@BcReturnTbl(PC,D0.w), D1
+	MOVE.b	D1, $00FF1882
+	MOVE.b	D1, rBytecode_Ret
+	BEQ.w	MenuScreen_InitDifficultySel
+	CMPI.b	#3, D1
+	BEQ.w	@IsOptions
+	CLR.b	$00FF1884
+@IsOptions:
+	CLR.b	rBytecode_StopRun
+	JMP	loc_00002AF2
+@BcReturnTbl:
+	dc.b 	$00, $01, $02, $03, $04
+	even
+MenuScreen_MenuPuyoAnim:
+	dc.b	$08
+	dc.b	$0C 
+	dc.b	$08
+	dc.b	$0D 
+	dc.b	$FF
+	dc.b	$00 
+	dc.l	MenuScreen_MenuPuyoAnim
+	
+MenuScreen_Check2PController:
+	CMPI.w	#1, $26(A0)
+	BNE.w	@CheckPass
+	BSR.w	@CheckControllers
+	TST.b	D0
+	BEQ.w	@CheckPass
+	ORI	#1, SR
+	RTS
+@CheckPass:
+	ANDI	#$FFFE, SR
+	RTS
+	
+@CheckControllers:
+	ORI	#$0700, SR
+	MOVE.w	#$0100, Z80BusReq
+@WaitForZ80Halt:
+	BTST.b	#0, Z80BusReq
+	BNE.b	@WaitForZ80Halt
+	BSR.w	@StartControllerCheck
+	MOVE.w	#0, Z80BusReq
+	ANDI	#$F8FF, SR
+	RTS
+	
+@StartControllerCheck:
+	LEA	padData1, A1
+	BSR.w	@CheckController
+	LEA	padData2, A1
+	MOVEM.l	D0, -(A7)
+	BSR.w	@CheckController
+	MOVEM.l	(A7)+, D1
+	OR.b	D1, D0
+	RTS
+@CheckController:
+	MOVE.b	#0, (A1)
+	NOP
+	NOP
+	MOVE.b	(A1), D0
+	ANDI.b	#$0F, D0
+	MOVE.b	#$40, (A1)
+	NOP
+	NOP
+	MOVE.b	(A1), D1
+	LSL.b	#4, D1
+	ANDI.b	#$F0, D1
+	OR.b	D1, D0
+	; D0 now contains RLDU00DU
+	MOVEQ	#0, D1
+	MOVE.w	#3, D2
+@CheckLoop:
+	LSL.b	#1, D1
+	MOVEM.l	D0, -(A7)
+	ANDI.b	#$C0, D0
+	BEQ.w	@BothBitsZero
+	ORI.b	#1, D1
+@BothBitsZero:
+	MOVEM.l	(A7)+, D0
+	LSL.b	#2, D0
+	DBF	D2, @CheckLoop
+	MOVE.b	#0, D0
+	; By the time we get here, D1 should contain 0D if the controller is plugged in.
+	CMPI.b	#$0D, D1
+	BEQ.w	@ControllerPluggedIn
+	; Controller not plugged in.
+	MOVE.b	#$FF, D0
+@ControllerPluggedIn:
+	RTS
+	
+MenuScreen_InitCloudScroll:
+	LEA	@CloudScrollUpdate, A1
+	JMP	ObjSys_InitObjWithFunc
+@CloudScrollUpdate:
+	ADDQ.w	#1, $26(A0)
+	MOVE.w	$26(A0), D1
+	MOVE.w	#$006F, D0
+	LEA	rScrollXScanBack, A1
+@Loop:
+	MOVE.w	D1, (A1)+
+	ADDQ.w	#2, A1
+	DBF	D0, @Loop
+	RTS
+	
+MenuScreen_InitDifficultySel:
+	MOVE.w	#$9501, D0
+	SWAP	D0
+	JSR	Video_QueueBgMapSpecial
+	MOVE.w	#$0028, $26(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	#$00B7, D0
+	LEA	$00FF0662, A1
+@UpdateScroll:
+	SUBQ.w	#8, (A1)+
+	ADDQ.w	#2, A1
+	DBF	D0, @UpdateScroll
+	SUBQ.w	#1, $26(A0)
+	BEQ.w	@ScrollDone
+	RTS
+	
+@ScrollDone:
+	MOVE.w	#$0100, D4
+	MOVE.w	#$D922, D5
+	MOVE.w	#$8500, D6
+	MOVE.w	#$0280, $28(A0)
+	BSR.w	Menu_LoadEasyMessage
+	MOVE.b	#1, $27(A0)
+	CLR.b	$2A(A0)
+loc_0000B3A8:
+	JSR	ObjSys_UpdateObjNextOpTimer
+	BSR.w	loc_0000B460
+	ADDQ.b	#1, $2A(A0)
+	BSR.w	loc_00004BF2
+	ANDI.b	#$F0, D0
+	BNE.w	@ABCStartPressed
+	BSR.w	loc_00004BF2
+	BTST.l	#btn_Left, D0
+	BNE.w	@LeftPressed
+	BTST.l	#btn_Right, D0
+	BNE.w	@RightPressed
+	RTS
+@LeftPressed:
+	TST.w	$26(A0)
+	BEQ.w	@BoundsCheckAtEdge
+	SUBQ.w	#1, $26(A0)	
+	BRA.w	@Part2
+@RightPressed:
+	CMPI.w	#2, $26(A0)
+	BCC.w	@BoundsCheckAtEdge
+	ADDQ.w	#1, $26(A0)
+@Part2:
+	MOVE.b	#sfxID_ChangeSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	CLR.b	$2A(A0)
+	BRA.b	loc_0000B3A8
+@BoundsCheckAtEdge:
+	RTS
+	
+@ABCStartPressed:
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	CLR.w	$28(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	#$0010, $28(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$26(A0), D1 ; Reads the value of the selection for 1 Player
+	MOVE.w	$28(A0), D0
+	ANDI.b	#1, D0
+	BEQ.w	@loc_0000B438
+	MOVE.w	#3, D1
+@loc_0000B438:
+	BSR.w	loc_0000B4A0
+	SUBQ.w	#1, $28(A0)
+	BEQ.w	@TimerDone
+	RTS
+@TimerDone:
+	MOVE.b	$27(A0), $00FF0114
+	BSR.w	Menu_LoadDefeatedEnemies
+	CLR.b	rBytecode_StopRun
+	JSR	ObjSys_UpdateObjNextOpTimer
+	RTS
+
+loc_0000B460:
+	MOVE.b	$2A(A0), D0
+	ANDI.b	#$0F, D0
+	BEQ.w	loc_0000B46E
+	RTS
+loc_0000B46E:
+	MOVE.w	#3, D1
+	BTST.b	#4, $2A(A0)
+	MOVE.w	$26(A0), D0
+	CLR.w	D1
+	LEA	Menu_StageSelectTbl, A1
+	MOVE.b	(A1,D0.w), D1
+	MOVE.b	D1, rOnePlayer_CurStage
+	LEA	tbl_cutsceneOrder, A1
+	MOVE.b	(A1,D1.w), rOnePlayer_CurCutscene
+	MOVE.w	$26(A0), D1
+loc_0000B4A0:
+	MOVE.w	#$9500, D0
+	MOVE.b	loc_0000B4B0(PC,D1.w), D0
+	SWAP	D0
+	JMP	Video_QueueBgMapSpecial
+loc_0000B4B0:
+	dc.b	$02
+	dc.b	$01
+	dc.b	$00
+	dc.b	$03
+	
+Menu_LoadDefeatedEnemies:
+	MOVE.w	$26(A0), D0
+	LSL.w	#4, D0
+	LEA	@DefeatedEnemyPresetTbl, A1
+	ADDA.w	D0, A1
+	LEA	rOnePlayer_DefeatedEnemyTbl, A2
+	MOVE.w	#$000F, D0
+@Loop:
+	MOVE.b	(A1)+, (A2)+
+	DBF	D0, @Loop
+	RTS
+@DefeatedEnemyPresetTbl:
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00 
+	dc.b	$FF, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00 
+	dc.b	$FF, $FF, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00 
+	
+Menu_LoadEasyMessage:
+	LEA	@EasyMessageUpdate, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCS.w	@ObjectLoadFailed
+	MOVE.l	A0, $2E(A1)
+	MOVE.b	#6, $8(A1)
+	MOVE.b	#4, $9(A1)
+	MOVE.w	#$00A0, $A(A1)
+@ObjectLoadFailed:
+	RTS
+@EasyMessageUpdate:
+	MOVEA.l	$2E(A0), A1
+	TST.w	$26(A1)
+	BEQ.w	@MenuHoverEasy
+	MOVE.b	#0, $6(A0)
+	RTS
+@MenuHoverEasy:
+	MOVE.b	#$80, $6(A0)
+	MOVE.b	$36(A0), D0
+	ORI.b	#$80, D0
+	MOVE.w	#$0400, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	ADDI.w	#$0118, D2
+	MOVE.w	D2, $E(A0)
+	ADDQ.b	#6, $36(A0)
+	RTS
+; ---------- File End: game/main_menu.asm ----------
 	
 loc_0000B568:
 	LEA	loc_0000B5CC, A1
@@ -11565,6 +12206,9 @@ loc_0000BFC4:
 loc_0000BFD4:
 	bsr.w    loc_0000D1F0
 	jmp loc_00002AF2
+	
+; ---------- File Start: game/normal_ending.asm? ----------
+; Note: I haven't looked at this part of the code yet beyond identifying what it goes to.
 loc_0000BFDE:
 	bsr.w    loc_0000D1F0
 	lea    (loc_0000BFEE).l, a1
@@ -11604,6 +12248,10 @@ loc_0000C00E:
 	clr.b (rBytecode_StopRun).l
 	clr.b ($00FF0A3A).l
 	jmp loc_00002AF2
+; ---------- File End: game/normal_ending.asm? ----------
+
+; ---------- File Start: game/portrait_screen.asm ----------
+; Note: I haven't looked at this part of the code yet beyond identifying what it goes to.
 loc_0000C08C:
 	ORI	#$0700, SR
 	MOVE.w	#$000D, D0
@@ -11964,8 +12612,237 @@ loc_0000C640:
 	dc.b	$00, $04, $0D, $FF 
 loc_0000C644:
 	dc.b	$03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $FF 
+; ---------- File End: game/portrait_screen.asm ----------
 
-	include "game/game_over/game_over.asm"
+; ---------- File Start: game/game_over.asm ----------
+; This contains almost all code that controls how the game over menu works.
+; General note: When we exit the game over menu, the value of 
+; rBytecode_Ret will determine what happens.
+;   * 00 = Player will continue
+;   * FF = Player gave up
+
+GameOver_InitVDP:
+	ORI	#$0700, SR
+	MOVE.w	#$CC08, D5
+	BSR.w	@LoadScrollText
+	MOVE.w	#$CC48, D5
+	BSR.w	@LoadScrollText
+	MOVE.w	#$E000, D5
+	MOVE.w	#7, D0
+	MOVE.w	#$41F0, D1
+@LoadSkyGradientLoop:
+	JSR	loadBGSetupVDP
+	ADDI.w	#$0080, D5
+	MOVE.w	#$0027, D2
+@WriteXLoop:
+	MOVE.w	D1, vdpData1
+	DBF	D2, @WriteXLoop
+	ADDQ.w	#1, D1
+	DBF	D0, @LoadSkyGradientLoop
+	ANDI	#$F8FF, SR
+	RTS
+	
+@LoadScrollText:
+	JSR	loadBGSetupVDP
+	ADDI.w	#$0080, D5
+	MOVE.w	#$0017, D0
+	MOVE.w	#$2160, D1
+@WriteDataLoop:
+	MOVE.w	D1, vdpData1
+	ADDQ.w	#1, D1
+	DBF	D0, @WriteDataLoop
+	JSR	loadBGSetupVDP
+	MOVE.w	#$0017, D0
+@WriteDataLoop2:
+	MOVE.w	D1, vdpData1
+	ADDQ.w	#1, D1
+	DBF	D0, @WriteDataLoop2
+	RTS
+
+GameOver_Init:
+	BSR.w	@InitGameOverText
+	LEA	@MainObject, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	@AllocSuccess
+	RTS
+@AllocSuccess:
+	MOVE.w	#1, $12(A1)
+	MOVE.w	#11, $28(A1)
+	MOVE.b	#$FF, rBytecode_Ret
+	BSR.w	loc_0000D1DA
+	RTS
+
+@MainObject:
+	BSR.w	loc_00004BF2
+	BTST.l	#7, D0
+	BEQ.w	@ContinueRunning
+	JSR	arcade_checkCoins
+	BCS.w	@ContinueRunning
+	BRA.w	@ExitContinue
+@ContinueRunning:
+	ANDI.b	#$70, D0
+	BNE.w	@ABCPressed
+	TST.w	$26(A0)
+	BNE.w	@FrameTimerNonZero
+@ABCPressed:
+	SUBQ.w	#1, $28(A0)
+	BCS.w	@ExitGiveUp
+	MOVE.w	#$9200, D0
+	MOVE.b	$29(A0), D0
+	SWAP	D0
+	JSR	Video_QueueBgMapSpecial
+	MOVE.w	#$0050, $26(A0)
+	MOVE.b	#sfxID_ChangeSelection, D0
+	JSR	SndDrv_QueueSoundEffect
+@FrameTimerNonZero:
+	SUBQ.w	#1, $26(A0)
+	BSR.w	@UpdateTextScroll
+	MOVE.b	$27(A0), D0
+	ANDI.b	#3, D0
+	BEQ.w	@UpdateFlashingPalette
+	RTS
+	
+@ExitContinue:
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	CLR.b	rBytecode_Ret
+@ExitGiveUp:
+	CLR.b	rBytecode_StopRun
+	JSR	ObjSys_UpdateObjNextOpTimer
+	RTS
+
+@UpdateTextScroll:
+	; Start at Scanline 192
+	LEA	(rScrollXScanFront+192*2*2), A1
+	SUBQ.w	#2, (A1)
+	MOVE.w	(A1), D0
+	MOVE.w	#$000F, D1
+@LoopUpdateScroll:
+	MOVE.w	D0, (A1)+
+	MOVE.w	#0, (A1)+
+	DBF	D1, @LoopUpdateScroll
+	RTS
+
+@UpdateFlashingPalette:
+	MOVE.w	$A(A0), D0
+	ADD.w	$12(A0), D0
+	CMPI.w	#6, D0
+	BCS.w	@UnkBranch
+	NEG.w	$12(A0)
+	MOVE.w	$A(A0), D0
+@UnkBranch:
+	MOVE.w	D0, $A(A0)
+	ADDQ.w	#2, D0
+	LSL.w	#1, D0
+	MOVE.w	D0, D1
+	LSL.w	#4, D0
+	OR.w	D1, D0
+	MOVE.w	D0, $00FF0A94
+	MOVE.b	#1, D0
+	LEA	$00FF0A76, A2
+	JMP	Video_LoadPaletteIntoIndex
+
+@InitGameOverText:
+	MOVE.w	#7, D0
+@LoadLettersLoop:
+	LEA	@LetterMain, A1
+	JSR	loc_00002AB0	; Same as InitObjWithFunc, but doesn't check $1(A0)?
+	BCS.w	@AllocFail
+	MOVE.b	#$83, $6(A1)
+	MOVE.b	#$1F, $8(A1)
+	MOVE.b	D0, $9(A1)
+	MOVE.w	D0, D1
+	LSL.w	#1, D1
+	MOVE.w	@FinalXPositions(PC,D1.w), $1E(A1)
+	LSL.b	#4, D1
+	MOVE.b	D1, $36(A1)
+	MOVE.w	#$00A0, $38(A1)
+@AllocFail:
+	DBF	D0, @LoadLettersLoop
+	RTS
+@FinalXPositions:
+	dc.w	$00C8, $00E0, $00F8, $0110, $0130, $0148, $0160, $0178 
+
+@LetterMain:
+	MOVE.b	$36(A0), D0
+	MOVE.w	$38(A0), D1
+	JSR	SignedSinWithMul
+	ASR.l	#8, D2
+	ADDI.w	#$0120, D2
+	MOVE.w	D2, $A(A0)
+	ADDI.b	#$10, D0
+	JSR	SignedCosWithMul
+	ASR.l	#8, D2
+	ADDI.w	#$00F0, D2
+	MOVE.w	D2, $E(A0)
+	ADDQ.b	#2, $36(A0)
+	SUBQ.w	#1, $38(A0)
+	BCS.w	@AnimPart2
+	RTS
+@AnimPart2:
+	CLR.w	D0
+	MOVE.b	$9(A0), D0
+	LSL.w	#3, D0
+	MOVE.w	D0, $26(A0)
+	CLR.b	$36(A0)
+	MOVE.w	$1E(A0), D0
+	SUBI.w	#$0120, D0
+	SWAP	D0
+	ASR.l	#7, D0
+	MOVE.l	D0, $12(A0)
+	MOVE.l	#$FFFF9000, $16(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	TST.w	$26(A0)
+	BEQ.w	@AnimPart3
+	SUBQ.w	#1, $26(A0)
+	RTS
+@AnimPart3:
+	MOVE.w	#$0080, $26(A0)
+	MOVE.l	$E(A0), $32(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.l	$32(A0), $E(A0)
+	JSR	SprSys_UpdatePosInterpolate
+	MOVE.l	$E(A0), $32(A0)
+	SUBQ.w	#1, $26(A0)
+	BEQ.w	@AnimPart4
+	MOVE.b	$27(A0), D0
+	ORI.b	#$80, D0
+	MOVE.w	#$7800, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	ADD.w	D2, $E(A0)
+	RTS
+@AnimPart4:
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	arcade_checkCoins ; This call does nothing
+	MOVE.b	$36(A0), D0
+	ORI.b	#$80, D0
+	MOVE.w	#$1800, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	ADDI.w	#$00B8, D2
+	MOVE.w	D2, $E(A0)
+	ADDQ.b	#2, $36(A0)
+	RTS
+
+; Dead Code.
+; In the arcade version of the game, once the game over text is about to land,
+; the text disappears and text stating "PUSH 1P START BUTTON" appears.
+; This doesn't happen in the Megadrive release, but the code for it, seen below
+; still exists.  Remove the RTS in the above code to restore this behavior.
+	TST.b	$9(A0)
+	BEQ.w	@AnimPart5
+	JMP	loc_00002AF2
+@AnimPart5:
+	MOVE.b	#0, $6(A0)	
+	JSR	ObjSys_UpdateObjNextOpTimer	
+	MOVE.l	#$800B0F00, D0	
+	TST.b	$00FF1884	
+	BEQ.w	@UnkBranch2	
+	MOVE.l	#$80100F00, D0	
+@UnkBranch2:
+	JMP	Video_QueueBgMapSpecial	
+; ---------- File End: game/game_over.asm ----------
 
 loc_0000C946:
 	LEA	Sega_Update, A1
@@ -12000,7 +12877,7 @@ Sega_Update:
 	CLR.b	rBytecode_Ret
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
-	
+
 loc_0000C9BA:
 	LEA	loc_0000C9F0, A1
 	JSR	loc_00002AB0
@@ -12030,7 +12907,606 @@ loc_0000CA12:
 loc_0000CA14:
 	dc.w	$0100, $008E, $00E0, $008E, $00E0 
 
-	include "game/title_screen/title_screen.asm"
+
+; ---------- File Start: game/title_screen.asm ----------
+; This section of code contains almost all code related to the title screen.
+TitleScreen_CreateArleObj:
+	LEA	TitleScreen_ArleObjUpdate1, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCS.w	@ObjDidntLoad
+	MOVEA.l	A1, A2
+	MOVE.b	#$80, $6(A1)
+	MOVE.b	#$24, $8(A1)
+	MOVE.b	#6, $9(A1)
+	MOVE.w	#$0160, $A(A1)
+	MOVE.l	#loc_0000CB4C, $32(A1)
+	
+	LEA	loc_0000CDB2, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCS.w	@ObjDidntLoad
+	MOVE.l	A2, $2E(A1)
+	MOVE.b	#$24, $8(A1)
+	
+	LEA	loc_0000CDEE, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCS.w	@ObjDidntLoad
+	MOVE.l	A2, $2E(A1)
+	MOVE.b	#$24, $8(A1)
+@ObjDidntLoad:
+	RTS
+
+TitleScreen_ArleObjUpdate1:
+	MOVE.w	$00FF05D2, D0
+	ADDI.w	#$0160, D0
+	MOVE.w	D0, $E(A0)
+	JSR	Anim_UpdateCutsceneSprite
+	TST.b	$9(A0)
+	BMI.w	loc_0000CAA4
+	RTS
+loc_0000CAA4:
+	CLR.w	D0
+	MOVE.b	$9(A0), D0
+	LSR.b	#2, D0
+	ANDI.b	#$0F, $9(A0)
+	ANDI.b	#$1C, D0
+	MOVEA.l	loc_0000CABC(PC,D0.w), A1
+	JMP	(A1)
+loc_0000CABC:
+	dc.l	TitleScreen_ArleObj_PlayFire
+	dc.l	loc_0000CAD0
+	dc.l	TitleScreen_ArleObj_PlayBounce
+	dc.l	loc_0000CD24
+	dc.l	loc_0000CB80
+loc_0000CAD0:
+	MOVE.b	#0, $6(A0)
+	BSR.w	loc_0000CB8E
+	BSR.w	loc_0000CCAE
+	MOVE.w	#$0140, D0
+	JSR	loc_00002B1C
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.b	#$80, $6(A0)
+	MOVE.b	#$0D, $9(A0)
+	MOVE.b	#0, $36(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.b	$36(A0), D0
+	MOVE.w	#$4800, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	NEG.w	D2
+	ADD.w	$00FF05D2, D2
+	ADDI.w	#$01A8, D2
+	MOVE.w	D2, $E(A0)
+	ADDQ.b	#2, $36(A0)
+	CMPI.b	#$40, $36(A0)
+	BCC.w	loc_0000CB36
+	RTS
+loc_0000CB36:
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$00FF05D2, D0
+	ADDI.w	#$0160, D0
+	MOVE.w	D0, $E(A0)
+	RTS
+loc_0000CB4C:
+	dc.b	$40
+	dc.b	$06 
+	dc.b	$F0
+	dc.b	$06 
+	dc.b	$01
+	dc.b	$0B 
+	dc.b	$03
+	dc.b	$0C 
+	dc.b	$02
+	dc.b	$0B 
+	dc.b	$F0
+	dc.b	$06 
+	dc.b	$01
+	dc.b	$0B 
+	dc.b	$03
+	dc.b	$0C 
+	dc.b	$02
+	dc.b	$0B 
+	dc.b	$20
+	dc.b	$06 
+	dc.b	$02
+	dc.b	$89 
+	dc.b	$03
+	dc.b	$0A 
+	dc.b	$02
+	dc.b	$09 
+	dc.b	$18
+	dc.b	$06 
+	dc.b	$02
+	dc.b	$09 
+	dc.b	$10
+	dc.b	$0A 
+	dc.b	$04
+	dc.b	$08 
+	dc.b	$60
+	dc.b	$07 
+	dc.b	$40
+	dc.b	$B7 
+	dc.b	$01
+	dc.b	$AE 
+	dc.b	$01
+	dc.b	$CE 
+	dc.b	$01
+	dc.b	$CE 
+	dc.b	$01
+	dc.b	$CE 
+	dc.b	$01
+	dc.b	$CE 
+	dc.b	$01
+	dc.b	$CE 
+	dc.b	$00
+	dc.b	$90 
+	
+loc_0000CB80:
+	ADDQ.w	#2, $26(A0)
+	MOVE.w	$26(A0), D0
+	ADDQ.w	#2, $E(A0)
+	RTS
+loc_0000CB8E:
+	MOVE.w	#7, D0
+loc_0000CB92:
+	LEA	loc_0000CBD8, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCS.w	loc_0000CBD2
+	MOVE.l	A0, $2E(A1)
+	MOVE.b	#$24, $8(A1)
+	MOVE.b	#$15, $9(A1)
+	MOVE.b	#$80, $6(A1)
+	MOVE.w	$A(A0), $1E(A1)
+	SUBI.w	#$0038, $1E(A1)
+	MOVE.b	D0, D1
+	ROR.b	#3, D1
+	MOVE.b	D1, $36(A1)
+	MOVE.w	#$0080, $26(A1)
+loc_0000CBD2:
+	DBF	D0, loc_0000CB92
+	RTS
+loc_0000CBD8:
+	MOVE.b	$36(A0), D0
+	MOVE.w	#$4000, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	ADD.w	$1E(A0), D2
+	MOVE.w	D2, $A(A0)
+	MOVE.w	#$1000, D1
+	JSR	SignedCosWithMul
+	SWAP	D2
+	ADDI.w	#$0130, D2
+	MOVE.w	$26(A0), D1
+	SUBI.w	#$0040, D1
+	BCC.w	loc_0000CC0E
+	CLR.w	D1
+loc_0000CC0E:
+	ADD.w	D1, D2
+	MOVE.w	D2, $20(A0)
+	ADD.w	$00FF05D2, D2
+	MOVE.w	D2, $E(A0)
+	SUBQ.b	#3, $36(A0)
+	SUBQ.w	#1, $26(A0)
+	BEQ.w	loc_0000CC2C
+	RTS
+loc_0000CC2C:
+	MOVE.w	#$0010, $26(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$20(A0), D0
+	ADD.w	$00FF05D2, D0
+	MOVE.w	D0, $E(A0)
+	SUBQ.w	#1, $26(A0)
+	BEQ.w	loc_0000CC50
+	RTS
+loc_0000CC50:
+	MOVE.b	#$87, $6(A0)
+	MOVE.w	$20(A0), $1E(A0)
+	MOVE.w	#$3000, $1C(A0)
+	MOVE.w	#$FFFC, $16(A0)
+	MOVE.w	#$FFFF, $20(A0)
+	MOVE.b	$36(A0), D0
+	MOVE.w	#$0100, D1
+	JSR	SignedSinWithMul
+	MOVE.l	D2, $12(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$1E(A0), $E(A0)
+	JSR	SprSys_UpdatePosInterpolate
+	BCS.w	loc_0000CCA8
+	MOVE.w	$E(A0), $1E(A0)
+	MOVE.w	$00FF05D2, D0
+	ADD.w	D0, $E(A0)
+	RTS
+loc_0000CCA8:
+	JMP	loc_00002AF2
+loc_0000CCAE:
+	LEA	loc_0000CCFC, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	loc_0000CCC0
+	RTS
+loc_0000CCC0:
+	MOVE.b	#$87, $6(A1)
+	MOVE.b	#$24, $8(A1)
+	MOVE.b	#$0F, $9(A1)
+	MOVE.w	$A(A0), $A(A1)
+	ADDI.w	#$FFC8, $A(A1)
+	MOVE.w	#$0120, $1E(A1)
+	MOVE.w	#$FFFA, $16(A1)
+	MOVE.w	#$FFFF, $20(A1)
+	MOVE.w	#$3200, $1C(A1)
+	MOVE.w	#$FFFE, $12(A1)
+loc_0000CCFC:
+	MOVE.w	$1E(A0), $E(A0)
+	JSR	SprSys_UpdatePosInterpolate
+	BCS.w	loc_0000CD1E
+	MOVE.w	$E(A0), $1E(A0)
+	MOVE.w	$00FF05D2, D0
+	ADD.w	D0, $E(A0)
+	RTS
+loc_0000CD1E:
+	JMP	loc_00002AF2
+	
+loc_0000CD24:
+	LEA	loc_0000CD54, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	loc_0000CD36
+	RTS
+loc_0000CD36:
+	MOVE.l	A0, $2E(A1)
+	MOVE.b	#$80, $6(A1)
+	MOVE.b	#$24, $8(A1)
+	MOVE.b	#$0F, $9(A1)
+	MOVE.b	#$3E, $36(A1)
+	RTS
+	
+loc_0000CD54:
+	MOVEA.l	$2E(A0), A1
+	MOVE.b	$36(A0), D0
+	MOVE.w	#$A000, D1
+	JSR	SignedSinWithMul
+	SWAP	D2
+	NEG.w	D2
+	ADD.w	$E(A1), D2
+	ADDI.w	#$FFB0, D2
+	MOVE.w	D2, $E(A0)
+	MOVE.w	$A(A1), D0
+	CLR.w	D1
+	MOVE.b	$36(A0), D1
+	MULU.w	#3, D1
+	ADD.w	D1, D0
+	ADDI.w	#$FFDC, D0
+	MOVE.w	D0, $A(A0)
+	SUBQ.b	#1, $36(A0)
+	BCS.w	loc_0000CD98
+	RTS
+loc_0000CD98:
+	JMP	loc_00002AF2
+	
+TitleScreen_ArleObj_PlayFire:
+	MOVE.b	#pcmID_Fire, D0
+	JMP	SndDrv_PlayVoice
+	
+TitleScreen_ArleObj_PlayBounce:
+	MOVE.b	#sfxID_PuyoBounceOnArle, D0
+	JMP	SndDrv_QueueSoundEffect
+	
+loc_0000CDB2:
+	MOVE.b	#0, $6(A0)
+	MOVEA.l	$2E(A0), A1
+	CMPI.b	#$0B, $9(A1)
+	BCS.w	loc_0000CDEC
+	CMPI.b	#$0D, $9(A1)
+	BCC.w	loc_0000CDEC
+	MOVE.w	$A(A1), $A(A0)
+	MOVE.w	$E(A1), $E(A0)
+	MOVE.b	$9(A1), $9(A0)
+	ADDQ.b	#7, $9(A0)
+	MOVE.b	#$80, $6(A0)
+loc_0000CDEC:
+	RTS
+
+loc_0000CDEE:
+	MOVE.b	#0, $6(A0)
+	MOVEA.l	$2E(A0), A1
+	CMPI.b	#9, $9(A1)
+	BCS.w	loc_0000CE28
+	CMPI.b	#$0B, $9(A1)
+	BCC.w	loc_0000CE28
+	MOVE.w	$A(A1), $A(A0)
+	MOVE.w	$E(A1), $E(A0)
+	MOVE.b	$9(A1), $9(A0)
+	ADDQ.b	#7, $9(A0)
+	MOVE.b	#$80, $6(A0)
+loc_0000CE28:
+	RTS
+	
+TitleScreen_CopyrightObjInit:
+	MOVE.b	#$80, $6(A0)
+	MOVE.b	#$24, $8(A0)
+	MOVE.b	#5, $9(A0)
+	MOVE.w	#$0120, $A(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	MOVE.w	$00FF05D2, D0
+	ADDI.w	#$014C, D0
+	MOVE.w	D0, $E(A0)
+	RTS
+	
+	
+TitleScreen_Init:
+	BSR.w	TitleScreen_CreateTitlePuyos
+	BSR.w	TitleScreen_InitValues
+	BSR.w	TitleScreen_CreateTitleObj
+	
+	LEA	TitleScreen_CopyrightObjInit, A1
+	JSR	ObjSys_InitObjWithFunc
+	BSR.w	TitleScreen_CreateArleObj
+	
+	LEA	TitleScreen_MainObjInit, A1
+	JSR	ObjSys_InitObjWithFunc
+
+	BCS.w	@TitleScreenDidntLoad
+	MOVE.b	#$24, $8(A1)
+	MOVE.w	#$0120, $A(A1)
+	MOVE.b	#7, $29(A1)
+	MOVE.b	#$1F, $28(A1)
+@TitleScreenDidntLoad:
+	RTS
+	
+loc_0000CE9E:
+	MOVEM.l	D0, -(A7)
+	CLR.w	D0
+	MOVE.b	rOption_ComputerLevel, D0
+	MOVE.b	@loc_0000CEB8(PC,D0.w), $00FF0104
+	MOVEM.l	(A7)+, D0
+	RTS
+@loc_0000CEB8:
+	dc.b	$00, $02, $04, $06 
+
+TitleScreen_InitValues:
+	BSR.b	loc_0000CE9E
+	CLR.l	$00FF187A
+	CLR.l	$00FF187E
+	CLR.w	$00FF010E
+	CLR.w	$00FF0110
+	CLR.w	$00FF0144
+	CLR.w	rOnePlayer_CurStage
+	CLR.b	$00FF0115
+	CLR.b	$00FF0105
+	CLR.b	$00FF1884
+	MOVE.w	#$0011, D0
+	LEA	rOnePlayer_DefeatedEnemyTbl, A1
+@Loop:
+	CLR.b	(A1)+
+	DBF	D0, @Loop
+	RTS
+	
+TitleScreen_ScrollBG:
+	MOVE.w	$00FF05D4, D0
+	ANDI.b	#7, D0
+	BNE.w	loc_0000CF40
+	MOVE.w	#$9600, D0
+	SWAP	D0
+	MOVE.w	$28(A0), D0
+	JSR	Video_QueueBgMapSpecial
+	BSR.w	loc_0000CF48
+	SUBQ.b	#1, $29(A0)
+	BCC.w	loc_0000CF36
+	MOVE.b	#$0B, $29(A0)
+loc_0000CF36:
+	SUBQ.b	#1, $28(A0)
+	ANDI.b	#$1F, $28(A0)
+loc_0000CF40:
+	SUBQ.w	#1, $00FF05D4
+	RTS
+loc_0000CF48:
+	CMPI.b	#8, $29(A0)
+	BNE.w	loc_0000CF98
+	JSR	updateRNG
+	ANDI.w	#$000F, D0
+	CMPI.w	#7, D0
+	BCC.w	loc_0000CF98
+	LEA	loc_0000CF9A, A1
+	JSR	loc_00002AB0
+	BCS.w	loc_0000CF98
+	MULU.w	#$000C, D0
+	MOVE.w	$28(A0), D1
+	ANDI.w	#$FF00, D1
+	ADDI.w	#$E002, D1
+	ADD.w	D1, D0
+	MOVE.w	D0, $26(A1)
+	MOVE.w	#$00E0, $28(A1)
+	MOVE.l	#loc_0000CFD2, $32(A1)
+loc_0000CF98:
+	RTS
+	
+loc_0000CF9A:
+	JSR	Anim_UpdateCutsceneSprite
+	CLR.w	D0
+	MOVE.b	$9(A0), D0
+	CMP.b	$8(A0), D0
+	BEQ.w	loc_0000CFC2
+	MOVE.b	D0, $8(A0)
+	ORI.w	#$9C00, D0
+	SWAP	D0
+	MOVE.w	$26(A0), D0
+	JSR	Video_QueueBgMapSpecial
+loc_0000CFC2:
+	SUBQ.w	#1, $28(A0)
+	BEQ.w	loc_0000CFCC
+	RTS
+loc_0000CFCC:
+	JMP	loc_00002AF2
+loc_0000CFD2:
+	dc.b	$08, $02 
+	dc.b	$0A
+	dc.b	$01 
+	dc.b	$08
+	dc.b	$02 
+	dc.b	$0A
+	dc.b	$03 
+	dc.b	$FF
+	dc.b	$00 
+	dc.l	loc_0000CFD2
+	
+	
+TitleScreen_MainObjInit:
+	BSR.w	TitleScreen_UpdateSndTstCode
+	BSR.w	TitleScreen_ScrollBG
+	
+	MOVE.w	$00FF05D2, D0
+	ADDI.w	#$00F0, D0
+	MOVE.w	D0, $E(A0)
+	
+	MOVE.b	ram_pad1Press, D0
+	OR.b	$00FF1111, D0
+	BTST.l	#7, D0
+	BEQ.w	@StartNotPressed
+	; Start was pressed, check if there are coins inserted
+	JSR	arcade_checkCoins
+	BCC.w	TitleScreen_MainObjEnd
+@StartNotPressed:
+	BRA.w	@UselessBranch
+
+@UselessBranch:
+	MOVE.b	#4, D0
+	JSR	arcade_checkCoins
+	BCC.w	@CoinsAreInserted
+	MOVE.b	#3, D0
+@CoinsAreInserted:
+	; Display the "Press Start" text, only if coins are inserted.
+	MOVE.b	D0, $9(A0)
+	MOVE.w	$00FF05C6, D0
+	LSL.b	#3, D0
+	ANDI.b	#$80, D0
+	MOVE.b	D0, $6(A0)
+	RTS
+	
+TitleScreen_UpdateSndTstCode:
+	MOVE.b	ram_pad1Press, D0
+	OR.b	$00FF1111, D0
+	ANDI.b	#$74, D0
+	BNE.w	@PressABCLeft
+	RTS
+@PressABCLeft:
+	MOVE.w	$2A(A0), D1
+	MOVE.b	Title_SndTstCode(PC,D1.w), D2
+	CMP.b	D2, D0
+	BEQ.w	@IsCurButton
+	CLR.w	$2A(A0)
+	RTS
+@IsCurButton:
+	ADDQ.w	#1, D1
+	MOVE.b	Title_SndTstCode(PC,D1.w), D0
+	BMI.w	@EndOfCode
+	MOVE.w	D1, $2A(A0)
+	RTS
+@EndOfCode:
+	CLR.w	$2A(A0)
+	MOVE.b	#sfxID_UnlockSndTst, D0
+	JSR	SndDrv_QueueSoundEffect
+	MOVE.w	rOption_SoundTestEnabled, D0
+	NOT.w	D0
+	MOVE.w	D0, rOption_SoundTestEnabled
+	JMP	loc_0001DC02
+Title_SndTstCode:
+	dc.b	btnb_A, btnb_A, btnb_Left, btnb_B, btnb_B, btnb_Left, btnb_C, btnb_C, $FF
+	even
+
+TitleScreen_MainObjEnd:
+	MOVE.b	#1, $00FF1884
+	MOVE.b	#1, $00FF1888
+	MOVE.b	$00FF1111, D0
+	BTST.l	#7, D0
+	BNE.w	@StartPressed
+	EORI.b	#1, $00FF1884
+	EORI.b	#1, $00FF1888
+@StartPressed:
+	MOVE.b	#sfxID_ConfirmSelection, D0
+	JSR	SndDrv_QueueSoundEffect
+	CLR.b	rBytecode_StopRun
+	CLR.b	rBytecode_Ret
+	JMP	loc_00002AF2
+	
+TitleScreen_CreateTitlePuyos:
+	LEA	TitleScreen_PuyoInit, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	@Success
+	RTS
+@Success:
+	MOVE.b	#$80, $6(A1)   ; Interpolate Flags
+	MOVE.b	#$24, $8(A1)   ; mapping
+	MOVE.w	#$0154, $A(A1) ; xpos
+	MOVE.w	#$0070, $E(A1) ; ypos
+	MOVE.l	#@TitlePuyoAnim, $32(A1)
+	MOVE.w	#$0040, $26(A1); timer
+	LEA	TitleScreen_PuyoInit, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	@Success2
+	RTS
+@Success2:
+	MOVE.b	#$80, $6(A1)
+	MOVE.b	#$24, $8(A1)
+	MOVE.w	#$00D4, $A(A1)
+	MOVE.w	#$0070, $E(A1)
+	MOVE.l	#@TitlePuyoAnim, $32(A1)
+	MOVE.w	#$0050, $26(A1)
+	RTS
+@TitlePuyoAnim:
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$01
+	dc.b	$01 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$02
+	dc.b	$02 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$01
+	dc.b	$01 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$02
+	dc.b	$02 
+@TitlePuyoAnimLoop:
+	dc.b	$F0, $00 
+	dc.b	$01
+	dc.b	$01 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$02
+	dc.b	$02 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$01
+	dc.b	$01 
+	dc.b	$00
+	dc.b	$00 
+	dc.b	$02
+	dc.b	$02 
+	dc.b	$FF
+	dc.b	$00 
+	dc.l	@TitlePuyoAnimLoop
+	
+TitleScreen_PuyoInit:
+	TST.w	$26(A0)
+	BEQ.w	@TimerIsZero
+	SUBQ.w	#1, $26(A0)
+	RTS
+@TimerIsZero:
+	MOVE.b	#$95, $6(A0)
+	MOVE.w	#$FFFF, $20(A0)
+	MOVE.w	#$0800, $1C(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	SprSys_UpdatePosInterpolate
+	CMPI.w	#$00B8, $E(A0)
+	BCC.w	@YPosGreaterB8
+	RTS
+@YPosGreaterB8:
+	MOVE.w	#$00B8, $E(A0)
+	MOVE.b	#sfxID_PlacePuyo, D0
+	BSR.w	SndDrv_QueueSoundEffect
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JMP	Anim_UpdateCutsceneSprite
+; ---------- File End: game/title_screen.asm ----------
 	
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
@@ -12045,7 +13521,8 @@ loc_0000D1F0:
 	MOVE.b	D0, $00FF0A2D
 	JMP	loc_00000BA4
 
-
+; ---------- File Start: game/how_to_play_obj.asm ----------
+; Note: This appears to also be used by the normal mode ending for displaying it's text as well.
 HowToPlay_TextObjInit:
 	LEA	@TextObjStart, A1
 	JSR	ObjSys_InitObjWithFunc
@@ -12136,17 +13613,17 @@ HowToPlay_TextObjInit:
 	ADDQ.w	#4, $12(A0)
 	RTS
 
-; This table is somewhat out of order, and also has a lot of unused entries
-; The unused entries seem like they relate to graphics data that is no longer loaded.
-; No idea what they would've originally said.  Need to investigate further.
+; This table is somewhat out of order.
+; This object also seems to be used by the normal mode ending, so the remaining entries may be
+; for that.  Need to investigate further.
 @TextEntries:
-    dc.l    loc_0000D730 ; Unused?		(Corrupts the graphics?)
-    dc.l    loc_0000D7A4 ; Unused?		(Displays nothing?)
-    dc.l    loc_0000D7C0 ; Unused?		(Corrupts the graphics?)
-    dc.l    loc_0000D81A ; Unused?		(Displays nothing?)
-    dc.l    loc_0000D830 ; Unused?		(Corrupts the graphics?)
-    dc.l    loc_0000D886 ; Unused?		(41aI\n\nso-zoda??kut?u-)
-    dc.l    loc_0000D8E0 ; Unused?		(Displays nothing?)
+    dc.l    loc_0000D730 ; From normal mode ending?
+    dc.l    loc_0000D7A4 ; From normal mode ending?
+    dc.l    loc_0000D7C0 ; From normal mode ending?
+    dc.l    loc_0000D81A ; From normal mode ending?
+    dc.l    loc_0000D830 ; From normal mode ending?
+    dc.l    loc_0000D886 ; From normal mode ending?
+    dc.l    loc_0000D8E0 ; From normal mode ending?
     dc.l    loc_0000D48C ; Used: 1st
     dc.l    loc_0000D4CA ; Used: 2nd
     dc.l    loc_0000D524 ; Used: 3rd
@@ -12156,7 +13633,7 @@ HowToPlay_TextObjInit:
     dc.l    loc_0000D6AC ; Used: 7th
     dc.l    loc_0000D6AE ; Used: 14th
     dc.l 	NULL		 ; Unused
-    dc.l    loc_0000D3A6 ; Unused? 		(First, two chains.) (Might actually be used, need to double check later.)
+    dc.l    loc_0000D3A6 ; Used: (Need to check where this goes)
     dc.l    loc_0000D3BE ; Used: 8th
     dc.l    loc_0000D3DE ; Used: 9th
     dc.l    loc_0000D3F8 ; Used: 10th
@@ -13563,6 +15040,7 @@ loc_0000D8E0:
     dc.b    $84
     dc.b    $FF
     dc.b    $00
+; ---------- File End: game/how_to_play_obj.asm ----------
 
 loc_0000D908:
 	lea (loc_0000D914).l, a1
@@ -14385,55 +15863,55 @@ Cutscene_CutLookupTbl:
 	dc.l   	cutscene_EasyEnding
 
 cutscene_Mummy:
-	include "game/cutscene/cutscene_mummy.asm"
+	include "cutscene/cutscene_mummy.asm"
 	even
 cutscene_Sukiyapotes:
-	include "game/cutscene/cutscene_sukiyapotes.asm"
+	include "cutscene/cutscene_sukiyapotes.asm"
 	even
 cutscene_Panotty:
-	include "game/cutscene/cutscene_panotty.asm"
+	include "cutscene/cutscene_panotty.asm"
 	even
 cutscene_SkeletonT:
-	include "game/cutscene/cutscene_skeletont.asm"
+	include "cutscene/cutscene_skeletont.asm"
 	even
 cutscene_Suketoudara:
-	include "game/cutscene/cutscene_suketoudara.asm"
+	include "cutscene/cutscene_suketoudara.asm"
 	even
 cutscene_Zombie:
-	include "game/cutscene/cutscene_zombie.asm"
+	include "cutscene/cutscene_zombie.asm"
 	even
 cutscene_Draco:
-	include "game/cutscene/cutscene_draco.asm"
+	include "cutscene/cutscene_draco.asm"
 	even
 cutscene_Nasu:
-	include "game/cutscene/cutscene_nasu.asm"
+	include "cutscene/cutscene_nasu.asm"
 	even
 cutscene_Witch:
-	include "game/cutscene/cutscene_witch.asm"
+	include "cutscene/cutscene_witch.asm"
 	even
 cutscene_Sasoriman:
-	include "game/cutscene/cutscene_sasoriman.asm"
+	include "cutscene/cutscene_sasoriman.asm"
 	even
 cutscene_Harpy:
-	include "game/cutscene/cutscene_harpy.asm"
+	include "cutscene/cutscene_harpy.asm"
 	even
 cutscene_ZohDaimaoh:
-	include "game/cutscene/cutscene_zohdaimaoh.asm"
+	include "cutscene/cutscene_zohdaimaoh.asm"
 	even
 cutscene_Schezo:
-	include "game/cutscene/cutscene_schezo.asm"
+	include "cutscene/cutscene_schezo.asm"
 	even
 cutscene_Minotauros:
-	include "game/cutscene/cutscene_minotauros.asm"
+	include "cutscene/cutscene_minotauros.asm"
 	even
 cutscene_Rulue:
-	include "game/cutscene/cutscene_rulue.asm"
+	include "cutscene/cutscene_rulue.asm"
 	even
 cutscene_Satan:
-	include "game/cutscene/cutscene_satan.asm"
+	include "cutscene/cutscene_satan.asm"
 	even
 cutscene_EasyEnding:
-	include "game/cutscene/cutscene_easyending.asm"
+	include "cutscene/cutscene_easyending.asm"
 	even
 
 loc_0000EF6C:
@@ -23659,8 +25137,1135 @@ bgmap_menuDifficultyLeft:
 bgmap_menuDifficultyRight:
     incbin "art/bgMappings/menu/difficultyRight.bin"
 ; ---------- File End: game/bg_mappings.asm ----------
+
+; ---------- File Start: game/options.asm ----------
+; This file contains all of the code related to the sound test, options, and input test menus,
+; as well as the checksum screen.
+SoundTest_Init:
+	BSR.w	SoundTest_LoadArleSprite
+	BSR.w	SoundTest_LoadSatanSprite
+	MOVE.b	#$FF, $00FF1834
+	MOVE.w	#$E000, D5
+	MOVE.w	#$001B, D0
+	MOVE.w	#$406C, D6
+@OuterLoop:
+	ORI	#$0700, SR
+	JSR	loadBGSetupVDP
+	ADDI.w	#$0080, D5
+	MOVE.w	#$0027, D1
+@InnerLoop:
+	MOVE.w	D6, vdpData1
+	EORI.b	#1, D6
+	DBF	D1, @InnerLoop
+	ANDI	#$F8FF, SR
+	EORI.b	#2, D6
+	DBF	D0, @OuterLoop
+	BRA.w	Option_InitVramPlane
+
+SoundTest_InitObj:
+	LEA	SoundTest_Update, A1
+	JMP	ObjSys_InitObjWithFunc
+
+BadCheck_Init:
+	move.b #-1, ($00FF1834).l
+	move.w #$E000, D5
+	move.w #$1B, D0
+	move.w #$406C, D6
+@OuterLoop:
+	ori #$700, SR
+	jsr	loadBGSetupVDP
+	addi.w #$80, D5
+	move.w #$27, D1
+@InnerLoop:
+	move.w D6, (vdpData1).l
+	eori.b #1, D6
+	dbf D1, @InnerLoop
+	andi #$F8FF, SR
+	eori.b #2, D6
+	dbf D0, @OuterLoop
+	bsr.w Option_InitVramPlane
+	move.w #$5A0, D5
+	move.w #$A500, D6
+	lea (@Warning).l, A1
+	bsr.w loc_0001D6C4
+	move.w #$796, D5
+	move.w #$8500, D6
+	lea (@ChecksumIsWrong).l, A1
+	bsr.w loc_0001D6C4
+	lea (BadCheck_Update).l, A1
+	jmp ObjSys_InitObjWithFunc
+@Warning:
+	soundTestText "WARNING."
+	even
+@ChecksumIsWrong:
+	soundTestText "CHECKSUM IS WRONG."
+	even
+
+BadCheck_Update:
+	move.w #$100, D0
+	jsr loc_00002B1C
+	jsr loc_00002b40
+	clr.b ($00FF1834).l
+	clr.b (rBytecode_StopRun).l
+	jmp loc_00002AF2
 	
-	include "game/options/options.asm"
+SoundTest_LoadSatanSprite:
+	LEA	@SatanInit, A1
+	JMP	ObjSys_InitObjWithFunc
+@SatanInit:
+	MOVE.w	#$0180, Obj_XPos(A0)
+	MOVE.w	#$0140, Obj_YPos(A0)
+	MOVE.b	#$80, $6(A0)
+	MOVE.b	#SprMapID_Satan, Obj_SprMap(A0)
+	MOVE.l	#@Anim_Satan, $32(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
+	JMP	SprSys_UpdatePosInterpolate
+@Anim_Satan:
+	dc.b	$F1
+	dc.b	$00 
+	dc.b	$08
+	dc.b	$08 
+	dc.b	$0C
+	dc.b	$00 
+	dc.b	$08
+	dc.b	$08 
+	dc.b	$FF
+	dc.b	$00 
+	dc.l	@Anim_Satan
+	
+SoundTest_LoadArleSprite:
+	LEA	@ArleInit, A1
+	JMP	ObjSys_InitObjWithFunc
+@ArleInit:
+	MOVE.w	#$00C0, Obj_XPos(A0)
+	MOVE.w	#$0140, Obj_YPos(A0)
+	MOVE.b	#$80, $6(A0)
+	MOVE.b	#SprMapID_Arle, Obj_SprMap(A0)
+	MOVE.l	#@Anim_Arle, $32(A0)
+	JSR	ObjSys_UpdateObjNextOpTimer
+	JSR	Anim_UpdateCutsceneSprite
+	JMP	SprSys_UpdatePosInterpolate
+@Anim_Arle:
+	dc.b	$F1
+	dc.b	$00 
+	dc.b	$40
+	dc.b	$14 
+	dc.b	$F1
+	dc.b	$00 
+	dc.b	$20
+	dc.b	$05 
+	dc.b	$F1
+	dc.b	$00 
+	dc.b	$08
+	dc.b	$13 
+	dc.b	$FF
+	dc.b	$00 
+	dc.l	@Anim_Arle
+	
+SoundTest_Update:
+	MOVE.w	#2, D0
+	BSR.w	Option_DrawStaticText
+	BSR.w	SoundTest_DrawIdNames
+	JSR	ObjSys_UpdateObjNextOpTimer
+	BSR.w	SoundTest_DrawIds
+	
+	MOVE.b	ram_pad1Press, D0
+	OR.b	$00FF1111, D0
+	BTST.l	#btn_Start, D0
+	BNE.w	SoundTest_Exit
+	BTST.l	#btn_B, D0
+	BNE.w	SoundTest_ClearAudio
+	ANDI.b	#(btnb_A|btnb_C), D0
+	BNE.w	SoundTest_PlayId
+	MOVE.b	$00FF110C, D0
+	OR.b	$00FF1112, D0
+	BTST.l	#btn_Up, D0
+	BNE.w	SoundTest_MoveCursorUp
+	BTST.l	#btn_Down, D0
+	BNE.w	SoundTest_MoveCursorDown
+	BTST.l	#btn_Right, D0
+	BNE.w	SoundTest_MoveCursorRight
+	BTST.l	#btn_Left, D0
+	BNE.w	SoundTest_MoveCursorLeft
+	RTS
+	
+SoundTest_MoveCursorUp:
+	SUBQ.w	#1, $26(A0)
+	BCC.w	@CursorNoWrap
+	MOVE.w	#5, $26(A0)
+@CursorNoWrap:
+	RTS
+	
+SoundTest_MoveCursorDown:
+	ADDQ.w	#1, $26(A0)
+	CMPI.w	#6, $26(A0)
+	BCS.w	@CursorNoWrap
+	MOVE.w	#0, $26(A0)
+@CursorNoWrap:
+	RTS
+
+SoundTest_ClearAudio:
+	JMP	SndDrv_PlayClearEffect
+
+SoundTest_Exit:
+	CLR.b	$00FF1834
+	CLR.b	rBytecode_StopRun
+	JMP	loc_00002AF2
+
+SoundTest_MoveCursorRight:
+	MOVE.b	#1, D1
+	BRA.w	SoundTest_MoveCursorLR
+SoundTest_MoveCursorLeft:
+	MOVE.b	#$FF, D1
+	
+SoundTest_MoveCursorLR:
+	MOVE.w	$26(A0), D0
+	LEA	@IdLimits, A1
+	MOVE.b	(A1,D0.w), D2
+	ADD.b	D1, $12(A0,D0.w)
+	BPL.w	@NoNegativeWrap
+	MOVE.b	D2, $12(A0,D0.w)
+	SUBQ.b	#1, $12(A0,D0.w)
+@NoNegativeWrap:
+	MOVE.b	$12(A0,D0.w), D3
+	CMP.b	D2, D3
+	BCS.w	@NoPositiveWrap
+	CLR.b	$12(A0,D0.w)
+@NoPositiveWrap:
+	SUBQ.w	#3, D0
+	BCS.w	@IsSoundEffect
+	BSR.w	SoundTest_UpdateSelNotEffect
+@IsSoundEffect:
+	RTS
+@IdLimits:
+	dc.b	$5F, $5F, $5F, $11, $03, $07 
+
+SoundTest_PlayId:
+	MOVE.w	$26(A0), D1
+	CLR.w	D0
+	MOVE.b	$12(A0,D1.w), D0
+	SUBQ.w	#3, D1
+	BCC.w	@NotSoundEffect
+	ADDI.b	#$20, D0
+	JMP	SndDrv_QueueSoundEffect
+@NotSoundEffect:
+	LSL.w	#2, D0
+	LSL.w	#2, D1
+	LEA	SoundTest_TextTbl, A1
+	MOVEA.l	(A1,D1.w), A2
+	MOVEA.l	(A2,D0.w), A1
+	MOVE.b	(A1), D0
+	MOVEA.l	@LookupCursorJmp(PC,D1.w), A1
+	JMP	(A1)
+@LookupCursorJmp:
+	dc.l	@IsSelMusic
+	dc.l	@IsSelVoice
+	dc.l	@IsSelCmd
+@IsSelMusic:
+	JSR	SndDrv_PlayClearEffect
+	JMP	SndDrv_PlayMusicId
+@IsSelVoice:
+	JMP	SndDrv_PlayVoiceAlways
+@IsSelCmd:
+	CLR.w	D0
+	MOVE.b	$17(A0), D0
+	MULU.w	#3, D0
+	MOVE.b	@EffectTable(PC,D0.w), $00FF012C
+	MOVE.b	@EffectTable+1(PC,D0.w), $00FF012D
+	MOVE.b	@EffectTable+2(PC,D0.w), $00FF012E
+	CMPI.b	#$F4, $00FF012C
+	BNE.w	@IsNotF4
+	CLR.w	D0
+	MOVE.b	$15(A0), D0
+	LSL.w	#2, D0
+	LEA	SoundTest_MusicTxtTbl, A1
+	MOVEA.l	(A1,D0.w), A2
+	MOVE.b	(A2), $00FF012E
+@IsNotF4:
+	RTS
+@EffectTable:
+	dc.b	effID_AllClear, $00, $00
+	dc.b	effID_Clear, $00, $00
+	dc.b 	effID_FadeOut, $80, $00
+	dc.b	effID_FadeIn, $80, $03
+	dc.b	effID_Rebirth, $80, $00
+	dc.b	effID_PauseOn, $00, $00
+	dc.b	effID_PauseOff, $00, $00 
+	even
+	
+SoundTest_DrawIdNames:
+	MOVE.w	#2, D0
+@Loop:
+	MOVEM.l	D0, -(A7)
+	BSR.w	SoundTest_UpdateSelNotEffect
+	MOVEM.l	(A7)+, D0
+	DBF	D0, @Loop
+	RTS
+	
+SoundTest_UpdateSelNotEffect:
+	MOVE.w	D0, D1
+	LSL.w	#2, D1
+	LEA	SoundTest_TextTbl, A1
+	MOVEA.l	(A1,D1.w), A2
+	MOVE.b	$15(A0,D0.w), D1
+	LSL.w	#2, D1
+	MOVEA.l	(A2,D1.w), A1
+	ADDQ.l	#1, A1
+	MOVE.w	D0, D5
+	LSL.w	#8, D5
+	ADDI.w	#$05A4, D5
+	MOVE.w	#$A500, D6
+	MOVEM.l	A1/D6/D5, -(A7)
+	LEA	loc_0001D076, A1
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D5/D6/A1
+	BRA.w	loc_0001D6C4
+loc_0001D076:
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00 
+	
+SoundTest_DrawIds:
+	MOVE.w	#5, D0
+	MOVE.w	#$079C, D5
+	MOVE.w	#$A500, D6
+@Loop:
+	BSR.w	SoundTest_GetTextAndId
+	BSR.w	SoundTest_DrawId
+	MOVEM.l	D5/D4/D3/D2/D1/D0, -(A7)
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5
+	SUBI.w	#$0100, D5
+	DBF	D0, @Loop
+	RTS
+	
+SoundTest_DrawId:
+	LEA	$00FF1894, A1
+	CLR.w	(A1)
+	MOVE.b	#$FF, $2(A1)
+	CMP.w	$26(A0), D0
+	BNE.w	@NotCurrentSel
+	BTST.b	#0, $00FF05C7  ; Some type of global animation timer?
+	BEQ.w	@NotCurrentSel
+	RTS
+@NotCurrentSel:
+	MOVE.b	D1, D2
+	LSR.b	#4, D2
+	ANDI.b	#$0F, D1
+	ADDQ.b	#1, D2
+	ADDQ.b	#1, D1
+	MOVE.b	D2, $0(A1)
+	MOVE.b	D1, $1(A1)
+	MOVE.b	#$FF, $2(A1)
+	RTS
+	
+SoundTest_GetTextAndId:
+	CLR.w	D1
+	MOVE.b	$12(A0,D0.w), D1
+	MOVE.w	D0, D2
+	SUBQ.w	#3, D2
+	BCS.w	@IsSoundEffect
+	LSL.w	#2, D2
+	LEA	SoundTest_TextTbl, A1
+	MOVEA.l	(A1,D2.w), A2
+	LSL.w	#2, D1
+	MOVEA.l	(A2,D1.w), A1
+	MOVE.b	(A1)+, D1
+	RTS
+@IsSoundEffect:
+	ADDI.b	#$20, D1
+	RTS
+	
+SoundTest_TextTbl:
+	dc.l	SoundTest_MusicTxtTbl
+	dc.l	SoundTest_VoiceTxtTbl
+	dc.l	SoundTest_CommandTxtTbl
+SoundTest_MusicTxtTbl:
+	dc.l	@final
+	dc.l	@theme
+	dc.l	@baroque
+	dc.l	@cooking
+	dc.l	@morning
+	dc.l	@toy
+	dc.l	@sorrow
+	dc.l	@sticker
+	dc.l	@sunset
+	dc.l	@rejection
+	dc.l	@memories
+	dc.l	@harpy
+	dc.l	@warning
+	dc.l	@satan
+	dc.l	@brave
+	dc.l	@ondo
+	dc.l	@victory
+
+@final:
+	dc.b	musID_Final 
+	soundTestText "FINAL OF PUYOPUYO"
+	even
+@theme:
+	dc.b	musID_Theme 
+	soundTestText "THEME OF PUYOPUYO"
+	even
+@baroque:
+	dc.b	musID_Baroque
+	soundTestText "BAROQUE OF PUYOPUYO"
+	even
+@cooking:
+	dc.b	musID_Cooking 
+	soundTestText "COOKING OF PUYOPUYO"
+	even
+@morning:
+	dc.b	musID_Morning 
+	soundTestText "MORNING OF PUYOPUYO"
+	even
+@toy:
+	dc.b	musID_Toy 
+	soundTestText "TOY OF PUYOPUYO"
+	even
+@sorrow:
+	dc.b	musID_Sorrow 
+	soundTestText "SORROW OF PUYOPUYO"
+	even
+@sticker:
+	dc.b	musID_Sticker 
+	soundTestText "STICKER OF PUYOPUYO"
+	even
+@sunset:
+	dc.b	musID_Sunset
+	soundTestText "SUNSET OF PUYOPUYO"
+	even
+@rejection:
+	dc.b	musID_Rejection
+	soundTestText "REJECTION OF PUYOPUYO"
+	even
+@memories:
+	dc.b	musID_Memories 
+	soundTestText "MEMORIES OF PUYOPUYO"
+	even
+@harpy:
+	dc.b	musID_HarpyTheme 
+	soundTestText "THEME FOR HARPY"
+	even
+@warning:
+	dc.b	musID_Warning 
+	soundTestText "WARNING OF PUYOPUYO"
+	even
+@satan:
+	dc.b	musID_SatanTheme 
+	soundTestText "THEME FOR SATAN"
+	even
+@brave:
+	dc.b	musID_Brave 
+	soundTestText "BRAVE OF PUYOPUYO"
+	even
+@ondo:
+	dc.b	musID_Ondo 
+	soundTestText "ONDO OF PUYOPUYO"
+	even
+@victory:
+	dc.b	musID_Victory 
+	soundTestText "VICTORY OF PUYOPUYO"
+	even
+	
+SoundTest_VoiceTxtTbl:
+	dc.l	@fire
+	dc.l	@yattana
+	dc.l	@puyopuyo
+@yattana:
+	dc.b    pcmID_Yattana
+	soundTestText "YATTANA"
+	even
+@fire:
+	dc.b    pcmID_Fire
+	soundTestText "FIRE"
+	even
+@puyopuyo:
+	dc.b    pcmID_PuyoPuyo
+	soundTestText "PUYO PUYO"
+	even
+	
+SoundTest_CommandTxtTbl:
+	dc.l	@all_clear
+	dc.l	@clear
+	dc.l	@fade_out
+	dc.l	@fade_in
+	dc.l	@rebirth
+	dc.l	@pause_on
+	dc.l	@pause_off
+@all_clear:
+	dc.b	effID_AllClear 
+	soundTestText "ALL CLEAR"
+	even
+@clear:
+	dc.b	effID_Clear 
+	soundTestText "CLEAR"
+	even
+@fade_out:
+	dc.b	effID_FadeOut
+	soundTestText "FADE OUT"
+	even
+@fade_in:
+	dc.b	effID_FadeIn
+	soundTestText "FADE IN"
+	even
+@rebirth:
+	dc.b	effID_Rebirth
+	soundTestText "REBIRTH"
+	even
+@pause_on:
+	dc.b	effID_PauseOn 
+	soundTestText "PAUSE ON"
+	even
+@pause_off:
+	dc.b	effID_PauseOff 
+	soundTestText "PAUSE OFF"
+	even
+	
+Option_Init:
+	MOVE.b	#$FF, $00FF1834
+	MOVE.w	#$E000, D5
+	MOVE.w	#$001B, D0
+	MOVE.w	#$006C, D6
+@OuterLoop:
+	ORI	#$0700, SR
+	JSR	loadBGSetupVDP
+	ADDI.w	#$0080, D5
+	MOVE.w	#$0027, D1
+@InnerLoop:
+	MOVE.w	D6, vdpData1
+	EORI.b	#1, D6
+	DBF	D1, @InnerLoop
+	ANDI	#$F8FF, SR
+	EORI.b	#2, D6
+	DBF	D0, @OuterLoop
+	BRA.w	Option_InitVramPlane
+
+Option_InitObj:
+	LEA	Option_Update, A1
+	JSR	ObjSys_InitObjWithFunc
+	BCC.w	@Ret
+	RTS
+@Ret:
+	RTS
+
+Option_InitVramPlane:
+	LEA	$00FFC000, A1
+	MOVE.w	#$06FF, D0
+@Loop:
+	MOVE.w	#$8500, (A1)+
+	DBF	D0, @Loop
+	RTS
+	
+Option_DrawStaticText:
+	MOVEM.l	D0, -(A7)
+	BSR.b	Option_InitVramPlane
+	MOVEM.l	(A7)+, D0
+	LSL.w	#2, D0
+	MOVEA.l	Option_StaticTxtLookup(PC,D0.w), A2
+	MOVE.w	(A2)+, D0
+	SUBQ.w	#1, D0
+@Loop:
+	MOVEA.l	(A2)+, A1
+	MOVEM.l	A2/D0, -(A7)
+	MOVE.w	(A1)+, D5
+	MOVE.w	(A1)+, D6
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D0/A2
+	DBF	D0, @Loop
+	RTS
+Option_StaticTxtLookup:
+	dc.l	Option_TxtTbl
+	dc.l	InputTest_TxtTbl
+	dc.l	SoundTest_TxtTbl
+	
+InputTest_TxtTbl:
+	dc.w	$000C 
+	dc.l	@input_test
+	dc.l	@press_start
+	dc.l	@pad1_pad2
+	dc.l	@button_a
+	dc.l	@button_b
+	dc.l	@button_c
+	dc.l	@button_up
+	dc.l	@button_down
+	dc.l	@button_right
+	dc.l	@button_left
+	dc.l	@to_exit
+	dc.l	@button_start
+@input_test:
+	dc.l	$009EA500
+	soundTestText "INPUT TEST"
+	even
+@press_start:
+	dc.l	$0B86A500
+	soundTestText "PRESS START BUTTON AND A BUTTON"
+	even
+@to_exit:
+	dc.l	$0CBAA500
+	soundTestText "TO EXIT"
+	even
+@pad1_pad2:
+	dc.l	$0222E500
+	soundTestText "PAD1  PAD2"
+	even
+@button_start:
+	dc.l	$03168500
+	soundTestText "START:"
+	even
+@button_a:
+	dc.l	$04108500
+	soundTestText "BUTTON A:"
+	even
+@button_b:
+	dc.l 	$05108500
+	soundTestText "BUTTON B:"
+	even
+@button_c:
+	dc.l	$06108500
+	soundTestText "BUTTON C:"
+	even
+@button_up:
+	dc.l	$07908500
+	soundTestText "      UP:"
+	even
+@button_down:
+	dc.l	$08908500
+	soundTestText "    DOWN:"
+	even
+@button_right:
+	dc.l	$09908500
+	soundTestText "   RIGHT:"
+	even
+@button_left:
+	dc.l	$0A908500
+	soundTestText "    LEFT:"
+	even
+	
+Option_TxtTbl:
+	dc.w 	$000A
+	dc.l	@option_mode
+	dc.l	@p1_p2
+	dc.l	@press_start
+	dc.l	@button_a
+	dc.l	@button_b
+	dc.l	@button_c
+	dc.l	@vs_com
+	dc.l	@1p_vs_2p
+	dc.l	@sampling
+	dc.l	@key_assignment
+@option_mode:
+	dc.l	$009CA500
+	soundTestText "OPTION MODE"
+	even
+@p1_p2:
+	dc.l	$0312E500
+	soundTestText "PLAYER-1       PLAYER-2"
+	even
+@press_start:
+	dc.l	$0C8EA500
+	soundTestText "PRESS START BUTTON TO EXIT"
+	even
+@button_a:
+	dc.l	$040CE500
+	soundTestText "A:              A:"
+	even
+@button_b:
+	dc.l	$050CE500
+	soundTestText "B:              B:"
+	even
+@button_c:
+	dc.l	$060CE500
+	soundTestText "C:              C:"
+	even
+@vs_com:
+	dc.l	$078CE500
+	soundTestText "VS.COM LEVEL   :"
+	even
+@1p_vs_2p:
+	dc.l 	$088CE500
+	soundTestText "1P VS.2P MODE  :"
+	even
+@sampling:
+	dc.l	$098CE500
+	soundTestText "SAMPLING       :"
+	even
+@key_assignment:
+	dc.l 	$021AE500
+	soundTestText "KEY ASSIGNMENT"
+	even
+	
+SoundTest_TxtTbl:
+	dc.w 	$0008
+	dc.l	@sound_track
+	dc.l	@press_start
+	dc.l	@se1
+	dc.l	@se2
+	dc.l	@se3
+	dc.l	@bgm
+	dc.l	@voice
+	dc.l	@command
+@sound_track:
+	dc.b	$01, $1A, $85, $00
+	soundTestText "SOUND  TRACK"
+	even
+@press_start:
+	dc.b	$0C, $8E, $E5, $00
+	soundTestText "PRESS START BUTTON TO EXIT"
+	even
+@se1:
+	dc.b	$02, $92, $E5, $00
+	soundTestText "SE1:"
+	even
+@se2:
+	dc.b	$03, $92, $E5, $00
+	soundTestText "SE2:"
+	even
+@se3:
+	dc.b	$04, $92, $E5, $00
+	soundTestText "SE3:"
+	even
+@bgm:
+	dc.b	$05, $92, $E5, $00
+	soundTestText "BGM:"
+	even
+@voice:
+	dc.b	$06, $8E, $E5, $00
+	soundTestText "VOICE:"
+	even
+@command:
+	dc.b	$07, $8A, $E5, $00
+	soundTestText "COMMAND:"
+	even	
+	
+loc_0001D69A:
+	MOVE.w	#$8500, D6
+	BTST.b	#0, $26(A0)
+	BEQ.w	loc_0001D6C4
+	CMP.b	$2C(A0), D0
+	BNE.w	loc_0001D6B8
+	MOVE.w	#$C500, D6
+	BRA.w	loc_0001D6C4
+loc_0001D6B8:
+	CMP.b	$2D(A0), D0
+	BNE.w	loc_0001D6C4
+	MOVE.w	#$A500, D6
+loc_0001D6C4:
+	LEA	$00FFC002, A2
+loc_0001D6CA:
+	MOVE.b	(A1)+, D0
+	BMI.w	loc_0001D6E2
+	LSL.b	#1, D0
+	MOVE.b	D0, D6
+	MOVE.w	D6, -$2(A2,D5.w)
+	ADDQ.b	#1, D6
+	MOVE.w	D6, $7E(A2,D5.w)
+	ADDQ.w	#2, D5
+	BRA.b	loc_0001D6CA
+loc_0001D6E2:
+	RTS
+	
+Option_Update:
+	MOVE.w	#0, D0
+	BSR.w	Option_DrawStaticText
+	JSR	ObjSys_UpdateObjNextOpTimer
+	ADDQ.b	#1, $26(A0)
+	BSR.w	loc_0001D8E4
+	MOVE.b	ram_pad1Press, D0
+	OR.b	$00FF1111, D0
+	BTST.l	#7, D0
+	BNE.w	loc_0001D72C
+	MOVE.w	#0, D0
+	MOVE.b	ram_pad1Press, D1
+	BSR.w	loc_0001D74A
+	MOVE.w	#1, D0
+	MOVE.b	$00FF1111, D1
+	BSR.w	loc_0001D74A
+	RTS
+loc_0001D72C:
+	BSR.w	loc_0001DC02
+	CLR.b	$00FF1834
+	MOVE.b	#0, rBytecode_Ret
+	CLR.b	rBytecode_StopRun
+	JMP	loc_00002AF2
+loc_0001D74A:
+	MOVE.b	#2, D2
+	CMP.b	$00FF1884, D0
+	BNE.w	loc_0001D76A
+	MOVE.b	#6, D2
+	TST.w	rOption_SoundTestEnabled
+	BEQ.w	loc_0001D76A
+	MOVE.b	#7, D2
+loc_0001D76A:
+	BTST.l	#0, D1
+	BNE.w	loc_0001D794
+	BTST.l	#1, D1
+	BNE.w	loc_0001D7AA
+	BTST.l	#2, D1
+	BNE.w	loc_0001D7C4
+	BTST.l	#3, D1
+	BNE.w	loc_0001D7CC
+	ANDI.b	#$70, D1
+	BNE.w	loc_0001D894
+	RTS
+loc_0001D794:
+	SUBQ.b	#1, $2C(A0,D0.w)
+	BCC.w	loc_0001D7A0
+	MOVE.b	D2, $2C(A0,D0.w)
+loc_0001D7A0:
+	MOVE.b	#sfxID_ChangeSelection, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D7AA:
+	ADDQ.b	#1, $2C(A0,D0.w)
+	CMP.b	$2C(A0,D0.w), D2
+	BCC.w	loc_0001D7BA
+	CLR.b	$2C(A0,D0.w)
+loc_0001D7BA:
+	MOVE.b	#sfxID_ChangeSelection, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D7C4:
+	MOVE.b	#$FF, D1
+	BRA.w	loc_0001D7D0
+loc_0001D7CC:
+	MOVE.b	#1, D1
+loc_0001D7D0:
+	CLR.w	D2
+	MOVE.b	$2C(A0,D0.w), D2
+	LSL.w	#2, D2
+	MOVEA.l	loc_0001D7DE(PC,D2.w), A1
+	JMP	(A1)
+loc_0001D7DE:
+	dc.l	loc_0001D7FE
+	dc.l	loc_0001D7FE
+	dc.l	loc_0001D7FE
+	dc.l	loc_0001D83C
+	dc.l	loc_0001D860
+	dc.l	loc_0001D880
+	dc.l	loc_0001D892 
+	dc.l	loc_0001D892 
+loc_0001D7FE:
+	LEA	rOption_Player1AButton, A1
+	TST.w	D0
+	BEQ.w	loc_0001D810
+	LEA	rOption_Player2AButton, A1
+loc_0001D810:
+	CLR.w	D2
+	MOVE.b	$2C(A0,D0.w), D2
+	MOVE.b	(A1,D2.w), D3
+	ADD.b	D1, D3
+	BPL.w	loc_0001D824
+	MOVE.b	#2, D3
+loc_0001D824:
+	CMPI.b	#3, D3
+	BCS.w	loc_0001D82E
+	CLR.b	D3
+loc_0001D82E:
+	MOVE.b	D3, (A1,D2.w)
+	MOVE.b	#sfxID_2B, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D83C:
+	ADDQ.b	#1, rOption_ComputerLevel
+	TST.b	D1
+	BMI.w	loc_0001D84E
+	SUBQ.b	#2, rOption_ComputerLevel
+loc_0001D84E:
+	ANDI.b	#3, rOption_ComputerLevel
+	MOVE.b	#sfxID_2B, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D860:
+	MOVE.b	rOption_2PlayerMode, D2
+	SUBQ.b	#1, D2
+	ADD.b	D1, D2
+	ANDI.b	#7, D2
+	ADDQ.b	#1, D2
+	MOVE.b	D2, rOption_2PlayerMode
+	MOVE.b	#sfxID_2B, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D880:
+	EORI.b	#$FF, rOption_VoicesEnabled
+	MOVE.b	#sfxID_2B, D0
+	JMP	SndDrv_QueueSoundEffect
+loc_0001D892:
+	RTS
+loc_0001D894:
+	CMPI.b	#6, $2C(A0,D0.w)
+	BEQ.w	loc_0001D8AA
+	CMPI.b	#7, $2C(A0,D0.w)
+	BEQ.w	loc_0001D8BC
+	RTS
+loc_0001D8AA:
+	MOVE.b	#sfxID_2B, D0
+	JSR	SndDrv_QueueSoundEffect
+	MOVEM.l	(A7)+, D0
+	BRA.w	loc_0001DAFE
+loc_0001D8BC:
+	MOVE.b	#sfxID_2B, D0
+	JSR	SndDrv_QueueSoundEffect
+	MOVEM.l	(A7)+, D0
+	CLR.b	$00FF1834
+	MOVE.b	#1, rBytecode_Ret
+	CLR.b	rBytecode_StopRun
+	JMP	loc_00002AF2
+loc_0001D8E4:
+	BSR.w	loc_0001D902
+	BSR.w	loc_0001D918
+	BSR.w	loc_0001D9A4
+	BSR.w	loc_0001D9EE
+	BSR.w	loc_0001DA8C
+	BSR.w	loc_0001DAB6
+	BSR.w	loc_0001DAD4
+	RTS
+loc_0001D902:
+	LEA	rOption_Player1AButton, A2
+	MOVE.w	#$002C, D4
+	MOVE.w	#$0410, D5
+	MOVE.w	#$C500, D6
+	BRA.w	loc_0001D92A
+loc_0001D918:
+	LEA	rOption_Player2AButton, A2
+	MOVE.w	#$002D, D4
+	MOVE.w	#$0430, D5
+	MOVE.w	#$A500, D6
+loc_0001D92A:
+	BTST.b	#0, $26(A0)
+	BNE.w	loc_0001D938
+	MOVE.w	#$8500, D6
+loc_0001D938:
+	SWAP	D6
+	MOVE.w	#$8500, D6
+	CLR.w	D3
+loc_0001D940:
+	CLR.w	D0
+	MOVE.b	(A2)+, D0
+	LSL.w	#2, D0
+	MOVEA.l	Option_KeyTxtTbl(PC,D0.w), A1
+	MOVEM.l	A2/D6/D5/D4/D3, -(A7)
+	CMP.b	(A0,D4.w), D3
+	BNE.w	loc_0001D958
+	SWAP	D6
+loc_0001D958:
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D3/D4/D5/D6/A2
+	ADDI.w	#$0100, D5
+	ADDQ.w	#1, D3
+	CMPI.w	#3, D3
+	BCS.b	loc_0001D940
+	RTS
+
+Option_KeyTxtTbl:
+	dc.l	@NoUse
+	dc.l	@TurnLeft
+	dc.l	@TurnRight
+@NoUse:
+	soundTestText "NO USE      "
+	even
+@TurnLeft:
+	soundTestText "TURN LEFT  <"
+	even
+@TurnRight:
+	soundTestText "TURN RIGHT >"
+	even
+	
+loc_0001D9A4:
+	MOVE.w	#$07AE, D5
+	CLR.w	D0
+	MOVE.b	rOption_ComputerLevel, D0
+	LSL.w	#2, D0
+	MOVEA.l	@DiffTxtTbl(PC,D0.w), A1
+	MOVE.b	#3, D0
+	BRA.w	loc_0001D69A
+@DiffTxtTbl:
+	dc.l	@Hardest
+	dc.l	@Hard
+	dc.l	@Normal
+	dc.l	@Easy
+@Hardest:
+	soundTestText "HARDEST"
+	even
+@Hard:
+	soundTestText "HARD   "
+	even
+@Normal:
+	soundTestText "NORMAL "
+	even
+@Easy:
+	soundTestText "EASY   "
+	even
+	
+loc_0001D9EE:
+	MOVE.w	#$08AE, D5
+	CLR.w	D0
+	MOVE.b	rOption_2PlayerMode, D0
+	BEQ.w	loc_0001DA00
+	SUBQ.b	#1, D0
+loc_0001DA00:
+	LSL.w	#2, D0
+	MOVEA.l	@NumberTxtTbl(PC,D0.w), A1
+	MOVEM.l	D0, -(A7)
+	MOVE.w	#$A500, D6
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D0
+	LEA	@GameMatch, A1
+	TST.w	D0
+	BEQ.w	@loc_0001DA28
+	LEA	@GamesMatch, A1
+@loc_0001DA28:
+	MOVE.w	#$08B2, D5
+	MOVE.b	#4, D0
+	BRA.w	loc_0001D69A
+@GameMatch:
+	soundTestText "GAME MATCH "
+	even
+@GamesMatch:
+	soundTestText "GAMES MATCH"
+	even
+	
+@NumberTxtTbl:
+	dc.l	@One
+	dc.l	@Three
+	dc.l	@Five
+	dc.l	@Seven
+	dc.l	@Nine
+	dc.l	@Eleven
+	dc.l	@Thirteen
+	dc.l	@Fifteen
+@One:
+	soundTestText "1 "
+	even
+@Three:
+	soundTestText "3 "
+	even
+@Five:
+	soundTestText "5 "
+	even
+@Seven:
+	soundTestText "7 "
+	even
+@Nine:
+	soundTestText "9 "
+	even
+@Eleven:
+	soundTestText "11"
+	even
+@Thirteen:
+	soundTestText "13"
+	even
+@Fifteen:
+	soundTestText "15"
+	even
+	
+loc_0001DA8C:
+	MOVE.b	#5, D0
+	MOVE.w	#$09AE, D5
+	LEA	@On, A1
+	TST.b	rOption_VoicesEnabled
+	BEQ.w	@VoicesEnabled
+	LEA	@Off, A1
+@VoicesEnabled:
+	BRA.w	loc_0001D69A
+@On:
+	soundTestText "ON "
+	even
+@Off:
+	soundTestText "OFF"
+	even
+	
+loc_0001DAB6:
+	MOVE.b	#6, D0
+	MOVE.w	#$0A9E, D5
+	LEA	@InputTest, A1
+	BRA.w	loc_0001D69A
+@InputTest:
+	soundTestText "INPUT TEST"
+	even
+	
+loc_0001DAD4:
+	TST.w	rOption_SoundTestEnabled
+	BEQ.w	@SoundTestNotEnabled
+	MOVE.b	#7, D0
+	MOVE.w	#$0B9E, D5
+	LEA	@SoundTest, A1
+	BSR.w	loc_0001D69A
+@SoundTestNotEnabled:
+	RTS
+@SoundTest:
+	soundTestText "SOUND TEST"
+	even
+	
+loc_0001DAFE:
+	MOVE.w	#1, D0
+	BSR.w	Option_DrawStaticText
+	JSR	ObjSys_UpdateObjNextOpTimer
+	BSR.w	@loc_0001DB44
+	MOVE.b	ram_pad1Held, D0
+	ANDI.b	#$C0, D0
+	EORI.b	#$C0, D0
+	BEQ.w	@loc_0001DB36
+	MOVE.b	$00FF1110, D0
+	ANDI.b	#$C0, D0
+	EORI.b	#$C0, D0
+	BEQ.w	@loc_0001DB36
+	RTS
+@loc_0001DB36:
+	MOVE.b	#sfxID_2B, D0
+	JSR	SndDrv_QueueSoundEffect
+	BRA.w	Option_Update
+@loc_0001DB44:
+	MOVE.b	ram_pad1Held, D0
+	LSL.w	#8, D0
+	MOVE.b	$00FF1110, D0
+	LEA	loc_0001DB92, A2
+	MOVE.w	#$000F, D1
+@loc_0001DB5C:
+	MOVE.w	(A2)+, D5
+	LEA	@On, A1
+	MOVE.w	#$E500, D6
+	ROR.l	#1, D0
+	BCS.w	@loc_0001DB78
+	LEA	@Off, A1
+	MOVE.w	#$C500, D6
+@loc_0001DB78:
+	MOVEM.l	A2/D1/D0, -(A7)
+	BSR.w	loc_0001D6C4
+	MOVEM.l	(A7)+, D0/D1/A2
+	DBF	D1, @loc_0001DB5C
+	RTS
+@On:
+	soundTestText "ON"
+	even
+@Off: ; This specific string uses special characters to display the 2 char wide off text.
+	dc.b	$2C, $2D, $FF, $00 
+loc_0001DB92:
+	dc.b	$07, $B0, $08, $B0, $0A, $B0, $09, $B0, $05, $30, $06, $30, $04, $30, $03, $30, $07, $A4, $08, $A4, $0A, $A4, $09, $A4, $05, $24, $06, $24, $04, $24, $03, $24 
+
+Check_GetChecksum:
+	move.l #endOfRom-1, D0
+	addq.l #1, D0
+	lea ($200).w, A0
+	sub.l A0, D0
+	asr.l #1, D0
+	move.w D0, D2
+	subq.w #1, D2
+	swap D0
+	moveq #0, D1
+@Loop:
+	add.w (A0)+, D1
+	dbf D2, @Loop
+	dbf D0, @Loop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	move.b #0, (rBytecode_Ret).l
+	cmp.w (checksum).w, D1
+	beq.w @ChecksumPass
+	move.b #$FF, (rBytecode_Ret).l
+@ChecksumPass:
+	move.w D1, (ram_calcChecksum).l
+	rts
+; ---------- File End: game/options.asm ----------
 
 loc_0001DC02:
 	MOVEM.l	A2/A1/D3/D2/D1/D0, -(A7)

@@ -59,7 +59,7 @@ MusicPointerTable:
 	incbin "sound/bank1/data/musptrtable.bin"
 	
 song_00:
-	incbin "sound/bank1/music/00.bin"
+	include "sound/bank1/music/00.asm"
 song_01:
 	incbin "sound/bank1/music/01.bin"
 song_02:
@@ -96,7 +96,8 @@ song_11:
 song_12:
 	incbin "sound/bank1/music/12.bin"
 song_13:
-	incbin "sound/bank1/music/13.bin"
+	include "sound/bank1/music/13.asm"
+	incbin "sound/bank1/data/unkdat.bin"
 loc_C76C:
 	incbin "sound/bank1/data/C76C.bin"
 	

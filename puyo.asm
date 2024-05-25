@@ -25570,7 +25570,7 @@ SoundTest_MusicTxtTbl:
 	soundTestText "FINAL OF PUYOPUYO"
 	even
 @theme:
-	dc.b	musID_Theme 
+	dc.b	musID_Theme
 	soundTestText "THEME OF PUYOPUYO"
 	even
 @baroque:

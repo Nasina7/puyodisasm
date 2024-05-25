@@ -10433,6 +10433,8 @@ pal_segaPart2:
 	incbin "art/palettes/sega/logoPart2.bin"
 art_segaLogo:
 	incbin "art/uncompressed/segaLogo.bin"
+;bgmap_segaLogo_unused:
+	incbin "art/bgMappings/sega/logo_unused.bin"
 	
 loc_0000AC92:
 	MOVE.b	#$FF, $7(A0)

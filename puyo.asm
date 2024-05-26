@@ -26703,7 +26703,7 @@ art_cutsceneCharset_stage6:
 	incbin "art/compressed/cutscene/stage6/charset.bin"
 	even
 	align $100, $FF
-	
+
 ; Portraits
 art_portraitArle:
 	incbin "art/compressed/portrait/arle.bin"

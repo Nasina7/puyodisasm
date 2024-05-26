@@ -12,7 +12,7 @@ Bytecode_Bootup: ; Bootup Lookup Table
 
 	BVMODE $0001
 	
-	BART $0000, art_optionsBackground
+	BART $0000, art_puzzleBoard
 	
 	BART $A000, art_optionsCharset
 
@@ -36,7 +36,7 @@ Bytecode_SegaScreen:
 	
 	BVMODE $0001
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BRUN Sega_CreateLogoObj
 	
@@ -60,7 +60,7 @@ Bytecode_TitleScreen:
 	
 	BART $0000, art_titleScreen
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BSNDC2 pcmID_PuyoPuyo
 	BSND musID_Baroque
@@ -108,7 +108,7 @@ Bytecode_MainMenu:
 Bytecode_MainMenu2: ; Second half of above transition
 	BVMODE $0000
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BRUN loc_0000C548
 	
@@ -150,7 +150,7 @@ Bytecode_Options:
 	BVMODE $0001
 	BSND musID_Cooking
 	
-	BART $0000, art_optionsBackground
+	BART $0000, art_puzzleBoard
 	BART $A000, art_optionsCharset
 	
 	
@@ -189,7 +189,7 @@ Bytecode_SoundTest:
 	
 	BART $6000, art_cutsceneArle
 	BART $8000, art_cutsceneSatan
-	BART $0000, art_optionsBackground
+	BART $0000, art_puzzleBoard
 	BART $A000, art_optionsCharset
 	
 	BRUN SoundTest_Init
@@ -221,7 +221,7 @@ Bytecode_PortraitScreen:
 
 	BART $8000, art_recordScreen
 
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 
 	BVDPC $001E
 	BNOP
@@ -317,7 +317,7 @@ Bytecode_Unknown1:
 	
 	BART $2000, art_ingameAssets
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	
 	BSSND
@@ -375,7 +375,7 @@ Bytecode_GameOver:
 	BRAM $00FF05D2, $0000
 	BRAM $00FF05D4, $0000
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BART $0000, art_gameOver
 	
@@ -517,7 +517,7 @@ Bytecode_Credits2:
 	
 	BSND musID_Ondo
 	BART $6000, art_cutsceneArle
-	BART $A000, art_tryAgain
+	BART $A000, art_castCharset
 	BRAM $00FF0112, $0000
 Bytecode_Credits3:
 	BRUN loc_0000DAF4
@@ -614,7 +614,7 @@ Bytecode_RecordScreen1PlayerOnly:
 	
 	BART $6000, art_recordScreen
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BVDPC $0008
 	BNOP
@@ -648,8 +648,8 @@ Bytecode_TwoPlayer:
 
 	BVMODE $0001
 	
-	BART $0000, art_twoPlayerBackground
-	BART $A000, art_creditsText
+	BART $0000, art_woodBoard
+	BART $A000, art_battleCharset
 	
 	BVDPC $0004
 	BNOP
@@ -702,9 +702,9 @@ Bytecode_Endless:
 
 	BVMODE $0001
 	
-	BART $0000, art_optionsBackground
+	BART $0000, art_puzzleBoard
 	BART $2000, art_ingameAssets
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BVDPC $0016
 	BNOP
@@ -746,14 +746,14 @@ Bytecode_Unknown6:
 
 	BVMODE $0001
 	
-	BART $0000, art_grassBattle
+	BART $0000, art_grassBoard
 	
 	BVDPC $0003
 	BNOP
 	
 	BART $2000, art_ingameAssets
 	
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BPAL pal_00002230, 0
 	BPAL pal_00002250, 1
@@ -794,9 +794,9 @@ Bytecode_TutorialDemo:
 	BVMODE $0001
 	
 	BART $2000, art_ingameAssets
-	BART $0000, art_grassBattle
+	BART $0000, art_grassBoard
 	BART $6600, art_tutorial
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BVDPC $0003
 	BVDPC $002A
@@ -841,7 +841,7 @@ Bytecode_RecordScreen4:
 	BART $0000, art_modeNames
 	BART $2000, art_ingameAssets
 	BART $6000, art_recordScreen
-	BART $A000, art_creditsText
+	BART $A000, art_battleCharset
 	
 	BVDPC $0008
 	BNOP

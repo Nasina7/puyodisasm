@@ -8716,7 +8716,7 @@ loc_000087DC:
 	clr.w d0
 	move.b $2b(a0), d0
 	lsl.w #1, d0
-	move.w (loc_000087EC, PC, d0.w), $14(a0)
+	move.w loc_000087EC(PC, d0.w), $14(a0)
 	rts
 loc_000087EC:
 	dc.w 	$0000, $0000, $0000, $0012, $001E
@@ -8726,9 +8726,9 @@ loc_000087F6:
 	move.b $2b(a0), d1
 	lsl.b #2, d1
 	andi.b #$38, d1
-	move.w (loc_0000881E, PC, d1.w), $20(a1)
-	move.b (loc_00008820, PC, d1.w), $7(a1)
-	move.l (loc_0000881A, PC, d1.w), d0
+	move.w loc_0000881E(PC, d1.w), $20(a1)
+	move.b loc_00008820(PC, d1.w), $7(a1)
+	move.l loc_0000881A(PC, d1.w), d0
 	bra.w loc_00008832
 loc_0000881A:
 	dc.l    $00000000
@@ -9666,6 +9666,7 @@ tbl_CutsceneCharAnims:
 	include "anim/cutscene/minotauros.asm"
 	include "anim/cutscene/rulue.asm"
 	include "anim/cutscene/satan.asm"
+	even
 
 Cutscene_InitObj:
 	MOVE.b	#$FF, $00FF18AC
@@ -9923,7 +9924,7 @@ loc_00009E6A:
 loc_00009E74:
 	move.w #$a0, $26(a0)
 	bsr.w ObjSys_UpdateObjNextOpTimer
-	subq #1, $26(a0)
+	subq.w #1, $26(a0)
 	beq.w loc_00002AF2
 	tst.w $28(a0)
 	beq.w loc_00009E94
@@ -10432,7 +10433,7 @@ pal_segaPart1:
 pal_segaPart2:
 	incbin "art/palettes/sega/logo_part2.bin"
 art_segaLogo:
-	incbin "art/uncompressed/sega_logo.bin"
+	incbin "art/art/sega/sega_logo.unc"
 ;bgmap_segaLogo_unused:
 	incbin "art/bg_mappings/sega/logo_unused.bin"
 	
@@ -12174,13 +12175,13 @@ loc_0000BF48:
 	neg.w    $A(a0, d0.w)
 	move.w    $C(a0, d0.w), d1
 loc_0000BF60:
-	move.w d1,$C(a0, d0)
+	move.w d1, $C(a0, d0.w)
 	lsr.w #8, d1
 	move.w d0, d2
 	andi.b #8, d2
 	add.w d2, d1
 	lsl.w #1, d1
-	move.w (loc_0000BF76, pc, d1.w), (a1)+
+	move.w loc_0000BF76(pc, d1.w), (a1)+
 	rts
 ; Palette data?
 loc_0000BF76:
@@ -26554,244 +26555,244 @@ loc_0001DE1A:
 	
 ; Beginning of data segment
 art_grassBoard:
-	incbin "art/compressed/boards/grass.bin"
+	incbin "art/art/boards/grass.puyo"
 	even
 	align $1000, $FF
 art_bgGrass:
-	incbin "art/compressed/cutscene/background/grass.bin"
+	incbin "art/art/cutscene/background/grass.puyo"
 	even
 	pad $26, $FF ; Todo: What is this aligned to?
 art_bgRuins:
-	incbin "art/compressed/cutscene/background/ruins.bin"
+	incbin "art/art/cutscene/background/ruins.puyo"
 	even
 	align $10, $FF
 art_bgSatan:
-	incbin "art/compressed/cutscene/background/satan.bin"
+	incbin "art/art/cutscene/background/satan.puyo"
 	even
 	align $10, $FF
 art_winLose:
-	incbin "art/compressed/twoplayer/winlose.bin"
+	incbin "art/art/twoplayer/winlose.puyo"
 	even
 	align $100, $FF
 art_cutsceneCharset_lessonEnd:
-	incbin "art/compressed/cutscene/lesson_end/charset.bin"
+	incbin "art/art/cutscene/lesson_end/charset.puyo"
 	even
 	align $100, $FF
 art_modeNames:
-	incbin "art/compressed/record/modenames.bin"
+	incbin "art/art/record/modenames.puyo"
 	even
 	align $80, $FF
 ; Unreferenced japanese character set.  Oddly enough, it contains some 16x16 english characters, making it the only
 ; charset in the entire game to do so.
 ;art_unrefCharset:
-	incbin "art/compressed/unused/unrefcharset.bin"
+	incbin "art/art/unused/unrefcharset.puyo"
 	even
 	align $100, $FF
 art_gameOver:
-	incbin "art/compressed/gameover/gameover.bin"
+	incbin "art/art/gameover/gameover.puyo"
 	even
 	align $100, $FF
 art_recordScreen:
-	incbin "art/compressed/record/recordscreen.bin"
+	incbin "art/art/record/recordscreen.puyo"
 	even
 	align $100, $FF
 art_arleVictory:
-	incbin "art/compressed/ending/arlevictory.bin"
+	incbin "art/art/ending/arlevictory.puyo"
 	even
 	align $100, $FF
 
 art_cutsceneArle:
-	incbin "art/compressed/cutscene/general/arle.bin"
+	incbin "art/art/cutscene/general/arle.puyo"
 	even
 art_cutsceneDraco:
-	incbin "art/compressed/cutscene/stage1/draco.bin"
+	incbin "art/art/cutscene/stage1/draco.puyo"
 	even
 art_cutsceneZombie:
-	incbin "art/compressed/cutscene/stage7/zombie.bin"
+	incbin "art/art/cutscene/stage7/zombie.puyo"
 	even
 art_cutsceneSuketoudara:
-	incbin "art/compressed/cutscene/stage2/suketoudara.bin"
+	incbin "art/art/cutscene/stage2/suketoudara.puyo"
 	even
 art_cutsceneZoh:
-	incbin "art/compressed/cutscene/stage9/zoh.bin"
+	incbin "art/art/cutscene/stage9/zoh.puyo"
 	even
 art_cutsceneSkeletonT:
-	incbin "art/compressed/cutscene/lesson1/skeleton-t.bin"
+	incbin "art/art/cutscene/lesson1/skeleton-t.puyo"
 	even
 art_cutsceneMinotauros:
-	incbin "art/compressed/cutscene/stage11/minotauros.bin"
+	incbin "art/art/cutscene/stage11/minotauros.puyo"
 	even
 art_cutsceneSasoriman:
-	incbin "art/compressed/cutscene/stage5/sasoriman.bin"
+	incbin "art/art/cutscene/stage5/sasoriman.puyo"
 	even
 art_cutsceneWitch:
-	incbin "art/compressed/cutscene/stage8/witch.bin"
+	incbin "art/art/cutscene/stage8/witch.puyo"
 	even
 art_cutsceneRulue:
-	incbin "art/compressed/cutscene/stage12/rulue.bin"
+	incbin "art/art/cutscene/stage12/rulue.puyo"
 	even
 ;art_cutsceneHarpyDuplicate:
-	incbin "art/compressed/cutscene/stage4/harpy.bin"
+	incbin "art/art/cutscene/stage4/harpy.puyo"
 	even
 art_cutsceneSchezo:
-	incbin "art/compressed/cutscene/stage10/schezo.bin"
+	incbin "art/art/cutscene/stage10/schezo.puyo"
 	even
 art_cutsceneSatan:
-	incbin "art/compressed/cutscene/stage13/satan.bin"
+	incbin "art/art/cutscene/stage13/satan.puyo"
 	even
 art_cutsceneNasu:
-	incbin "art/compressed/cutscene/lesson2/nasu.bin"
+	incbin "art/art/cutscene/lesson2/nasu.puyo"
 	even
 art_cutsceneMummy:
-	incbin "art/compressed/cutscene/lesson3/mummy.bin"
+	incbin "art/art/cutscene/lesson3/mummy.puyo"
 	even
 art_cutsceneSukiyapotes:
-	incbin "art/compressed/cutscene/stage3/sukiyapotes.bin"
+	incbin "art/art/cutscene/stage3/sukiyapotes.puyo"
 	even
 art_cutscenePanotty:
-	incbin "art/compressed/cutscene/stage6/panotty.bin"
+	incbin "art/art/cutscene/stage6/panotty.puyo"
 	even
 	align $100, $FF
 	
 ; Cutscene Charsets
 art_cutsceneCharset_stage1:
-	incbin "art/compressed/cutscene/stage1/charset.bin"
+	incbin "art/art/cutscene/stage1/charset.puyo"
 	even
 art_cutsceneCharset_stage7:
-	incbin "art/compressed/cutscene/stage7/charset.bin"
+	incbin "art/art/cutscene/stage7/charset.puyo"
 	even
 art_cutsceneCharset_stage2:
-	incbin "art/compressed/cutscene/stage2/charset.bin"
+	incbin "art/art/cutscene/stage2/charset.puyo"
 	even
 art_cutsceneCharset_stage9:
-	incbin "art/compressed/cutscene/stage9/charset.bin"
+	incbin "art/art/cutscene/stage9/charset.puyo"
 	even
 art_cutsceneCharset_lesson1:
-	incbin "art/compressed/cutscene/lesson1/charset.bin"
+	incbin "art/art/cutscene/lesson1/charset.puyo"
 	even
 art_cutsceneCharset_stage11:
-	incbin "art/compressed/cutscene/stage11/charset.bin"
+	incbin "art/art/cutscene/stage11/charset.puyo"
 	even
 art_cutsceneCharset_stage5:
-	incbin "art/compressed/cutscene/stage5/charset.bin"
+	incbin "art/art/cutscene/stage5/charset.puyo"
 	even
 art_cutsceneCharset_stage8:
-	incbin "art/compressed/cutscene/stage8/charset.bin"
+	incbin "art/art/cutscene/stage8/charset.puyo"
 	even
 art_cutsceneCharset_stage12:
-	incbin "art/compressed/cutscene/stage12/charset.bin"
+	incbin "art/art/cutscene/stage12/charset.puyo"
 	even
 art_cutsceneCharset_stage4:
-	incbin "art/compressed/cutscene/stage4/charset.bin"
+	incbin "art/art/cutscene/stage4/charset.puyo"
 	even
 art_cutsceneCharset_stage10:
-	incbin "art/compressed/cutscene/stage10/charset.bin"
+	incbin "art/art/cutscene/stage10/charset.puyo"
 	even
 art_cutsceneCharset_stage13:
-	incbin "art/compressed/cutscene/stage13/charset.bin"
+	incbin "art/art/cutscene/stage13/charset.puyo"
 	even
 art_cutsceneCharset_lesson2:
-	incbin "art/compressed/cutscene/lesson2/charset.bin"
+	incbin "art/art/cutscene/lesson2/charset.puyo"
 	even
 art_cutsceneCharset_lesson3:
-	incbin "art/compressed/cutscene/lesson3/charset.bin"
+	incbin "art/art/cutscene/lesson3/charset.puyo"
 	even
 art_cutsceneCharset_stage3:
-	incbin "art/compressed/cutscene/stage3/charset.bin"
+	incbin "art/art/cutscene/stage3/charset.puyo"
 	even
 art_cutsceneCharset_stage6:
-	incbin "art/compressed/cutscene/stage6/charset.bin"
+	incbin "art/art/cutscene/stage6/charset.puyo"
 	even
 	align $100, $FF
 
 ; Portraits
 art_portraitArle:
-	incbin "art/compressed/portrait/arle.bin"
+	incbin "art/art/portrait/arle.puyo"
 	even
 art_portraitDraco:
-	incbin "art/compressed/portrait/draco.bin"
+	incbin "art/art/portrait/draco.puyo"
 	even
 art_portraitZombie:
-	incbin "art/compressed/portrait/zombie.bin"
+	incbin "art/art/portrait/zombie.puyo"
 	even
 art_portraitSuketoudara:
-	incbin "art/compressed/portrait/suketoudara.bin"
+	incbin "art/art/portrait/suketoudara.puyo"
 	even
 art_portraitZohDaimaoh:
-	incbin "art/compressed/portrait/zoh.bin"
+	incbin "art/art/portrait/zoh.puyo"
 	even
 art_portraitSkeletonT:
-	incbin "art/compressed/portrait/skeleton-t.bin"
+	incbin "art/art/portrait/skeleton-t.puyo"
 	even
 art_portraitMinotauros:
-	incbin "art/compressed/portrait/minotauros.bin"
+	incbin "art/art/portrait/minotauros.puyo"
 	even
 art_portraitSasoriman:
-	incbin "art/compressed/portrait/sasoriman.bin"
+	incbin "art/art/portrait/sasoriman.puyo"
 	even
 art_portraitWitch:
-	incbin "art/compressed/portrait/witch.bin"
+	incbin "art/art/portrait/witch.puyo"
 	even
 art_portraitRulue:
-	incbin "art/compressed/portrait/rulue.bin"
+	incbin "art/art/portrait/rulue.puyo"
 	even
 art_portraitHarpy:
-	incbin "art/compressed/portrait/harpy.bin"
+	incbin "art/art/portrait/harpy.puyo"
 	even
 art_portraitSchezo:
-	incbin "art/compressed/portrait/schezo.bin"
+	incbin "art/art/portrait/schezo.puyo"
 	even
 art_portraitSatan:
-	incbin "art/compressed/portrait/satan.bin"
+	incbin "art/art/portrait/satan.puyo"
 	even
 art_portraitNasu:
-	incbin "art/compressed/portrait/nasu.bin"
+	incbin "art/art/portrait/nasu.puyo"
 	even
 art_portraitSukiyapotes:
-	incbin "art/compressed/portrait/sukiyapotes.bin"
+	incbin "art/art/portrait/sukiyapotes.puyo"
 	even
 art_portraitMummy:
-	incbin "art/compressed/portrait/mummy.bin"
+	incbin "art/art/portrait/mummy.puyo"
 	even
 art_portraitPanotty:
-	incbin "art/compressed/portrait/panotty.bin"
+	incbin "art/art/portrait/panotty.puyo"
 	even
 	align $100, $FF
 	
 art_battleCharset:
-	incbin "art/compressed/battle/charset.bin"
+	incbin "art/art/battle/charset.puyo"
 	even
 art_castCharset:
-	incbin "art/compressed/cast/charset.bin"
+	incbin "art/art/cast/charset.puyo"
 	even
 art_tutorial:
-	incbin "art/compressed/tutorial/tutorial.bin"
+	incbin "art/art/tutorial/tutorial.puyo"
 	even
 art_optionsCharset:
-	incbin "art/compressed/options/charset.bin"
+	incbin "art/art/options/charset.puyo"
 	even
 art_cutsceneHarpy:
-	incbin "art/compressed/cutscene/stage4/harpy.bin"
+	incbin "art/art/cutscene/stage4/harpy.puyo"
 	even
 	align $1000, $FF
 art_ingameAssets:
-	incbin "art/compressed/battle/puyos.bin"
+	incbin "art/art/battle/puyos.puyo"
 	even
 	align $80, $FF
 art_woodBoard:
-	incbin "art/compressed/boards/wood.bin"
+	incbin "art/art/boards/wood.puyo"
 	even
 	align $80, $FF
 art_puzzleBoard:
-	incbin "art/compressed/boards/puzzle.bin"
+	incbin "art/art/boards/puzzle.puyo"
 	even
 	align $80, $FF
 art_ruinsBoard:
-	incbin "art/compressed/boards/ruins.bin"
+	incbin "art/art/boards/ruins.puyo"
 	even
 	align $80, $FF
 art_menuScreen:
-	incbin "art/compressed/menu/menu.bin"
+	incbin "art/art/menu/menu.puyo"
 	even
 	align $80, $FF
 
@@ -26810,7 +26811,7 @@ sound_bank2:
 	pad $344, $FF	; Example of the above todo.
 	
 art_titleScreen:
-	incbin "art/compressed/title/titlescreen.bin"
+	incbin "art/art/title/titlescreen.puyo"
 	even
 	align $80, $FF
 	padToPowerOfTwo

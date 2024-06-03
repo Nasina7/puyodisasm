@@ -8,10 +8,10 @@ if ! [ -d "./out" ]; then
    mkdir out
 fi
 
-echo Compressing all data in art/compressed...
-find art/compressed -type f -exec tools/linux/puyocomp -c {} \;
+echo Compressing all puyo compressed data in art/art...
+find art/art -type f -name "*.puyo" -exec tools/linux/puyocomp -c {} \;
 
 wine tools/windows/build_rom.bat
 
-echo Decompressing all data in art/compressed...
-find art/compressed -type f -exec tools/linux/puyocomp -d {} \;
+echo Decompressing all puyo compressed data in art/art...
+find art/art -type f -name "*.puyo" -exec tools/linux/puyocomp -d {} \;

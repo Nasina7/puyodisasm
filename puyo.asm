@@ -165,7 +165,7 @@ loc_0000027B:
 	MOVEM.l	(A6), D0/D1/D2/D3/D4/D5/D6/D7/A0/A1/A2/A3/A4/A5/A6
 	MOVE	#$2700, SR
 loc_0000028D:
-	BRA.b	loc_000002FB
+	BRA.b	EntryPoint
 loc_0000028F:
 	dc.w	$8000
 	dc.w	$3FFF
@@ -181,24 +181,22 @@ loc_0000028F:
 	dc.b	$00, $00, $00, $FF, $00, $81, $37, $00, $01, $01, $00, $00, $FF, $FF, $00, $00, $80, $40, $00, $00, $80, $AF, $01, $D9, $1F, $11, $27, $00, $21, $26, $00, $F9 ;0x20
 	dc.b	$77, $ED, $B0, $DD, $E1, $FD, $E1, $ED, $47, $ED, $4F, $D1, $E1, $F1, $08, $D9, $C1, $D1, $E1, $F1, $F9, $F3, $ED, $56, $36, $E9, $E9, $81, $04, $8F, $02, $C0 ;0x40
 	dc.b	$00, $00, $00, $40, $00, $00, $10, $9F, $BF, $DF, $FF ;0x60
-loc_000002FB:
+EntryPoint:
 	TST.w	vdpControl1
-loc_00000301:
 	ORI	#$0700, SR
-loc_00000305:
 	BSR.w	loc_0000043C
 	BSR.w	loc_00000454
 	ANDI	#$F8FF, SR
-mainLoop:
-	BSR.w	waitForVint
+MainLoop:
+	BSR.w	WaitForVint
 	BSR.w	loc_00007CBE
-	BSR.w	updateControllers
+	BSR.w	UpdateControllers
 	BSR.w	Bytecode_Run
 	BSR.w	loc_00002A00
-	JSR	updateSprites
-	BRA.b	mainLoop
+	JSR	UpdateSprites
+	BRA.b	MainLoop
 
-waitForVint:
+WaitForVint:
 	LEA	$00FF05C6, A0
 	MOVE.w	(A0), D0
 @waitVint:
@@ -288,7 +286,7 @@ loc_000004CA:
 	JSR	loc_0000EF6C
 	JSR	SndDrv_LoadDriver
 	BSR.w	loc_00001046
-	JSR	updateSprites
+	JSR	UpdateSprites
 	BSR.w	loc_000007C0
 	BSR.w	loc_0000075A
 	LEA	$00FF0A23, A0
@@ -327,7 +325,7 @@ VerticalInterrupt:
 	BSR.w	loc_0000095A
 	BSR.w	loc_0000075A
 	JSR	Video_LoadQueuedBgMaps
-	BSR.w	updateRNG
+	BSR.w	UpdateRNG
 	TST.w	$00FF1834
 	BEQ.w	loc_00000568
 	BSR.w	loc_00000572
@@ -829,7 +827,7 @@ System_DecompressComp:
 	LEA	$00FF0100, A2
 	CLR.w	D0
 	CLR.w	D1
-gfxDecomp_mainLoop:
+gfxDecomp_MainLoop:
 	MOVE.b	(A0)+, D2
 	TST.b	D2
 	BMI.w	loc_00000CF0
@@ -852,7 +850,7 @@ loc_00000CE4:
 	MOVE.b	D4, (A1,D0.w)
 	ADDQ.b	#1, D0
 	DBF	D2, loc_00000CCC
-	BRA.b	gfxDecomp_mainLoop
+	BRA.b	gfxDecomp_MainLoop
 	
 loc_00000CF0:
 	ANDI.w	#$007F, D2
@@ -874,7 +872,7 @@ loc_00000D16:
 	ADDQ.b	#1, D0
 	ADDQ.b	#1, D3
 	DBF	D2, loc_00000CFC
-	BRA.b	gfxDecomp_mainLoop
+	BRA.b	gfxDecomp_MainLoop
 	
 
 
@@ -1127,7 +1125,7 @@ loc_00001076:
 	MOVE.w	#0, Z80BusReq
 	RTS
 	
-updateControllers:
+UpdateControllers:
 	ORI	#$0700, SR
 	MOVE.w	#$0100, Z80BusReq
 loc_000010A2:
@@ -1238,7 +1236,7 @@ loc_000011BA:
 
 ; Odd quirk of this function, it seems the last nibble of the random number
 ; output by this function will always be 0xA.
-updateRNG:
+UpdateRNG:
 	MOVEM.l	D1, -(A7)
 	MOVE.l	randomNumber, D1
 	BNE.b	@rngNonZero
@@ -1261,7 +1259,7 @@ updateRNG:
 loc_00001202:
 	MOVEM.l	D1, -(A7)
 	MOVE.l	D0, D1
-	BSR.b	updateRNG
+	BSR.b	UpdateRNG
 	MULU.w	D1, D0
 	SWAP	D0
 	MOVEM.l	(A7)+, D1
@@ -2375,7 +2373,7 @@ loc_00002BC8:
 	MOVE.b	D0, D1
 	LSL.b	#3, D1
 	ANDI.b	#$38, D1
-	BSR.w	updateRNG
+	BSR.w	UpdateRNG
 	ANDI.b	#7, D0
 	CLR.w	D2
 	MOVE.b	D0, D2
@@ -2642,7 +2640,7 @@ loc_00002EF6:
 	MOVE.w	#$00FF, D1
 	LEA	$00FF111C, A1
 loc_00002F04:
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.w	#$00FF, D0
 	MOVE.b	(A1,D0.w), D2
 	MOVE.b	(A1,D1.w), (A1,D0.w)
@@ -3988,7 +3986,7 @@ btl_loadPartHarpy:
 	BCS.b loc_0000418E
 	MOVE.b $00(A0), $00(A1)
 	MOVE.b #$10, $08(A1)
-	BSR.w  updateRNG
+	BSR.w  UpdateRNG
 	ANDI.b #3, D0
 	ADDI.b #$F, D0
 	MOVE.b D0, $09(A1)
@@ -4074,7 +4072,7 @@ loc_00004254:
 	MOVE.b	D3, D2
 	ROR.b	#4, D2
 	ADDI.b	#$64, D2
-	BSR.w	updateRNG
+	BSR.w	UpdateRNG
 	ANDI.b	#7, D0
 	ADD.b	D2, D0
 	JSR	SignedSinWithMul
@@ -5698,7 +5696,7 @@ loc_00005E20:
 	MOVE.b	D1, $9(A1)
 	MOVE.w	D1, D2
 	LSL.w	#4, D2
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.b	#$0F, D0
 	OR.b	D0, D2
 	MOVE.w	D2, $26(A1)
@@ -5821,7 +5819,7 @@ loc_00005F94:
 	move.b #$25, $8(a1)
 	move.b d0, $9(a1)
 	movem.l D0, -(SP)
-	jsr updateRNG
+	jsr UpdateRNG
 	andi.w #$3F, d0
 	add.w d1, d0
 	move.w d0, $a(a1)
@@ -7396,7 +7394,7 @@ loc_00007504:
 loc_00007506:
 	TST.b	$7(A1)
 	BNE.w	loc_0000751C
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.b	#1, D0
 	MOVE.b	D0, $7(A1)
 loc_0000751C:
@@ -7587,7 +7585,7 @@ loc_000077FE:
 	BSR.w	loc_00005022	
 	LEA	loc_000078A6, A1	
 	EORI.b	#$80, $7(A0)	
-	BSR.w	updateRNG	
+	BSR.w	UpdateRNG	
 	ANDI.w	#1, D0	
 	BSR.w	loc_00007854	
 	BCS.w	loc_00007820	
@@ -7826,7 +7824,7 @@ loc_00007B8A:
 	addq.w #1, d1
 	lsl.w #1, d1
 	move.w d1, $26(a0)
-	bsr.w updateRNG
+	bsr.w UpdateRNG
 	move.w #$0200, d1
 	bsr.w SignedSinWithMul
 	move.l d2, $12(a0)
@@ -7946,7 +7944,7 @@ loc_00007D68:
 	ORI	#$0700, SR
 	BSR.w	loc_00007DE2
 	ANDI	#$F8FF, SR
-	JSR	waitForVint
+	JSR	WaitForVint
 	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00007DBA
 	MOVE.b	#sfxID_ComboComplete1, D0
@@ -7956,7 +7954,7 @@ loc_00007D90:
 	ORI	#$0700, SR
 	BSR.w	loc_00007E38
 	ANDI	#$F8FF, SR
-	JSR	waitForVint
+	JSR	WaitForVint
 	BTST.b	#1, rCurGameMode
 	BEQ.w	loc_00007DCE
 	MOVE.b	#sfxID_ComboComplete1, D0
@@ -9980,9 +9978,9 @@ loc_00009F16:
 	move.w #$120, Obj_XPos(a1)
 	move.w #$40, Obj_YPos(a1)
 	move.w #$FFFE, $16(a1)
-	jsr updateRNG
+	jsr UpdateRNG
 	move.w d0, $18(a1)
-	jsr updateRNG
+	jsr UpdateRNG
 	move.b d0, d1
 	andi.w #$3FF, d0
 	move.w d0, $1A(a1)
@@ -10032,7 +10030,7 @@ loc_00009FC6:
 	lsl.w #2, d0
 	addi.w #$FFB0, d0
 	move.w d0, Obj_YPos(a1)
-	jsr updateRNG
+	jsr UpdateRNG
 	move.b d0, d1
 	andi.w #$70, d0
 	addi.w #$1C0, d0
@@ -10040,7 +10038,7 @@ loc_00009FC6:
 	andi.b #$f, d1
 	move.b d1, $22(a1)
 	move.w #$FFFD, $12(a1)
-	jsr updateRNG
+	jsr UpdateRNG
 	move.w d0, $14(a1)
 loc_0000A028:
 	dbf d2, loc_00009FC6
@@ -10435,7 +10433,7 @@ pal_segaPart2:
 art_segaLogo:
 	incbin "art/art/sega/sega_logo.unc"
 ;bgmap_segaLogo_unused:
-	incbin "art/bg_mappings/sega/logo_unused.bin"
+	incbin "art/bg_mappings/sega/logo_unused.bgword"
 	
 loc_0000AC92:
 	MOVE.b	#$FF, $7(A0)
@@ -13302,7 +13300,7 @@ loc_0000CF40:
 loc_0000CF48:
 	CMPI.b	#8, $29(A0)
 	BNE.w	loc_0000CF98
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.w	#$000F, D0
 	CMPI.w	#7, D0
 	BCC.w	loc_0000CF98
@@ -15924,7 +15922,7 @@ loc_0000EF6C:
 	
 	
 	
-updateSprites:
+UpdateSprites:
 	TST.w	$00FF0DE4
 	BEQ.w	loc_0000EF86
 	RTS
@@ -16035,7 +16033,7 @@ loc_0000F0CE:
 	MOVE.w	D3, (A1)+
 	RTS
 	
-; End of updateSprites
+; End of UpdateSprites
 	
 loc_0000F0D2:
 	MOVEM.l	A2/D4/D3, -(A7)
@@ -16465,7 +16463,7 @@ loc_0000F6A2:
 	MOVE.b	#$25, $8(A1)
 	MOVE.w	#$1800, $1C(A1)
 	MOVE.w	#$FFFF, $20(A1)
-	JSR	updateRNG
+	JSR	UpdateRNG
 	CLR.w	D1
 	MOVE.b	D0, D1
 	ANDI.b	#$7F, D1
@@ -17316,7 +17314,7 @@ loc_00010184:
 	ANDI.b	#$F3, D1
 	BRA.w	loc_000101AC
 loc_0001019A:
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.b	#1, D0
 	BEQ.w	loc_000101AC
 	EORI.b	#$0C, D1
@@ -18573,7 +18571,7 @@ loc_000111C8:
 	DBF	D0, loc_000111C8
 	RTS
 loc_000111D0:
-	JSR	updateRNG
+	JSR	UpdateRNG
 	ANDI.b	#$80, D0
 	MOVE.b	D0, D4
 	MOVE.w	#$0180, D0
@@ -20242,45 +20240,45 @@ loc_000157DA:
 
 ; Frame 1 seems to be included twice for each of these.  Need to investigate why.
 bgmap_grassCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_2.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_3.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_4.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_5.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/board_top.bin"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_2.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_3.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_4.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_5.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/grass/board_top.bgbyte"
 bgmap_stoneCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_2.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_3.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_4.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_5.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/board_top.bin"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_2.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_3.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_4.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_5.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/ruins/board_top.bgbyte"
 bgmap_cabinCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_2.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_3.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_4.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_5.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/board_top.bin"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_2.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_3.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_4.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_5.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/cabin/board_top.bgbyte"
 bgmap_puzzleCrumbleFloor1P:
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_2.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_3.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_4.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_5.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_board_top.bin"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_2.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_3.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_4.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_5.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_board_top.bgbyte"
 bgmap_puzzleCrumbleFloor2P:
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_2.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_3.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_4.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_5.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bin"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_board_top.bin"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_2.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_3.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_4.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_5.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
+	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_board_top.bgbyte"
 
 loc_00015DAE:
 	dc.b	$00, $09, $00, $06, $C6, $1E, $00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $40, $41, $42, $43, $44, $45 
@@ -25001,9 +24999,9 @@ bgdata_cutRuins_unk1:
 bgdata_cutRuins_unk2:
 	bgmac_ByteIndex bgmap_cutRuinsUnk2, $4, $8, $D59C, $22
 bgmap_cutRuinsUnk1:
-    incbin "art/bg_mappings/cutscene/ruins/unknown1.bin"
+    incbin "art/bg_mappings/cutscene/ruins/unknown1.bgbyte"
 bgmap_cutRuinsUnk2:
-    incbin "art/bg_mappings/cutscene/ruins/unknown2.bin"
+    incbin "art/bg_mappings/cutscene/ruins/unknown2.bgbyte"
 	
 	
 bgdata_cutsceneHell:
@@ -25031,181 +25029,181 @@ bgdata_cutsceneHell:
 	bgmac_Clear $40, $06, $FD00, $22AE
 
 bgmap_batGrassTopLeft:
-    incbin "art/bg_mappings/boards/grass/top_left.bin"
+    incbin "art/bg_mappings/boards/grass/top_left.bgbyte"
 bgmap_batGrassTopRight:
-    incbin "art/bg_mappings/boards/grass/top_right.bin"
+    incbin "art/bg_mappings/boards/grass/top_right.bgbyte"
 bgmap_batGrassBottomLeft:
-    incbin "art/bg_mappings/boards/grass/bottom_left.bin"
+    incbin "art/bg_mappings/boards/grass/bottom_left.bgbyte"
 bgmap_batGrassBottomRight:
-    incbin "art/bg_mappings/boards/grass/bottom_right.bin"
+    incbin "art/bg_mappings/boards/grass/bottom_right.bgbyte"
 bgmap_batBakGrassTopLeft:
-    incbin "art/bg_mappings/boards/grass/backdrop_top_left.bin"
+    incbin "art/bg_mappings/boards/grass/backdrop_top_left.bgbyte"
 bgmap_batBakGrassTopRight:
-    incbin "art/bg_mappings/boards/grass/backdrop_top_right.bin"
+    incbin "art/bg_mappings/boards/grass/backdrop_top_right.bgbyte"
 bgmap_batBakGrassBottomLeft:
-    incbin "art/bg_mappings/boards/grass/backdrop_bottom_left.bin"
+    incbin "art/bg_mappings/boards/grass/backdrop_bottom_left.bgbyte"
 bgmap_batBakGrassBottomRight:
-    incbin "art/bg_mappings/boards/grass/backdrop_bottom_right.bin"
+    incbin "art/bg_mappings/boards/grass/backdrop_bottom_right.bgbyte"
 bgmap_cutGrassTreesTopLeft:
-    incbin "art/bg_mappings/cutscene/grass/trees_top_left.bin"
+    incbin "art/bg_mappings/cutscene/grass/trees_top_left.bgbyte"
 bgmap_cutGrassTreesTopRight:
-    incbin "art/bg_mappings/cutscene/grass/trees_top_right.bin"
+    incbin "art/bg_mappings/cutscene/grass/trees_top_right.bgbyte"
 bgmap_cutGrassTreesBottomLeft:
-    incbin "art/bg_mappings/cutscene/grass/trees_bottom_left.bin"
+    incbin "art/bg_mappings/cutscene/grass/trees_bottom_left.bgbyte"
 bgmap_cutGrassTreesBottomRight:
-    incbin "art/bg_mappings/cutscene/grass/trees_bottom_right.bin"
+    incbin "art/bg_mappings/cutscene/grass/trees_bottom_right.bgbyte"
 bgmap_cutGrassFarLeft:
-    incbin "art/bg_mappings/cutscene/grass/u_grass_far_left.bin"
+    incbin "art/bg_mappings/cutscene/grass/grass_far_left.bgword"
 bgmap_cutGrassFarRight:
-    incbin "art/bg_mappings/cutscene/grass/u_grass_far_right.bin"
+    incbin "art/bg_mappings/cutscene/grass/grass_far_right.bgword"
 bgmap_cutGrassLeft:
-    incbin "art/bg_mappings/cutscene/grass/grass_left.bin"
+    incbin "art/bg_mappings/cutscene/grass/grass_left.bgbyte"
 bgmap_cutGrassRight:
-    incbin "art/bg_mappings/cutscene/grass/grass_right.bin"
+    incbin "art/bg_mappings/cutscene/grass/grass_right.bgbyte"
 bgmap_cutGrassCloud1:
-    incbin "art/bg_mappings/cutscene/grass/cloud1.bin"
+    incbin "art/bg_mappings/cutscene/grass/cloud1.bgbyte"
 bgmap_cutGrassCloud2:
-    incbin "art/bg_mappings/cutscene/grass/cloud2.bin"
+    incbin "art/bg_mappings/cutscene/grass/cloud2.bgbyte"
 bgmap_cutGrassCloud3:
-    incbin "art/bg_mappings/cutscene/grass/cloud3.bin"
+    incbin "art/bg_mappings/cutscene/grass/cloud3.bgbyte"
 bgmap_cutRuinsGroundRight:
-    incbin "art/bg_mappings/cutscene/ruins/ground_right.bin"
+    incbin "art/bg_mappings/cutscene/ruins/ground_right.bgbyte"
 bgmap_cutRuinsGroundLeft:
-    incbin "art/bg_mappings/cutscene/ruins/ground_left.bin"
+    incbin "art/bg_mappings/cutscene/ruins/ground_left.bgbyte"
 bgmap_cutRuinsSkyRight:
-    incbin "art/bg_mappings/cutscene/ruins/sky_right.bin"
+    incbin "art/bg_mappings/cutscene/ruins/sky_right.bgbyte"
 bgmap_cutRuinsSkyLeft:
-    incbin "art/bg_mappings/cutscene/ruins/sky_left.bin"
+    incbin "art/bg_mappings/cutscene/ruins/sky_left.bgbyte"
 bgmap_cutRuinsMountainLeft:
-    incbin "art/bg_mappings/cutscene/ruins/mountain_left.bin"
+    incbin "art/bg_mappings/cutscene/ruins/mountain_left.bgbyte"
 bgmap_cutRuinsMountainRight:
-    incbin "art/bg_mappings/cutscene/ruins/mountain_right.bin"
+    incbin "art/bg_mappings/cutscene/ruins/mountain_right.bgbyte"
 bgmap_cutRuinsUnk3:
-    incbin "art/bg_mappings/cutscene/ruins/u_unknown.bin"
+    incbin "art/bg_mappings/cutscene/ruins/unknown3.bgword"
 bgmap_cutHellGroundRight:
-    incbin "art/bg_mappings/cutscene/hell/ground_right.bin"
+    incbin "art/bg_mappings/cutscene/hell/ground_right.bgbyte"
 bgmap_cutHellGroundLeft:
-    incbin "art/bg_mappings/cutscene/hell/ground_left.bin"
+    incbin "art/bg_mappings/cutscene/hell/ground_left.bgbyte"
 bgmap_cutHellSkyRight:
-    incbin "art/bg_mappings/cutscene/hell/sky_right.bin"
+    incbin "art/bg_mappings/cutscene/hell/sky_right.bgbyte"
 bgmap_cutHellSkyLeft:
-    incbin "art/bg_mappings/cutscene/hell/sky_left.bin"
+    incbin "art/bg_mappings/cutscene/hell/sky_left.bgbyte"
 bgmap_gameoverTopLeft:
-    incbin "art/bg_mappings/gameover/top_left.bin"
+    incbin "art/bg_mappings/gameover/top_left.bgbyte"
 bgmap_gameoverTopRight:
-    incbin "art/bg_mappings/gameover/top_right.bin"
+    incbin "art/bg_mappings/gameover/top_right.bgbyte"
 bgmap_gameoverBottomLeft:
-    incbin "art/bg_mappings/gameover/bottom_left.bin"
+    incbin "art/bg_mappings/gameover/bottom_left.bgbyte"
 bgmap_gameoverBottomRight:
-    incbin "art/bg_mappings/gameover/bottom_right.bin"
+    incbin "art/bg_mappings/gameover/bottom_right.bgbyte"
 bgmap_recordLeft:
-    incbin "art/bg_mappings/record/left.bin"
+    incbin "art/bg_mappings/record/left.bgbyte"
 bgmap_recordRight:
-    incbin "art/bg_mappings/record/right.bin"
+    incbin "art/bg_mappings/record/right.bgbyte"
 bgmap_recordUnk1:
-    incbin "art/bg_mappings/record/unknown.bin"
+    incbin "art/bg_mappings/record/unknown.bgbyte"
 bgmap_endingArleTop:
-    incbin "art/bg_mappings/ending/arle_top.bin"
+    incbin "art/bg_mappings/ending/arle_top.bgbyte"
 bgmap_endingArleBottom:
-    incbin "art/bg_mappings/ending/arle_bottom.bin"
+    incbin "art/bg_mappings/ending/arle_bottom.bgbyte"
 bgmap_endingSunsetScroll:
-    incbin "art/bg_mappings/ending/sunset_scroll.bin"
+    incbin "art/bg_mappings/ending/sunset_scroll.bgbyte"
 bgmap_endingCloudScroll:
-    incbin "art/bg_mappings/ending/cloud_scroll.bin"
+    incbin "art/bg_mappings/ending/cloud_scroll.bgbyte"
 bgmap_endingSunset:
-    incbin "art/bg_mappings/ending/sunset.bin"
+    incbin "art/bg_mappings/ending/sunset.bgbyte"
 bgmap_endingGround:
-    incbin "art/bg_mappings/ending/ground.bin"
+    incbin "art/bg_mappings/ending/ground.bgbyte"
 bgmap_endingSunsetNight:
-    incbin "art/bg_mappings/ending/sunset_night.bin"
+    incbin "art/bg_mappings/ending/sunset_night.bgbyte"
 bgmap_titleBG1:
-    incbin "art/bg_mappings/title/u_background1.bin"
+    incbin "art/bg_mappings/title/background1.bgword"
 bgmap_titleBG2:
-    incbin "art/bg_mappings/title/u_background2.bin"
+    incbin "art/bg_mappings/title/background2.bgword"
 bgmap_titlePu1:
-    incbin "art/bg_mappings/title/first_pu.bin"
+    incbin "art/bg_mappings/title/first_pu.bgbyte"
 bgmap_titleYo1:
-    incbin "art/bg_mappings/title/first_yo.bin"
+    incbin "art/bg_mappings/title/first_yo.bgbyte"
 bgmap_titlePu2:
-    incbin "art/bg_mappings/title/second_pu.bin"
+    incbin "art/bg_mappings/title/second_pu.bgbyte"
 bgmap_titleYo2:
-    incbin "art/bg_mappings/title/second_yo.bin"
+    incbin "art/bg_mappings/title/second_yo.bgbyte"
 bgmap_batCabinTopLeft:
-    incbin "art/bg_mappings/boards/cabin/top_left.bin"
+    incbin "art/bg_mappings/boards/cabin/top_left.bgbyte"
 bgmap_batCabinTopRight:
-    incbin "art/bg_mappings/boards/cabin/top_right.bin"
+    incbin "art/bg_mappings/boards/cabin/top_right.bgbyte"
 bgmap_batCabinBottomLeft:
-    incbin "art/bg_mappings/boards/cabin/bottom_left.bin"
+    incbin "art/bg_mappings/boards/cabin/bottom_left.bgbyte"
 bgmap_batCabinBottomRight:
-    incbin "art/bg_mappings/boards/cabin/bottom_right.bin"
+    incbin "art/bg_mappings/boards/cabin/bottom_right.bgbyte"
 bgmap_batBakCabinTopLeft:
-    incbin "art/bg_mappings/boards/cabin/backdrop_top_left.bin"
+    incbin "art/bg_mappings/boards/cabin/backdrop_top_left.bgbyte"
 bgmap_batBakCabinTopRight:
-    incbin "art/bg_mappings/boards/cabin/backdrop_top_right.bin"
+    incbin "art/bg_mappings/boards/cabin/backdrop_top_right.bgbyte"
 bgmap_batBakCabinBottomLeft:
-    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_left.bin"
+    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_left.bgbyte"
 bgmap_batBakCabinBottomRight:
-    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_right.bin"
+    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_right.bgbyte"
 bgmap_batStoneLeft:
-    incbin "art/bg_mappings/boards/ruins/left.bin"
+    incbin "art/bg_mappings/boards/ruins/left.bgbyte"
 bgmap_batStoneRight:
-    incbin "art/bg_mappings/boards/ruins/right.bin"
+    incbin "art/bg_mappings/boards/ruins/right.bgbyte"
 bgmap_batBakStoneLeft:
-    incbin "art/bg_mappings/boards/ruins/backdrop_left.bin"
+    incbin "art/bg_mappings/boards/ruins/backdrop_left.bgbyte"
 bgmap_batBakStoneRight:
-    incbin "art/bg_mappings/boards/ruins/backdrop_right.bin"
+    incbin "art/bg_mappings/boards/ruins/backdrop_right.bgbyte"
 bgmap_batPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/top_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/top_left.bgpalm"
 bgmap_batPalPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/pal_top_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/top_left.bgpalp"
 bgmap_batPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/top_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/top_right.bgpalm"
 bgmap_batPalPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/pal_top_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/top_right.bgpalp"
 bgmap_batPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/bottom_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/bottom_left.bgpalm"
 bgmap_batPalPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/pal_bottom_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/bottom_left.bgpalp"
 bgmap_batPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/bottom_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/bottom_right.bgpalm"
 bgmap_batPalPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/pal_bottom_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/bottom_right.bgpalp"
 bgmap_batBakPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_top_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/backdrop_top_left.bgbyte"
 bgmap_batBakPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_top_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/backdrop_top_right.bgbyte"
 bgmap_batBakPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_left.bin"
+    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_left.bgbyte"
 bgmap_batBakPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_right.bin"
+    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_right.bgbyte"
 bgmap_segaLogo:
-    incbin "art/bg_mappings/sega/logo.bin"
+    incbin "art/bg_mappings/sega/logo.bgbyte"
 bgmap_demoPatch1:
-    incbin "art/bg_mappings/tutorial/patch1.bin"
+    incbin "art/bg_mappings/tutorial/patch1.bgbyte"
 bgmap_demoPatch2:
-    incbin "art/bg_mappings/tutorial/patch2.bin"
+    incbin "art/bg_mappings/tutorial/patch2.bgbyte"
 bgmap_menuMain:
-    incbin "art/bg_mappings/menu/main_menu.bin"
+    incbin "art/bg_mappings/menu/main_menu.bgbyte"
 bgmap_menu1PlayerHighlight:
-    incbin "art/bg_mappings/menu/1player_highlight.bin"
+    incbin "art/bg_mappings/menu/1player_highlight.bgbyte"
 bgmap_menu1Player:
-    incbin "art/bg_mappings/menu/1player.bin"
+    incbin "art/bg_mappings/menu/1player.bgbyte"
 bgmap_menu2PlayerHighlight:
-    incbin "art/bg_mappings/menu/2player_highlight.bin"
+    incbin "art/bg_mappings/menu/2player_highlight.bgbyte"
 bgmap_menu2Player:
-    incbin "art/bg_mappings/menu/2player.bin"
+    incbin "art/bg_mappings/menu/2player.bgbyte"
 bgmap_menuEndlessHighlight:
-    incbin "art/bg_mappings/menu/endless_highlight.bin"
+    incbin "art/bg_mappings/menu/endless_highlight.bgbyte"
 bgmap_menuEndless:
-    incbin "art/bg_mappings/menu/endless.bin"
+    incbin "art/bg_mappings/menu/endless.bgbyte"
 bgmap_menuOptionsionsHighlight:
-    incbin "art/bg_mappings/menu/options_highlight.bin"
+    incbin "art/bg_mappings/menu/options_highlight.bgbyte"
 bgmap_menuOptions:
-    incbin "art/bg_mappings/menu/options.bin"
+    incbin "art/bg_mappings/menu/options.bgbyte"
 bgmap_menuDifficultyLeft:
-    incbin "art/bg_mappings/menu/difficulty_left.bin"
+    incbin "art/bg_mappings/menu/difficulty_left.bgbyte"
 bgmap_menuDifficultyRight:
-    incbin "art/bg_mappings/menu/difficulty_right.bin"
+    incbin "art/bg_mappings/menu/difficulty_right.bgbyte"
 ; ---------- File End: game/bg_mappings.asm ----------
 
 ; ---------- File Start: game/options.asm ----------

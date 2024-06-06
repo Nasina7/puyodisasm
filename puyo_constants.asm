@@ -84,6 +84,8 @@ rOnePlayer_DefeatedEnemyTbl = $FF0116
 
 mus_curSong = $FF012F		; Byte
 
+rFrameCount = $FF05C6		; Word
+
 ; Goes until FF09A1
 rScrollXScanFront = $FF0622
 rScrollXScanBack = $FF0624
@@ -92,24 +94,34 @@ rBytecode_PC = $FF0A36 				; Long
 rBytecode_Ret = $FF0A3A				; Byte
 rBytecode_StopRun = $FF0A3B			; Byte
 rBytecode_StopLoop = $FF0A3C 		; Byte
+;rFF0A3D [BYTE]
+rPalQueueTable = $FF0A3E ; Goes until $FF0A55
+rPalQueueMainEnt1  = $FF0A56 ; Goes until $FF0A75
+rPalQueueMainEnt2  = $FF0A76 ; Goes until $FF0A95
+rPalQueueMainEnt3  = $FF0A96 ; Goes until $FF0AB5
+rPalQueueMainEnt4  = $FF0AB6 ; Goes until $FF0AD5
+
 
 ram_pad1Held = $FF110A		; Byte
 ram_pad1Press = $FF110B		; Byte
 
 randomNumber = $FF1116		; Long
 
+rRunningOptionsMenuCode = $FF1834 ; Word
+
 debug_CpuPlayer = $FF1876	; Byte
 debug_puyoDrop = $FF1877	; Byte
 debug_skipStages = $FF1878	; Byte
 debug_unknown = $FF1879		; Byte
 
-rCurGameMode = $FF1882		; Byte
+rCurGameMode = $FF1882		; Byte [0 = Story, 1 = VS, 2 = Endless, 3 = Option, 4 = Tutorial]
 
 rMissionMode_CurBoard = $FF1889 ; Byte
 
 ObjectBuffer = $FFE000
 
 SystemStack = $FFFC00
+
 rOption_SoundTestEnabled = $00FFFC02
 rOption_2PlayerMode = $00FFFCA4
 rOption_ComputerLevel = $00FFFCA5
@@ -120,6 +132,7 @@ rOption_Player2AButton = $00FFFCA9
 rOption_Player2BButton = $00FFFCAA
 rOption_Player2CButton = $00FFFCAB
 rOption_VoicesEnabled = $00FFFCAC
+;rOption_FFFCAD
 
 ; Struct constants for objects
 ; 0 - Something to do with animation / updating?
@@ -148,3 +161,10 @@ SprMapID_Birds = $1B
 SprMapID_Credits = $1C
 SprMapID_Lightning = $1D
 SprMapID_GameOverTxt = $29
+
+; Game modes
+GameModeID_Story = $0
+GameModeID_VS = $1
+GameModeID_Endless = $2
+GameModeID_Options = $3
+GameModeID_Tutorial = $4

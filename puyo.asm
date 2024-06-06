@@ -184,7 +184,7 @@ loc_0000028F:
 EntryPoint:
 	TST.w	vdpControl1
 	ORI	#$0700, SR
-	BSR.w	loc_0000043C
+	BSR.w	System_WaitForVIntOccurVDPBit
 	BSR.w	loc_00000454
 	ANDI	#$F8FF, SR
 MainLoop:
@@ -197,11 +197,11 @@ MainLoop:
 	BRA.b	MainLoop
 
 WaitForVint:
-	LEA	$00FF05C6, A0
+	LEA	rFrameCount, A0
 	MOVE.w	(A0), D0
-@waitVint:
+@Wait:
 	CMP.w	(A0), D0
-	BEQ.b	@waitVint
+	BEQ.b	@Wait
 	RTS
 	
 loc_0000033B:
@@ -230,56 +230,53 @@ Option_InitSettings:
 	MOVE.b	#1, rOption_Player2BButton
 	MOVE.b	#2, rOption_Player2CButton
 	RTS
-loc_0000043C:
+
+System_WaitForVIntOccurVDPBit:
 	NOP
 	NOP
 	NOP
 	NOP
 	MOVE.w	vdpControl1, D0
 	BTST.l	#1, D0
-	BNE.b	loc_0000043C
+	BNE.b	System_WaitForVIntOccurVDPBit
 	RTS
+
 loc_00000454:
 	LEA	rOption_SoundTestEnabled, A1
-loc_00000458:
 	JSR	loc_0001DC32
 	CMP.w	$00FFFC00, D0
 	BEQ.w	loc_000004BC
+
 	LEA	$00FFFE02, A1
 	JSR	loc_0001DC32
 	CMP.w	$00FFFE00, D0
 	BEQ.w	loc_00000482
+	
 	BSR.w	loc_0000049C
 loc_00000482:
 	LEA	$00FFFE00, A1
-loc_00000488:
 	LEA	$00FFFC00, A2
 	MOVE.w	#$002B, D0
 loc_00000492:
 	MOVE.l	(A1)+, (A2)+
-loc_00000494:
 	DBF	D0, loc_00000492
 	BRA.w	loc_000004BC
 loc_0000049C:
 	LEA	$00FFFC00, A0
-loc_000004A2:
 	MOVEQ	#0, D0
 	MOVE.w	#$00FF, D1
 loc_000004A8:
 	MOVE.l	D0, (A0)+
-loc_000004AA:
 	DBF	D1, loc_000004A8
 	BSR.w	loc_0000033B
 	BSR.w	Option_InitSettings
 	JMP	loc_0001DC02
 loc_000004BC:
 	LEA	$00FF0000, A0
-loc_000004C2:
 	MOVEQ	#0, D0
 	MOVE.w	#$3BFF, D1
 loc_000004C8:
 	MOVE.l	D0, (A0)+
-loc_000004CA:
 	DBF	D1, loc_000004C8
 	BSR.w	init_initVDP
 	BSR.w	Bytecode_Init
@@ -288,7 +285,7 @@ loc_000004CA:
 	BSR.w	loc_00001046
 	JSR	UpdateSprites
 	BSR.w	loc_000007C0
-	BSR.w	loc_0000075A
+	BSR.w	Video_LoadQueuedPalettes
 	LEA	$00FF0A23, A0
 	ORI.b	#$40, (A0)
 	MOVE.w	#$8100, D0
@@ -298,8 +295,8 @@ loc_000004CA:
 
 ErrorTrap:
 	ORI	#$0700, SR
-	BSR.w	invertPalette
-	BSR.w	loc_0000075A
+	BSR.w	InvertPalette
+	BSR.w	Video_LoadQueuedPalettes
 ErrorTrapLoop:
 	NOP
 	NOP
@@ -308,7 +305,7 @@ ErrorTrapLoop:
  ; Checks for inserted coins (Leftover from arcade version)
  ; Changing ANDI #$FFFE, SR to ORI.w #1, SR will make the 
  ; game think that there are no coins inserted.
-arcade_checkCoins:
+Arcade_CheckCoins:
 	ANDI	#$FFFE, SR
 	RTS
 
@@ -316,20 +313,20 @@ arcade_checkCoins:
 VerticalInterrupt:
 	ORI	#$0700, SR
 	MOVEM.l	A6/A5/A4/A3/A2/A1/A0/D7/D6/D5/D4/D3/D2/D1/D0, -(A7)
-	ADDQ.w	#1, $00FF05C6
+	ADDQ.w	#1, rFrameCount
 	BSR.w	loc_0000064C ; Something to do with the sega logo
 	BSR.w	loc_00000606
 	JSR	loc_00007378 ; Z80 Related
 	BSR.w	loc_000007C0 ; Sprite Related
 	BSR.w	loc_00000880
 	BSR.w	loc_0000095A
-	BSR.w	loc_0000075A
-	JSR	Video_LoadQueuedBgMaps
+	BSR.w	Video_LoadQueuedPalettes
+	JSR		Video_LoadQueuedBgMaps
 	BSR.w	UpdateRNG
-	TST.w	$00FF1834
-	BEQ.w	loc_00000568
+	TST.w	rRunningOptionsMenuCode
+	BEQ.w	@NotRunningOptionsCode
 	BSR.w	loc_00000572
-loc_00000568:
+@NotRunningOptionsCode:
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/D6/D7/A0/A1/A2/A3/A4/A5/A6
 	ANDI	#$F8FF, SR
 	RTR
@@ -439,51 +436,51 @@ loc_0000070C:
 	MOVE.w	D0, vdpControl1
 	MOVE.b	D0, $00FF0A22
 	RTS
-loc_00000728:
+
+; Dead Code: Reloads all global palettes that are not currently queued for reloading.
+dead_ReloadAllNonQueuedGPal:
 	MOVE.w #3, D0
-	LEA $00FF0A3E, A0
-	LEA $00FF0A56, A1
-loc_00000738:
+	LEA rPalQueueTable, A0
+	LEA rPalQueueMainEnt1, A1
+@dead_NextPal:
 	TST.w (A0)
-	BNE.w loc_00000748
+	BNE.w @dead_AlreadyQueued
 	MOVE.w #-1, $00(A0)
 	MOVE.l A1, $02(A0)
-loc_00000748:
+@dead_AlreadyQueued:
 	ADDA.l #6, A0
 	ADDA.l #$20, A1
-	DBF D0, loc_00000738
+	DBF D0, @dead_NextPal
 	RTS
 
-loc_0000075A:
-	LEA	$00FF0A3E, A2
-	LEA	$00FF0A56, A3
+Video_LoadQueuedPalettes:
+	LEA	rPalQueueTable, A2
+	LEA	rPalQueueMainEnt1, A3
 	MOVE.w	#3, D0
 	MOVEQ	#0, D1
-loc_0000076C:
+@NextPal:
 	TST.w	(A2)
-	BEQ.w	loc_00000778
+	BEQ.w	@NoUpdate
 	CLR.w	(A2)
-	BSR.w	loc_0000078E
-loc_00000778:
+	BSR.w	@LoadPal
+@NoUpdate:
 	ADDA.l	#6, A2
 	ADDA.l	#$00000020, A3
 	ADDI.b	#$20, D1
-	DBF	D0, loc_0000076C
+	DBF	D0, @NextPal
 	RTS
-loc_0000078E:
+@LoadPal:
 	MOVEM.l	A3, -(A7)
-loc_00000792:
 	MOVEA.l	$2(A2), A4
 	MOVE.w	#$C000, D2
 	MOVE.b	D1, D2
 	MOVE.w	D2, vdpControl1
 	MOVE.w	#0, vdpControl1
 	MOVE.w	#$000F, D2
-loc_000007AE:
+@NextColor:
 	MOVE.w	(A4), vdpData1
-loc_000007B4:
 	MOVE.w	(A4)+, (A3)+
-	DBF	D2, loc_000007AE
+	DBF	D2, @NextColor
 	MOVEM.l	(A7)+, A3
 	RTS
 
@@ -629,15 +626,14 @@ loc_00000A14:
 ; Note: Nothing that I know of in the disassembly references $FF0138.
 dead_00000A20:
 	tst.b ($00FF0138).l
-	bne.w dead_00000A2C
+	bne.w @dead_00000A2C
 	rts
-dead_00000A2C:
+@dead_00000A2C:
 	clr.b ($00FF0138).l
 	move.w #$100, (Z80BusReq)
-dead_00000A3A:
+@dead_00000A3A:
 	btst.b #0, (Z80BusReq)
-dead_00000A42:
-	bne.b dead_00000A3A
+	bne.b @dead_00000A3A
 	lea (vdpControl1), a0
 	move.w #$8100, d0
 	move.b ($00FF0A23), d0
@@ -661,13 +657,13 @@ dead_00000A42:
 	mulu.w #$800, d0
 	adda.l d0, a2
 	move.w #$3FF, d0
-dead_00000AB0:
+@dead_00000AB0:
 	move.w (a2)+, (a1)+
-	dbf d0, dead_00000AB0
+	dbf d0, @dead_00000AB0
 	move.w #$100, (Z80BusReq)
-dead_00000ABE:
+@dead_00000ABE:
 	btst.b #0, (Z80BusReq)
-	bne.b dead_00000ABE
+	bne.b @dead_00000ABE
 	lea (vdpControl1), a0
 	move.w #$8100, d0
 	move.b ($00FF0A23), d0
@@ -693,13 +689,13 @@ dead_00000ABE:
 	mulu.w #$800, d0
 	adda.l d0, a2
 	move.w #$3FF, d0
-dead_00000B3A:
+@dead_00000B3A:
 	move.w (a2)+, (a1)+
-	dbf d0, dead_00000B3A
+	dbf d0, @dead_00000B3A
 	move.w #$100, (Z80BusReq)
-dead_00000B48:
+@dead_00000B48:
 	btst.b #0, (Z80BusReq)
-	bne.b dead_00000B48
+	bne.b @dead_00000B48
 	lea (vdpControl1), a0
 	move.w #$8100, d0
 	move.b ($00FF0A23), d0
@@ -878,13 +874,13 @@ loc_00000D16:
 
 init_initVDP:
 	CLR.w	D0
-	BSR.w	vdp_setVdpState
-	BSR.w	loc_00000FC6
+	BSR.w	Video_SetVDPState
+	BSR.w	ClearGPal0ReloadAll
 	RTS
 
-bc_setVDPMode:
+Bytecode_SetVDPMode:
 	ORI	#$0700, SR
-	BSR.w	vdp_setVdpState
+	BSR.w	Video_SetVDPState
 	LEA	$00FF0A23, A0
 	ORI.b	#$40, (A0)
 	MOVE.w	#$8100, D0
@@ -893,7 +889,7 @@ bc_setVDPMode:
 	ANDI	#$F8FF, SR
 	RTS
 
-vdp_setVdpState:
+Video_SetVDPState:
 	LSL.w	#2, D0
 loc_00000D56:
 	MOVEA.l	vdp_vdpRegTable(PC,D0.w), A2
@@ -952,7 +948,7 @@ loc_00000E5C:
 	CLR.l	D0
 	MOVE.w	$8(A1), D0
 	LSL.l	#5, D0
-	LEA	$00FF0A56, A2
+	LEA	rPalQueueMainEnt1, A2
 	ADDA.l	D0, A2
 	ADDA.l	#2, A3
 	BSR.w	loc_00000F52
@@ -1054,41 +1050,40 @@ loc_00000FAA:
 	ADDQ.b	#4, D1
 loc_00000FB6:
 	RTS
-loc_00000FB8:
+
+ClearGP0ReloadNoInt:
 	ORI	#$0700, SR
-	BSR.w	loc_00000FC6
+	BSR.w	ClearGPal0ReloadAll
 	ANDI	#$F8FF, SR
 	RTS
-loc_00000FC6:
+ClearGPal0ReloadAll:
 	MOVEQ	#0, D0
-loc_00000FC8:
-	LEA	$00FF0A56, A2
+	LEA	rPalQueueMainEnt1, A2
 	MOVE.w	#$001F, D1
-loc_00000FD2:
+@ClearNext:
 	MOVE.l	D0, (A2)+
-loc_00000FD4:
-	DBF	D1, loc_00000FD2
-loc_00000FD8:
-	LEA	$00FF0A3E, A2
+	DBF	D1, @ClearNext
+ReloadAllGlobalPals:
+	LEA	rPalQueueTable, A2
 	MOVE.w	#$FFFF, (A2)+
-	MOVE.l	#$00FF0A56, (A2)+
+	MOVE.l	#rPalQueueMainEnt1, (A2)+
 	MOVE.w	#$FFFF, (A2)+
-	MOVE.l	#$00FF0A76, (A2)+
+	MOVE.l	#rPalQueueMainEnt2, (A2)+
 	MOVE.w	#$FFFF, (A2)+
-	MOVE.l	#$00FF0A96, (A2)+
+	MOVE.l	#rPalQueueMainEnt3, (A2)+
 	MOVE.w	#$FFFF, (A2)+
-	MOVE.l	#$00FF0AB6, (A2)+
+	MOVE.l	#rPalQueueMainEnt4, (A2)+
 	RTS
 	
-invertPalette:
-	LEA	$00FF0A56, A2
+InvertPalette:
+	LEA	rPalQueueMainEnt1, A2
 	MOVE.w	#$003F, D0
-loc_00001012:
+@InvertNext:
 	MOVE.w	(A2), D1
 	EORI.w	#$0EEE, D1
 	MOVE.w	D1, (A2)+
-	DBF	D0, loc_00001012
-	BRA.b	loc_00000FD8
+	DBF	D0, @InvertNext
+	BRA.b	ReloadAllGlobalPals
 
 Video_LoadPaletteIntoIndex:
 	MOVEM.l	A3/D1, -(A7)
@@ -1097,7 +1092,7 @@ Video_LoadPaletteIntoIndex:
 	MOVE.w	D0, D1
 	LSL.w	#1, D0
 	ADD.w	D1, D0
-	LEA	$00FF0A3E, A3
+	LEA	rPalQueueTable, A3
 	MOVE.l	A2, $2(A3,D0.w)
 	MOVE.w	#$FFFF, (A3,D0.w)
 	MOVEM.l	(A7)+, D1/A3
@@ -1488,7 +1483,7 @@ BytecodeOP_JumpTbl:
 	RTS
 	
 BytecodeOP_SetVDP:
-	BRA.w	bc_setVDPMode
+	BRA.w	Bytecode_SetVDPMode
 	
 BytecodeOP_LoadArt:
 	MOVEA.l	rBytecode_PC, A1
@@ -1547,9 +1542,9 @@ cutsceneLoadMusic:
 	MOVE.b	cutsceneSongs(PC,D1.w), D0
 	JSR	SndDrv_PlayMusicId
 	CMPI.b	#cutID_Harpy, rOnePlayer_CurCutscene
-	BEQ.w	loc_0000206E
+	BEQ.w	@PlayHarpyTheme
 	RTS
-loc_0000206E:
+@PlayHarpyTheme:
 	MOVE.b	#musID_HarpyTheme, D0
 	JMP	SndDrv_QueueSoundEffect
 cutsceneSongs:
@@ -1605,7 +1600,6 @@ tbl_loadBattleBackground:
 	LEA art_ruinsBoard, A0
 	MOVE.w  #0, D0
 	JSR System_DecompressComp
-loc_00002103:
 	MOVE.w	#5, D0
 	JMP	Video_QueueBgMapFromId
 battleLoadTutorialBG:
@@ -1658,10 +1652,11 @@ tbl_loadBattlePalette:
 	LEA palLookupTable, A2
 	ADDA.l  #(pal_optionsBackground-palLookupTable), A2
 	JMP Video_LoadPaletteIntoIndex
+
 loc_000021D0:
 	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
 	BCC.w	loc_000021E0
-	BSR.w	loc_00000FB8
+	BSR.w	ClearGP0ReloadNoInt
 loc_000021E0:
 	RTS
 	
@@ -1757,7 +1752,7 @@ pal_ruinsBattleSatan:
 
 
 ; These values relate to when a battle begins (when carbuncle pops the baloon)
-loc_00002730:
+Anim_CarbuncleBalloonPop:
 	dc.b	$06
 	dc.b	$09 
 	dc.b	$04
@@ -2559,9 +2554,9 @@ SndDrv_PlayRotatePuyo:
 	
 loc_00002E10:
 	TST.b	rCurGameMode
-	BEQ.w	loc_00002E1C
+	BEQ.w	@IsStoryMode
 	RTS
-loc_00002E1C:
+@IsStoryMode:
 	TST.b	$2A(A0)
 	BEQ.w	loc_00002E26
 	RTS
@@ -2620,11 +2615,11 @@ loc_00002EAA:
 loc_00002EBA:
 	MOVE.b	#4, D2
 	CMPI.b	#1, rCurGameMode
-	BEQ.w	loc_00002ED6
+	BEQ.w	@IsVSMode
 	CLR.w	D1
 	MOVE.b	rOnePlayer_CurStage, D1
 	MOVE.b	loc_00002EAA(PC,D1.w), D2
-loc_00002ED6:
+@IsVSMode:
 	MOVE.w	#$00FF, D1
 	CLR.w	D0
 	LEA	$00FF111C, A1
@@ -2652,9 +2647,9 @@ loc_00002F2A:
 	MOVE.b	(A1)+, (A2)+
 	DBF	D1, loc_00002F2A
 	CMPI.b	#1, rCurGameMode
-	BEQ.w	loc_00002F3E
+	BEQ.w	@IsVSMode
 	RTS
-loc_00002F3E:
+@IsVSMode:
 	MOVE.w	#$00F7, D1
 	CLR.w	D0
 	LEA	$00FF1224, A1
@@ -2742,7 +2737,7 @@ loc_00003048:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_00003048
-loc_00003056:
+Battle_LoadObjects:
 	MOVE.w	#$CB1E, $00FF18A8
 	TST.b	$00FF1884
 	BEQ.w	loc_00003070
@@ -2752,17 +2747,18 @@ loc_00003070:
 	CLR.w	$00FF05D0
 	CLR.b	$00FF1883
 	TST.b	rCurGameMode
-	BNE.w	loc_00003096
+	BNE.w	@NotStoryMode
 	CLR.b	$00FF111A
 	BSR.w	OnePlayer_LoadBattleMusic
-loc_00003096:
+@NotStoryMode:
 	BSR.w	loc_00000BA4
 	MOVE.w	#$8B00, D0
 	MOVE.b	$00FF0A2D, D0
 	ORI.b	#4, D0
 	MOVE.b	D0, $00FF0A2D
 	
-	LEA	loc_00003172, A1
+	; Init Player
+	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F1, $0(A1)
 	MOVE.b	#0, $2A(A1)
@@ -2771,7 +2767,8 @@ loc_00003096:
 	MOVE.w	$00FF187E, $16(A1)
 	MOVEA.l	A1, A2
 	
-	LEA	loc_00003172, A1
+	; Init 2nd Player / CPU
+	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F2, $0(A1)
 	MOVE.b	#1, $2A(A1)
@@ -2779,37 +2776,37 @@ loc_00003096:
 	MOVE.l	A1, $2E(A2)
 	MOVE.l	A2, $2E(A1)
 
-	BSR.w	loc_000050AA
+	BSR.w	Battle_LoadCarbuncleObj
 	BSR.w	loc_00003006
 	JSR	loc_0000F57C
 	BSR.w	loc_00003130
 	CMPI.b	#2, rCurGameMode
-	BNE.w	loc_0000312E
+	BNE.w	@NotEndless
 	MOVE.l	#$800F0000, D0
 	JSR	Video_QueueBgMapSpecial
 	BSR.w	loc_00007F5E
-loc_0000312E:
+@NotEndless:
 	RTS
 loc_00003130:
 	MOVE.l	#$80000000, D0
 	MOVE.b	rCurGameMode, D1
 	ANDI.b	#3, D1
-	BNE.w	loc_0000314A
+	BNE.w	@IsStoryOrTutorialMode
 	MOVE.l	#$80060000, D0
-loc_0000314A:
+@IsStoryOrTutorialMode:
 	JMP	Video_QueueBgMapSpecial
 loc_00003150:
 	MOVE.b	rCurGameMode, D2
 	BTST.l	#2, D2
-	BNE.w	loc_00003170
+	BNE.w	@NotTutorialMode
 	CLR.w	D0
 	MOVE.b	$2A(A0), D0
 	LEA	$00FF0144, A1
 	MOVE.b	#$7F, (A1,D0.w)
-loc_00003170:
+@NotTutorialMode:
 	RTS
 	
-loc_00003172:
+Battle_PlayerObjStart:
 	JSR	loc_0000F134
 	BSR.w	loc_00003A04
 	MOVE.b	$00FF1888, D0
@@ -3054,9 +3051,9 @@ loc_00003510:
 	BCC.w	loc_00003566
 loc_0000351E:
 	CMPI.b	#2, rCurGameMode
-	BNE.w	loc_0000352C
+	BNE.w	@NotEndlessMode
 	ASL.b	#1, D1
-loc_0000352C:
+@NotEndlessMode:
 	MOVE.w	#$8800, D0
 	MOVE.b	$2A(A0), D0
 	SWAP	D0
@@ -3410,9 +3407,9 @@ loc_00003A08:
 loc_00003A18:
 	MOVE.l	A1, $32(A0)
 	CMPI.b	#2, rCurGameMode
-	BNE.w	loc_00003A2E
+	BNE.w	@NotEndlessMode
 	MOVE.w	#$FFFF, $20(A1)
-loc_00003A2E:
+@NotEndlessMode:
 	MOVE.b	rCurGameMode, D0
 	OR.b	$2A(A0), D0
 	CMPI.b	#5, D0
@@ -4388,7 +4385,7 @@ loc_00004624:
 	CMPI.b	#2, D0
 	BNE.w	loc_00004664
 	MOVE.w	#$8000, D1
-	MOVE.w	$00FF05C6, D2
+	MOVE.w	rFrameCount, D2
 	LSL.b	#3, D2
 	ANDI.b	#8, D2
 	OR.b	D2, $7(A1)
@@ -5219,13 +5216,14 @@ loc_0000508C:
 	dc.w 	$0090, $0150, $0090, $0090, $0090
 	dc.w 	$0150, $0090, $0090, $0090, $0150
 	dc.w 	$0090, $0090, $0090, $0150, $0090
-loc_000050AA:
+
+Battle_LoadCarbuncleObj:
 	CLR.w	$00FF18C6
-	LEA	loc_00005124, A1
+	LEA	@UpdateStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
-	BCC.w	loc_000050C0
+	BCC.w	@AllocSuccess
 	RTS
-loc_000050C0:
+@AllocSuccess:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#SprMapID_Carbuncle, Obj_SprMap(A1)
 	MOVE.b	#9, Obj_AnmFrm(A1)
@@ -5235,24 +5233,25 @@ loc_000050C0:
 	MOVE.b	rCurGameMode, D0
 	ANDI.b	#3, D0
 	LSL.b	#3, D0
-	MOVE.w	loc_00005104(PC,D0.w), $A(A1)
-	MOVE.w	loc_00005106(PC,D0.w), $E(A1)
-	MOVE.w	loc_00005106(PC,D0.w), $20(A1)
-	MOVE.l	loc_00005108(PC,D0.w), $32(A1)
+	MOVE.w	@XYAnimTbl(PC,D0.w), Obj_XPos(A1)
+	MOVE.w	@XYAnimTbl+2(PC,D0.w), Obj_YPos(A1)
+	MOVE.w	@XYAnimTbl+2(PC,D0.w), $20(A1)
+	MOVE.l	@XYAnimTbl+4(PC,D0.w), Obj_Anim(A1)
 	RTS
-loc_00005104:
+@XYAnimTbl:
 	dc.w	$0140
-loc_00005106:
 	dc.w	$0128
-loc_00005108:
-	dc.l	loc_00002730
-	dc.l 	$01200108
-	dc.l    loc_00002730
-	dc.l 	$0120010C
+	dc.l	Anim_CarbuncleBalloonPop
+	dc.w 	$0120
+	dc.w	$0108
+	dc.l    Anim_CarbuncleBalloonPop
+	dc.w 	$0120
+	dc.w	$010C
 	dc.l    loc_0000274A
-	dc.l 	$01200108
+	dc.w 	$0120
+	dc.w	$0108
 	dc.l    loc_0000274A
-loc_00005124:
+@UpdateStart:
 	CMPI.b	#1, rCurGameMode
 	BNE.w	loc_0000514A
 	MOVEA.l	$2E(A0), A1
@@ -6658,7 +6657,7 @@ loc_00006B64:
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006C5E
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCS.w	loc_00006C5E
 	BRA.w	loc_00006CD2
 loc_00006C5E:
@@ -6671,7 +6670,7 @@ loc_00006C5E:
 loc_00006C78:
 	BSR.w	loc_00006000
 	MOVE.w	#$8008, D0
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCS.w	loc_00006C8E
 	MOVE.w	#$8009, D0
 loc_00006C8E:
@@ -6732,7 +6731,7 @@ loc_00006D56:
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006D88
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCS.w	loc_00006D88
 	BRA.w	loc_00006DC8
 loc_00006D88:
@@ -6745,7 +6744,7 @@ loc_00006D88:
 loc_00006DA2:
 	BSR.w	loc_00006000
 	MOVE.w	#$8009, D0
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCC.w	loc_00006DB8
 	MOVE.b	#7, D0
 loc_00006DB8:
@@ -10393,7 +10392,7 @@ Sega_LogoInit:
 	DBF	D1, @LoadPal2
 	
 	MOVE.b	#0, D0
-	LEA	$00FF0A56, A2
+	LEA	rPalQueueMainEnt1, A2
 	JSR	Video_LoadPaletteIntoIndex
 	SUBQ.w	#2, $26(A0)
 	BMI.w	@TimerIsNegative
@@ -12163,7 +12162,7 @@ loc_0000BF2E:
 	cmpi.w #$C, d0
 	bcs.b    loc_0000BF2E
 	clr.b    d0
-	lea    ($00FF0A56).l, a2
+	lea    (rPalQueueMainEnt1).l, a2
 	jmp		Video_LoadPaletteIntoIndex
 loc_0000BF48:
 	move.w    $C(a0, d0.w), d1
@@ -12677,7 +12676,7 @@ GameOver_Init:
 	BSR.w	loc_00004BF2
 	BTST.l	#7, D0
 	BEQ.w	@ContinueRunning
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCS.w	@ContinueRunning
 	BRA.w	@ExitContinue
 @ContinueRunning:
@@ -12740,7 +12739,7 @@ GameOver_Init:
 	OR.w	D1, D0
 	MOVE.w	D0, $00FF0A94
 	MOVE.b	#1, D0
-	LEA	$00FF0A76, A2
+	LEA	rPalQueueMainEnt2, A2
 	JMP	Video_LoadPaletteIntoIndex
 
 @InitGameOverText:
@@ -12815,7 +12814,7 @@ GameOver_Init:
 	RTS
 @AnimPart4:
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	arcade_checkCoins ; This call does nothing
+	JSR	Arcade_CheckCoins ; This call does nothing
 	MOVE.b	$36(A0), D0
 	ORI.b	#$80, D0
 	MOVE.w	#$1800, D1
@@ -12843,14 +12842,17 @@ GameOver_Init:
 	MOVE.l	#$80100F00, D0	
 @UnkBranch2:
 	JMP	Video_QueueBgMapSpecial	
+	
 ; ---------- File End: game/game_over.asm ----------
 
-loc_0000C946:
+; ---------- File Start: game/sega_main.asm ----------
+
+Sega_CreateMainObjAlt:
 	LEA	Sega_Update, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000C958
+	BCC.w	@AllocSuccess
 	RTS
-loc_0000C958:
+@AllocSuccess:
 	MOVE.w	#$0C00, $26(A1)
 	RTS
 	
@@ -12879,35 +12881,41 @@ Sega_Update:
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 
-loc_0000C9BA:
-	LEA	loc_0000C9F0, A1
+; ---------- File End: game/sega_main.asm ----------
+
+; ---------- File Start: game/insert_coin_demo.asm ----------
+
+Demo_CreateInsertCoinObj:
+	LEA	@Update, A1
 	JSR	loc_00002AB0
-	BCC.w	loc_0000C9CC
+	BCC.w	@AllocSuccess
 	RTS
-loc_0000C9CC:
+@AllocSuccess:
 	MOVE.b	#$80, $6(A1)
 	MOVE.b	#SprMapID_Credits, Obj_SprMap(A1)
 	CLR.w	D0
 	MOVE.b	rBytecode_Ret, D0
 	LSL.b	#2, D0
-	MOVE.w	loc_0000CA12(PC,D0.w), Obj_XPos(A1)
-	MOVE.w	loc_0000CA14(PC,D0.w), Obj_YPos(A1)
+	MOVE.w	@ObjXYTbl(PC,D0.w), Obj_XPos(A1)
+	MOVE.w	@ObjXYTbl+2(PC,D0.w), Obj_YPos(A1)
 	RTS
-loc_0000C9F0:
-	JSR	arcade_checkCoins
-	BCS.w	loc_0000CA00
+
+@Update:
+	JSR	Arcade_CheckCoins
+	BCS.w	@NoCoins
 	JMP	loc_00002AF2
-loc_0000CA00:
+@NoCoins:
 	MOVE.b	$00FF05C7, D0
 	LSL.b	#2, D0
 	ANDI.b	#$80, D0
 	MOVE.b	D0, $6(A0)
 	RTS
-loc_0000CA12:
-	dc.w	$00EE
-loc_0000CA14:
-	dc.w	$0100, $008E, $00E0, $008E, $00E0 
-
+@ObjXYTbl:
+	dc.w	$00EE, $0100
+	dc.w	$008E, $00E0
+	dc.w	$008E, $00E0 
+	
+; ---------- File End: game/insert_coin_demo.asm ----------
 
 ; ---------- File Start: game/title_screen.asm ----------
 ; This section of code contains almost all code related to the title screen.
@@ -12922,12 +12930,14 @@ TitleScreen_CreateArleObj:
 	MOVE.w	#$0160, $A(A1)
 	MOVE.l	#loc_0000CB4C, $32(A1)
 	
+	; Arle Blinking
 	LEA	loc_0000CDB2, A1
 	JSR	ObjSys_InitObjWithFunc
 	BCS.w	@ObjDidntLoad
 	MOVE.l	A2, $2E(A1)
 	MOVE.b	#$24, $8(A1)
 	
+	; Arle Mouth
 	LEA	loc_0000CDEE, A1
 	JSR	ObjSys_InitObjWithFunc
 	BCS.w	@ObjDidntLoad
@@ -13361,20 +13371,20 @@ TitleScreen_MainObjInit:
 	BTST.l	#7, D0
 	BEQ.w	@StartNotPressed
 	; Start was pressed, check if there are coins inserted
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCC.w	TitleScreen_MainObjEnd
 @StartNotPressed:
 	BRA.w	@UselessBranch
 
 @UselessBranch:
 	MOVE.b	#4, D0
-	JSR	arcade_checkCoins
+	JSR	Arcade_CheckCoins
 	BCC.w	@CoinsAreInserted
 	MOVE.b	#3, D0
 @CoinsAreInserted:
 	; Display the "Press Start" text, only if coins are inserted.
 	MOVE.b	D0, $9(A0)
-	MOVE.w	$00FF05C6, D0
+	MOVE.w	rFrameCount, D0
 	LSL.b	#3, D0
 	ANDI.b	#$80, D0
 	MOVE.b	D0, $6(A0)
@@ -15397,7 +15407,7 @@ loc_0000DE6A:
 	LEA	loc_0000DEC8, A1
 	TST.b	(A1,D0.w)
 	BEQ.w	loc_0000DEAA
-	JSR	loc_00000FB8
+	JSR	ClearGP0ReloadNoInt
 	MOVEM.l	A0, -(A7)
 	JSR	ObjMgr_InitObjSystem
 	MOVEM.l	(A7)+, A0
@@ -25212,7 +25222,7 @@ bgmap_menuDifficultyRight:
 SoundTest_Init:
 	BSR.w	SoundTest_LoadArleSprite
 	BSR.w	SoundTest_LoadSatanSprite
-	MOVE.b	#$FF, $00FF1834
+	MOVE.b	#$FF, rRunningOptionsMenuCode
 	MOVE.w	#$E000, D5
 	MOVE.w	#$001B, D0
 	MOVE.w	#$406C, D6
@@ -25235,7 +25245,7 @@ SoundTest_InitObj:
 	JMP	ObjSys_InitObjWithFunc
 
 BadCheck_Init:
-	move.b #-1, ($00FF1834).l
+	move.b #-1, (rRunningOptionsMenuCode).l
 	move.w #$E000, D5
 	move.w #$1B, D0
 	move.w #$406C, D6
@@ -25273,7 +25283,7 @@ BadCheck_Update:
 	move.w #$100, D0
 	jsr loc_00002B1C
 	jsr loc_00002b40
-	clr.b ($00FF1834).l
+	clr.b (rRunningOptionsMenuCode).l
 	clr.b (rBytecode_StopRun).l
 	jmp loc_00002AF2
 	
@@ -25377,7 +25387,7 @@ SoundTest_ClearAudio:
 	JMP	SndDrv_PlayClearEffect
 
 SoundTest_Exit:
-	CLR.b	$00FF1834
+	CLR.b	rRunningOptionsMenuCode
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
 
@@ -25690,7 +25700,7 @@ SoundTest_CommandTxtTbl:
 	even
 	
 Option_Init:
-	MOVE.b	#$FF, $00FF1834
+	MOVE.b	#$FF, rRunningOptionsMenuCode
 	MOVE.w	#$E000, D5
 	MOVE.w	#$001B, D0
 	MOVE.w	#$006C, D6
@@ -25951,7 +25961,7 @@ Option_Update:
 	RTS
 loc_0001D72C:
 	BSR.w	loc_0001DC02
-	CLR.b	$00FF1834
+	CLR.b	rRunningOptionsMenuCode
 	MOVE.b	#0, rBytecode_Ret
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
@@ -26069,7 +26079,7 @@ loc_0001D8BC:
 	MOVE.b	#sfxID_2B, D0
 	JSR	SndDrv_QueueSoundEffect
 	MOVEM.l	(A7)+, D0
-	CLR.b	$00FF1834
+	CLR.b	rRunningOptionsMenuCode
 	MOVE.b	#1, rBytecode_Ret
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
@@ -26348,6 +26358,7 @@ loc_0001DC26:
 	DBF	D0, loc_0001DC26
 	MOVEM.l	(A7)+, D0/D1/D2/D3/A1/A2
 	RTS
+
 loc_0001DC32:
 	MOVE.w	#$0056, D2
 	CLR.w	D0
@@ -26362,6 +26373,7 @@ loc_0001DC46:
 	ROR.w	#8, D0
 	NOT.w	D0
 	RTS
+
 loc_0001DC50:
 	BTST.b	#1, rCurGameMode
 	BNE.w	loc_0001DCB4

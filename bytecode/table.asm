@@ -2,7 +2,7 @@
 	
 Bytecode_Bootup: ; Bootup Lookup Table
 
-	BRUN loc_00000FB8
+	BRUN ClearGP0ReloadNoInt
 	
 	BRUN Debug_InitDebugFlags
 	
@@ -32,7 +32,7 @@ Bytecode_Bootup: ; Bootup Lookup Table
 	
 	BNOP
 Bytecode_SegaScreen:
-	BRUN loc_00000FB8
+	BRUN ClearGP0ReloadNoInt
 	
 	BVMODE $0001
 	
@@ -334,7 +334,7 @@ Bytecode_Unknown1:
 	
 	BNOP
 	
-	BRUN loc_00003056
+	BRUN Battle_LoadObjects
 	
 	BNOP
 	
@@ -669,7 +669,7 @@ Bytecode_Unknown3:
 	BART $2000, art_ingameAssets
 	BRUN loc_00007F9C
 	BRUN loc_00002EBA
-	BRUN loc_00003056
+	BRUN Battle_LoadObjects
 	
 	BSTOP
 	
@@ -717,7 +717,7 @@ Bytecode_Endless:
 	
 	BRAM $00FF1108, $0802
 	
-	BRUN loc_00003056
+	BRUN Battle_LoadObjects
 	
 	BSTOP
 	
@@ -760,9 +760,9 @@ Bytecode_Unknown6:
 	BPAL pal_grassBattle, 2
 	BPAL pal_general, 3
 	
-	BRUN loc_0000C9BA
+	BRUN Demo_CreateInsertCoinObj
 	BRUN loc_00002EBA
-	BRUN loc_00003056
+	BRUN Battle_LoadObjects
 	
 	BNOP
 	
@@ -771,7 +771,7 @@ Bytecode_Unknown6:
 	BNOP
 	
 	BRUN loc_0000C14A
-	BRUN loc_0000C946
+	BRUN Sega_CreateMainObjAlt
 	
 	BSTOP
 	
@@ -803,7 +803,7 @@ Bytecode_TutorialDemo:
 	BNOP
 	BSND musID_Cooking
 	
-	BRUN loc_0000C9BA
+	BRUN Demo_CreateInsertCoinObj
 	BRUN loc_00010560
 	BRUN loc_000105CC
 	
@@ -850,7 +850,7 @@ Bytecode_RecordScreen4:
 	
 	BRAM $00FF1890, $00FF
 	
-	BRUN loc_0000C9BA
+	BRUN Demo_CreateInsertCoinObj
 	BRUN loc_0000BB0E
 
 	BPAL pal_recordScreenMain, 0

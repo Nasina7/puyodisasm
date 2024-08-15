@@ -107,66 +107,66 @@ checksum:
 	dc.b	"             " ; Reserved
 Reset:
 	TST.l	$00A10008
-	BNE.b	loc_0000020F
+	BNE.b	@loc_0000020F
 	TST.w	$00A1000C
-loc_0000020F:
-	BNE.b	loc_0000028D
-	LEA	loc_0000028F(PC), A5
+@loc_0000020F:
+	BNE.b	@SkipInit
+	LEA	@SetupValues(PC), A5
 	MOVEM.w	(A5)+, D5/D6/D7
 	MOVEM.l	(A5)+, A0/A1/A2/A3/A4
-	MOVE.b	-$10FF(A1), D0
+	MOVE.b	-$10FF(A1), D0 ; Grab hardware revision
 	ANDI.b	#$0F, D0
-	BEQ.b	loc_0000022F
-	MOVE.l	#$53454741, $2F00(A1)
-loc_0000022F:
+	BEQ.b	@SkipSecurity ; Skip TMSS pass if the console doesn't need it.
+	MOVE.l	#'SEGA', $2F00(A1)
+@SkipSecurity:
 	MOVE.w	(A4), D0
 	MOVEQ	#0, D0
 	MOVEA.l	D0, A6
 	MOVE.l	A6, USP
 	MOVEQ	#$00000017, D1
-loc_00000239:
+@VDPInitLoop:
 	MOVE.b	(A5)+, D5
 	MOVE.w	D5, (A4)
 	ADD.w	D7, D5
-	DBF	D1, loc_00000239
+	DBF	D1, @VDPInitLoop
 	MOVE.l	(A5)+, (A4)
 	MOVE.w	D0, (A3)
 	MOVE.w	D7, (A1)
 	MOVE.w	D7, (A2)
-loc_0000024B:
+@WaitForZ80:
 	BTST.b	D0, (A1)
-	BNE.b	loc_0000024B
+	BNE.b	@WaitForZ80
 	MOVEQ	#$00000025, D2
-loc_00000251:
+@Z80InitLoop:
 	MOVE.b	(A5)+, (A0)+
-	DBF	D2, loc_00000251
+	DBF	D2, @Z80InitLoop
 	MOVE.w	D0, (A2)
 	MOVE.w	D0, (A1)
 	MOVE.w	D7, (A2)
-loc_0000025D:
+@ClearRAMLoop:
 	MOVE.l	D0, -(A6)
-	DBF	D6, loc_0000025D
+	DBF	D6, @ClearRAMLoop
 	MOVE.l	(A5)+, (A4)
 	MOVE.l	(A5)+, (A4)
 	MOVEQ	#$0000001F, D3
-loc_00000269:
+@ClearCRAMLoop:
 	MOVE.l	D0, (A3)
-	DBF	D3, loc_00000269
+	DBF	D3, @ClearCRAMLoop
 	MOVE.l	(A5)+, (A4)
 	MOVEQ	#$00000013, D4
-loc_00000273:
+@ClearVSRAMLoop:
 	MOVE.l	D0, (A3)
-	DBF	D4, loc_00000273
+	DBF	D4, @ClearVSRAMLoop
 	MOVEQ	#3, D5
-loc_0000027B:
+@PSGInitLoop:
 	MOVE.b	(A5)+, $11(A3)
-	DBF	D5, loc_0000027B
+	DBF	D5, @PSGInitLoop
 	MOVE.w	D0, (A2)
 	MOVEM.l	(A6), D0/D1/D2/D3/D4/D5/D6/D7/A0/A1/A2/A3/A4/A5/A6
 	MOVE	#$2700, SR
-loc_0000028D:
+@SkipInit:
 	BRA.b	EntryPoint
-loc_0000028F:
+@SetupValues:
 	dc.w	$8000
 	dc.w	$3FFF
 	dc.w	$0100
@@ -177,7 +177,10 @@ loc_0000028F:
 	dc.l    vdpData1
 	dc.l    vdpControl1
 	
-	dc.b	$04, $14, $30, $3C, $07, $6C, $00 
+	dc.b	$04
+    dc.b    $14
+    dc.b    $30
+    dc.b    $3C, $07, $6C, $00 
 	dc.b	$00, $00, $00, $FF, $00, $81, $37, $00, $01, $01, $00, $00, $FF, $FF, $00, $00, $80, $40, $00, $00, $80, $AF, $01, $D9, $1F, $11, $27, $00, $21, $26, $00, $F9 ;0x20
 	dc.b	$77, $ED, $B0, $DD, $E1, $FD, $E1, $ED, $47, $ED, $4F, $D1, $E1, $F1, $08, $D9, $C1, $D1, $E1, $F1, $F9, $F3, $ED, $56, $36, $E9, $E9, $81, $04, $8F, $02, $C0 ;0x40
 	dc.b	$00, $00, $00, $40, $00, $00, $10, $9F, $BF, $DF, $FF ;0x60
@@ -189,10 +192,10 @@ EntryPoint:
 	ANDI	#$F8FF, SR
 MainLoop:
 	BSR.w	WaitForVint
-	BSR.w	loc_00007CBE
+	BSR.w	CheckPauseGame
 	BSR.w	UpdateControllers
 	BSR.w	Bytecode_Run
-	BSR.w	loc_00002A00
+	BSR.w	UpdateObjects
 	JSR	UpdateSprites
 	BRA.b	MainLoop
 
@@ -1099,7 +1102,7 @@ Video_LoadPaletteIntoIndex:
 	RTS
 	
 loc_00001046:
-	LEA	ram_pad1Held, A1
+	LEA	rPad1Held, A1
 loc_0000104C:
 	MOVE.w	#$000B, D0
 loc_00001050:
@@ -1132,11 +1135,10 @@ loc_000010AA:
 	ANDI	#$F8FF, SR
 	RTS
 loc_000010BE:
-	LEA	ram_pad1Held, A0
-loc_000010C4:
+	LEA	rPad1Held, A0
 	LEA	padData1, A1
 	BSR.w	loc_000010DA
-	LEA	$00FF1110, A0
+	LEA	rPad2Held, A0
 	LEA	padData2, A1
 loc_000010DA:
 	MOVE.b	#0, (A1)
@@ -2205,32 +2207,32 @@ ObjMgr_InitObjSystem:
 	DBF	D0, @Loop2
 	RTS
 	
-loc_00002A00:
-	MOVE.b	$00FF0144, D0
-loc_00002A06:
+UpdateObjects:
+	MOVE.b	$00FF0144, D0 ; Check for lowest prio mask
 	ROL.b	#1, D0
 	ANDI.b	#1, D0
 	EORI.b	#1, D0
-	MOVE.b	$00FF0145, D1
+
+	MOVE.b	$00FF0145, D1 ; Check for second lowest prio mask
 	ROL.b	#2, D1
 	ANDI.b	#2, D1
 	EORI.b	#2, D1
+
 	OR.b	D0, D1
-	ORI.b	#$0C, D1
+	ORI.b	#$0C, D1 ; The two highest prio masks are always enabled.
+
 	LEA	ObjectBuffer, A0
 	MOVE.w	#$003F, D0
 loc_00002A30:
 	MOVE.b	$0(A0), D2
-loc_00002A34:
 	AND.b	D1, D2
-	BEQ.w	loc_00002A48
+	BEQ.w	@SkipObject ; Skip if the object doesn't have a high enough prio.
 	MOVEM.l	D1/D0, -(A7)
 	MOVEA.l	$2(A0), A1
 	JSR	(A1)
 	MOVEM.l	(A7)+, D0/D1
-loc_00002A48:
+@SkipObject:
 	ADDA.l	#$00000040, A0
-loc_00002A4E:
 	DBF	D0, loc_00002A30
 	RTS
 
@@ -2318,8 +2320,8 @@ ObjSys_UpdateObjNextOpTimer:
 	RTS
 
 loc_00002B40:
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	ANDI.b	#$F0, D0
 	BNE.w	loc_00002B68
 	TST.w	$24(A0)
@@ -2504,7 +2506,7 @@ loc_00002D34:
 	BCS.w	loc_00002D84
 	MOVE.w	#$0400, $38(A1)
 	MOVE.l	#$00FF0606, $32(A1)
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00002D84
 	MOVE.l	#$00FF05D6, $32(A1)
 loc_00002D84:
@@ -2739,7 +2741,7 @@ loc_00003048:
 	dc.l	loc_00003048
 Battle_LoadObjects:
 	MOVE.w	#$CB1E, $00FF18A8
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00003070
 	MOVE.w	#$CC22, $00FF18A8
 loc_00003070:
@@ -3430,7 +3432,7 @@ loc_00003A48:
 	ANDI.b	#3, D0
 	LSL.b	#1, D0
 	OR.b	$2A(A0), D0
-	MOVE.b	$00FF1884, D1
+	MOVE.b	rCurMainPlayer, D1
 	EOR.b	D1, D0
 	LSL.b	#2, D0
 	MOVE.w	loc_00003AE4(PC,D0.w), D1
@@ -4812,21 +4814,21 @@ MissionMode_BoardTable:
 	; Board 3
 	dc.b	$00, $00, $00, $C0, $00, $00, $00, $00, $00, $90, $00, $00, $00, $00, $80, $90, $00, $B0, $00, $00, $D0, $80, $00, $B0, $00, $D0, $80, $90, $00, $C0, $C0, $D0, $80, $90, $B0, $B0, $05, $00
 
-loc_00004BF2:
-	MOVE.w	ram_pad1Held, D0
-	TST.b	$00FF1884
-	BEQ.w	loc_00004C08
-	MOVE.w	$00FF1110, D0
-loc_00004C08:
+GetMainControllerHeld:
+	MOVE.w	rPad1Held, D0
+	TST.b	rCurMainPlayer
+	BEQ.w	@P1IsMain
+	MOVE.w	rPad2Held, D0
+@P1IsMain:
 	RTS
 loc_00004C0A:
 	MOVEM.l	A2/D2, -(A7)
 	CLR.w	D2
 	MOVE.b	$2A(A0), D2
-	MOVE.b	$00FF1884, D0
+	MOVE.b	rCurMainPlayer, D0
 	EOR.b	D0, D2
 	MULU.w	#6, D2
-	LEA	ram_pad1Held, A2
+	LEA	rPad1Held, A2
 	MOVE.w	(A2,D2.w), D0
 	MOVE.b	$2(A2,D2.w), D1
 	MOVE.b	rCurGameMode, D2
@@ -4854,7 +4856,7 @@ loc_00004C5C:
 	MOVEM.l	A3/A2, -(A7)
 	CLR.w	D1
 	MOVE.b	$2A(A0), D1
-	MOVE.b	$00FF1884, D2
+	MOVE.b	rCurMainPlayer, D2
 	LEA	rOption_Player1AButton, A2
 	EOR.b	D2, D1
 	BEQ.w	loc_00004CA0
@@ -5178,14 +5180,14 @@ loc_00004FE4:
 loc_0000500C:
 	MOVEM.l	D1/D0, -(A7)
 	MOVE.b	$2A(A0), D0
-	MOVE.b	$00FF1884, D1
+	MOVE.b	rCurMainPlayer, D1
 	EOR.b	D1, D0
 	MOVEM.l	(A7)+, D0/D1
 	RTS
 loc_00005022:
 	MOVEM.l	D1, -(A7)
 	CLR.w	D1
-	MOVE.b	$00FF1884, D1
+	MOVE.b	rCurMainPlayer, D1
 	LSL.b	#1, D1
 	OR.b	$2A(A0), D1
 	LSL.b	#3, D1
@@ -5204,7 +5206,7 @@ loc_00005064:
 	ANDI.b	#3, D1
 	LSL.b	#1, D1
 	OR.b	$2A(A0), D1
-	MOVE.b	$00FF1884, D0
+	MOVE.b	rCurMainPlayer, D0
 	EOR.b	D0, D1
 	LSL.b	#2, D1
 	MOVE.w	loc_0000508A(PC,D1.w), D0
@@ -5265,8 +5267,8 @@ loc_0000514A:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	BSR.w	Anim_UpdateCutsceneSprite
 	BCS.w	loc_000051A0
-	MOVE.b	ram_pad1Held, D0
-	OR.b	$00FF1110, D0
+	MOVE.b	rPad1Held, D0
+	OR.b	rPad2Held, D0
 	ANDI.b	#$F0, D0
 	BEQ.w	loc_0000516E
 	CLR.w	$22(A0)
@@ -7891,45 +7893,44 @@ loc_00007CA8:
 loc_00007CB2:
 	clr.b rBytecode_StopRun
 	jmp loc_00002AF2
-loc_00007CBE:
+
+
+
+CheckPauseGame:
 	MOVEQ	#0, D2
-loc_00007CC0:
-	MOVE.b	ram_pad1Press, D0
-	MOVE.b	$00FF1111, D1
-	TST.b	$00FF1884
-	BEQ.w	loc_00007CD8
+	MOVE.b	rPad1Press, D0
+	MOVE.b	rPad2Press, D1
+	TST.b	rCurMainPlayer
+	BEQ.w	@P1IsMain
 	EXG	D0, D1
-loc_00007CD8:
+@P1IsMain:
 	BTST.b	#1, rCurGameMode
-loc_00007CE0:
 	BNE.w	loc_00007D0A
 	OR.b	D1, D0
 	MOVE.b	D0, D1
 	TST.b	$00FF0144
 	BPL.w	loc_00007D0A
-	MOVE.b	ram_pad1Press, D0
+	MOVE.b	rPad1Press, D0
 	TST.b	$00FF0143
 	BEQ.w	loc_00007D08
-	MOVE.b	$00FF1111, D0
+	MOVE.b	rPad2Press, D0
 loc_00007D08:
 	MOVE.b	D0, D1
 loc_00007D0A:
 	LEA	$00FF0144, A2
-loc_00007D10:
 	MOVE.w	#0, D2
 	BSR.w	loc_00007D1E
 	MOVE.b	D1, D0
 	MOVE.w	#1, D2
 loc_00007D1E:
 	TST.b	(A2,D2.w)
-loc_00007D22:
 	BEQ.w	loc_00007DB8
 	BTST.l	#7, D0
 	BEQ.w	loc_00007DB8
 	EORI.b	#$80, (A2,D2.w)
 	BPL.w	loc_00007D90
 	MOVEM.l	D0, -(A7)
-	MOVE.b	ram_pad1Press, D0
+	MOVE.b	rPad1Press, D0
 	ANDI.b	#$80, D0
 	EORI.b	#$80, D0
 	MOVE.b	D0, $00FF0143
@@ -7960,6 +7961,7 @@ loc_00007D90:
 	JMP	SndDrv_QueueSoundEffect
 loc_00007DB8:
 	RTS
+
 loc_00007DBA:
 	BTST.l	#$10, D2
 	BNE.w	loc_00007DCC
@@ -7974,6 +7976,7 @@ loc_00007DCE:
 	JSR	SndDrv_PlayPauseOff
 loc_00007DE0:
 	RTS
+
 loc_00007DE2:
 	MOVEM.l	D2/D1, -(A7)
 loc_00007DE6:
@@ -8023,7 +8026,7 @@ loc_00007E54:
 loc_00007E68:
 	CLR.w	D1
 loc_00007E6A:
-	MOVE.b	$00FF1884, D1
+	MOVE.b	rCurMainPlayer, D1
 	LSL.b	#1, D1
 	OR.b	D2, D1
 	LSL.b	#3, D1
@@ -8441,7 +8444,7 @@ loc_0000845C:
 	MOVE.w	#$0180, D1
 	MOVE.w	#$0150, D2
 	MOVE.w	#$0010, D3
-	MOVE.b	$00FF1884, D5
+	MOVE.b	rCurMainPlayer, D5
 	EOR.b	D5, D4
 	BEQ.w	loc_00008482
 	MOVE.w	#$00C0, D1
@@ -10079,7 +10082,7 @@ Cutscene_ThunderObjStart:
 	bsr.w ObjSys_UpdateObjNextOpTimer
 	cmpi.w #$FF20, ($00FF05D2).l
 	bne.w loc_00002AF2
-	btst.b #5, (ram_pad1Press).l
+	btst.b #5, (rPad1Press).l
 	bne.w loc_0000A0C8
 	subq.w #1, $26(a0)
 	beq.w loc_0000A0C8
@@ -11119,7 +11122,7 @@ MenuScreen_MainObjInit:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000B1CC
 	JSR	Anim_UpdateCutsceneSprite
-	BSR.w	loc_00004BF2
+	BSR.w	GetMainControllerHeld
 	MOVE.b	D0, D1
 	ANDI.b	#$F0, D0
 	BNE.w	MenuScreen_PressedABCStart
@@ -11178,7 +11181,7 @@ MenuScreen_PressedABCStart:
 	BEQ.w	MenuScreen_InitDifficultySel
 	CMPI.b	#3, D1
 	BEQ.w	@IsOptions
-	CLR.b	$00FF1884
+	CLR.b	rCurMainPlayer
 @IsOptions:
 	CLR.b	rBytecode_StopRun
 	JMP	loc_00002AF2
@@ -11303,10 +11306,10 @@ loc_0000B3A8:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	loc_0000B460
 	ADDQ.b	#1, $2A(A0)
-	BSR.w	loc_00004BF2
+	BSR.w	GetMainControllerHeld
 	ANDI.b	#$F0, D0
 	BNE.w	@ABCStartPressed
-	BSR.w	loc_00004BF2
+	BSR.w	GetMainControllerHeld
 	BTST.l	#btn_Left, D0
 	BNE.w	@LeftPressed
 	BTST.l	#btn_Right, D0
@@ -11440,7 +11443,7 @@ loc_0000B57A:
 	MOVEA.l	A1, A0
 	MOVE.w	#$0080, D4
 	CLR.w	D0
-	MOVE.b	$00FF1884, D0
+	MOVE.b	rCurMainPlayer, D0
 	LSL.b	#1, D0
 	OR.b	$2A(A0), D0
 	LSL.w	#2, D0
@@ -11660,8 +11663,8 @@ loc_0000B864:
 loc_0000B880:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $26(A0)
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	BTST.l	#2, D0
 	BNE.w	loc_0000B936
 	ANDI.b	#$70, D0
@@ -11974,8 +11977,8 @@ loc_0000BC2C:
 	BCS.w	loc_0000BCAA
 	TST.b	$F(A0)
 	BNE.w	loc_0000BCA8
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	ANDI.b	#$F0, D0
 	BEQ.w	loc_0000BCA8
 	TST.b	$2A(A0)
@@ -12358,7 +12361,7 @@ tbl_cutsceneOrder:
 loc_0000C21A:
 	MOVE.w	#$0060, $26(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00004BF2
+	BSR.w	GetMainControllerHeld
 	ANDI.b	#$F0, D0
 	BNE.w	loc_0000C288
 	CMPI.w	#$FF70, rScrollXScanFront
@@ -12673,7 +12676,7 @@ GameOver_Init:
 	RTS
 
 @MainObject:
-	BSR.w	loc_00004BF2
+	BSR.w	GetMainControllerHeld
 	BTST.l	#7, D0
 	BEQ.w	@ContinueRunning
 	JSR	Arcade_CheckCoins
@@ -12837,7 +12840,7 @@ GameOver_Init:
 	MOVE.b	#0, $6(A0)	
 	JSR	ObjSys_UpdateObjNextOpTimer	
 	MOVE.l	#$800B0F00, D0	
-	TST.b	$00FF1884	
+	TST.b	rCurMainPlayer	
 	BEQ.w	@UnkBranch2	
 	MOVE.l	#$80100F00, D0	
 @UnkBranch2:
@@ -12861,8 +12864,8 @@ Sega_CreateMainObj:
 	JMP	ObjSys_InitObjWithFunc
 	
 Sega_Update:
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	ANDI.b	#$F0, D0
 	BNE.w	@ButtonPressed
 	TST.w	$26(A0)
@@ -13281,7 +13284,7 @@ TitleScreen_InitValues:
 	CLR.w	rOnePlayer_CurStage
 	CLR.b	$00FF0115
 	CLR.b	$00FF0105
-	CLR.b	$00FF1884
+	CLR.b	rCurMainPlayer
 	MOVE.w	#$0011, D0
 	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 @Loop:
@@ -13366,8 +13369,8 @@ TitleScreen_MainObjInit:
 	ADDI.w	#$00F0, D0
 	MOVE.w	D0, $E(A0)
 	
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	BTST.l	#7, D0
 	BEQ.w	@StartNotPressed
 	; Start was pressed, check if there are coins inserted
@@ -13391,8 +13394,8 @@ TitleScreen_MainObjInit:
 	RTS
 	
 TitleScreen_UpdateSndTstCode:
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	ANDI.b	#$74, D0
 	BNE.w	@PressABCLeft
 	RTS
@@ -13422,12 +13425,12 @@ Title_SndTstCode:
 	even
 
 TitleScreen_MainObjEnd:
-	MOVE.b	#1, $00FF1884
+	MOVE.b	#1, rCurMainPlayer
 	MOVE.b	#1, $00FF1888
-	MOVE.b	$00FF1111, D0
+	MOVE.b	rPad2Press, D0
 	BTST.l	#7, D0
 	BNE.w	@StartPressed
-	EORI.b	#1, $00FF1884
+	EORI.b	#1, rCurMainPlayer
 	EORI.b	#1, $00FF1888
 @StartPressed:
 	MOVE.b	#sfxID_ConfirmSelection, D0
@@ -15057,8 +15060,8 @@ loc_0000D908:
 	lea (loc_0000D914).l, a1
 	jmp ObjSys_InitObjWithFunc
 loc_0000D914:
-	move.b (ram_pad1Press).l, d0
-	or.b ($00FF1111).l, d0
+	move.b (rPad1Press).l, d0
+	or.b (rPad2Press).l, d0
 	andi.b #$F0, d0
 	bne.w loc_0000D92A
 	rts
@@ -15580,7 +15583,7 @@ Cutscene_ControllerObj:
 	LEA	Cutscene_CutLookupTbl, A1
 	MOVE.l	(A1,D0.w), $32(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	JSR	loc_00004BF2
+	JSR	GetMainControllerHeld
 	ANDI.b	#$F0, D0
 	BNE.w	CutCmd_End
 	TST.w	$26(A0)
@@ -18866,7 +18869,7 @@ loc_000144E2:
 	dc.w 	$4A4D, $4A4C, $4A4B, $4A59, $4A58, $4A57
 loc_0001451E:
 	MOVE.w	#$C204, D2
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00014530
 	MOVE.w	#$C234, D2
 loc_00014530:
@@ -18900,7 +18903,7 @@ loc_000145B8:
 	MOVE.w	#3, D0
 	MOVE.w	#$A500, D6
 	MOVE.w	#$C21E, D5
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_000145D8
 	MOVE.w	#$C22A, D5
 loc_000145D8:
@@ -18913,7 +18916,7 @@ loc_000145D8:
 	MOVE.w	#3, D0
 	MOVE.w	#$A500, D6
 	MOVE.w	#$C21E, D5
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BNE.w	loc_00014608
 	MOVE.w	#$C22A, D5
 loc_00014608:
@@ -18977,7 +18980,7 @@ loc_000146DE:
 loc_000146E8:
 	dc.w 	$0000, $0000, $0000, $009E, $A6A4
 loc_000146F2:
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00014700
 	ADDI.w	#$0030, D5
 loc_00014700:
@@ -19079,7 +19082,7 @@ loc_0001486E:
 loc_0001487E:
 	dc.b	$A0, $0A, $A0, $0A 
 loc_00014882:
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00014890
 	ADDI.w	#$0030, D5
 loc_00014890:
@@ -19662,7 +19665,7 @@ loc_000151C8:
 	MOVEM.l	D1/D0, -(A7)
 	MOVE.w	#$C104, D5
 	MOVE.b	$3(A2), D0
-	MOVE.b	$00FF1884, D1
+	MOVE.b	rCurMainPlayer, D1
 	EOR.b	D1, D0
 	BEQ.w	loc_000151E4
 	MOVE.w	#$C134, D5
@@ -19686,7 +19689,7 @@ loc_00015204:
 	BRA.w	loc_00015228
 loc_00015212:
 	MOVE.w	#$CC22, D5
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_00015224
 	MOVE.w	#$CB1E, D5
 loc_00015224:
@@ -19742,7 +19745,7 @@ loc_0001529E:
 loc_000152AC:
 	MOVE.w	#$A500, D2
 	MOVE.w	#$CC22, D5
-	TST.b	$00FF1884
+	TST.b	rCurMainPlayer
 	BEQ.w	loc_000152C2
 	MOVE.w	#$CB1E, D5
 loc_000152C2:
@@ -19776,7 +19779,7 @@ BgLoad_BattleCrumbleFloor:
 	BSR.w	@GetCrumbleMapNumber
 	LSL.b	#1, D2
 	OR.b	$1(A2), D2
-	MOVE.b	$00FF1884, D0
+	MOVE.b	rCurMainPlayer, D0
 	EOR.b	D0, D2
 	LSL.w	#2, D2
 	LEA	@CrumbleMappingsTable, A4
@@ -25348,8 +25351,8 @@ SoundTest_Update:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	SoundTest_DrawIds
 	
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	BTST.l	#btn_Start, D0
 	BNE.w	SoundTest_Exit
 	BTST.l	#btn_B, D0
@@ -25948,15 +25951,15 @@ Option_Update:
 	JSR	ObjSys_UpdateObjNextOpTimer
 	ADDQ.b	#1, $26(A0)
 	BSR.w	loc_0001D8E4
-	MOVE.b	ram_pad1Press, D0
-	OR.b	$00FF1111, D0
+	MOVE.b	rPad1Press, D0
+	OR.b	rPad2Press, D0
 	BTST.l	#7, D0
 	BNE.w	loc_0001D72C
 	MOVE.w	#0, D0
-	MOVE.b	ram_pad1Press, D1
+	MOVE.b	rPad1Press, D1
 	BSR.w	loc_0001D74A
 	MOVE.w	#1, D0
-	MOVE.b	$00FF1111, D1
+	MOVE.b	rPad2Press, D1
 	BSR.w	loc_0001D74A
 	RTS
 loc_0001D72C:
@@ -25967,7 +25970,7 @@ loc_0001D72C:
 	JMP	loc_00002AF2
 loc_0001D74A:
 	MOVE.b	#2, D2
-	CMP.b	$00FF1884, D0
+	CMP.b	rCurMainPlayer, D0
 	BNE.w	loc_0001D76A
 	MOVE.b	#6, D2
 	TST.w	rOption_SoundTestEnabled
@@ -26274,11 +26277,11 @@ loc_0001DAFE:
 	BSR.w	Option_DrawStaticText
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	@loc_0001DB44
-	MOVE.b	ram_pad1Held, D0
+	MOVE.b	rPad1Held, D0
 	ANDI.b	#$C0, D0
 	EORI.b	#$C0, D0
 	BEQ.w	@loc_0001DB36
-	MOVE.b	$00FF1110, D0
+	MOVE.b	rPad2Held, D0
 	ANDI.b	#$C0, D0
 	EORI.b	#$C0, D0
 	BEQ.w	@loc_0001DB36
@@ -26288,9 +26291,9 @@ loc_0001DAFE:
 	JSR	SndDrv_QueueSoundEffect
 	BRA.w	Option_Update
 @loc_0001DB44:
-	MOVE.b	ram_pad1Held, D0
+	MOVE.b	rPad1Held, D0
 	LSL.w	#8, D0
-	MOVE.b	$00FF1110, D0
+	MOVE.b	rPad2Held, D0
 	LEA	loc_0001DB92, A2
 	MOVE.w	#$000F, D1
 @loc_0001DB5C:

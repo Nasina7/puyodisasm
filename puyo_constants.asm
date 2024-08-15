@@ -76,6 +76,7 @@ stgID_Satan			= $0F
 ; $00FF0000 = Decomp Buffer ; 0x100 Bytes
 ; $00FF0100 = Decomp Buffer2; 0x4 Bytes
 
+
 ram_calcChecksum = $FF0106 	; Word
 
 rOnePlayer_CurStage = $FF0112
@@ -102,8 +103,11 @@ rPalQueueMainEnt3  = $FF0A96 ; Goes until $FF0AB5
 rPalQueueMainEnt4  = $FF0AB6 ; Goes until $FF0AD5
 
 
-ram_pad1Held = $FF110A		; Byte
-ram_pad1Press = $FF110B		; Byte
+rPad1Held = $FF110A		; Byte
+rPad1Press = $FF110B	; Byte
+
+rPad2Held = $FF1110     ; Byte
+rPad2Press = $FF1111    ; Byte
 
 randomNumber = $FF1116		; Long
 
@@ -115,6 +119,7 @@ debug_skipStages = $FF1878	; Byte
 debug_unknown = $FF1879		; Byte
 
 rCurGameMode = $FF1882		; Byte [0 = Story, 1 = VS, 2 = Endless, 3 = Option, 4 = Tutorial]
+rCurMainPlayer = $FF1884    ; Byte (Set to the controller number that should be in control in 1 player mode)
 
 rMissionMode_CurBoard = $FF1889 ; Byte
 
@@ -134,6 +139,9 @@ rOption_Player2CButton = $00FFFCAB
 rOption_VoicesEnabled = $00FFFCAC
 ;rOption_FFFCAD
 
+
+; 0 = Priority System
+; Bits 3 and 2 
 ; Struct constants for objects
 ; 0 - Something to do with animation / updating?
 ; 1 - ???

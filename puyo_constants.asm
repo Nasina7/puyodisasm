@@ -99,6 +99,9 @@ rFrameTimer = $FF05CA   ; Word
 rSecondTimer = $FF05CC  ; Word
 rMinuteTimer = $FF05CE  ; Long (Upper half contains rSecondTimer%60, lower half is minutes)
 
+; Goes until FF0622
+rScrollYScanFront = $FF05D2
+rScrollYScanBack = $FF05D4
 ; Goes until FF09A1
 rScrollXScanFront = $FF0622
 rScrollXScanBack = $FF0624

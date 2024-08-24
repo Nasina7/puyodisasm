@@ -207,20 +207,28 @@ WaitForVint:
 	BEQ.b	@Wait
 	RTS
 	
-loc_0000033B:
-	LEA	loc_00000353, A1
+Record_InitData:
+	LEA	@RecordScreenData, A1
 	LEA	$00FFFC04, A2
 	MOVE.w	#$0027, D0
-loc_0000034B:
+@Loop:
 	MOVE.l	(A1)+, (A2)+
-	DBF	D0, loc_0000034B
+	DBF	D0, @Loop
 	RTS
-loc_00000353:
-	dc.w 	$1301, $14FF, $FFFF, $0000, $48A2, $01A0, $0000, $0000, $0C15, $0CFF, $FFFF, $0000, $4250, $015C, $0000, $0000
-	dc.w 	$0D09, $0EFF, $FFFF, $0000, $305E, $00CC, $0000, $0000, $1709, $14FF, $FFFF, $0000, $242C, $0089, $0000, $0000
-	dc.w 	$0E01, $13FF, $FFFF, $0000, $19FA, $0098, $0000, $0000, $1A0F, $0EFF, $FFFF, $0001, $A75E, $022E, $0000, $0000
-	dc.w 	$0801, $10FF, $FFFF, $0001, $9B9F, $01F3, $0000, $0000, $0412, $01FF, $FFFF, $0001, $9434, $0180, $0000, $0000
-	dc.w 	$1308, $05FF, $FFFF, $0001, $8621, $0195, $0000, $0000, $1A0F, $08FF, $FFFF, $0001, $7BB0, $016F, $0000, $0000
+@RecordScreenData:
+    ; [Name - 6 Bytes, $FF Terminated], [Score - 4 Bytes], [Block - 2 Bytes], [Padding? - 2 Bytes]
+    ; The name can be longer than 3 letters, although this isn't possible without hacking.
+	dc.w 	$1301, $14FF, $FFFF, $0000, $48A2, $01A0, $0000, $0000
+    dc.w    $0C15, $0CFF, $FFFF, $0000, $4250, $015C, $0000, $0000
+	dc.w 	$0D09, $0EFF, $FFFF, $0000, $305E, $00CC, $0000, $0000
+    dc.w    $1709, $14FF, $FFFF, $0000, $242C, $0089, $0000, $0000
+	dc.w 	$0E01, $13FF, $FFFF, $0000, $19FA, $0098, $0000, $0000
+
+    dc.w    $1A0F, $0EFF, $FFFF, $0001, $A75E, $022E, $0000, $0000
+	dc.w 	$0801, $10FF, $FFFF, $0001, $9B9F, $01F3, $0000, $0000 
+    dc.w    $0412, $01FF, $FFFF, $0001, $9434, $0180, $0000, $0000
+	dc.w 	$1308, $05FF, $FFFF, $0001, $8621, $0195, $0000, $0000
+    dc.w    $1A0F, $08FF, $FFFF, $0001, $7BB0, $016F, $0000, $0000
 	
 Option_InitSettings:
 	MOVE.b	#2, rOption_ComputerLevel
@@ -271,7 +279,7 @@ loc_0000049C:
 loc_000004A8:
 	MOVE.l	D0, (A0)+
 	DBF	D1, loc_000004A8
-	BSR.w	loc_0000033B
+	BSR.w	Record_InitData
 	BSR.w	Option_InitSettings
 	JMP	loc_0001DC02
 loc_000004BC:
@@ -321,8 +329,8 @@ VerticalInterrupt:
 	BSR.w	UpdateFSMTimer
 	JSR	SndDrv_Update
 	BSR.w	loc_000007C0 ; Sprite Related
-	BSR.w	loc_00000880
-	BSR.w	loc_0000095A
+	BSR.w	Video_UpdateVertScroll
+	BSR.w	Video_UpdateHoriScroll
 	BSR.w	Video_LoadQueuedPalettes
 	JSR		Video_LoadQueuedBgMaps
 	BSR.w	UpdateRNG
@@ -336,7 +344,7 @@ VerticalInterrupt:
 
 Option_LoadTmpPlaneToVram:
 	TST.w	rZ80IsBeingUpdated ; Were we interrupted in the middle of the Z80 update function?
-	BNE.w	@AvoidDMA ; If so, copy it manually (As far as I know, there's no reason to do this over just doing the DMA and not touching the Z80.)
+	BNE.w	@AvoidDMA ; If so, copy it manually
 	MOVE.w	#$0100, Z80BusReq ; Stop the Z80
 @WaitZ80Stop:
 	BTST.b	#0, Z80BusReq
@@ -534,26 +542,30 @@ loc_00000874:
 	DBF	D0, loc_0000086E
 	CLR.w	$00FF0DE4
 	RTS
-loc_00000880:
-	MOVE.w	#$8B00, D0
+
+Video_UpdateVertScroll:
+	; Load any changes made by the game for M3 and M4 regs
+    MOVE.w	#$8B00, D0
 	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	MOVE.w	D0, vdpControl1
 	MOVE.w	#$8C00, D0
 	MOVE.b	rVDPRegBTbl+rvtMode4, D0
 	MOVE.w	D0, vdpControl1
+    ; Check for Vertical Scroll Type
 	BTST.b	#2, rVDPRegBTbl+rvtMode3
-	BNE.w	loc_000008CC
+	BNE.w	@ScanlineScroll
+    ; Doing full screen scroll.
 	MOVE.l	#$40000010, vdpControl1
-	MOVE.w	$00FF05D2, vdpData1
-	MOVE.w	$00FF05D4, vdpData1
+	MOVE.w	rScrollYScanFront, vdpData1
+	MOVE.w	rScrollYScanBack, vdpData1
 	RTS
-loc_000008CC:
+@ScanlineScroll:
 	TST.w	rZ80IsBeingUpdated
-	BNE.w	loc_0000093A
+	BNE.w	@ManualDMACopy
 	MOVE.w	#$0100, Z80BusReq
-loc_000008DE:
+@WaitZ80Stop:
 	BTST.b	#0, Z80BusReq
-	BNE.b	loc_000008DE
+	BNE.b	@WaitZ80Stop
 	LEA	vdpControl1, A0
 	MOVE.w	#$8100, D0
 	MOVE.b	rVDPRegBTbl+rvtMode2, D0
@@ -572,29 +584,30 @@ loc_000008DE:
 	MOVE.w	D0, (A0)
 	MOVE.w	#0, Z80BusReq
 	RTS
-loc_0000093A:
-	LEA	$00FF05D2, A1
+@ManualDMACopy:
+	LEA	rScrollYScanFront, A1
 	MOVE.l	#$40000010, vdpControl1
 	MOVE.w	#$0027, D0
-loc_0000094E:
+@Loop:
 	MOVE.w	(A1)+, vdpData1
-	DBF	D0, loc_0000094E
+	DBF	D0, @Loop
 	RTS
-loc_0000095A:
+
+Video_UpdateHoriScroll:
 	BTST.b	#1, rVDPRegBTbl+rvtMode3
-	BNE.w	loc_0000098C
+	BNE.w	@ScrollEveryScanline
 	MOVE.w	#$7800, vdpControl1
-	MOVE.w	#2, vdpControl1
+	MOVE.w	#2, vdpControl1 ; Set VRAM Write to B800
 	MOVE.w	rScrollXScanFront, vdpData1
-	MOVE.w	rScrollXScanBack, vdpData1
+	MOVE.w	rScrollXScanBack, vdpData1 ; Sets values for a full screen scroll.
 	RTS
-loc_0000098C:
+@ScrollEveryScanline:
 	TST.w	rZ80IsBeingUpdated
-	BNE.w	loc_000009FA
+	BNE.w	@ManualDMACopy
 	MOVE.w	#$0100, Z80BusReq
-loc_0000099E:
+@WaitZ80Stop:
 	BTST.b	#0, Z80BusReq
-	BNE.b	loc_0000099E
+	BNE.b	@WaitZ80Stop
 	LEA	vdpControl1, A0
 	MOVE.w	#$8100, D0
 	MOVE.b	rVDPRegBTbl+rvtMode2, D0
@@ -613,14 +626,14 @@ loc_0000099E:
 	MOVE.w	D0, (A0)
 	MOVE.w	#0, Z80BusReq
 	RTS
-loc_000009FA:
+@ManualDMACopy:
 	LEA	rScrollXScanFront, A1
 	MOVE.w	#$7800, vdpControl1
 	MOVE.w	#2, vdpControl1
 	MOVE.w	#$01FF, D0
-loc_00000A14:
+@Loop:
 	MOVE.w	(A1)+, vdpData1
-	DBF	D0, loc_00000A14
+	DBF	D0, @Loop
 	RTS
 	
 ; Large Dead Code
@@ -723,7 +736,7 @@ loc_00000BAE:
 	CLR.w	(A1)+
 	DBF	D0, loc_00000BAE
 	MOVE.w	#$004F, D0
-	LEA	$00FF05D2, A1
+	LEA	rScrollYScanFront, A1
 loc_00000BBE:
 	CLR.w	(A1)+
 	DBF	D0, loc_00000BBE
@@ -900,7 +913,7 @@ loc_00000D64:
 	MOVE.w	D1, vdpControl1
 	MOVE.b	D1, (A3)+
 	DBF	D0, loc_00000D64
-	CLR.l	$00FF05D2
+	CLR.l	rScrollYScanFront
 	CLR.l	rScrollXScanFront
 	RTS
 vdp_vdpRegTable:
@@ -1124,7 +1137,6 @@ UpdateControllers:
 	MOVE.w	#$0100, Z80BusReq
 loc_000010A2:
 	BTST.b	#0, Z80BusReq
-loc_000010AA:
 	BNE.b	loc_000010A2
 	BSR.w	loc_000010BE
 	MOVE.w	#0, Z80BusReq
@@ -1138,7 +1150,6 @@ loc_000010BE:
 	LEA	padData2, A1
 loc_000010DA:
 	MOVE.b	#0, (A1)
-loc_000010DE:
 	NOP
 	NOP
 	MOVE.b	(A1), D1
@@ -1154,11 +1165,9 @@ loc_000010DE:
 	NOT.b	D0
 	ANDI.b	#$0C, D2
 	BEQ.w	loc_0000110A
-loc_00001108:
 	ANDI.b	#$CF, D0
 loc_0000110A:
 	MOVE.b	$0(A0), D1
-loc_0000110E:
 	MOVE.b	D0, $0(A0)
 	MOVE.b	$0(A0), $1(A0)
 	NOT.b	D1
@@ -1227,8 +1236,6 @@ loc_000011BA:
 	MOVE.b	D0, $4(A0)
 	RTS
 
-; Odd quirk of this function, it seems the last nibble of the random number
-; output by this function will always be 0xA.
 UpdateRNG:
 	MOVEM.l	D1, -(A7)
 	MOVE.l	randomNumber, D1
@@ -1295,7 +1302,7 @@ loc_0000135C:
 	move.b $36(a0), d0
 	clr.w d1
 	move.w #$6F, d4
-	move.w ($00FF05D4).l, d3
+	move.w (rScrollYScanBack).l, d3
 	subi.w #$FF5F, d3
 	bcs.w loc_00001394
 	cmpi.w #$70, d3
@@ -2487,7 +2494,6 @@ SprSys_InterpolateY:
 	SUB.l	D1, $16(A0)
 	RTS
 	
-; SprSys_UpdatePosInterpolate END
 
 loc_00002D34:
 	CMPI.b	#cutID_ZohDaimaoh, rOnePlayer_CurCutscene
@@ -3726,7 +3732,7 @@ loc_00003E26:
 	MOVE.w	$38(A0), D1
 	MOVE.w	$2C(A0), D3
 	MOVE.w	#5, D4
-	LEA	$00FF05D2, A2
+	LEA	rScrollYScanFront, A2
 loc_00003E3C:
 	ANDI.b	#$7F, D0
 	JSR	SignedSinWithMul
@@ -6193,7 +6199,7 @@ loc_000064BC:
 	BSR.w	loc_00005022
 	ANDI.w	#$007F, D0
 	MOVE.w	#5, D1
-	LEA	$00FF05D2, A2
+	LEA	rScrollYScanFront, A2
 loc_000064E2:
 	CLR.l	(A2,D0.w)
 	ADDQ.w	#4, D0
@@ -6934,7 +6940,7 @@ loc_00006FA0:
 	BCC.w	loc_00006FD4
 	BSR.w	SprSys_UpdatePosInterpolate
 	MOVE.w	$E(A0), D0
-	LEA	$00FF05D2, A2
+	LEA	rScrollYScanFront, A2
 	MOVE.w	$32(A0), D1
 	NEG.w	D0
 	MOVE.w	D0, (A2,D1.w)
@@ -7879,7 +7885,7 @@ loc_00007C5E:
 	move.w $38(a0), d1
 	bsr.w SignedSinWithMul
 	swap d2
-	lea $00FF05D2, a1
+	lea rScrollYScanFront, a1
 	move.w $26(a0), d0
 	move.w d2, (a1, d0.w)
 	subq.b #4, $36(a0)
@@ -9256,7 +9262,7 @@ loc_00009112:
 	ADDI.w	#$0018, D0
 	MOVE.w	D0, $26(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	CMPI.w	#$FF20, $00FF05D2
+	CMPI.w	#$FF20, rScrollYScanFront
 	BNE.w	loc_00002AF2
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000913E
@@ -9296,7 +9302,7 @@ loc_00009152:
 	MOVE.l	D2, $16(A1)
 	BRA.w	loc_00009112
 loc_000091D6:
-	CMPI.w	#$FF20, $00FF05D2
+	CMPI.w	#$FF20, rScrollYScanFront
 	BNE.w	loc_00002AF2
 	BSR.w	SprSys_UpdatePosInterpolate
 	BCS.w	loc_00002AF2
@@ -9369,7 +9375,7 @@ loc_000092D8:
 	ADDI.w	#$FF20, D0
 	TST.b	$00FF1892
 	BEQ.w	loc_000092EC
-	MOVE.w	D0, $00FF05D2
+	MOVE.w	D0, rScrollYScanFront
 loc_000092EC:
 	SUBQ.w	#1, $26(A0)
 	BCS.w	loc_00002AF2
@@ -9537,7 +9543,7 @@ Cutscene_ArtTable:
 	dc.l	art_cutsceneCharset_stage6
 	dc.l	art_cutsceneCharset_lessonEnd
 loc_0000958C:
-	TST.w	$00FF05D2
+	TST.w	rScrollYScanFront
 	BEQ.w	loc_000095F0
 	MOVE.w	$A(A0), $00FF18B2
 	TST.b	$00FF18AE
@@ -9698,7 +9704,7 @@ loc_00009BCA:
 	MOVE.b	#8, $8(A1)
 	RTS
 loc_00009BDA:
-	TST.w	$00FF05D2
+	TST.w	rScrollYScanFront
 	BEQ.w	loc_00009C30
 	MOVE.w	$A(A0), $00FF18B0
 	TST.b	$00FF18AC
@@ -9789,7 +9795,7 @@ loc_00009CFC:
 	beq.w loc_00002AF2
 	tst.b $7(a0)
 	bne.w loc_00009D24
-	cmpi.w #$FF20, ($00FF05D2).l
+	cmpi.w #$FF20, (rScrollYScanFront).l
 	bne.w loc_00009D1E
 	rts
 loc_00009D1E:
@@ -9951,7 +9957,7 @@ loc_00009EB8:
 	move.l #loc_00009EF8, $32(a0)
 loc_00009EC4:
 	bsr.w ObjSys_UpdateObjNextOpTimer
-	cmpi.w #$FF30, ($00FF05D2).l
+	cmpi.w #$FF30, (rScrollYScanFront).l
 	bcc.w loc_00002AF2
 	tst.w $26(a0)
 	beq.w loc_00009EE2
@@ -10063,7 +10069,7 @@ loc_0000A048:
 	bsr.w SprSys_UpdatePosInterpolate
 	move.w $e(a0), d0
 loc_0000A050:
-	sub.w ($00FF05D2).l, d0
+	sub.w (rScrollYScanFront).l, d0
 	or.w $a(a0), d0
 	bmi.w loc_00002AF2
 	rts
@@ -10086,7 +10092,7 @@ Cutscene_ThunderObjStart:
 	addq.w #4, d0
 	move.w d0, $26(a0)
 	bsr.w ObjSys_UpdateObjNextOpTimer
-	cmpi.w #$FF20, ($00FF05D2).l
+	cmpi.w #$FF20, (rScrollYScanFront).l
 	bne.w loc_00002AF2
 	btst.b #5, (rPad1Press).l
 	bne.w loc_0000A0C8
@@ -10147,8 +10153,8 @@ loc_0000A1A4:
 	BSR.w	ObjSys_InitObjWithFunc
 	LEA	loc_0000A23A, A1
 	BSR.w	ObjSys_InitObjWithFunc
-	MOVE.w	#$FF20, $00FF05D2
-	MOVE.w	#$FF60, $00FF05D4
+	MOVE.w	#$FF20, rScrollYScanFront
+	MOVE.w	#$FF60, rScrollYScanBack
 	MOVE.w	#$FFFF, $00FF1892
 	RTS
 loc_0000A1D2:
@@ -10165,12 +10171,12 @@ loc_0000A1DE:
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
 	MOVE.w	$E(A0), D0
-	MOVE.w	D0, $00FF05D2
+	MOVE.w	D0, rScrollYScanFront
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000A21E
 	RTS
 loc_0000A21E:
-	MOVE.w	#0, $00FF05D2
+	MOVE.w	#0, rScrollYScanFront
 	MOVE.b	#sfxID_PlacePuyo, D0
 	JSR	SndDrv_QueueSoundEffect
 	CLR.b	rBytecode_StopRun
@@ -10189,12 +10195,12 @@ loc_0000A246:
 	MOVE.l	$16(A0), D0
 	ADD.l	D0, $E(A0)
 	MOVE.w	$E(A0), D0
-	MOVE.w	D0, $00FF05D4
+	MOVE.w	D0, rScrollYScanBack
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000A286
 	RTS
 loc_0000A286:
-	MOVE.w	#0, $00FF05D4
+	MOVE.w	#0, rScrollYScanBack
 	MOVE.w	#$8B00, D0
 	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ANDI.b	#$FC, D0
@@ -10308,7 +10314,7 @@ loc_0000A438:
 	DBF	D1, loc_0000A438
 	LEA	rScrollXScanFront, A2
 	MOVE.w	#$01DC, D0
-	MOVE.w	$00FF05D4, D1
+	MOVE.w	rScrollYScanBack, D1
 	SUBI.w	#$FF60, D1
 	CMPI.w	#$0078, D1
 	BCC.w	loc_00002AF2
@@ -12133,7 +12139,7 @@ loc_0000BE70:
 	jsr		  SprSys_UpdatePosInterpolate
 	move.w    $E(a0), d0
 	neg.w     d0
-	move.w    d0, ($00FF05D4).l
+	move.w    d0, (rScrollYScanBack).l
 	cmpi.w    #$1C,$E(a0)
 	bcc.w    loc_0000BEAA
 	rts
@@ -12956,7 +12962,7 @@ TitleScreen_CreateArleObj:
 	RTS
 
 TitleScreen_ArleObjUpdate1:
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADDI.w	#$0160, D0
 	MOVE.w	D0, $E(A0)
 	JSR	Anim_UpdateCutsceneSprite
@@ -12993,7 +12999,7 @@ loc_0000CAD0:
 	JSR	SignedSinWithMul
 	SWAP	D2
 	NEG.w	D2
-	ADD.w	$00FF05D2, D2
+	ADD.w	rScrollYScanFront, D2
 	ADDI.w	#$01A8, D2
 	MOVE.w	D2, $E(A0)
 	ADDQ.b	#2, $36(A0)
@@ -13002,7 +13008,7 @@ loc_0000CAD0:
 	RTS
 loc_0000CB36:
 	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADDI.w	#$0160, D0
 	MOVE.w	D0, $E(A0)
 	RTS
@@ -13102,7 +13108,7 @@ loc_0000CBD8:
 loc_0000CC0E:
 	ADD.w	D1, D2
 	MOVE.w	D2, $20(A0)
-	ADD.w	$00FF05D2, D2
+	ADD.w	rScrollYScanFront, D2
 	MOVE.w	D2, $E(A0)
 	SUBQ.b	#3, $36(A0)
 	SUBQ.w	#1, $26(A0)
@@ -13112,7 +13118,7 @@ loc_0000CC2C:
 	MOVE.w	#$0010, $26(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	MOVE.w	$20(A0), D0
-	ADD.w	$00FF05D2, D0
+	ADD.w	rScrollYScanFront, D0
 	MOVE.w	D0, $E(A0)
 	SUBQ.w	#1, $26(A0)
 	BEQ.w	loc_0000CC50
@@ -13132,7 +13138,7 @@ loc_0000CC50:
 	JSR	SprSys_UpdatePosInterpolate
 	BCS.w	loc_0000CCA8
 	MOVE.w	$E(A0), $1E(A0)
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADD.w	D0, $E(A0)
 	RTS
 loc_0000CCA8:
@@ -13158,7 +13164,7 @@ loc_0000CCFC:
 	JSR	SprSys_UpdatePosInterpolate
 	BCS.w	loc_0000CD1E
 	MOVE.w	$E(A0), $1E(A0)
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADD.w	D0, $E(A0)
 	RTS
 loc_0000CD1E:
@@ -13244,7 +13250,7 @@ TitleScreen_CopyrightObjInit:
 	MOVE.b	#5, $9(A0)
 	MOVE.w	#$0120, $A(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADDI.w	#$014C, D0
 	MOVE.w	D0, $E(A0)
 	RTS
@@ -13299,7 +13305,7 @@ TitleScreen_InitValues:
 	RTS
 	
 TitleScreen_ScrollBG:
-	MOVE.w	$00FF05D4, D0
+	MOVE.w	rScrollYScanBack, D0
 	ANDI.b	#7, D0
 	BNE.w	loc_0000CF40
 	MOVE.w	#$9600, D0
@@ -13314,7 +13320,7 @@ loc_0000CF36:
 	SUBQ.b	#1, $28(A0)
 	ANDI.b	#$1F, $28(A0)
 loc_0000CF40:
-	SUBQ.w	#1, $00FF05D4
+	SUBQ.w	#1, rScrollYScanBack
 	RTS
 loc_0000CF48:
 	CMPI.b	#8, $29(A0)
@@ -13371,7 +13377,7 @@ TitleScreen_MainObjInit:
 	BSR.w	TitleScreen_UpdateSndTstCode
 	BSR.w	TitleScreen_ScrollBG
 	
-	MOVE.w	$00FF05D2, D0
+	MOVE.w	rScrollYScanFront, D0
 	ADDI.w	#$00F0, D0
 	MOVE.w	D0, $E(A0)
 	
@@ -15421,8 +15427,8 @@ loc_0000DE6A:
 	JSR	ObjMgr_InitObjSystem
 	MOVEM.l	(A7)+, A0
 	JSR	loc_00000BA4
-	MOVE.w	#$FF20, $00FF05D2
-	MOVE.w	#$FF60, $00FF05D4
+	MOVE.w	#$FF20, rScrollYScanFront
+	MOVE.w	#$FF60, rScrollYScanBack
 loc_0000DEAA:
 	CLR.w	D1
 	MOVE.b	rOnePlayer_CurStage, D1
@@ -16038,7 +16044,7 @@ loc_0000F0A6:
 	ADDQ.w	#1, D1
 	MOVE.w	(A3)+, D3
 	ADD.w	Obj_YPos(A0), D3
-	SUB.w	$00FF05D2, D3
+	SUB.w	rScrollYScanFront, D3
 	MOVE.w	D3, (A1)+
 	MOVE.b	(A3)+, (A1)+
 	ADDA.l	#1, A1
@@ -17912,7 +17918,7 @@ loc_000107E8:
 	JSR	loc_00005022
 	ANDI.w	#$007F, D0
 	MOVE.w	#5, D1
-	LEA	$00FF05D2, A2
+	LEA	rScrollYScanFront, A2
 loc_00010810:
 	CLR.l	(A2,D0.w)
 	ADDQ.w	#4, D0
@@ -18272,7 +18278,7 @@ loc_00010D20:
 	MOVE.w	#$2800, D1
 	JSR	SignedSinWithMul
 	SWAP	D2
-	MOVE.w	D2, $00FF05D2
+	MOVE.w	D2, rScrollYScanFront
 	SUBQ.b	#2, $36(A0)
 	BCS.w	loc_00010D4E
 	RTS
@@ -18420,7 +18426,7 @@ loc_00010F8A:
 	MOVE.w	#$3000, D1
 	JSR	SignedSinWithMul
 	SWAP	D2
-	MOVE.w	D2, $00FF05D2
+	MOVE.w	D2, rScrollYScanFront
 	CMPI.b	#$40, $36(A0)
 	BCC.w	loc_00010FBA
 	ADDQ.b	#2, $36(A0)
@@ -18450,7 +18456,7 @@ loc_00010FC0:
 	MOVE.w	#$3000, D1
 	JSR	SignedSinWithMul
 	SWAP	D2
-	MOVE.w	D2, $00FF05D2
+	MOVE.w	D2, rScrollYScanFront
 	CMPI.b	#$80, $36(A0)
 	BCC.w	loc_0001103A
 	ADDQ.b	#2, $36(A0)

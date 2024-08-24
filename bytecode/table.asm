@@ -248,7 +248,7 @@ Bytecode_PortraitScreen:
 	
 	BVMODE $0001
 	
-	BRUN loc_00000BDC
+	BRUN Video_DisableVDPHighlight
 	
 	BART $6000, art_cutsceneArle
 	
@@ -313,7 +313,7 @@ Bytecode_Unknown1:
 	
 	BSTOP 
 	
-	BRUN loc_00000BC6
+	BRUN Video_EnableVDPHighlight
 	
 	BART $2000, art_ingameAssets
 	
@@ -370,7 +370,7 @@ Bytecode_Unknown1:
 Bytecode_GameOver:
 	BVMODE $0001
 	
-	BRUN loc_00000BDC
+	BRUN Video_DisableVDPHighlight
 	
 	BRAM $00FF05D2, $0000
 	BRAM $00FF05D4, $0000
@@ -422,7 +422,7 @@ Bytecode_EasyModeEnding:
 
 	BVMODE $0001
 	
-	BRUN loc_00000BDC 
+	BRUN Video_DisableVDPHighlight 
 	
 	BART $6000, art_cutsceneArle
 	
@@ -511,7 +511,7 @@ Bytecode_Credits2:
 	BDELAY $0080
 	
 	BVMODE $0001
-	BRUN loc_00000BDC
+	BRUN Video_DisableVDPHighlight
 	BRAM $00FF05D2, $FF20
 	BRAM $00FF05D4, $FF60
 	
@@ -604,7 +604,7 @@ Bytecode_RecordScreen1PlayerOnly:
 
 	BVMODE $0000
 	
-	BRUN loc_00000BC6
+	BRUN Video_EnableVDPHighlight
 	
 	BSND musID_Cooking
 	
@@ -834,7 +834,7 @@ Bytecode_TutorialDemo:
 Bytecode_RecordScreen4:
 	BVMODE $0000
 	
-	BRUN loc_00000BC6
+	BRUN Video_EnableVDPHighlight
 	
 	BSND musID_Cooking
 	

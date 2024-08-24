@@ -72,6 +72,9 @@ stgID_Minotauros	= $0D
 stgID_Rulue			= $0E
 stgID_Satan			= $0F
 
+; Z80 Ram
+zrIDQueueCnt = $22
+
 ; Ram
 ; $00FF0000 = Decomp Buffer ; 0x100 Bytes
 ; $00FF0100 = Decomp Buffer2; 0x4 Bytes
@@ -83,25 +86,41 @@ rOnePlayer_CurStage = $FF0112
 rOnePlayer_CurCutscene = $FF0113
 rOnePlayer_DefeatedEnemyTbl = $FF0116
 
-mus_curSong = $FF012F		; Byte
+rZ80CurCmdMain = $FF012C
+rZ80CurCmdP1 = $FF012D
+rZ80CurCmdP2 = $FF012E
+rZ80CurSong = $FF012F		; Byte
+rZ80CurSFXQueue = $FF0130 ; 4 Bytes
+rZ80IsBeingUpdated = $FF0134 ; Word
 
 rFrameCount = $FF05C6		; Word
+;rFF05C8-FF05C9 (Unused)
+rFrameTimer = $FF05CA   ; Word
+rSecondTimer = $FF05CC  ; Word
+rMinuteTimer = $FF05CE  ; Long (Upper half contains rSecondTimer%60, lower half is minutes)
 
 ; Goes until FF09A1
 rScrollXScanFront = $FF0622
 rScrollXScanBack = $FF0624
 
+rVDPRegBTbl = $FF0A22 ; Goes to 0A34.  All of the table is used, but only some of it needs labels.
+rvtMode1 = $00
+rvtMode2 = $01
+rvtMode3 = $0B
+rvtMode4 = $0C
+;rFF0A35 (Unused, probably an even macro)
 rBytecode_PC = $FF0A36 				; Long
 rBytecode_Ret = $FF0A3A				; Byte
 rBytecode_StopRun = $FF0A3B			; Byte
 rBytecode_StopLoop = $FF0A3C 		; Byte
-;rFF0A3D [BYTE]
+;rFF0A3D (Unused, probably an even macro)
 rPalQueueTable = $FF0A3E ; Goes until $FF0A55
 rPalQueueMainEnt1  = $FF0A56 ; Goes until $FF0A75
 rPalQueueMainEnt2  = $FF0A76 ; Goes until $FF0A95
 rPalQueueMainEnt3  = $FF0A96 ; Goes until $FF0AB5
 rPalQueueMainEnt4  = $FF0AB6 ; Goes until $FF0AD5
 
+rTmpVDPDmaDest = $FF1106   ; Word
 
 rPad1Held = $FF110A		; Byte
 rPad1Press = $FF110B	; Byte
@@ -123,6 +142,7 @@ rCurMainPlayer = $FF1884    ; Byte (Set to the controller number that should be 
 
 rMissionMode_CurBoard = $FF1889 ; Byte
 
+rPlaneBuffer = $FFC000 ; Goes to FFCDFF, used as a temporary plane buffer for menus (and other things?)
 ObjectBuffer = $FFE000
 
 SystemStack = $FFFC00

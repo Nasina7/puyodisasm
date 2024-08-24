@@ -1,4 +1,4 @@
-# Puyo Puyo 1 Megadrive/Genesis Disassembly
+# Puyo Puyo 1 Sega Megadrive Disassembly
 This is a work-in-progress disassembly of Puyo Puyo 1 for the Megadrive/Genesis    
 Suggestions, pull requests, and the like are all welcome!    
 ## Disclaimer

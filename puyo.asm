@@ -289,7 +289,7 @@ loc_000004C8:
 	JSR	UpdateSprites
 	BSR.w	loc_000007C0
 	BSR.w	Video_LoadQueuedPalettes
-	LEA	$00FF0A23, A0
+	LEA	rVDPRegBTbl+rvtMode2, A0
 	ORI.b	#$40, (A0)
 	MOVE.w	#$8100, D0
 	MOVE.b	(A0), D0
@@ -318,8 +318,8 @@ VerticalInterrupt:
 	MOVEM.l	A6/A5/A4/A3/A2/A1/A0/D7/D6/D5/D4/D3/D2/D1/D0, -(A7)
 	ADDQ.w	#1, rFrameCount
 	BSR.w	loc_0000064C ; Something to do with the sega logo
-	BSR.w	loc_00000606
-	JSR	loc_00007378 ; Z80 Related
+	BSR.w	UpdateFSMTimer
+	JSR	SndDrv_Update
 	BSR.w	loc_000007C0 ; Sprite Related
 	BSR.w	loc_00000880
 	BSR.w	loc_0000095A
@@ -328,65 +328,63 @@ VerticalInterrupt:
 	BSR.w	UpdateRNG
 	TST.w	rRunningOptionsMenuCode
 	BEQ.w	@NotRunningOptionsCode
-	BSR.w	loc_00000572
+	BSR.w	Option_LoadTmpPlaneToVram
 @NotRunningOptionsCode:
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/D6/D7/A0/A1/A2/A3/A4/A5/A6
 	ANDI	#$F8FF, SR
 	RTR
 
-loc_00000572:
-	TST.w	$00FF0134
-	BNE.w	loc_000005E0
-	MOVE.w	#$0100, Z80BusReq
-loc_00000584:
+Option_LoadTmpPlaneToVram:
+	TST.w	rZ80IsBeingUpdated ; Were we interrupted in the middle of the Z80 update function?
+	BNE.w	@AvoidDMA ; If so, copy it manually (As far as I know, there's no reason to do this over just doing the DMA and not touching the Z80.)
+	MOVE.w	#$0100, Z80BusReq ; Stop the Z80
+@WaitZ80Stop:
 	BTST.b	#0, Z80BusReq
-	BNE.b	loc_00000584
+	BNE.b	@WaitZ80Stop
 	LEA	vdpControl1, A0
-	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
-	ORI.b	#$10, D0
+	MOVE.w	#$8100, D0  ; Prepare write to VDP mode reg 2
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
+	ORI.b	#$10, D0 ; Force enabling DMA operations
 	MOVE.w	D0, (A0)
-	MOVE.w	#$9407, (A0)
+	MOVE.w	#$9407, (A0) ; Set DMA length to $700 words
 	MOVE.w	#$9300, (A0)
 	MOVE.w	#$96E0, (A0)
-	MOVE.w	#$9500, (A0)
-	MOVE.w	#$977F, (A0)
-	MOVE.w	#$4000, (A0)
-	MOVE.w	#$0083, $00FF1106
-	MOVE.w	$00FF1106, (A0)
+	MOVE.w	#$9500, (A0) ; Set source address to $FFC000 as a DMA transfer
+	MOVE.w	#$977F, (A0) 
+	MOVE.w	#$4000, (A0) ; Set destination in VRAM
+	MOVE.w	#$0083, rTmpVDPDmaDest ; Write lower word of dest cmd to RAM
+	MOVE.w	rTmpVDPDmaDest, (A0) ; Set VRAM dest to $C000
 	MOVE.w	#$8100, D0
-loc_000005CE:
-	MOVE.b	$00FF0A23, D0
-loc_000005D4:
-	MOVE.w	D0, (A0)
-	MOVE.w	#0, Z80BusReq
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
+	MOVE.w	D0, (A0) ; Restore old VDP mode reg 2 value
+	MOVE.w	#0, Z80BusReq ; Unpause the Z80
 	RTS
-loc_000005E0:
-	LEA	$00FFC000, A1
-	MOVE.w	#$4000, vdpControl1
-	MOVE.w	#3, vdpControl1
-	MOVE.w	#$06FF, D0
-loc_000005FA:
+@AvoidDMA:
+	LEA	rPlaneBuffer, A1
+	MOVE.w	#$4000, vdpControl1 ; Set VRAM destination
+	MOVE.w	#3, vdpControl1 ; Set address to $C000
+	MOVE.w	#$06FF, D0 ; Set length to $700 words
+@Loop:
 	MOVE.w	(A1)+, vdpData1
-	DBF	D0, loc_000005FA
+	DBF	D0, @Loop
 	RTS
 	
-loc_00000606:
+UpdateFSMTimer:
 	MOVE.b	$00FF0144, D0
 	OR.b	$00FF0145, D0
 	BMI.w	loc_0000064A
-	ADDQ.w	#1, $00FF05CA
-	BCC.w	loc_00000626
-	SUBQ.w	#1, $00FF05CA
-loc_00000626:
+	ADDQ.w	#1, rFrameTimer
+	BCC.w	@FrameTimerNotMax
+	SUBQ.w	#1, rFrameTimer
+@FrameTimerNotMax:
 	CLR.l	D0
-	MOVE.w	$00FF05CA, D0
+	MOVE.w	rFrameTimer, D0
 	DIVU.w	#$003C, D0
-	MOVE.w	D0, $00FF05CC
+	MOVE.w	D0, rSecondTimer
 	CLR.l	D0
-	MOVE.w	$00FF05CC, D0
+	MOVE.w	rSecondTimer, D0
 	DIVU.w	#$003C, D0
-	MOVE.l	D0, $00FF05CE
+	MOVE.l	D0, rMinuteTimer
 loc_0000064A:
 	RTS
 	
@@ -401,14 +399,14 @@ loc_0000064C:
 	MOVE.l	#$00FF3200, $00FF013C
 loc_0000067C:
 	MOVE.w	#$8000, D0
-	MOVE.b	$00FF0A22, D0
+	MOVE.b	rVDPRegBTbl+rvtMode1, D0
 	ORI.b	#$10, D0
 	MOVE.w	D0, vdpControl1
-	MOVE.b	D0, $00FF0A22
+	MOVE.b	D0, rVDPRegBTbl+rvtMode1
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ANDI.b	#$FB, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	RTS
 	
 HorizontalInterrupt:
@@ -434,10 +432,10 @@ loc_00000706:
 	RTR
 loc_0000070C:
 	MOVE.w	#$8000, D0
-	MOVE.b	$00FF0A22, D0
+	MOVE.b	rVDPRegBTbl+rvtMode1, D0
 	ANDI.b	#$EF, D0
 	MOVE.w	D0, vdpControl1
-	MOVE.b	D0, $00FF0A22
+	MOVE.b	D0, rVDPRegBTbl+rvtMode1
 	RTS
 
 ; Dead Code: Reloads all global palettes that are not currently queued for reloading.
@@ -492,7 +490,7 @@ loc_000007C0:
 	BNE.w	loc_000007CC
 	RTS
 loc_000007CC:
-	TST.w	$00FF0134
+	TST.w	rZ80IsBeingUpdated
 	BNE.w	loc_00000850
 	MOVE.w	#$0100, Z80BusReq
 loc_000007DE:
@@ -501,7 +499,7 @@ loc_000007E6:
 	BNE.b	loc_000007DE
 	LEA	vdpControl1, A0
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	ORI.b	#$10, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#$9400, D0
@@ -515,10 +513,10 @@ loc_00000802:
 	MOVE.w	#$9543, (A0)
 	MOVE.w	#$977F, (A0)
 	MOVE.w	#$7C00, (A0)
-	MOVE.w	#$0082, $00FF1106
-	MOVE.w	$00FF1106, (A0)
+	MOVE.w	#$0082, rTmpVDPDmaDest
+	MOVE.w	rTmpVDPDmaDest, (A0)
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#0, Z80BusReq
 	CLR.w	$00FF0DE4
@@ -538,19 +536,19 @@ loc_00000874:
 	RTS
 loc_00000880:
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	MOVE.w	D0, vdpControl1
 	MOVE.w	#$8C00, D0
-	MOVE.b	$00FF0A2E, D0
+	MOVE.b	rVDPRegBTbl+rvtMode4, D0
 	MOVE.w	D0, vdpControl1
-	BTST.b	#2, $00FF0A2D
+	BTST.b	#2, rVDPRegBTbl+rvtMode3
 	BNE.w	loc_000008CC
 	MOVE.l	#$40000010, vdpControl1
 	MOVE.w	$00FF05D2, vdpData1
 	MOVE.w	$00FF05D4, vdpData1
 	RTS
 loc_000008CC:
-	TST.w	$00FF0134
+	TST.w	rZ80IsBeingUpdated
 	BNE.w	loc_0000093A
 	MOVE.w	#$0100, Z80BusReq
 loc_000008DE:
@@ -558,7 +556,7 @@ loc_000008DE:
 	BNE.b	loc_000008DE
 	LEA	vdpControl1, A0
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	ORI.b	#$10, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#$9400, (A0)
@@ -567,10 +565,10 @@ loc_000008DE:
 	MOVE.w	#$95E9, (A0)
 	MOVE.w	#$977F, (A0)
 	MOVE.w	#$4000, (A0)
-	MOVE.w	#$0090, $00FF1106
-	MOVE.w	$00FF1106, (A0)
+	MOVE.w	#$0090, rTmpVDPDmaDest
+	MOVE.w	rTmpVDPDmaDest, (A0)
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#0, Z80BusReq
 	RTS
@@ -583,7 +581,7 @@ loc_0000094E:
 	DBF	D0, loc_0000094E
 	RTS
 loc_0000095A:
-	BTST.b	#1, $00FF0A2D
+	BTST.b	#1, rVDPRegBTbl+rvtMode3
 	BNE.w	loc_0000098C
 	MOVE.w	#$7800, vdpControl1
 	MOVE.w	#2, vdpControl1
@@ -591,7 +589,7 @@ loc_0000095A:
 	MOVE.w	rScrollXScanBack, vdpData1
 	RTS
 loc_0000098C:
-	TST.w	$00FF0134
+	TST.w	rZ80IsBeingUpdated
 	BNE.w	loc_000009FA
 	MOVE.w	#$0100, Z80BusReq
 loc_0000099E:
@@ -599,7 +597,7 @@ loc_0000099E:
 	BNE.b	loc_0000099E
 	LEA	vdpControl1, A0
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	ORI.b	#$10, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#$9402, (A0)
@@ -608,10 +606,10 @@ loc_0000099E:
 	MOVE.w	#$9511, (A0)
 	MOVE.w	#$977F, (A0)
 	MOVE.w	#$7800, (A0)
-	MOVE.w	#$0082, $00FF1106
-	MOVE.w	$00FF1106, (A0)
+	MOVE.w	#$0082, rTmpVDPDmaDest
+	MOVE.w	rTmpVDPDmaDest, (A0)
 	MOVE.w	#$8100, D0
-	MOVE.b	$00FF0A23, D0
+	MOVE.b	rVDPRegBTbl+rvtMode2, D0
 	MOVE.w	D0, (A0)
 	MOVE.w	#0, Z80BusReq
 	RTS
@@ -639,7 +637,7 @@ dead_00000A20:
 	bne.b @dead_00000A3A
 	lea (vdpControl1), a0
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	ori.b #$10, d0
 	move.w d0, (a0)
 	move.w #$9404, (a0)
@@ -648,10 +646,10 @@ dead_00000A20:
 	move.w #$9500, (a0)
 	move.w #$977F, (a0)
 	move.w #$5000, (a0)
-	move.w #$80, ($00FF1106)
-	move.w ($00FF1106), (a0)
+	move.w #$80, (rTmpVDPDmaDest)
+	move.w (rTmpVDPDmaDest), (a0)
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	move.w d0, (a0)
 	move.w #0, (Z80BusReq)
 	lea ($00FFD000), a1
@@ -669,7 +667,7 @@ dead_00000A20:
 	bne.b @dead_00000ABE
 	lea (vdpControl1), a0
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	ori.b #$10, d0
 	move.w d0, (a0)
 	move.w #$9404, (a0)
@@ -678,10 +676,10 @@ dead_00000A20:
 	move.w #$9500, (a0)
 	move.w #$977F, (a0)
 	move.w #$6000, (a0)
-	move.w #$80, ($00FF1106)
-	move.w ($00FF1106), (a0)
+	move.w #$80, (rTmpVDPDmaDest)
+	move.w (rTmpVDPDmaDest), (a0)
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	move.w d0, (a0)
 	move.w #0, (Z80BusReq)
 	lea ($00FFD000), a1
@@ -701,7 +699,7 @@ dead_00000A20:
 	bne.b @dead_00000B48
 	lea (vdpControl1), a0
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	ori.b #$10, d0
 	move.w d0, (a0)
 	move.w #$9404, (a0)
@@ -710,10 +708,10 @@ dead_00000A20:
 	move.w #$9500, (a0)
 	move.w #$977F, (a0)
 	move.w #$6800, (a0)
-	move.w #$80, ($00FF1106)
-	move.w ($00FF1106), (a0)
+	move.w #$80, (rTmpVDPDmaDest)
+	move.w (rTmpVDPDmaDest), (a0)
 	move.w #$8100, d0
-	move.b ($00FF0A23), d0
+	move.b (rVDPRegBTbl+rvtMode2), d0
 	move.w d0, (a0)
 	move.w #0, (Z80BusReq)
 	rts
@@ -731,17 +729,17 @@ loc_00000BBE:
 	DBF	D0, loc_00000BBE
 	RTS
 
-loc_00000BC6:
+Video_EnableVDPHighlight:
 	MOVE.w	#$8C00, D0
-	MOVE.b	$00FF0A2E, D0
+	MOVE.b	rVDPRegBTbl+rvtMode4, D0
 	ORI.b	#8, D0
-	MOVE.b	D0, $00FF0A2E
+	MOVE.b	D0, rVDPRegBTbl+rvtMode4
 	RTS
-loc_00000BDC:
+Video_DisableVDPHighlight:
 	MOVE.w	#$8C00, D0
-	MOVE.b	$00FF0A2E, D0
+	MOVE.b	rVDPRegBTbl+rvtMode4, D0
 	ANDI.b	#$F7, D0
-	MOVE.b	D0, $00FF0A2E
+	MOVE.b	D0, rVDPRegBTbl+rvtMode4
 	RTS
 
 Video_QueueBgMapFromId:
@@ -884,7 +882,7 @@ init_initVDP:
 Bytecode_SetVDPMode:
 	ORI	#$0700, SR
 	BSR.w	Video_SetVDPState
-	LEA	$00FF0A23, A0
+	LEA	rVDPRegBTbl+rvtMode2, A0
 	ORI.b	#$40, (A0)
 	MOVE.w	#$8100, D0
 	MOVE.b	(A0), D0
@@ -894,13 +892,11 @@ Bytecode_SetVDPMode:
 
 Video_SetVDPState:
 	LSL.w	#2, D0
-loc_00000D56:
 	MOVEA.l	vdp_vdpRegTable(PC,D0.w), A2
-	LEA	$00FF0A22, A3
+	LEA	rVDPRegBTbl, A3
 	MOVE.w	#$0012, D0
 loc_00000D64:
 	MOVE.w	(A2)+, D1
-loc_00000D66:
 	MOVE.w	D1, vdpControl1
 	MOVE.b	D1, (A3)+
 	DBF	D0, loc_00000D64
@@ -1290,9 +1286,9 @@ loc_00001336:
 	rts
 loc_00001346:
 	move.w #$8B00, d0
-	move.b ($00FF0A2D).l, d0
+	move.b (rVDPRegBTbl+rvtMode3).l, d0
 	ori.b #3, d0
-	move.b d0, ($00FF0A2D).l
+	move.b d0, (rVDPRegBTbl+rvtMode3).l
 	rts
 loc_0000135C:
 	lea ($00FF07E2).l, a2
@@ -1325,9 +1321,9 @@ loc_00001394:
 	rts
 loc_000013B0:
 	move.w #$8B00, d0
-	move.b ($00FF0A2D).l, d0
+	move.b (rVDPRegBTbl+rvtMode3).l, d0
 	andi.b #$FC, d0
-	move.b d0, ($00FF0A2D).l
+	move.b d0, (rVDPRegBTbl+rvtMode3).l
 	clr.b ($00FF0136).l
 	clr.w (rScrollXScanBack).l
 	bra.w loc_00002AF2
@@ -2745,8 +2741,8 @@ Battle_LoadObjects:
 	BEQ.w	loc_00003070
 	MOVE.w	#$CC22, $00FF18A8
 loc_00003070:
-	CLR.w	$00FF05CA
-	CLR.w	$00FF05D0
+	CLR.w	rFrameTimer
+	CLR.w	rMinuteTimer+2
 	CLR.b	$00FF1883
 	TST.b	rCurGameMode
 	BNE.w	@NotStoryMode
@@ -2755,9 +2751,9 @@ loc_00003070:
 @NotStoryMode:
 	BSR.w	loc_00000BA4
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ORI.b	#4, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	
 	; Init Player
 	LEA	Battle_PlayerObjStart, A1
@@ -5510,7 +5506,7 @@ loc_000054F8:
 	BCLR.b	#0, $7(A0)
 	RTS
 loc_00005500:
-	CLR.w	$00FF05CA
+	CLR.w	rFrameTimer
 	MOVE.w	#$001F, D0
 loc_0000550A:
 	LEA	loc_00005582, A1
@@ -6255,7 +6251,7 @@ loc_00006562:
 	JMP	SndDrv_QueueSoundEffect
 loc_000065BC:
 	JSR	loc_0000CE9E
-	MOVE.w	$00FF05CC, D0
+	MOVE.w	rSecondTimer, D0
 	CMPI.w	#$03E8, D0
 	BCS.w	loc_000065D4
 	MOVE.w	#$03E7, D0
@@ -7156,6 +7152,8 @@ loc_0000718C:
     dc.b    $00
     dc.b    $00
 
+; ---------- File Start: game/z80.asm ----------
+; This file contains all code related to controlling the Z80 sound driver
 SndDrv_LoadDriver:
 	MOVE.w	#$0100, Z80BusReq
 	BSR.w	SndDrv_ResetZ80
@@ -7169,7 +7167,6 @@ SndDrv_LoadDriver:
 	MOVE.b	(A0)+, (A1)+
 	DBF	D0, @LoadData
 	
-	; This is the code that determines where the sound data is located in rom, as well as where the z80 will load it from.
 	; The sound data must be 8KB aligned in the rom
 	MOVE.b	#((sound_bank1>>8)&$80), $00A01F00
 	MOVE.b	#((sound_bank1>>16)&$FF), $00A01F01
@@ -7185,12 +7182,13 @@ SndDrv_LoadDriver:
 	NOP
 	NOP
 	NOP
-loc_00007200:
-	CMPI.b	#8, $00A00022
-	BCS.w	z80Load_unkRtsBranch
+SndDrv_Z80DeadCmp:
+	CMPI.b	#8, Z80Ram+zrIDQueueCnt
+	BCS.w	@deadbranch
 	RTS
-z80Load_unkRtsBranch:
+@deadbranch:
 	RTS
+
 SndDrv_ResetZ80:
 	MOVE.w	#0, Z80Reset
 	NOP
@@ -7209,27 +7207,29 @@ SndDrv_ResetZ80:
 	NOP
 	MOVE.w	#$0100, Z80Reset
 	RTS
-loc_0000723E:
+
+dead_SndDrv_LoadDummyDriver:
 	move.w #$100, (Z80BusReq).l
 	bsr.b    SndDrv_ResetZ80
-loc_00007248:
+@dead_WaitForZ80:
 	btst.b #0, (Z80BusReq).l
-	bne.b loc_00007248
-	lea ($0007E000).l, a0
+	bne.b @dead_WaitForZ80
+	lea (endOfRom-$2000).l, a0 ; Load the """sound driver"""
 	lea (Z80Ram).l, A1
 	move.w #$1FFF, d0
-loc_00007262:
+@dead_LoadData:
 	move.b (a0)+, (a1)+
-	dbf d0, loc_00007262
+	dbf d0, @dead_LoadData
 	
 	MOVE.b	#((sound_bank1>>8)&$80), $00A01F00
 	MOVE.b	#((sound_bank1>>16)&$FF), $00A01F01
 	MOVE.b	#((sound_bank2>>8)&$80), $00A01F02
 	MOVE.b	#((sound_bank2>>16)&$FF), $00A01F03
-	
-	move.b #$C3, ($00A00000).l
-	move.b #$0, ($00A00001).l
-	move.b #$0, ($00A00002).l
+    
+    ; Dummy sound driver, probably used for some form of testing?
+	move.b #$C3, (Z80Ram+0).l
+	move.b #$0, (Z80Ram+1).l
+	move.b #$0, (Z80Ram+2).l
 	bsr.w SndDrv_ResetZ80
 	move.w #0, (Z80BusReq).l
 	nop
@@ -7239,129 +7239,135 @@ loc_00007262:
 	nop
 	nop
 	nop
-	bra.w loc_00007200
+	bra.w SndDrv_Z80DeadCmp
 
 SndDrv_QueueSoundEffect:
 	MOVEM.l	A2/D1, -(A7)
-	LEA	$00FF0130, A2
+	LEA	rZ80CurSFXQueue, A2
 	MOVE.w	#3, D1
-loc_000072CC:
+@NextQueueEntry:
 	TST.b	(A2,D1.w)
-	BEQ.w	loc_000072DC
-	DBF	D1, loc_000072CC
-	BRA.w	loc_000072E0
-loc_000072DC:
+	BEQ.w	@WriteToQueue
+	DBF	D1, @NextQueueEntry
+	BRA.w	@QueueFull
+@WriteToQueue:
 	MOVE.b	D0, (A2,D1.w)
-loc_000072E0:
+@QueueFull:
 	MOVEM.l	(A7)+, D1/A2
 	RTS
 	
 SndDrv_PlayMusicId:
-	MOVE.b	D0, mus_curSong
+	MOVE.b	D0, rZ80CurSong
 	RTS
 	
 SndDrv_PlayFadeOut:
-	MOVE.b	#$F3, $00FF012C
-	MOVE.b	#$20, $00FF012D
-	MOVE.b	#0, $00FF012E
+	MOVE.b	#$F3, rZ80CurCmdMain
+	MOVE.b	#$20, rZ80CurCmdP1
+	MOVE.b	#0, rZ80CurCmdP2
 	RTS
 SndDrv_PlayClearEffect:
-	MOVE.b	#$F2, $00FF012C
-	MOVE.b	#0, $00FF012D
-	MOVE.b	#0, $00FF012E
+	MOVE.b	#$F2, rZ80CurCmdMain
+	MOVE.b	#0, rZ80CurCmdP1
+	MOVE.b	#0, rZ80CurCmdP2
 	RTS
 SndDrv_PlayPauseOn:
-	MOVE.b	#$F6, $00FF012C
-	MOVE.b	#0, $00FF012D
-	MOVE.b	#0, $00FF012E
+	MOVE.b	#$F6, rZ80CurCmdMain
+	MOVE.b	#0, rZ80CurCmdP1
+	MOVE.b	#0, rZ80CurCmdP2
 	RTS
 SndDrv_PlayPauseOff:
-	MOVE.b	#$F7, $00FF012C
-	MOVE.b	#0, $00FF012D
-	MOVE.b	#0, $00FF012E
+	MOVE.b	#$F7, rZ80CurCmdMain
+	MOVE.b	#0, rZ80CurCmdP1
+	MOVE.b	#0, rZ80CurCmdP2
 	RTS
 	
 SndDrv_PlayVoice:
 	TST.b	rOption_VoicesEnabled
 	BNE.w	SndDrv_PVRet
 SndDrv_PlayVoiceAlways:
-	MOVE.b	#$FA, $00FF012C
-	MOVE.b	D0, $00FF012D
-	MOVE.b	#$FF, $00FF012E
+	MOVE.b	#$FA, rZ80CurCmdMain
+	MOVE.b	D0, rZ80CurCmdP1
+	MOVE.b	#$FF, rZ80CurCmdP2
 SndDrv_PVRet:
 	RTS
 	
-loc_00007378:
+SndDrv_Update:
 	MOVE.w	#$0100, Z80BusReq
-loc_00007380:
+@WaitZ80Stop:
 	BTST.b	#0, Z80BusReq
-	BNE.b	loc_00007380
-	CLR.w	$00FF0134
+	BNE.b	@WaitZ80Stop
+	CLR.w	rZ80IsBeingUpdated
 	MOVE.b	$00A00024, D0
 	OR.b	$00A00026, D0
-	BNE.w	loc_000073C8
-	BSR.w	loc_000073D2
-	BSR.w	loc_00007420
-	BSR.w	loc_0000745E
+	BNE.w	@SkipUpdate
+	BSR.w	SndDrv_UpdateCmdAndPCM
+	BSR.w	SndDrv_UpdateMusic
+	BSR.w	SndDrv_UpdateSFX
 	MOVE.b	$00A00027, D0
-	BEQ.w	loc_000073C8
+	BEQ.w	@SkipUpdate
 	TST.b	$00FF013A
-	BNE.w	loc_000073C8
-	MOVE.w	#$FFFF, $00FF0134
-loc_000073C8:
+	BNE.w	@SkipUpdate
+	MOVE.w	#$FFFF, rZ80IsBeingUpdated
+@SkipUpdate:
 	MOVE.w	#0, Z80BusReq
 	RTS
-loc_000073D2:
-	CMPI.b	#8, $00A00022
-	BCS.w	loc_000073E0
+
+SndDrv_UpdateCmdAndPCM:
+	CMPI.b	#8, Z80Ram+zrIDQueueCnt
+	BCS.w	@QueueNotFull
 	RTS
-loc_000073E0:
-	TST.b	$00FF012C
-	BNE.w	loc_000073EC
+@QueueNotFull:
+	TST.b	rZ80CurCmdMain
+	BNE.w	@CmdNonZero
 	RTS
-loc_000073EC:
+@CmdNonZero:
 	CLR.w	D0
-	MOVE.b	$00A00022, D0
-	ADDQ.b	#1, $00A00022
+	MOVE.b	Z80Ram+zrIDQueueCnt, D0
+	ADDQ.b	#1, Z80Ram+zrIDQueueCnt
 	LEA	Z80Ram, A2
-	MOVE.b	$00FF012C, (A2,D0.w)
-	MOVE.b	$00FF012D, $8(A2,D0.w)
-	MOVE.b	$00FF012E, $10(A2,D0.w)
-	CLR.b	$00FF012C
+	MOVE.b	rZ80CurCmdMain, (A2,D0.w)
+	MOVE.b	rZ80CurCmdP1, $8(A2,D0.w)
+	MOVE.b	rZ80CurCmdP2, $10(A2,D0.w)
+	CLR.b	rZ80CurCmdMain
 	RTS
-loc_00007420:
-	CMPI.b	#8, $00A00022
-	BCS.w	loc_0000742E
+
+SndDrv_UpdateMusic:
+	CMPI.b	#8, Z80Ram+zrIDQueueCnt
+	BCS.w	@QueueNotFull
 	RTS
-loc_0000742E:
-	TST.b	mus_curSong
-	BNE.w	loc_0000743A
+@QueueNotFull:
+	TST.b	rZ80CurSong
+	BNE.w	@SongIDNotZero
 	RTS
-loc_0000743A:
+@SongIDNotZero:
 	CLR.w	D0
-	MOVE.b	$00A00022, D0
-	ADDQ.b	#1, $00A00022
+	MOVE.b	Z80Ram+zrIDQueueCnt, D0
+	ADDQ.b	#1, Z80Ram+zrIDQueueCnt
 	LEA	Z80Ram, A2
-	MOVE.b	mus_curSong, (A2,D0.w)
-	CLR.b	mus_curSong
+	MOVE.b	rZ80CurSong, (A2,D0.w)
+	CLR.b	rZ80CurSong
 	RTS
-loc_0000745E:
-	LEA	$00FF0130, A2
+
+SndDrv_UpdateSFX:
+	LEA	rZ80CurSFXQueue, A2
 	LEA	Z80Ram, A3
 	MOVE.w	#3, D0
-loc_0000746E:
+@NextQueueEntry:
 	TST.b	(A2,D0.w)
-	BEQ.w	loc_0000749A
-	CMPI.b	#8, $00A00022
-	BCC.w	loc_0000749A
+	BEQ.w	@SkipQueueEntry
+	CMPI.b	#8, Z80Ram+zrIDQueueCnt
+	BCC.w	@SkipQueueEntry
 	CLR.w	D1
-	MOVE.b	$00A00022, D1
-	ADDQ.b	#1, $00A00022
+	MOVE.b	Z80Ram+zrIDQueueCnt, D1
+	ADDQ.b	#1, Z80Ram+zrIDQueueCnt
 	MOVE.b	(A2,D0.w), (A3,D1.w)
 	CLR.b	(A2,D0.w)
-loc_0000749A:
-	DBF	D0, loc_0000746E
+@SkipQueueEntry:
+	DBF	D0, @NextQueueEntry
 	RTS
+
+; ---------- File End: game/z80.asm ----------
+
 loc_000074A0:
 	MOVE.b	rCurGameMode, D0
 	EORI.b	#2, D0
@@ -8542,8 +8548,8 @@ loc_00008580:
 	RTS
 loc_00008592:
 	LEA	loc_000085E0, A1
-	MOVE.w	$00FF05CE, D0
-	MOVE.w	$00FF05D0, D1
+	MOVE.w	rMinuteTimer, D0
+	MOVE.w	rMinuteTimer+2, D1
 	BEQ.w	loc_000085B6
 	CMPI.b	#1, rCurGameMode
 	BNE.w	loc_000085B6
@@ -10190,9 +10196,9 @@ loc_0000A246:
 loc_0000A286:
 	MOVE.w	#0, $00FF05D4
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ANDI.b	#$FC, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	CLR.w	rScrollXScanBack
 	BRA.w	loc_00002AF2
 loc_0000A2AC:
@@ -10281,9 +10287,9 @@ loc_0000A3DA:
 	jmp loc_00000E46
 loc_0000A3F4:
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ORI.b	#3, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	LEA	loc_0000A430, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	BCS.w	loc_0000A42E
@@ -12309,7 +12315,7 @@ loc_0000C162:
 	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	tbl_cutsceneOrder, A1
 	MOVE.b	(A1,D0.w), rOnePlayer_CurCutscene
-	JSR	loc_00000BC6
+	JSR	Video_EnableVDPHighlight
 	BSR.w	loc_0000D1F0
 	LEA	loc_0000C21A, A1
 	JSR	ObjSys_InitObjWithFunc
@@ -12586,7 +12592,7 @@ loc_0000C5DA:
 loc_0000C5EA:
 	RTS
 loc_0000C5EC:
-	LEA	$00FFC000, A4
+	LEA	rPlaneBuffer, A4
 	MOVE.w	#6, D0
 loc_0000C5F6:
 	JSR	loc_000157DA
@@ -12605,7 +12611,7 @@ loc_0000C60C:
 	JSR	loadBGSetupVDP
 	ADDI.w	#$08C0, D5
 	SWAP	D5
-	LEA	$00FFC000, A4
+	LEA	rPlaneBuffer, A4
 	MOVE.w	#$045F, D1
 loc_0000C634:
 	MOVE.w	(A4)+, vdpData1
@@ -13524,15 +13530,15 @@ TitleScreen_PuyoInit:
 	
 loc_0000D1DA:
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ORI.b	#3, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	RTS
 loc_0000D1F0:
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ANDI.b	#$FC, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	JMP	loc_00000BA4
 
 ; ---------- File Start: game/how_to_play_obj.asm ----------
@@ -16628,7 +16634,7 @@ loc_0000F8A2:
 	BEQ.w	loc_0000F8B6
 	LEA	$00FF1C76, A6
 loc_0000F8B6:
-	CMPI.w	#2, $00FF05D0
+	CMPI.w	#2, rMinuteTimer+2
 	BCS.w	loc_0000F8CC
 	MOVE.b	#1, $0(A6)
 	BRA.w	loc_0000F904
@@ -17788,13 +17794,13 @@ loc_00010572:
 loc_000105CC:
 	MOVE.w	#$CB3E, $00FF18A8
 	CLR.w	$00FF188C
-	CLR.w	$00FF05CA
+	CLR.w	rFrameTimer
 	CLR.b	$00FF1883
 	JSR	loc_00000BA4
 	MOVE.w	#$8B00, D0
-	MOVE.b	$00FF0A2D, D0
+	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ORI.b	#4, D0
-	MOVE.b	D0, $00FF0A2D
+	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	LEA	loc_0001062A, A1
 	JSR	ObjSys_InitObjWithFunc
 	MOVE.b	#0, $2A(A1)
@@ -19219,7 +19225,7 @@ loc_00014A50:
 loc_00014A64:
 	BSR.w	loc_00014AF8
 	MOVEM.l	D5/D4/D3, -(A7)
-	LEA	$00FFC000, A1
+	LEA	rPlaneBuffer, A1
 loc_00014A72:
 	BSR.w	loc_000157DA
 	ADD.w	D1, D5
@@ -19260,7 +19266,7 @@ loc_00014ADC:
 	RTS
 loc_00014AEA:
 	BSR.w	loc_00014AF8
-	LEA	$00FFC000, A4
+	LEA	rPlaneBuffer, A4
 	BRA.w	loadBGWordIndexYLoop
 loc_00014AF8:
 	CLR.w	D3
@@ -25452,18 +25458,18 @@ SoundTest_PlayId:
 	CLR.w	D0
 	MOVE.b	$17(A0), D0
 	MULU.w	#3, D0
-	MOVE.b	@EffectTable(PC,D0.w), $00FF012C
-	MOVE.b	@EffectTable+1(PC,D0.w), $00FF012D
-	MOVE.b	@EffectTable+2(PC,D0.w), $00FF012E
-	CMPI.b	#$F4, $00FF012C
-	BNE.w	@IsNotF4
+	MOVE.b	@EffectTable(PC,D0.w), rZ80CurCmdMain
+	MOVE.b	@EffectTable+1(PC,D0.w), rZ80CurCmdP1
+	MOVE.b	@EffectTable+2(PC,D0.w), rZ80CurCmdP2
+	CMPI.b	#effID_FadeIn, rZ80CurCmdMain
+	BNE.w	@IsNotFadeIn
 	CLR.w	D0
 	MOVE.b	$15(A0), D0
 	LSL.w	#2, D0
 	LEA	SoundTest_MusicTxtTbl, A1
 	MOVEA.l	(A1,D0.w), A2
-	MOVE.b	(A2), $00FF012E
-@IsNotF4:
+	MOVE.b	(A2), rZ80CurCmdP2
+@IsNotFadeIn:
 	RTS
 @EffectTable:
 	dc.b	effID_AllClear, $00, $00
@@ -25730,7 +25736,7 @@ Option_InitObj:
 	RTS
 
 Option_InitVramPlane:
-	LEA	$00FFC000, A1
+	LEA	rPlaneBuffer, A1
 	MOVE.w	#$06FF, D0
 @Loop:
 	MOVE.w	#$8500, (A1)+

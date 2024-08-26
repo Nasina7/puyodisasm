@@ -98,14 +98,12 @@ rFrameCount = $FF05C6		; Word
 rFrameTimer = $FF05CA   ; Word
 rSecondTimer = $FF05CC  ; Word
 rMinuteTimer = $FF05CE  ; Long (Upper half contains rSecondTimer%60, lower half is minutes)
-
-; Goes until FF0622
+; Final Byte at FF0621
 rScrollYScanFront = $FF05D2
 rScrollYScanBack = $FF05D4
-; Goes until FF09A1
+; Final Byte at FF0A21
 rScrollXScanFront = $FF0622
 rScrollXScanBack = $FF0624
-
 rVDPRegBTbl = $FF0A22 ; Goes to 0A34.  All of the table is used, but only some of it needs labels.
 rvtMode1 = $00
 rvtMode2 = $01
@@ -191,6 +189,7 @@ SprMapID_BigPuyo = $1A
 SprMapID_Birds = $1B
 SprMapID_Credits = $1C
 SprMapID_Lightning = $1D
+SprMapID_Title = $24
 SprMapID_GameOverTxt = $29
 
 ; Game modes

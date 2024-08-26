@@ -1,14 +1,19 @@
 ; ---------- Bug Fixes ----------
 
-; Fix a bug in the character roll part of the credits that can cause character names to display incorrectly.
+; Fix a shiftability bug in the character roll part of the credits.
 fFixCreditsShiftability = 0 
 
 ; Fix a bug where the controls of the second player can effect CPUs in one player.
 fFixAiControlBug = 0
 
-; Fix a bug where the letter selection on the "best record" screen goes one higher than intended when wrapping
-; from top to bottom.  
+; Fix an off-by-one error in the best record screen's name entry code.
 fFixBestRecordWrap = 0
+
+; Fix some unintended(?) behavior with Arle's Title Screen Object.
+fFixTitleArleUB = 0
+
+; Fix a harmless incorrect value in Video_ClearScrollTables
+fFixClearScrollFunc = 0
 
 ; Todo: This flag is not set up yet.
 ; Implement initialization checks for objects that don't have them.

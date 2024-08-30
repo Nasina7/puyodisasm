@@ -69,11 +69,11 @@ song_03:
 song_04:
 	incbin "sound/bank1/music/04.bin"
 song_05:
-	incbin "sound/bank1/music/05.bin"
+	include "sound/bank1/music/05.asm"
 song_06:
 	incbin "sound/bank1/music/06.bin"
 song_07:
-	incbin "sound/bank1/music/07.bin"
+	include "sound/bank1/music/07.asm"
 song_08:
 	incbin "sound/bank1/music/08.bin"
 song_09: ; This song's data no longer exists.
@@ -94,7 +94,7 @@ song_10:
 song_11:
 	incbin "sound/bank1/music/11.bin"
 song_12:
-	incbin "sound/bank1/music/12.bin"
+	include "sound/bank1/music/12.asm"
 song_13:
 	include "sound/bank1/music/13.asm"
 	incbin "sound/bank1/data/unkdat.bin"

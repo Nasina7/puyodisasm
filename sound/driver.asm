@@ -492,7 +492,7 @@ loc_02C2:
 	and a
 	jp p, PlayNote
 	cp $C0
-	jp nc, SetNoteLength
+	jp nc, SetNoteLenOrPlayPercussion
 	inc de
 	ld hl, loc_02C1
 
@@ -511,16 +511,16 @@ loc_02C2:
 	
 tbl_commands:
 	ptrZ80 CmdJump ; 3 Byte Command
-	ptrZ80 sub_0338
+	ptrZ80 CmdDecTimerJPIfZero
 	ptrZ80 sub_037E
 	ptrZ80 CmdSetPitchEnvelope
 	ptrZ80 sub_03C0
 	ptrZ80 sub_03D9
 	ptrZ80 sub_036F
-	ptrZ80 sub_03BC
+	ptrZ80 CmdSetVolume
 	ptrZ80 sub_038B
 	ptrZ80 CmdIncreaseRootPitch
-	ptrZ80 sub_03A6
+	ptrZ80 CmdAddVolOffset
 	ptrZ80 sub_04CC
 	ptrZ80 sub_0336
 	ptrZ80 sub_0366
@@ -532,7 +532,7 @@ tbl_commands:
 	ptrZ80 sub_0425
 	ptrZ80 sub_0448
 	ptrZ80 sub_0460
-	ptrZ80 sub_0472
+	ptrZ80 CmdSetChPlaySpeed
 	ptrZ80 CmdSetMinorPitch ; 2 Byte Command
 	ptrZ80 sub_04A4
 	ptrZ80 sub_047A
@@ -562,17 +562,17 @@ sub_0336:
 	dec de
 	ret
 
-sub_0338:
+CmdDecTimerJPIfZero:
 	inc de
-	cp 11h
-	jr z, loc_0346
-	dec (ix+10h)
+	cp 11h ; Check if param 1 is 11h
+	jr z, @DecreaseTimer11
+	dec (ix+10h) ; Decrease timer 10h
 	ld a, (de)
-	jp nz, CmdJump
+	jp nz, CmdJump ; If timer is non-zero, jump, else continue
 	inc de
 	ret
-loc_0346:
-	dec (ix+11h)
+@DecreaseTimer11:
+	dec (ix+11h) ; Same stuff as above
 	ld a, (de)
 	jp nz, CmdJump
 	inc de
@@ -596,13 +596,13 @@ loc_035D:
 	ret
 	
 sub_0366:
-	ld c, a
-	push ix
+	ld c, a ; Get channel offset into BC
+	push ix ; Put channel pointer into hl
 	pop hl
-	add hl, bc
-	inc de
+	add hl, bc ; Add offset
+	inc de ; Get value to put into offset
 	ld a, (de)
-	ld (hl), a
+	ld (hl), a ; Load value into channel at the defined offset
 	ret
 
 sub_036F:
@@ -645,21 +645,21 @@ sub_039F:
 	exx
 	ret
 
-sub_03A6:
-	ld c, (ix+01h)
-	and a
-	jp p, loc_03B5
-	add c
-	jr c, sub_03BC
-	ld (ix+01h), 0
+CmdAddVolOffset:
+	ld c, (ix+01h) ; Get cur volume
+	and a ; Check that offset is not negative
+	jp p, @NotNegative
+	add c ; Add volume to offset
+	jr c, CmdSetVolume
+	ld (ix+01h), 0 ; End result is negative, set vol to zero
 	ret
-loc_03B5:
-	add c
-	cp 20h
-	jr c, sub_03BC
-	ld a, 1Fh
-sub_03BC:
-	ld (ix+01h), a
+@NotNegative:
+	add c ; Add volume to offset
+	cp 20h ; Check if it is 20h or greater
+	jr c, CmdSetVolume ; It is not, set normally
+	ld a, 1Fh ; It is, set to maximum volume
+CmdSetVolume:
+	ld (ix+01h), a ; Set Volume
 	ret
 
 sub_03C0:
@@ -796,7 +796,7 @@ sub_0469:
 	inc de
 	ret
 
-sub_0472:
+CmdSetChPlaySpeed:
 	ld (ix+05h), a
 	ret
 
@@ -984,9 +984,9 @@ loc_0578:
 	pop hl
 	jp loc_0628
 
-SetNoteLength:
+SetNoteLenOrPlayPercussion:
 	cp $DE
-	jp nc, loc_05EE
+	jp nc, _SetNoteLength
 	sub $C0
 	add a
 	add a
@@ -1045,7 +1045,8 @@ loc_05E0:
 	ld a, (hl)
 	and a
 	jp PlayNote
-loc_05EE:
+
+_SetNoteLength:
 	ld a, (ix+13h)
 	ld c, a
 	and a

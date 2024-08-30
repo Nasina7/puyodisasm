@@ -97,7 +97,7 @@ song13start:
 	dc.b $30
 	dc.b $31
 	dc.w $33E7
-	MusCmd_Unk82
+	MusCmd_StopChannel
 	
 @channel03start:
 	dc.w $00E2
@@ -120,7 +120,7 @@ song13start:
 	dc.b $2F
 	dc.b $31
 	dc.w $2FE7
-	MusCmd_Unk82
+	MusCmd_StopChannel
 	
 @channel01start:
 	dc.w $00E2
@@ -143,4 +143,4 @@ song13start:
 	dc.b $36
 	dc.b $38
 	dc.w $2AE7
-	MusCmd_Unk82
+	MusCmd_StopChannel

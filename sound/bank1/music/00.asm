@@ -22,4 +22,4 @@ song00start:
 	dc.b $30
 	dc.b $38
 	dc.w $30E4
-	MusCmd_Unk82
+	MusCmd_StopChannel

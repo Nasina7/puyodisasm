@@ -2507,7 +2507,7 @@ ObjSys_InterpolateY:
 loc_00002D34:
 	CMPI.b	#cutID_ZohDaimaoh, rOnePlayer_CurCutscene
 	BNE.w	SndDrv_PlayPlacePuyo
-	TST.b	$2A(A0)
+	TST.b	sPlayer_IsCpu(A0)
 	BEQ.w	SndDrv_PlayPlacePuyo
 	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
 	JSR	SndDrv_QueueSoundEffect
@@ -2565,16 +2565,16 @@ SndDrv_PlayRotatePuyo:
 @NotSatan:
 	JMP	SndDrv_QueueSoundEffect
 	
-loc_00002E10:
+Battle_PlayWarningMusicIfStoryMode:
 	TST.b	rCurGameMode
 	BEQ.w	@IsStoryMode
 	RTS
 @IsStoryMode:
-	TST.b	$2A(A0)
-	BEQ.w	loc_00002E26
+	TST.b	sPlayer_IsCpu(A0)
+	BEQ.w	@IsNotCpu
 	RTS
 	
-loc_00002E26:
+@IsNotCpu:
 	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
 	BEQ.w	OnePlayer_LoadBattleMusic
 	CMPI.b	#musID_Warning, $00FF111A
@@ -2750,6 +2750,7 @@ loc_00003048:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_00003048
+
 Battle_LoadObjects:
 	MOVE.w	#$CB1E, $00FF18A8
 	TST.b	rCurMainPlayer
@@ -2774,7 +2775,7 @@ loc_00003070:
 	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F1, $0(A1)
-	MOVE.b	#0, $2A(A1)
+	MOVE.b	#0, sPlayer_IsCpu(A1)
 	MOVE.b	#3, $7(A1)
 	MOVE.l	$00FF187A, $A(A1)
 	MOVE.w	$00FF187E, $16(A1)
@@ -2784,10 +2785,10 @@ loc_00003070:
 	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F2, $0(A1)
-	MOVE.b	#1, $2A(A1)
+	MOVE.b	#1, sPlayer_IsCpu(A1)
 	MOVE.b	#3, $7(A1)
-	MOVE.l	A1, $2E(A2)
-	MOVE.l	A2, $2E(A1)
+	MOVE.l	A1, sPlayer_Opponent(A2)
+	MOVE.l	A2, sPlayer_Opponent(A1)
 
 	BSR.w	Battle_LoadCarbuncleObj
 	BSR.w	loc_00003006
@@ -2821,17 +2822,17 @@ loc_00003150:
 	
 Battle_PlayerObjStart:
 	JSR	loc_0000F134
-	BSR.w	loc_00003A04
+	BSR.w	loc_00003A04 ; Load pieces into piece queue?
 	MOVE.b	$00FF1888, D0
 	CMP.b	$2A(A0), D0
 	BEQ.w	loc_0000319A
-	BTST.b	#1, rCurGameMode
+	BTST.b	#GameModeID_VS, rCurGameMode
 	BEQ.w	loc_0000319A
 	BRA.w	loc_00006D56
 
 loc_0000319A:
 	CLR.w	D0
-	MOVE.b	$2A(A0), D0
+	MOVE.b	sPlayer_IsCpu(A0), D0
 	LEA	$00FF18C8, A1
 	MOVE.b	#0, (A1,D0.w)
 	BSR.w	loc_00004B26
@@ -2875,7 +2876,7 @@ loc_00003234:
 	JSR	loc_0000FDD8
 	JSR	loc_000074A0
 	BSR.w	loc_00007F1A
-	BSR.w	loc_00002E10
+	BSR.w	Battle_PlayWarningMusicIfStoryMode
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	#0, $00FF1C2C
 	JSR	loc_0000FEB8
@@ -2889,9 +2890,9 @@ loc_00003234:
 	CLR.b	(A1,D0.w)
 	JSR	loc_0000F9E8
 	TST.b	debug_puyoDrop
-	BEQ.w	loc_00003296
-	JSR	loc_0000F872
-loc_00003296:
+	BEQ.w	@SkipUselessFunc
+	JSR	Battle_PlayerObj_UselessFunc
+@SkipUselessFunc:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	TST.b	debug_puyoDrop
 	BEQ.w	loc_000032B2
@@ -3737,11 +3738,11 @@ loc_00003DBE:
 	MOVE.b	$2A(A0), D0
 	EORI.b	#1, D0
 	CMPI.b	#$14, $9(A0)
-	BNE.w	loc_00003E16
+	BNE.w	@DontPlayMinorFall
 	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
-	BEQ.w	loc_00003E16
+	BEQ.w	@DontPlayMinorFall
 	SUBQ.b	#2, D0
-loc_00003E16:
+@DontPlayMinorFall:
 	ADDI.b	#sfxID_MajorGarbagePuyoFall1, D0
 	JSR	SndDrv_QueueSoundEffect
 	BSET.b	#0, $7(A0)
@@ -3896,17 +3897,16 @@ loc_00003FF6:
 	CLR.w	D1
 	MOVE.b	$9(A0), D1
 	CMPI.b	#7, D1
-	BCS.w	loc_00004008
+	BCS.w	@NotMaxCombo
 	MOVE.b	#6, D1
-loc_00004008:
-	MOVE.b	loc_00004022(PC,D1.w), D0
+@NotMaxCombo:
+	MOVE.b	@ComboSFXTable(PC,D1.w), D0
 	CMPI.b	#cutID_Satan, rOnePlayer_CurCutscene
-loc_00004014:
-	BNE.w	loc_0000401C
+	BNE.w	@NotSatanStage
 	MOVE.b	#sfxID_SatanPuyoClear, D0
-loc_0000401C:
+@NotSatanStage:
 	JMP	SndDrv_QueueSoundEffect
-loc_00004022:
+@ComboSFXTable:
 	dc.b	sfxID_PuyoClear1
 	dc.b	sfxID_PuyoClear2
 	dc.b	sfxID_PuyoClear3
@@ -5204,6 +5204,7 @@ loc_0000500C:
 	EOR.b	D1, D0
 	MOVEM.l	(A7)+, D0/D1
 	RTS
+
 loc_00005022:
 	MOVEM.l	D1, -(A7)
 	CLR.w	D1
@@ -5212,14 +5213,15 @@ loc_00005022:
 	OR.b	$2A(A0), D1
 	LSL.b	#3, D1
 	MOVEA.l	loc_00005044(PC,D1.w), A2
-	MOVE.w	loc_00005048(PC,D1.w), D0
+	MOVE.w	loc_00005044+4(PC,D1.w), D0
 	MOVEM.l	(A7)+, D1
 	RTS
 loc_00005044:
-	dc.l	$00FF1C80
-loc_00005048:
-	dc.w 	$C104, $0000, $00FF, $1FEA, $C134, $0000, $00FF
-	dc.w 	$1C80, $C134, $0000, $00FF, $1FEA, $C104, $0000
+	dc.l	$00FF1C80, $C1040000
+	dc.l  $00FF1FEA, $C1340000
+	dc.l  $00FF1C80, $C1340000
+	dc.l  $00FF1FEA, $C1040000
+
 loc_00005064:
 	CLR.w	D1
 	MOVE.b	rCurGameMode, D1
@@ -6739,6 +6741,7 @@ loc_00006D36:
 	BTST.b	#1, $7(A0)
 	BEQ.w	loc_00006D46
 	RTS
+
 loc_00006D46:
 	BSR.w	loc_00004B26
 	ORI	#$0700, SR
@@ -11901,7 +11904,10 @@ loc_0000BAF8:
 	dc.b	$FF
 	dc.b	$00 
 	dc.l	loc_0000BAF8
-loc_0000BB0E:
+
+; ---------- File Start: game/record_screen.asm ----------
+
+RecordScreen_Init:
 	JSR	Video_ClearScrollTables
 	LEA	loc_0000BC2C, A1
 	JMP	ObjSys_InitObjWithFunc
@@ -12126,7 +12132,12 @@ loc_0000BDBA:
 	MOVE.w	D1, vdpData1
 	ANDI	#$F8FF, SR
 	RTS
-loc_0000BE0E:
+
+; ---------- File End: game/record_screen.asm ----------
+
+; ---------- File Start: game/staff_credits.asm ----------
+
+StaffCredits_Init:
 	lea 	($00FF131C).l, a1
 	move.w 	#7, d0
 loc_0000BE18:
@@ -12240,6 +12251,8 @@ loc_0000BFD4:
 	bsr.w    loc_0000D1F0
 	jmp ObjSys_DeleteObjectA0
 	
+; ---------- File End: game/staff_credits.asm ----------
+
 ; ---------- File Start: game/normal_ending.asm? ----------
 ; Note: I haven't looked at this part of the code yet beyond identifying what it goes to.
 loc_0000BFDE:
@@ -15119,16 +15132,18 @@ loc_0000D8E0:
     dc.b    $00
 ; ---------- File End: game/how_to_play_obj.asm ----------
 
-loc_0000D908:
-	lea (loc_0000D914).l, a1
+; Generic object to continue bytecode running when a button is pressed.
+; Used in a few different places.
+ObjResumeBytecodeOnBtnPress:
+	lea (@MainCode).l, a1
 	jmp ObjSys_InitObjWithFunc
-loc_0000D914:
+@MainCode:
 	move.b (rPad1Press).l, d0
 	or.b (rPad2Press).l, d0
 	andi.b #$F0, d0
-	bne.w loc_0000D92A
+	bne.w @StartABCPressed
 	rts
-loc_0000D92A:
+@StartABCPressed:
 	clr.b (rBytecode_StopRun).l
 	move.b #2, ($00FF0A3A).l
 	jmp ObjSys_DeleteObjectA0
@@ -16669,7 +16684,7 @@ loc_0000F862:
 	dc.b	$00, $00, $FF, $30, $24, $00, $08, $83 
 loc_0000F86A:
 	dc.b	$00, $00, $FF, $24, $24, $00, $08, $83 
-loc_0000F872:
+Battle_PlayerObj_UselessFunc:
 	RTS
 loc_0000F874:
 	MOVE.b	rCurGameMode, D0

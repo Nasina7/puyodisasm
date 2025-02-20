@@ -180,6 +180,11 @@ Obj_AnmTmr = $22 ; 22 (Time until next frame of anim)
 Obj_Anim = $32 ; 32-35 (Pointer to current anim)
 ; 36-3F?
 
+
+; Battle_PlayerObj Struct Offset Names
+sPlayer_IsCpu = $2A ; Byte
+sPlayer_Opponent = $2E ; Long
+
 ; Sprite Mapping IDs
 SprMapID_Arle = $08
 SprMapID_Zombie = $0B

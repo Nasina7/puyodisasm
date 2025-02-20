@@ -475,7 +475,7 @@ Bytecode_NormalModeEnding:
 	
 	BRUN loc_0000BFDE
 	
-	BRUN loc_0000D908
+	BRUN ObjResumeBytecodeOnBtnPress
 	
 	BPALF pal_staffBG, 0, 0
 	BPALF pal_endingArle, 1, 0
@@ -521,7 +521,7 @@ Bytecode_Credits2:
 	BRAM $00FF0112, $0000
 Bytecode_Credits3:
 	BRUN loc_0000DAF4
-	BRUN loc_0000D908
+	BRUN ObjResumeBytecodeOnBtnPress
 
 	BSTOP
 	BNOP
@@ -572,8 +572,8 @@ Bytecode_Staff3:
 	
 	BWPAL
 	
-	BRUN loc_0000BE0E
-	BRUN loc_0000D908
+	BRUN StaffCredits_Init
+	BRUN ObjResumeBytecodeOnBtnPress
 	
 	BSTOP
 	
@@ -619,7 +619,7 @@ Bytecode_RecordScreen1PlayerOnly:
 	BVDPC $0008
 	BNOP
 	
-	BRUN loc_0000BB0E
+	BRUN RecordScreen_Init
 	
 	BPALF pal_recordScreenMain, 0, 0
 	BPALF pal_00002250, 1, 0
@@ -851,7 +851,7 @@ Bytecode_RecordScreen4:
 	BRAM $00FF1890, $00FF
 	
 	BRUN Demo_CreateInsertCoinObj
-	BRUN loc_0000BB0E
+	BRUN RecordScreen_Init
 
 	BPAL pal_recordScreenMain, 0
 	BPAL pal_00002250, 1

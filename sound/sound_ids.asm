@@ -65,7 +65,7 @@ sfxID_MovePuyo = $67
 sfxID_69 = $69
 ; 6A-6B: ???
 sfxID_6C = $6C
-; 6D: 99% chance this is used, need to look into
+sfxID_MinorGarbagePuyoFall1 = $6D ; Not used directly, used by code near ROM addr 3E16
 sfxID_MinorGarbagePuyoFall2 = $6E
 sfxID_MajorGarbagePuyoFall1 = $6F
 sfxID_MajorGarbagePuyoFall2 = $70

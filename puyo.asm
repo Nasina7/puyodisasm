@@ -8017,7 +8017,7 @@ loc_00007DE6:
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007DF0:
-	JSR	loc_000157DA
+	JSR	Video_SetVRAMAddressRead
 loc_00007DF6:
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
@@ -8030,7 +8030,7 @@ loc_00007E04:
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007E14:
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 loc_00007E1A:
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
@@ -8047,7 +8047,7 @@ loc_00007E38:
 	MOVE.w	D0, D5
 	MOVE.w	#$0017, D1
 loc_00007E46:
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$000B, D2
 loc_00007E54:
@@ -8126,11 +8126,11 @@ loc_00007F5C:
 loc_00007F5E:
 	ORI	#$0700, SR
 	MOVE.w	#$C726, D5
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$C1FC, vdpData1
 	MOVE.w	#$C1FE, vdpData1
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	#$C1FD, vdpData1
 	MOVE.w	#$C1FF, vdpData1
 	ANDI	#$F8FF, SR
@@ -8165,7 +8165,7 @@ loc_00007FEE:
 loc_00007FFA:
 	ori #$700, SR
 loc_00007FFE:
-	jsr loadBGSetupVDP
+	jsr Video_SetVRAMAddressWrite
 loc_00008004:
 	subi.w #$80, d5
 	move.w d6,(vdpData1)
@@ -8187,7 +8187,7 @@ loc_00008026:
 	move.w #1, d0
 	move.w #$8000, d6
 loc_0000803C:
-	jsr loadBGSetupVDP
+	jsr Video_SetVRAMAddressWrite
 	addi.w #$80, d5
 	move.w #4, d1
 loc_0000804A:
@@ -8399,11 +8399,11 @@ loc_00008342:
 	ADD.b	D1, D6
 loc_0000834A:
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADD.w	$12(A0), D5
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	SUB.w	$12(A0), D5
 	ADDQ.w	#2, D5
 	MOVE.w	D6, vdpData1
@@ -8436,12 +8436,12 @@ loc_000083BC:
 loc_000083CA:
 	move.b d0, d6
 	ori #$700, SR
-	jsr loadBGSetupVDP
+	jsr Video_SetVRAMAddressWrite
 	addi.w #$80, d5
 	move.b d0, d6
 	move.w d6, (vdpData1)
 	addq.b #1, d6
-	jsr loadBGSetupVDP
+	jsr Video_SetVRAMAddressWrite
 	subi.w #$7E, d5
 	move.w d6, (vdpData1)
 	andi #$F8FF, SR
@@ -11656,10 +11656,10 @@ loc_0000B7C6:
 	OR.b	D0, D2
 loc_0000B7E8:
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	D1, vdpData1
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	D2, vdpData1
 	ANDI	#$F8FF, SR
 	RTS
@@ -11964,11 +11964,11 @@ loc_0000BBB6:
 loc_0000BBC4:
 	ADD.b	D1, D0
 	LSL.b	#1, D0
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0100, D5
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	SUBI.w	#$00FE, D5
 	MOVE.w	D0, vdpData1
 	DBF	D3, loc_0000BBB6
@@ -12120,13 +12120,13 @@ loc_0000BDBA:
 	MOVEM.l	(A7)+, D1
 	MOVE.b	D0, D1
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0100, D5
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	MOVE.w	D1, vdpData1
 	ADDI.w	#$001F, D1
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	MOVE.w	D1, vdpData1
@@ -12154,7 +12154,7 @@ loc_0000BE38:
 	jsr		 ObjSys_InitObjWithFunc
 	bcs.w    loc_0000BE70
 	move.l   a0, $2E(a1)
-	bsr.w    loc_0000D1DA
+	bsr.w    Video_SetHScrollSinglePixelRows
 	move.b   #0, d0
 	move.b   #4, d2
 	lea 	 (palLookupTable).l, a2
@@ -12248,7 +12248,7 @@ loc_0000BFC4:
 	addq.b #3, $36(a0)
 	rts
 loc_0000BFD4:
-	bsr.w    loc_0000D1F0
+	bsr.w    Video_SetHScrollFullScreen
 	jmp ObjSys_DeleteObjectA0
 	
 ; ---------- File End: game/staff_credits.asm ----------
@@ -12256,7 +12256,7 @@ loc_0000BFD4:
 ; ---------- File Start: game/normal_ending.asm? ----------
 ; Note: I haven't looked at this part of the code yet beyond identifying what it goes to.
 loc_0000BFDE:
-	bsr.w    loc_0000D1F0
+	bsr.w    Video_SetHScrollFullScreen
 	lea    (loc_0000BFEE).l, a1
 	jmp    ObjSys_InitObjWithFunc
 loc_0000BFEE:
@@ -12297,45 +12297,47 @@ loc_0000C00E:
 ; ---------- File End: game/normal_ending.asm? ----------
 
 ; ---------- File Start: game/portrait_screen.asm ----------
-; Note: I haven't looked at this part of the code yet beyond identifying what it goes to.
-loc_0000C08C:
+PortraitScreen_LoadBG:
 	ORI	#$0700, SR
-	MOVE.w	#$000D, D0
+	MOVE.w	#$000D, D0 ; Number of rows of bricks to load
 	CLR.w	D2
 	MOVE.w	#$E400, D6
-loc_0000C09A:
-	JSR	loadBGSetupVDP
+@NextRow:
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0100, D5
 	MOVE.w	D2, D3
 	MOVE.w	#$0033, D1
 	LEA	loc_0000C10E, A2
-loc_0000C0B0:
+
+@loc_0000C0B0:
 	CMPI.w	#$001E, D3
-	BCS.w	loc_0000C0BE
+	BCS.w	@loc_0000C0BE
 	SUBI.w	#$001E, D3
-	BRA.b	loc_0000C0B0
-loc_0000C0BE:
+	BRA.b	@loc_0000C0B0
+@loc_0000C0BE:
 	MOVE.b	(A2,D3.w), D6
 	ADDQ.w	#1, D3
 	MOVE.w	D6, vdpData1
-	DBF	D1, loc_0000C0B0
-	JSR	loadBGSetupVDP
+	DBF	D1, @loc_0000C0B0
+
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0100, D5
 	MOVE.w	D2, D3
 	MOVE.w	#$0033, D1
 	LEA	loc_0000C12C, A2
-loc_0000C0E4:
+@loc_0000C0E4:
 	CMPI.w	#$001E, D3
-	BCS.w	loc_0000C0F2
+	BCS.w	@loc_0000C0F2
 	SUBI.w	#$001E, D3
-	BRA.b	loc_0000C0E4
-loc_0000C0F2:
+	BRA.b	@loc_0000C0E4
+
+@loc_0000C0F2:
 	MOVE.b	(A2,D3.w), D6
 	ADDQ.w	#1, D3
 	MOVE.w	D6, vdpData1
-	DBF	D1, loc_0000C0E4
+	DBF	D1, @loc_0000C0E4
 	ADDQ.w	#2, D2
-	DBF	D0, loc_0000C09A
+	DBF	D0, @NextRow
 	ANDI	#$F8FF, SR
 	RTS
 loc_0000C10E:
@@ -12347,18 +12349,19 @@ loc_0000C14A:
 	JSR	Video_QueueBgMapSpecial
 	MOVE.l	#$9A000000, D0
 	JMP	Video_QueueBgMapSpecial
-loc_0000C162:
+
+PortraitScreen_Init:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurStage, D0
 	LEA	tbl_cutsceneOrder, A1
 	MOVE.b	(A1,D0.w), rOnePlayer_CurCutscene
 	JSR	Video_EnableVDPHighlight
-	BSR.w	loc_0000D1F0
-	LEA	loc_0000C21A, A1
+	BSR.w	Video_SetHScrollFullScreen
+	LEA	PortraitScreen_MainObj, A1
 	JSR	ObjSys_InitObjWithFunc
-	BCC.w	loc_0000C194
+	BCC.w	@InitSuccess
 	RTS
-loc_0000C194:
+@InitSuccess:
 	MOVE.b	#$22, $8(A1)
 	MOVE.b	#1, $9(A1)
 	MOVE.w	#$00F8, $A(A1)
@@ -12368,19 +12371,19 @@ loc_0000C194:
 	CLR.w	D1
 	MOVE.b	rOnePlayer_CurStage, D1
 	CLR.w	D0
-	MOVE.b	loc_0000C1FA(PC,D1.w), D0
-	BNE.w	loc_0000C1E8
+	MOVE.b	@TblShouldntScroll(PC,D1.w), D0
+	BNE.w	@SkipScrolling
 	TST.b	$00FF0115
-	BNE.w	loc_0000C1E8
+	BNE.w	@SkipScrolling
 	MOVE.w	#$FFC8, rScrollXScanFront
 	MOVE.w	#$FFC8, rScrollXScanBack
-loc_0000C1E8:
+@SkipScrolling:
 	MOVE.w	#$E00E, D5
-	BSR.w	loc_0000C08C
+	BSR.w	PortraitScreen_LoadBG
 	BSR.w	loc_0000C56A
-	BRA.w	loc_0000C294
+	BRA.w	PortraitScreen_LoadPortraits
 	RTS
-loc_0000C1FA:
+@TblShouldntScroll:
 	dc.b 	$FF, $00, $00, $FF, $00, $00, $00, $00
 	dc.b 	$00, $00, $00, $00, $00, $00, $00, $00
 tbl_cutsceneOrder:
@@ -12401,39 +12404,40 @@ tbl_cutsceneOrder:
 	dc.b 	cutID_Rulue
 	dc.b 	cutID_Satan 
 	even
-loc_0000C21A:
+PortraitScreen_MainObj:
 	MOVE.w	#$0060, $26(A0)
 	JSR	ObjSys_UpdateObjNextOpTimer
 	BSR.w	GetMainControllerHeld
 	ANDI.b	#$F0, D0
-	BNE.w	loc_0000C288
+	BNE.w	@ExitPortraitScreen
 	CMPI.w	#$FF70, rScrollXScanFront
-	BEQ.w	loc_0000C24C
+	BEQ.w	@DoneScrolling
 	SUBQ.w	#2, rScrollXScanFront
 	SUBQ.w	#2, rScrollXScanBack
 	RTS
-loc_0000C24C:
+@DoneScrolling:
 	SUBQ.w	#1, $26(A0)
-	BEQ.w	loc_0000C288
+	BEQ.w	@ExitPortraitScreen
 	CMPI.w	#$0040, $26(A0)
-	BEQ.w	loc_0000C264
-	BCS.w	loc_0000C278
+	BEQ.w	@PlaySoundEffect
+	BCS.w	@PlayPortraitFlash
 	RTS
-loc_0000C264:
+@PlaySoundEffect:
 	MOVE.b	#sfxID_ComboComplete1, D0
 	JSR	SndDrv_QueueSoundEffect
 	MOVE.w	#$C744, D5
 	JMP	loc_00008254
-loc_0000C278:
+@PlayPortraitFlash:
 	MOVE.w	$26(A0), D0
 	ROL.b	#5, D0
 	ANDI.b	#$80, D0
 	MOVE.b	D0, $6(A0)
 	RTS
-loc_0000C288:
+@ExitPortraitScreen:
 	CLR.b	rBytecode_StopRun
 	JMP	ObjSys_DeleteObjectA0
-loc_0000C294:
+
+PortraitScreen_LoadPortraits:
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurStage, D0
 	LSL.w	#2, D0
@@ -12474,7 +12478,7 @@ loc_0000C302:
 	MOVE.w	#6, D4
 loc_0000C30E:
 	SWAP	D5
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	#9, D0
 loc_0000C31C:
@@ -12482,7 +12486,7 @@ loc_0000C31C:
 	DBF	D0, loc_0000C31C
 	ADDI.w	#$0100, D5
 	SWAP	D5
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	#9, D0
 loc_0000C33A:
@@ -12572,6 +12576,7 @@ loc_0000C520:
 	dc.b	$00, $08, $0A, $00, $00, $09, $0A, $16, $00, $0A, $0A, $2C, $00, $0B, $0A, $42, $00, $0C, $0A, $58, $80, $00 
 loc_0000C536:
 	dc.b	$00, $09, $0A, $00, $00, $0A, $0A, $16, $00, $0B, $0A, $2C, $00, $0C, $0A, $42, $80, $00 
+
 loc_0000C548:
 	LEA	tbl_menuPortraits, A2
 	LEA	rOnePlayer_DefeatedEnemyTbl, A1
@@ -12588,51 +12593,58 @@ Menu_StageSelectTbl:
 	dc.b	stgID_Draco
 	dc.b	stgID_Harpy
 	even
+
 loc_0000C56A:
 	LEA	loc_0000C640, A2
 	CMPI.b	#stgID_Draco, rOnePlayer_CurStage
-	BCS.w	loc_0000C594
+	BCS.w	@InEasyMode
 	LEA	loc_0000C644, A2
 	CLR.w	D0
 	MOVE.b	rOnePlayer_CurStage, D0
 	SUBQ.b	#6, D0
-	BCC.w	loc_0000C592
+	BCC.w	@SkipBoundsCorrection
 	CLR.b	D0
-loc_0000C592:
+@SkipBoundsCorrection:
 	ADDA.w	D0, A2
-loc_0000C594:
+@InEasyMode:
 	LEA	rOnePlayer_DefeatedEnemyTbl, A1
 	LEA	lookup_portraitArt, A3
 	MOVE.w	#$2000, D5
+
 loc_0000C5A4:
 	SWAP	D5
 	MOVE.w	#5, D3
-loc_0000C5AA:
+@Loop:
+	; Grab next portrait byte.  If it's highest bit is set, then we're done here.
 	CLR.w	D0
 	MOVE.b	(A2)+, D0
-	BMI.w	loc_0000C5EA
+	BMI.w	@NoPortraitsLeft
+
+	; Load the art data for the portrait.
 	MOVEM.l	A3/A2/A1/A0/D5/D4/D3/D2/D1/D0, -(A7)
 	LSL.w	#2, D0
 	MOVEA.l	(A3,D0.w), A0
 	MOVE.w	#0, D0
 	JSR	System_DecompressComp
 	MOVEM.l	(A7)+, D0/D1/D2/D3/D4/D5/A0/A1/A2/A3
+
 	MOVE.w	#0, D5
 	TST.b	(A1,D0.w)
-	BEQ.w	loc_0000C5DA
+	BEQ.w	@SkipIfNotDefeated
 	MOVE.w	#$02C0, D5
-loc_0000C5DA:
+@SkipIfNotDefeated:
 	ORI	#$0700, SR
 	BSR.w	loc_0000C5EC
 	ANDI	#$F8FF, SR
-	DBF	D3, loc_0000C5AA
-loc_0000C5EA:
+	DBF	D3, @Loop
+@NoPortraitsLeft:
 	RTS
+
 loc_0000C5EC:
 	LEA	rPlaneBuffer, A4
 	MOVE.w	#6, D0
 loc_0000C5F6:
-	JSR	loc_000157DA
+	JSR	Video_SetVRAMAddressRead
 	ADDI.w	#$0400, D5
 	NOP
 	NOP
@@ -12645,7 +12657,7 @@ loc_0000C60C:
 	DBF	D1, loc_0000C60C
 	DBF	D0, loc_0000C5F6
 	SWAP	D5
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$08C0, D5
 	SWAP	D5
 	LEA	rPlaneBuffer, A4
@@ -12655,9 +12667,25 @@ loc_0000C634:
 	DBF	D1, loc_0000C634
 	RTS
 loc_0000C640:
-	dc.b	$00, $04, $0D, $FF 
+	dc.b 	cutID_SkeletonT
+	dc.b 	cutID_Nasu
+	dc.b 	cutID_Mummy
+	dc.b 	$FF
 loc_0000C644:
-	dc.b	$03, $01, $0E, $07, $06, $0F, $02, $05, $08, $09, $0A, $0B, $0C, $FF 
+	dc.b 	cutID_Draco
+	dc.b 	cutID_Suketoudara
+	dc.b 	cutID_Sukiyapotes
+	dc.b 	cutID_Harpy
+	dc.b 	cutID_Sasoriman
+	dc.b 	cutID_Panotty
+	dc.b 	cutID_Zombie
+	dc.b 	cutID_Witch
+	dc.b 	cutID_ZohDaimaoh
+	dc.b 	cutID_Schezo
+	dc.b 	cutID_Minotauros
+	dc.b 	cutID_Rulue
+	dc.b 	cutID_Satan
+	dc.b 	$FF
 ; ---------- File End: game/portrait_screen.asm ----------
 
 ; ---------- File Start: game/game_over.asm ----------
@@ -12677,7 +12705,7 @@ GameOver_InitVDP:
 	MOVE.w	#7, D0
 	MOVE.w	#$41F0, D1
 @LoadSkyGradientLoop:
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D2
 @WriteXLoop:
@@ -12689,7 +12717,7 @@ GameOver_InitVDP:
 	RTS
 	
 @LoadScrollText:
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0017, D0
 	MOVE.w	#$2160, D1
@@ -12697,7 +12725,7 @@ GameOver_InitVDP:
 	MOVE.w	D1, vdpData1
 	ADDQ.w	#1, D1
 	DBF	D0, @WriteDataLoop
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	#$0017, D0
 @WriteDataLoop2:
 	MOVE.w	D1, vdpData1
@@ -12715,7 +12743,7 @@ GameOver_Init:
 	MOVE.w	#1, $12(A1)
 	MOVE.w	#11, $28(A1)
 	MOVE.b	#$FF, rBytecode_Ret
-	BSR.w	loc_0000D1DA
+	BSR.w	Video_SetHScrollSinglePixelRows
 	RTS
 
 @MainObject:
@@ -13598,13 +13626,14 @@ TitleScreen_PuyoInit:
 	JMP	ObjSys_UpdateObjAnim
 ; ---------- File End: game/title_screen.asm ----------
 	
-loc_0000D1DA:
+Video_SetHScrollSinglePixelRows:
 	MOVE.w	#$8B00, D0
 	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ORI.b	#3, D0
 	MOVE.b	D0, rVDPRegBTbl+rvtMode3
 	RTS
-loc_0000D1F0:
+
+Video_SetHScrollFullScreen:
 	MOVE.w	#$8B00, D0
 	MOVE.b	rVDPRegBTbl+rvtMode3, D0
 	ANDI.b	#$FC, D0
@@ -13689,13 +13718,13 @@ HowToPlay_TextObjInit:
 	ORI	#$0700, SR
 	EORI.w	#$8000, D0
 	MOVE.w	$12(A0), D5
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADD.w	$28(A0), D5
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	D0, vdpData1
 	ADDQ.b	#1, D0
 	MOVE.w	D0, vdpData1
@@ -15552,11 +15581,11 @@ loc_0000DF52:
 	MOVE.l	A1, $2E(A0)
 	MOVE.w	$2A(A0), D5
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	D0, $00C00000
 	ADDQ.b	#1, D0
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	MOVE.w	D0, $00C00000
 	ANDI	#$F8FF, SR
 	ADDQ.w	#2, $2A(A0)
@@ -15846,13 +15875,13 @@ CutCmd_WriteChar:
 	ORI	#$0700, SR
 	
 	; Setup the VDP to draw at the location in D5, and draw the top of the letter
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	D0, vdpData1 ; Write top left of letter
 	ADDQ.w	#1, D0
 	MOVE.w	D0, vdpData1 ; Write top right of letter
 	ADDI.w	#$0080, D5
 	; Same thing, but for the bottom
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADDI.w	#$001F, D0
 	MOVE.w	D0, vdpData1 ; Write bottom left of letter
 	ADDQ.w	#1, D0
@@ -18704,7 +18733,7 @@ loc_00011226:
 	move.w #5, d0
 	move.w #$2980, d5
 loc_0001124A:
-	jsr loadBGSetupVDP
+	jsr Video_SetVRAMAddressWrite
 	addi.w #$A80, d5
 	move.w #$3F, d1
 loc_00011258:
@@ -19165,11 +19194,11 @@ loc_00014882:
 	ADDI.w	#$0030, D5
 loc_00014890:
 	MOVE.b	(A1)+, D6
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	SUB.w	D1, D5
 	ADDQ.w	#2, D5
 	MOVE.w	D6, vdpData1
@@ -19202,14 +19231,14 @@ loc_000148FA:
 	LEA	$00FF18A4, A3
 	MOVE.w	#3, D0
 loc_00014914:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.b	(A3)+, D6
 	ADDQ.b	#1, D6
 	LSL.b	#1, D6
 	MOVE.w	D6, vdpData1
 	ADDQ.b	#1, D6
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	SUB.w	D1, D5
 	MOVE.w	D6, vdpData1
 	ADDQ.w	#2, D5
@@ -19219,7 +19248,7 @@ loc_0001493C:
 	MOVE.w	#$0010, D3
 	MOVE.w	#9, D4
 	MOVE.w	#$C716, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$C4D8, vdpData1
 	MOVE.w	D3, D0
@@ -19231,7 +19260,7 @@ loc_0001495A:
 	MOVE.w	D4, D0
 	SUBQ.w	#1, D0
 loc_00014972:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	#$C4DB, vdpData1
 	MOVE.w	D3, D2
 	SUBQ.w	#1, D2
@@ -19241,7 +19270,7 @@ loc_00014982:
 	MOVE.w	#$C4DC, vdpData1
 	ADD.w	D1, D5
 	DBF	D0, loc_00014972
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	#$C4DD, vdpData1
 	MOVE.w	D3, D0
 	SUBQ.w	#1, D0
@@ -19261,7 +19290,7 @@ BgLoad_GameOverNumber:
 	MOVE.w	#$C70C, D5
 	MOVE.w	#6, D4
 @YLoop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#7, D3
 @XLoop:
@@ -19299,7 +19328,7 @@ loc_00014A64:
 	MOVEM.l	D5/D4/D3, -(A7)
 	LEA	rPlaneBuffer, A1
 loc_00014A72:
-	BSR.w	loc_000157DA
+	BSR.w	Video_SetVRAMAddressRead
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 loc_00014A7A:
@@ -19311,7 +19340,7 @@ loc_00014A7A:
 	SUBQ.w	#2, D3
 	SUBQ.w	#2, D4
 	ADDQ.w	#2, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	SUBQ.w	#2, D5
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
@@ -19319,7 +19348,7 @@ loc_00014A9E:
 	MOVE.w	#$83F8, vdpData1
 	DBF	D0, loc_00014A9E
 loc_00014AAA:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$83FA, vdpData1
 	MOVE.w	D3, D0
@@ -19329,7 +19358,7 @@ loc_00014ABA:
 	MOVE.w	#$83FC, vdpData1
 	DBF	D4, loc_00014AAA
 	ADDQ.w	#2, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	SUBQ.w	#2, D5
 	MOVE.w	D3, D0
 loc_00014ADC:
@@ -19356,7 +19385,7 @@ loc_00014B14:
 	MOVE.b	$1(A2), D5
 	LSL.w	#7, D5
 	ADDI.w	#$5F00, D5
-	BSR.w	loc_000157DA
+	BSR.w	Video_SetVRAMAddressRead
 	LEA	vdpData1, A3
 	LEA	$00FF0000, A4
 	MOVE.w	#$003F, D0
@@ -19364,7 +19393,7 @@ loc_00014B34:
 	MOVE.w	(A3), (A4)+
 	DBF	D0, loc_00014B34
 	MOVE.w	#$6580, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	LEA	$00FF0000, A4
 	MOVE.w	#$003F, D0
 loc_00014B4C:
@@ -19476,13 +19505,13 @@ loc_00014CA8:
 	dc.b	$FF
 loc_00014CAA:
 	MOVE.w	D1, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	#$83FE, vdpData1
 	MOVE.w	#$83FE, vdpData1
 loc_00014CC0:
 	MOVE.w	D1, D5
 	ADDI.w	#$0080, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	D0, D5
 	MOVE.w	D5, vdpData1
 	ADDQ.w	#2, D5
@@ -19490,7 +19519,7 @@ loc_00014CC0:
 loc_00014CDA:
 	MOVE.w	D1, D5
 	ADDI.w	#$0100, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	D0, D5
 	ADDQ.w	#1, D5
 	MOVE.w	D5, vdpData1
@@ -19516,7 +19545,7 @@ loc_00014CF8:
 	BEQ.w	loc_00014D3C
 	MOVE.w	#3, D2
 loc_00014D3C:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#5, D0
 loc_00014D46:
@@ -19595,14 +19624,14 @@ loc_00014E82:
 	LSL.w	#1, D2
 	MOVEA.l	$8(A3), A4
 	ADDA.w	D2, A4
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014EE2:
 	MOVE.w	D6, vdpData1
 	DBF	D0, loc_00014EE2
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$C4D8, vdpData1
 	MOVE.w	D3, D0
@@ -19615,7 +19644,7 @@ loc_00014EFE:
 	SUBQ.w	#1, D0
 	BMI.w	loc_00014F42
 loc_00014F1A:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	#$C4DB, vdpData1
 	MOVE.w	D3, D2
 	SUBQ.w	#1, D2
@@ -19626,7 +19655,7 @@ loc_00014F2A:
 	ADD.w	D1, D5
 	DBF	D0, loc_00014F1A
 loc_00014F42:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	#$C4DD, vdpData1
 	MOVE.w	D3, D0
 	SUBQ.w	#1, D0
@@ -19635,7 +19664,7 @@ loc_00014F52:
 	DBF	D0, loc_00014F52
 	MOVE.w	#$C4DF, vdpData1
 	ADD.w	D1, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014F70:
@@ -19650,14 +19679,14 @@ loc_00014F7C:
 	ADD.w	$0(A3), D5
 	MOVE.w	$6(A3), D6
 	MOVE.w	$2(A3), D3
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014F9C:
 	MOVE.w	D6, vdpData1
 	DBF	D0, loc_00014F9C
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	MOVE.w	D3, D0
 	ADDQ.w	#1, D0
 loc_00014FAE:
@@ -19727,11 +19756,11 @@ loc_00015194:
 	CMPI.b	#$FF, D2
 	BEQ.w	loc_000151C2
 	BSR.w	loc_000151EC
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	D2, vdpData1
 	ADDQ.b	#1, D2
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	SUB.w	D1, D5
 	ADDQ.w	#2, D5
 	MOVE.w	D2, vdpData1
@@ -19783,7 +19812,7 @@ loc_00015228:
 loc_00015244:
 	LEA	$00FF18A0, A3
 	CLR.w	D3
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 loc_00015250:
 	BSR.w	loc_00015280
 	MOVE.w	D2, vdpData1
@@ -19792,7 +19821,7 @@ loc_00015250:
 	BCS.b	loc_00015250
 	CLR.w	D3
 	ADD.w	D1, D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 loc_0001526A:
 	BSR.w	loc_00015280
 	ADDQ.b	#1, D2
@@ -20113,7 +20142,7 @@ loc_000155B8:
 	MOVE.w	#9, D3
 	MOVE.w	#6, D4
 loc_000155C0:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	D3, D0
 loc_000155C8:
@@ -20130,7 +20159,7 @@ loc_000155DE:
 	MOVE.b	$1(A2), D3
 	SUBQ.w	#1, D3
 	MOVE.w	$2(A2), D5
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$8550, vdpData1
 	MOVE.w	D3, D0
@@ -20140,7 +20169,7 @@ loc_000155FA:
 	MOVE.w	#$8552, vdpData1
 	MOVE.w	#1, D4
 loc_00015612:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$8553, vdpData1
 	MOVE.w	D3, D0
@@ -20149,7 +20178,7 @@ loc_00015622:
 	DBF	D0, loc_00015622
 	MOVE.w	#$8555, vdpData1
 	DBF	D4, loc_00015612
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	ADD.w	D1, D5
 	MOVE.w	#$8556, vdpData1
 	MOVE.w	D3, D0
@@ -20181,7 +20210,7 @@ loadBGFunctionList:
 loadBGClear:
 	MOVE.w	(A3)+, D6
 loadBGClearYLoop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	D3, D0
 @xloop:
@@ -20195,7 +20224,7 @@ loadBGByteIndex:
 	MOVEA.l	(A3)+, A4
 	MOVE.w	(A3)+, D6
 loadBGByteIndexYLoop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	D3, D0
 @xloop:
@@ -20209,7 +20238,7 @@ loadBGByteIndexYLoop:
 loadBGWordIndex:
 	MOVEA.l	(A3)+, A4
 loadBGWordIndexYLoop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	D3, D0
 @xloop:
@@ -20225,7 +20254,7 @@ loadBGUnused:
 	MOVE.w	(A3)+, D6
 	MOVE.w	(A3)+, D2
 @yloop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	CLR.w	D0
 	MOVE.w	D3, D0
 @xloop:
@@ -20251,7 +20280,7 @@ loadBGByteIndexPal:
 loadBGBytePal2:
 	CLR.b	D2
 @yloop:
-	BSR.w	loadBGSetupVDP
+	BSR.w	Video_SetVRAMAddressWrite
 	SWAP	D5
 	CLR.w	D0
 	MOVE.w	D3, D0
@@ -20309,17 +20338,19 @@ loc_000157A2:
 	BRA.b	loc_000157A2
 loc_000157B8:
 	RTS
-loadBGSetupVDP:
+
+Video_SetVRAMAddressWrite:
 	MOVE.w	D5, D7
 	ANDI.w	#$3FFF, D7
 	ORI.w	#$4000, D7
-	MOVE.w	D7, vdpControl1
+	MOVE.w	D7, vdpControl1 ; 600E
 	MOVE.w	D5, D7
 	ROL.w	#2, D7
 	ANDI.w	#3, D7
 	MOVE.w	D7, vdpControl1
 	RTS
-loc_000157DA:
+
+Video_SetVRAMAddressRead:
 	MOVE.w	D5, D7
 	ANDI.w	#$3FFF, D7
 	MOVE.w	D7, vdpControl1
@@ -22464,7 +22495,7 @@ SoundTest_Init:
 	MOVE.w	#$406C, D6
 @OuterLoop:
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D1
 @InnerLoop:
@@ -22487,7 +22518,7 @@ BadCheck_Init:
 	move.w #$406C, D6
 @OuterLoop:
 	ori #$700, SR
-	jsr	loadBGSetupVDP
+	jsr	Video_SetVRAMAddressWrite
 	addi.w #$80, D5
 	move.w #$27, D1
 @InnerLoop:
@@ -22942,7 +22973,7 @@ Option_Init:
 	MOVE.w	#$006C, D6
 @OuterLoop:
 	ORI	#$0700, SR
-	JSR	loadBGSetupVDP
+	JSR	Video_SetVRAMAddressWrite
 	ADDI.w	#$0080, D5
 	MOVE.w	#$0027, D1
 @InnerLoop:

@@ -226,7 +226,7 @@ Bytecode_PortraitScreen:
 	BVDPC $001E
 	BNOP
 	
-	BRUN loc_0000C162
+	BRUN PortraitScreen_Init
 	
 	BNOP
 	

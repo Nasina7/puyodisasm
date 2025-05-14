@@ -121,6 +121,11 @@ rPalQueueMainEnt2  = $FF0A76 ; Goes until $FF0A95
 rPalQueueMainEnt3  = $FF0A96 ; Goes until $FF0AB5
 rPalQueueMainEnt4  = $FF0AB6 ; Goes until $FF0AD5
 
+rUpdateSpritesDirection = $FF0DE2 ; Word
+rSpriteTableWordLength = $FF0DE4 ; Word
+rSpriteLinkTable = $FF0DE6 ; Array (Goes until $FF0E35)
+rSpriteLinkTable2 = $FF0E36 ; Array (Goes until $FF0E85)
+rSpriteTable = $FF0E86 ; Array (Goes until $FF1105)
 rTmpVDPDmaDest = $FF1106   ; Word
 
 rPad1Held = $FF110A		; Byte
@@ -131,6 +136,8 @@ rPad2Press = $FF1111    ; Byte
 
 randomNumber = $FF1116		; Long
 
+rStaffCredits_MapRecFlgTbl = $FF131C ; Goes until $FF1323
+rSprMapStaffText = $FF1324 ; Goes until $FF1833
 rRunningOptionsMenuCode = $FF1834 ; Word
 
 debug_CpuPlayer = $FF1876	; Byte
@@ -167,14 +174,25 @@ rOption_VoicesEnabled = $00FFFCAC
 ; 0 - Something to do with animation / updating?
 ; 1 - ???
 ; 2-5 - Pointer to update function
-; 6 - Render Flags (Bit 7 to enable animation)
+Obj_RndrFlgs = $6
+  ; Bit 7   - Render Sprite (UpdateSprites)
+  ; Bit 6   - ???
+  ; Bit 5   - Move X No Bounds Check (ObjSys_UpdatePosInterpMove)
+  ; Bit 4   - Move Y No Bounds Check (ObjSys_UpdatePosInterpMove)
+  ; Bit 3   - InterpolateX (ObjSys_UpdatePosInterpMove)
+  ; Bit 2   - InterpolateY (ObjSys_UpdatePosInterpMove)
+  ; Bit 1   - Move X Enabled (ObjSys_UpdatePosInterpMove)
+  ; Bit 0   - Move Y Enabled (ObjSys_UpdatePosInterpMove)
 ; 7 - ???
 Obj_SprMap = $8 ; 8 (Sprite Mapping ID)
 Obj_AnmFrm = $9 ; 9 (Animation Frame)
 Obj_XPos = $A ; A-B (X Pos)
-; C-D?
+;Obj_XPosFrac = $C ; C-D (X Pos Decimal)
 Obj_YPos = $E ; E-F (Y Pos)
-; 10-21?
+;Obj_YPosFrac = $10 ; 10-11 (Y Pos Decimal)
+Obj_XMove = $12 ; 12-15
+Obj_YMove = $16 ; 16-19
+; 1A-21?
 Obj_AnmTmr = $22 ; 22 (Time until next frame of anim)
 ; 23-31?
 Obj_Anim = $32 ; 32-35 (Pointer to current anim)

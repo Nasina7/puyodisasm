@@ -87,7 +87,7 @@
     
     PlayOpponentAnim $0
     WaitTime $6
-    CutUnkCommand2
+    ResetTextbox
     PlayOpponentAnim $1
     
     dc.b    $1f, $16, $1f, $16, $37, $38, $10

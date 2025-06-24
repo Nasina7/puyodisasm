@@ -17,7 +17,7 @@
     
     PlayArleAnim $b
     WaitTime $4
-    CutUnkCommand2
+    ResetTextbox
     PlayArleAnim $a
     
     dc.b    $b, $c, $6, $13, $f, $10, $14, $1e
@@ -57,7 +57,7 @@
     
     PlayArleAnim $13
     WaitTime $4
-    CutUnkCommand2
+    ResetTextbox
     PlayArleAnim $12
     
     dc.b    $4, $f, $1a, $10, $1a, $10, $2d, $2e, $19, $2f, $3, $2, $1e

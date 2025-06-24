@@ -25,11 +25,8 @@ PlayOpponentAnim: macro anim
 TextboxNewLine: macro
     dc.b     $86
     endm
-CutUnkCommand2: macro
+ResetTextbox: macro
     dc.b     $87
-    endm
-CutInvalid1: macro
-    dc.b     $88
     endm
 AddWhitespace: macro
     dc.b    $89

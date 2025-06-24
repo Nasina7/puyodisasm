@@ -10273,7 +10273,6 @@ loc_0000A334:
 	LEA	palLookupTable, A2
 	ADDA.l	#(pal_grassCutTop-palLookupTable), A2
 	JSR	loc_00000E46
-loc_0000A34E:
 	MOVE.b	#3, D0
 	MOVE.b	#0, D1
 	LEA	palLookupTable, A2
@@ -15683,8 +15682,13 @@ credits_TextboxCarbuncle:
 	
 
 ; Object Parameters:
-; $A-$B: X Pos in Textbox | $C-$D: Y Pos in Textbox
-; $10-$15: Textbox config
+; $7: Textbox Active Flag ($FF = True, $00 = False)
+; $A-$B: X Pos in Textbox
+; $C-$D: Y Pos in Textbox
+; $E-$F: Textbox Width
+; $10-$11 Textbox Height
+; $12-$13 Textbox X & Y Pos (VRAM Address)
+; $14-$15 Opponent Speaking Flag + ?
 ; $26-$27: Wait Timer
 ; $32-$35: Cutscene Pointer
 Cutscene_ControllerObj:
@@ -15730,13 +15734,13 @@ Cutscene_ControllerObj:
 	dc.l	CutCmd_PlayArleAnim
 	dc.l	CutCmd_PlayOpponentAnim
 	dc.l	CutCmd_NewLine
-	dc.l	loc_0000E1A0 
+	dc.l	CutCmd_ResetTextbox
 	dc.l	NULL 
 	dc.l	CutCmd_Whitespace
 	dc.l	SndDrv_PlayVoice 
 	
 CutCmd_End:
-	BSR.w	loc_0000E210
+	BSR.w	CutCmd_ClearTxtbox2
 	JSR	ObjSys_UpdateObjNextOpTimer
 	CLR.b	rBytecode_StopRun
 	JMP	ObjSys_DeleteObjectA0
@@ -15749,85 +15753,80 @@ CutCmd_NewLine2:
 	ADDQ.w	#1, $C(A0)
 	MOVE.w	$C(A0), D0
 	CMP.w	$10(A0), D0
-	BCS.w	loc_0000E19E
+	BCS.w	@HeightNotHit
 	CLR.w	$C(A0)
-loc_0000E19E:
+@HeightNotHit:
 	RTS
 	
-loc_0000E1A0:
+CutCmd_ResetTextbox:
 	SUBQ.l	#1, $32(A0)
 	CLR.w	$A(A0)
 	CLR.w	$C(A0)
-	BSR.w	loc_0000E22E
+	BSR.w	CutCmd_SetupTxtboxBgQueue
 	ORI.w	#$8E00, D0
 	SWAP	D0
 	JMP	Video_QueueBgMapSpecial
 	
 CutCmd_MakeTxtbox:
-	; Make copies of argument
+	; Make copies of argument 1 (opponent speaking, width, height)
 	MOVE.w	D0, D1
 	MOVE.w	D0, D2
 	
-	; Get Lower 4 Bits of argument
+	; Get Textbox Width and Height into D0 and D1.
 	ANDI.b	#$0F, D0
-	
-	; Get bits 4-6 of argument
 	LSR.b	#4, D1
 	ANDI.b	#7, D1
 	
-	; Store them 
+	; Store them into $E-$11
 	MOVE.w	D0, $E(A0)
 	MOVE.w	D1, $10(A0)
 	
-	; Get Bits 6-7 and store them
+	; Store opponent speaking flag into $14-$15
 	LSR.w	#6, D2
 	ANDI.b	#2, D2
 	MOVE.w	D2, $14(A0)
 	
-	; Get next two arguments
+	; Get next two arguments (Y and X position)
 	MOVE.b	(A2)+, $12(A0)
 	MOVE.b	(A2)+, $13(A0)
 	
 	; Store updated pointer
 	MOVE.l	A2, $32(A0)
 	
-	; ?
+	; Reset X and Y position in the textbox
 	CLR.w	$A(A0)
 	CLR.w	$C(A0)
 	
-	; Gets the stored word from $12(A0)
+	; Gets the stored VRAM Address from $12(A0)
 	; Puts it in the upperhalf of D0
-	; Gets the stored word from $10(A0)
+	; Gets the stored textbox height from $10(A0)
 	; LSL's by 4 and stores in the lower half of D0
-	BSR.w	loc_0000E22E
+	BSR.w	CutCmd_SetupTxtboxBgQueue
 	
-	; ?
+	; Create the textbox background and sprite corners
 	ORI.w	#$8C00, D0
 	SWAP	D0
-	
-	; ?
 	JSR	Video_QueueBgMapSpecial
+	BSR.w	CutCmd_MakeTxtboxSprCorners
 	
-	; ?
-	BSR.w	loc_0000E2F2
-	
-	; ?
+	; Set Textbox Active Flag
 	MOVE.b	#$FF, $7(A0)
 	RTS
 	
 CutCmd_ClearTxtbox:
 	SUBQ.l	#1, $32(A0)
-loc_0000E210:
+CutCmd_ClearTxtbox2:
 	TST.b	$7(A0)
-	BNE.w	loc_0000E21A
+	BNE.w	@TextboxActive
 	RTS
-loc_0000E21A:
+@TextboxActive:
 	CLR.b	$7(A0)
-	BSR.w	loc_0000E22E
+	BSR.w	CutCmd_SetupTxtboxBgQueue
 	ORI.w	#$8D00, D0
 	SWAP	D0
 	JMP	Video_QueueBgMapSpecial
-loc_0000E22E:
+
+CutCmd_SetupTxtboxBgQueue:
 	MOVE.w	$12(A0), D0
 	SWAP	D0
 	CLR.w	D0
@@ -15904,7 +15903,7 @@ CutCmd_Whitespace2:
 	RTS
 	
 	
-loc_0000E2F2:
+CutCmd_MakeTxtboxSprCorners:
 	MOVE.w	$12(A0), D0
 	MOVE.w	D0, D1
 	LSR.w	#1, D0
@@ -19338,11 +19337,13 @@ loc_00014A24:
 	dc.b	$FC, $FC, $CA, $C8, $F1, $C0, $FC, $D5, $D6, $CD, $CE, $CF, $D0, $D1, $DF, $E5, $DD, $DE, $DF, $E0, $E1, $00 
 loc_00014A3A:
 	dc.b	$FC, $C0, $F1, $C8, $CA, $FC, $FC, $D1, $D0, $CF, $CE, $CD, $D6, $D5, $E1, $E0, $DF, $DE, $DD, $E5, $DF, $00 
+
 loc_00014A50:
 	BSR.w	loc_00014AF8
 	SUBQ.w	#2, D3
 	SUBQ.w	#2, D4
 	ADDI.w	#$0082, D5
+
 	MOVE.w	#$83FB, D6
 	BRA.w	loadBGClearYLoop
 loc_00014A64:

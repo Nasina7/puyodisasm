@@ -9,9 +9,13 @@ if ! [ -d "./out" ]; then
 fi
 
 echo Compressing all puyo compressed data in art/art...
-find art/art -type f -name "*.puyo" -exec tools/linux/puyocomp -c {} \;
+find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool compress {} \;
 
 wine tools/windows/build_rom.bat
 
+if [ -f out/puyobuilt.bin ]; then
+   tools/linux/puyomdtool fix out/puyobuilt.bin
+fi
+
 echo Decompressing all puyo compressed data in art/art...
-find art/art -type f -name "*.puyo" -exec tools/linux/puyocomp -d {} \;
+find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool decompress {} \;

@@ -11,4 +11,3 @@ if not exist out\puyobuilt_temp.bin (
 if exist out\puyobuilt_prev.bin del out\puyobuilt_prev.bin
 if exist out\puyobuilt.bin rename out\puyobuilt.bin puyobuilt_prev.bin
 if exist out\puyobuilt_temp.bin rename out\puyobuilt_temp.bin puyobuilt.bin
-tools\windows\fixheader.exe out\puyobuilt.bin

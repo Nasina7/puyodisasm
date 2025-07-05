@@ -8,7 +8,7 @@ bank1_start:
 	ptrZ80	loc_89BA	; TODO: Figure out what this is
 	ptrZ80	loc_8A6D	; Volume Envelopes?
 	ptrZ80	loc_8A39	; Pitch Envelopes?
-	ptrZ80	loc_8AB5	; 
+	ptrZ80	loc_8AB5	; PSG Envelopes?
 	ptrZ80	$7FFB		; ???
 	ptrZ80	loc_8010	; 
 	dc.b	$09, $00	; ???
@@ -94,8 +94,28 @@ loc_8A6D:	; Pointers index (Volume Envelopes?)
 
 ; -----------------------------------------------------------------------------
 
-loc_8AB5:
-	incbin "sound/bank1/data/8AB5.bin"
+loc_8AB5:	; Pointers Index (PSG Envelopes?)
+	ptrZ80	loc_8E63
+	ptrZ80	loc_8ABF
+	ptrZ80	loc_8AC7
+	ptrZ80	loc_8AD6
+	ptrZ80	loc_8ADE
+
+; -----------------------------------------------------------------------------
+; Table E Data (PSG Envelopes?)
+; -----------------------------------------------------------------------------
+
+loc_8ABF:
+	incbin "sound/bank1/data/Table E/loc_8ABF.bin"
+
+loc_8AC7:
+	incbin "sound/bank1/data/Table E/loc_8AC7.bin"
+
+loc_8AD6:
+	incbin "sound/bank1/data/Table E/loc_8AD6.bin"
+
+loc_8ADE:
+	incbin "sound/bank1/data/Table E/loc_8ADE.bin"
 
 ; -----------------------------------------------------------------------------
 ; Table D Data (Pitch Envelopes?)
@@ -280,10 +300,11 @@ loc_8E58:
 	incbin "sound/bank1/data/Table C/loc_8E58.bin"
 
 ; -----------------------------------------------------------------------------
-; An unreferenced envelope lies here
+; A Table E envelope lies here for some reason
 ; -----------------------------------------------------------------------------
 
-	incbin "sound/bank1/data/Table C/loc_8E63.bin"
+loc_8E63:
+	incbin "sound/bank1/data/Table E/loc_8E63.bin"
 
 ; -----------------------------------------------------------------------------
 ; Main Sound ID Pointers (for music and SFX)

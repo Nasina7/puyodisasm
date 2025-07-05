@@ -54,8 +54,5 @@ song0Dstart:
 	MusCmd_SetMinorPitch $28
 	dc.w $31EE
 	MusCmd_SetMinorPitch $00
-	
+
 	MusCmd_Jump @channel06start
-	
-	
-	

@@ -5,22 +5,41 @@
 
 bank1_start:
 	ptrZ80	SoundPtrs	; $8E74
-	ptrZ80	loc_89BA	; TODO: Figure out what this is
+	ptrZ80	NoteTimings	; Note Timings and Drum Mappings
 	ptrZ80	loc_8A6D	; Volume Envelopes?
 	ptrZ80	loc_8A39	; Pitch Envelopes?
 	ptrZ80	loc_8AB5	; PSG Envelopes?
 	ptrZ80	$7FFB		; ???
-	ptrZ80	loc_8010	; 
+	ptrZ80	loc_8010	; Byte 1 and 2 point to loc_D4B8 which is Arle's PCM Data
 	dc.b	$09, $00	; ???
 
 ; -----------------------------------------------------------------------------
 ; Undocumented
 ; -----------------------------------------------------------------------------
 
-loc_8010:
+loc_8010:	; Also no idea (has a 4 then points to the Arle PCM Pointers?)
 	incbin "sound/bank1/data/8010.bin"
-loc_89BA:	; No idea
-	incbin "sound/bank1/data/89BA.bin"
+
+NoteTimings:	; loc_89BA
+	incbin "sound/bank1/data/NoteTimings.bin"
+
+;	Drum Mappings (I think)	
+	;	Patch ID, ???, ???, ???, Panning, Pitch, $0000
+	dc.b	$3D, $00, $00, $20, $C0, $1B, $00, $00		; Kick 1
+	dc.b	$3F, $00, $0C, $20, $C0, $25, $00, $00		; Snare 1 (General Snare)
+	dc.b	$3E, $00, $00, $20, $C0, $19, $00, $00		; Snare 2 (Acoustic Snare)
+	dc.b	$40, $00, $00, $20, $C0, $15, $00, $00		; Snare 3 (Danger Snare)
+	dc.b	$41, $00, $00, $20, $C0, $30, $00, $00		; Kick 2
+	dc.b	$42, $00, $00, $20, $C0, $30, $00, $00		; Unused?
+	dc.b	$43, $00, $00, $20, $C0, $19, $00, $00		; Unused?
+	dc.b	$44, $00, $00, $20, $C0, $30, $00, $00		; Hi-Hat
+	dc.b	$45, $0C, $0D, $20, $40, $40, $00, $00		; High-Tom
+	dc.b	$45, $0C, $0D, $20, $40, $3D, $00, $00		; Mid-High Tom
+	dc.b	$45, $0B, $0D, $20, $C0, $3A, $00, $00		; Mid Tom
+	dc.b	$45, $0B, $0D, $20, $C0, $37, $00, $00		; Mid-Low Tom
+	dc.b	$45, $0C, $0D, $20, $80, $34, $00, $00		; Low Tom
+	dc.b	$45, $0C, $0D, $20, $80, $31			; Floor Tom
+
 
 ; -----------------------------------------------------------------------------
 
@@ -440,7 +459,7 @@ SoundPtrs:
 	ptrZ80	$D462
 	ptrZ80	$D49D
 	ptrZ80	$D4BA
-	ptrZ80	$D4DB	; 7F
+	ptrZ80	loc_D4DB	; 7F	(??? = This points to the Arle "Fire" Pointer Data?!)
 
 ; -----------------------------------------------------------------------------
 ; Music Data (to Disassemble)
@@ -515,7 +534,7 @@ BGM_13:
 ; -----------------------------------------------------------------------------
 
 SFX_21:
-	incbin "sound/bank1/sfx/C76C.bin"
+	incbin "sound/bank1/sfx/SFX.bin"
 ;SFX_C77E:
 ;SFX_C796:
 ;SFX_C7A9:
@@ -609,7 +628,19 @@ SFX_21:
 ;SFX_D462:
 ;SFX_D49D:
 ;SFX_D4BA:
-;SFX_D4DB:
+
+loc_D4DB:
+	ptrZ80	Header_Arle_Fire
+
+Header_Arle_Fire:
+	ptrZ80	PCM_Arle_Fire				; Sample Pointer
+	ptrZ80	(PCM_Arle_Fire_End-PCM_Arle_Fire)	; Length of Sample
+	ptrZ80	$000F
+	ptrZ80	$0000
+
+PCM_Arle_Fire:
+	incbin	"sound/bank1/pcm/Arle_Fire.bin"
+PCM_Arle_Fire_End:
 
 	cpu 68000
 	objend

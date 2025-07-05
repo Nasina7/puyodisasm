@@ -24103,16 +24103,20 @@ art_menuScreen:
 	align $8000, $FF
 sound_bank1:
 	include "sound/bank1/bank1.asm"
+
+	align $C00, $FF
 sound_driver:
 	include "sound/driver.asm"
+
 	align $8000, $FF
 sound_bank2:
 	include "sound/bank2/bank2.asm"
+
 	pad $344, $FF	; Example of the above todo.
-	
 art_titleScreen:
 	incbin "art/art/title/titlescreen.puyo"
 	even
+
 	align $80, $FF
 	padToPowerOfTwo
 endOfRom:

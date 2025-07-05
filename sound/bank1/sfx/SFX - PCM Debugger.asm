@@ -31,7 +31,7 @@ SE_Unk_Ch06:
 	dc.b	$A7
 	dc.b	$04
 	dc.b	$DE
-;	dc.b	$80	; ????? (This jumps to loc_0182, which in turn causes the game to
-;	dc.b	$82	; start reading garbage data, so the fixed version is listed below)
-	dc.b	$82
-	dc.b 	$FF	; Padding to prevent misaligned pointers (will remove later)
+	dc.b	$80	; ????? (This jumps to loc_0182, which in turn causes the game to
+	dc.b	$82	; start reading garbage data, so the fixed version is listed below)
+;	dc.b	$82
+;	dc.b 	$FF	; Padding to prevent misaligned pointers (will remove later)

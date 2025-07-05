@@ -5,22 +5,56 @@
 
 bank1_start:
 	ptrZ80	SoundPtrs	; $8E74
-	ptrZ80	loc_89BA
-	ptrZ80	loc_8A6D
-	ptrZ80	loc_8A39
-	ptrZ80	loc_8AB5
+	ptrZ80	loc_89BA	; TODO: Figure out what this is
+	ptrZ80	loc_8A6D	; Volume Envelopes?
+	ptrZ80	loc_8A39	; Pitch Envelopes?
+	ptrZ80	loc_8AB5	; 
 	ptrZ80	$7FFB		; ???
-	ptrZ80	loc_8010
-	dc.b	$09, $00
+	ptrZ80	loc_8010	; 
+	dc.b	$09, $00	; ???
+
+; -----------------------------------------------------------------------------
+; Undocumented
+; -----------------------------------------------------------------------------
 
 loc_8010:
 	incbin "sound/bank1/data/8010.bin"
 loc_89BA:	; No idea
 	incbin "sound/bank1/data/89BA.bin"
-loc_8A39:	; Pointer index
-	incbin "sound/bank1/data/8A39.bin"
 
-loc_8A6D:	; Pointers index
+; -----------------------------------------------------------------------------
+
+loc_8A39:	; Pointer index (Pitch Envelopes?)
+	dc.w	0
+	ptrZ80	loc_8AE5
+	ptrZ80	loc_8B50
+	ptrZ80	loc_8AEE
+	ptrZ80	loc_8AF3
+	ptrZ80	loc_8B09
+	ptrZ80	loc_8B17
+	ptrZ80	loc_8B24
+	ptrZ80	loc_8B31
+	ptrZ80	loc_8B5C
+	ptrZ80	loc_8B70
+	ptrZ80	loc_8B72
+	ptrZ80	loc_8B74
+	ptrZ80	loc_8B79
+	ptrZ80	loc_8B7E
+	ptrZ80	loc_8B80
+	ptrZ80	loc_8BAB
+	ptrZ80	loc_8BB9
+	ptrZ80	loc_8BC9
+	ptrZ80	loc_8BCE
+	ptrZ80	loc_8BD8
+	ptrZ80	loc_8BDC
+	ptrZ80	loc_8BDE
+	ptrZ80	loc_8BF4
+	ptrZ80	loc_8C01
+	ptrZ80	loc_8C92
+
+; -----------------------------------------------------------------------------
+
+loc_8A6D:	; Pointers index (Volume Envelopes?)
 	ptrZ80	loc_8C9F
 	ptrZ80	loc_8CA2
 	ptrZ80	loc_8CD0
@@ -58,8 +92,117 @@ loc_8A6D:	; Pointers index
 	ptrZ80	loc_8E49
 	ptrZ80	loc_8E58
 
+; -----------------------------------------------------------------------------
+
 loc_8AB5:
 	incbin "sound/bank1/data/8AB5.bin"
+
+; -----------------------------------------------------------------------------
+; Table D Data (Pitch Envelopes?)
+; -----------------------------------------------------------------------------
+loc_8AE5:
+	dc.b	$02, $01, $00, $FF, $FE, $FF, $00, $01, $82
+
+loc_8AEE:
+	dc.b	$D8, $0A, $0A, $0A, $0A
+
+loc_8AF3:
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+	dc.b	$00, $00, $00, $00, $00, $00
+
+loc_8B09:
+	dc.b	$0F, $0F, $0F, $F1, $F1, $F1, $F1, $F1, $F1, $0F, $0F, $0F, $81
+	dc.b	$0C
+
+loc_8B17:
+	dc.b	$00, $28, $00, $D8, $D8, $28, $32, $CE, $CE, $32, $32, $CE, $82
+
+loc_8B24:
+	dc.b	$9C, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $00, $80
+
+loc_8B31:
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+loc_8B50:
+	dc.b	$06, $03, $FD, $FA, $00, $FA, $FD, $03, $06, $00, $81
+	dc.b	$0A
+
+loc_8B5C:
+	dc.b	$02, $00, $00, $00, $00, $00, $FE, $00, $00, $00, $00, $00, $02, $00, $00, $00
+	dc.b	$00, $00, $FE, $82
+
+loc_8B70:
+	dc.b	$19, $82
+
+loc_8B72:
+	dc.b	$D8, $82
+
+loc_8B74:
+	dc.b	$E2, $E2, $E2, $E2, $82
+
+loc_8B79:
+	dc.b	$CE, $CE, $CE, $CE, $82
+
+loc_8B7E:
+	dc.b	$E9, $82
+
+loc_8B80:
+	dc.b	$B0, $00, $00, $00, $1E, $1E, $14, $03, $00, $00, $00, $FD, $00, $00, $00, $02
+	dc.b	$00, $00, $FE, $00, $00, $00, $02, $00, $FE, $00, $00, $FE, $00, $00, $00, $02
+	dc.b	$00, $02, $00, $00, $FE, $F6, $E2, $D8, $CE, $81
+	dc.b	$01
+
+loc_8BAB:
+	dc.b	$C4, $28, $14, $14, $F6, $F6, $03, $FD, $00, $88, $BA, $00, $81
+	dc.b	$01
+
+loc_8BB9:
+	dc.b	$00, $F6, $EC, $D8, $D8, $EC, $F6, $00, $1B, $1B, $1B, $1B, $1B, $00, $81
+	dc.b	$0D
+
+loc_8BC9:
+	dc.b	$07, $00, $F9, $00, $82
+
+loc_8BCE:
+	dc.b	$50, $D8, $E2, $F6, $00, $1E, $00, $E2, $81
+	dc.b	$04
+
+loc_8BD8:
+	dc.b	$05, $FB, $81
+	dc.b	$02
+
+loc_8BDC:
+	dc.b	$0F, $82
+
+loc_8BDE:
+	dc.b	$05, $05, $05, $05, $05, $FB, $FB, $FB, $FB, $FB, $FB, $FB, $FB, $FB, $FB, $FB
+	dc.b	$FB, $FB, $FB, $FB, $81
+	dc.b	$14
+
+loc_8BF4:
+	dc.b	$38, $28, $28, $28, $28, $28, $D8, $D8, $D8, $D8, $D8, $81
+	dc.b	$0A
+
+loc_8C01:
+	dc.b	$1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC, $1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC
+	dc.b	$1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC, $1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC
+	dc.b	$1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC, $1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC
+	dc.b	$1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC, $1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC
+	dc.b	$1E, $1E, $1E, $1E, $EC, $EC, $EC, $EC, $E2, $E2, $E2, $E2, $14, $14, $14, $14
+	dc.b	$E2, $E2, $E2, $E2, $14, $14, $14, $14, $E2, $E2, $E2, $E2, $14, $14, $14, $14
+	dc.b	$E2, $E2, $E2, $E2, $14, $14, $14, $14, $E2, $E2, $E2, $E2, $14, $14, $14, $14
+	dc.b	$E2, $E2, $E2, $E2, $14, $14, $14, $14, $E2, $E2, $E2, $E2, $14, $14, $14, $14
+	dc.b	$E2, $E2, $E2, $E2, $14, $14, $14, $14, $E2, $E2, $E2, $E2, $14, $14, $14, $14
+	dc.b	$82
+
+loc_8C92:
+	dc.b	$78, $88, $28, $28, $28, $28, $D8, $D8, $D8, $D8, $32, $81
+	dc.b	$01
+
+; -----------------------------------------------------------------------------
+; Table C Data (Volume envelopes?)
+; -----------------------------------------------------------------------------
 
 loc_8C9F:
 	incbin "sound/bank1/data/Table C/loc_8C9F.bin"
@@ -136,8 +279,15 @@ loc_8E49:
 loc_8E58:
 	incbin "sound/bank1/data/Table C/loc_8E58.bin"
 
-; Unreferenced Data?
+; -----------------------------------------------------------------------------
+; An unreferenced envelope lies here
+; -----------------------------------------------------------------------------
+
 	incbin "sound/bank1/data/Table C/loc_8E63.bin"
+
+; -----------------------------------------------------------------------------
+; Main Sound ID Pointers (for music and SFX)
+; -----------------------------------------------------------------------------
 
 SoundPtrs:
 	; BGM IDs
@@ -271,6 +421,10 @@ SoundPtrs:
 	ptrZ80	$D4BA
 	ptrZ80	$D4DB	; 7F
 
+; -----------------------------------------------------------------------------
+; Music Data (to Disassemble)
+; -----------------------------------------------------------------------------
+
 BGM_00:
 	include "sound/bank1/music/00.asm"
 
@@ -329,8 +483,15 @@ BGM_12:
 BGM_13:
 	include "sound/bank1/music/13.asm"
 
-; Unreference SFX - Likely used to debug PCM data before adding Voices
+; -----------------------------------------------------------------------------
+; An unreferenced SFX lies here - Likely used to debug PCM data before adding Voices
+; -----------------------------------------------------------------------------
+
 	include "sound/bank1/sfx/SFX - PCM Debugger.asm"
+
+; -----------------------------------------------------------------------------
+; SFX Data (and Arle "Fire" PCM), to split and disassemble
+; -----------------------------------------------------------------------------
 
 SFX_21:
 	incbin "sound/bank1/sfx/C76C.bin"

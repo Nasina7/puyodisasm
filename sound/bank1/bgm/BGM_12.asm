@@ -1,6 +1,10 @@
 	include "sound/z80_macros.asm"
-	include "sound/bank1/macros.asm"
+;	include "sound/bank1/CSP2ASM.asm"
+
+;	BGM 12 - Victory of Puyo Puyo
+BGM12_Header:
 	dc.b	$06
+
 @channel00init:
 	dc.b	$00
 	dc.b	$01
@@ -11,8 +15,9 @@
 	dc.b	$66
 	dc.b	$00
 	ptrZ80	@channel00start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$07
+
 @channel01init:
 	dc.b	$01
 	dc.b	$01
@@ -23,8 +28,9 @@
 	dc.b	$66
 	dc.b	$01
 	ptrZ80	@channel01start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$07
+
 @channel02init:
 	dc.b	$02
 	dc.b	$01
@@ -35,8 +41,9 @@
 	dc.b	$66
 	dc.b	$02
 	ptrZ80	@channel02start
-	dc.b	$40
+	dc.b	panRight
 	dc.b	$07
+
 @channel03init:
 	dc.b	$03
 	dc.b	$01
@@ -47,8 +54,9 @@
 	dc.b	$66
 	dc.b	$03
 	ptrZ80	@channel03start
-	dc.b	$80
+	dc.b	panLeft
 	dc.b	$07
+
 @channel04init:
 	dc.b	$04
 	dc.b	$01
@@ -59,8 +67,9 @@
 	dc.b	$66
 	dc.b	$04
 	ptrZ80	@channel04start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$0E
+
 @channel05init:
 	dc.b	$05
 	dc.b	$01
@@ -71,13 +80,15 @@
 	dc.b	$66
 	dc.b	$05
 	ptrZ80	@channel05start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$20
-@channel01start: ; Loc: 0049
+
+@channel01start:	; loc_0049
 	dc.b	$00
 	dc.b	$E3
-	MusCmd_SetMinorPitch $04
-@channel00start: ; Loc: 004D
+	CSP_Detune	$04
+
+@channel00start:	; loc_004D
 	dc.b	$35
 	dc.w	$E535
 	dc.w	$E236
@@ -122,8 +133,9 @@
 	dc.b	$35
 	dc.b	$35
 	dc.b	$E5
-	MusCmd_StopChannel
-@channel02start: ; Loc: 008C
+	CSP_Stop
+
+@channel02start:	; loc_008C
 	dc.b	$31
 	dc.w	$E531
 	dc.w	$E233
@@ -168,8 +180,9 @@
 	dc.b	$31
 	dc.b	$31
 	dc.b	$E5
-	MusCmd_StopChannel
-@channel03start: ; Loc: 00CB
+	CSP_Stop
+
+@channel03start:	; loc_00CB
 	dc.b	$2C
 	dc.w	$E52C
 	dc.w	$E22E
@@ -214,8 +227,9 @@
 	dc.b	$2C
 	dc.b	$2C
 	dc.b	$E5
-	MusCmd_StopChannel
-@channel04start: ; Loc: 010A
+	CSP_Stop
+
+@channel04start:	; loc_010A
 	dc.b	$19
 	dc.w	$E514
 	dc.b	$19
@@ -256,62 +270,65 @@
 	dc.b	$19
 	dc.b	$19
 	dc.b	$E5
-	MusCmd_StopChannel
-@channel05start: ; Loc: 0139
-	MusCmd_SetChRegToVal $10, $04
+	CSP_Stop
+
+@channel05start:	; loc_0139
+	CSP_LoopSet	$10, $04
+
 @jump1:
 	dc.b	$C2
 	dc.b	$E3
-	MusCmd_OffsetVolume $FD
+	CSP_AlterVol	$FD
 	dc.b	$C2
 	dc.b	$E0
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $03
+	CSP_AlterVol	$03
 	dc.b	$C2
 	dc.b	$E3
-	MusCmd_OffsetVolume $FD
+	CSP_AlterVol	$FD
 	dc.b	$C2
 	dc.b	$E0
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $03
+	CSP_AlterVol	$03
 	dc.b	$C2
 	dc.b	$E3
-	MusCmd_OffsetVolume $FD
+	CSP_AlterVol	$FD
 	dc.b	$C2
 	dc.b	$E0
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $03
+	CSP_AlterVol	$03
 	dc.b	$C2
 	dc.b	$E2
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_DecTimerJPIfZero $10, @jump1
+	CSP_LoopBack	$10, @jump1
 	dc.b	$C2
 	dc.b	$DF
-	MusCmd_OffsetVolume $FC
-	MusCmd_SetChRegToVal $10, $17
+	CSP_AlterVol	$FC
+	CSP_LoopSet	$10, $17
+
 @jump2:
 	dc.b	$C2
-	MusCmd_DecTimerJPIfZero $10, @jump2
-	MusCmd_OffsetVolume $01
+	CSP_LoopBack	$10, @jump2
+	CSP_AlterVol	$01
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$C2
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C2
 	dc.b	$E1
 	dc.b	$C2
@@ -319,4 +336,4 @@
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$E5
-	MusCmd_StopChannel
+	CSP_Stop

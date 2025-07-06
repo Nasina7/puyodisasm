@@ -1,6 +1,10 @@
 	include "sound/z80_macros.asm"
-	include "sound/bank1/macros.asm"
+;	include "sound/bank1/CSP2ASM.asm"
+
+;	BGM 07 - Sorrow of Puyo Puyo
+BGM07_Header:
 	dc.b	$06
+
 @channel00init:
 	dc.b	$00
 	dc.b	$01
@@ -11,8 +15,9 @@
 	dc.b	$4B
 	dc.b	$00
 	ptrZ80	@channel00start
-	dc.b	$40
+	dc.b	panRight
 	dc.b	$1F
+
 @channel01init:
 	dc.b	$01
 	dc.b	$01
@@ -23,8 +28,9 @@
 	dc.b	$4B
 	dc.b	$01
 	ptrZ80	@channel01start
-	dc.b	$80
+	dc.b	panLeft
 	dc.b	$1F
+
 @channel02init:
 	dc.b	$02
 	dc.b	$01
@@ -35,8 +41,9 @@
 	dc.b	$4B
 	dc.b	$02
 	ptrZ80	@channel02start
-	dc.b	$80
+	dc.b	panLeft
 	dc.b	$1F
+
 @channel03init:
 	dc.b	$03
 	dc.b	$01
@@ -47,8 +54,9 @@
 	dc.b	$4B
 	dc.b	$05
 	ptrZ80	@channel03start
-	dc.b	$40
+	dc.b	panRight
 	dc.b	$1F
+
 @channel04init:
 	dc.b	$04
 	dc.b	$01
@@ -59,8 +67,9 @@
 	dc.b	$4B
 	dc.b	$03
 	ptrZ80	@channel04start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$1F
+
 @channel05init:
 	dc.b	$05
 	dc.b	$02
@@ -71,13 +80,14 @@
 	dc.b	$4B
 	dc.b	$04
 	ptrZ80	@channel05start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$01
-@channel01start: ; Loc: A19D
-	dc.b	$00
-	dc.b	$E3
-	MusCmd_SetMinorPitch $02
-@channel00start: ; Loc: A1A1
+
+@channel01start:	; loc_A19D
+	dc.b	$00, NL6
+	CSP_Detune	$02
+
+@channel00start:	; loc_A1A1
 	dc.b	$2C
 	dc.w	$E22C
 	dc.b	$2C
@@ -105,15 +115,16 @@
 	dc.w	$E527
 	dc.w	$E227
 	dc.b	$27
-	MusCmd_SetChPlaybackSpeed $88
+	CSP_SetTempo	$88
 	dc.b	$27
 	dc.w	$DE54
-	MusCmd_StopChannel
-@channel03start: ; Loc: A1CF
-	dc.b	$00
-	dc.b	$E3
-	MusCmd_SetMinorPitch $02
-@channel02start: ; Loc: A1D3
+	CSP_Stop
+
+@channel03start:	; loc_A1CF
+	dc.b	$00, NL6
+	CSP_Detune	$02
+
+@channel02start:	; loc_A1D3
 	dc.b	$28
 	dc.w	$E228
 	dc.b	$28
@@ -141,11 +152,12 @@
 	dc.w	$E524
 	dc.w	$E224
 	dc.b	$24
-	MusCmd_SetChPlaybackSpeed $88
+	CSP_SetTempo	$88
 	dc.b	$24
 	dc.w	$DE54
-	MusCmd_StopChannel
-@channel04start: ; Loc: A201
+	CSP_Stop
+
+@channel04start:	; loc_A201
 	dc.b	$25
 	dc.w	$E225
 	dc.b	$25
@@ -173,11 +185,12 @@
 	dc.w	$E520
 	dc.w	$E220
 	dc.b	$20
-	MusCmd_SetChPlaybackSpeed $88
+	CSP_SetTempo	$88
 	dc.b	$20
 	dc.w	$DE54
-	MusCmd_StopChannel
-@channel05start: ; Loc: A22F
+	CSP_Stop
+
+@channel05start:	; loc_A22F
 	dc.b	$C2
 	dc.b	$E2
 	dc.b	$C2
@@ -205,8 +218,8 @@
 	dc.b	$C2
 	dc.b	$C2
 	dc.b	$E5
-	MusCmd_SetChPlaybackSpeed $88
-	MusCmd_OffsetVolume $F8
+	CSP_SetTempo	$88
+	CSP_AlterVol	$F8
 	dc.b	$C1
 	dc.b	$DF
 	dc.b	$C1
@@ -214,68 +227,68 @@
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	MusCmd_OffsetVolume $01
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_OffsetVolume $01
+	CSP_AlterVol	$01
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	dc.b	$C1
+	CSP_AlterVol	$01
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
@@ -286,4 +299,4 @@
 	dc.b	$C1
 	dc.b	$C1
 	dc.b	$C1
-	MusCmd_StopChannel
+	CSP_Stop

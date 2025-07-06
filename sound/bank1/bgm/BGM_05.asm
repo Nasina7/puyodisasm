@@ -1,6 +1,11 @@
 	include "sound/z80_macros.asm"
-	include "sound/bank1/macros.asm"
+;	include "sound/bank1/CSP2ASM.asm"
+;	TODO - Fix Formatting
+
+;	BGM 05 - Morning of Puyo Puyo
+BGM05_Header:
 	dc.b	$06
+
 @channel00init:
 	dc.b	$00
 	dc.b	$01
@@ -11,8 +16,9 @@
 	dc.b	$78
 	dc.b	$00
 	ptrZ80	@channel00start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$0B
+
 @channel01init:
 	dc.b	$01
 	dc.b	$01
@@ -23,8 +29,9 @@
 	dc.b	$78
 	dc.b	$01
 	ptrZ80	@channel01start
-	dc.b	$40
+	dc.b	panRight
 	dc.b	$0B
+
 @channel02init:
 	dc.b	$02
 	dc.b	$01
@@ -35,8 +42,9 @@
 	dc.b	$78
 	dc.b	$02
 	ptrZ80	@channel02start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$04
+
 @channel03init:
 	dc.b	$03
 	dc.b	$01
@@ -47,8 +55,9 @@
 	dc.b	$78
 	dc.b	$04
 	ptrZ80	@channel03start
-	dc.b	$80
+	dc.b	panLeft
 	dc.b	$04
+
 @channel04init:
 	dc.b	$04
 	dc.b	$01
@@ -59,8 +68,9 @@
 	dc.b	$78
 	dc.b	$03
 	ptrZ80	@channel04start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$09
+
 @channel05init:
 	dc.b	$05
 	dc.b	$01
@@ -71,13 +81,14 @@
 	dc.b	$78
 	dc.b	$05
 	ptrZ80	@channel05start
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$09
-@channel01start: ; Loc: 0049
-	dc.b	$00
-	dc.b	$E1
-	MusCmd_SetMinorPitch $04
-@channel00start: ; Loc: 004D
+
+@channel01start:	; Loc: 0049
+	dc.b	$00, $E1
+	CSP_Detune	$04
+
+@channel00start:	; Loc: 004D
 	dc.b	$2E
 	dc.w	$E331
 	dc.b	$36
@@ -204,12 +215,14 @@
 	dc.w	$E329
 	dc.b	$2C
 	dc.b	$31
-  MusCmd_Jump @channel00start
-@channel03start: ; Loc: 00E8
+	CSP_Jump	@channel00start
+
+@channel03start:	; Loc: 00E8
 	dc.b	$00
 	dc.b	$E1
-	MusCmd_SetMinorPitch $01
-@channel02start: ; Loc: 00EC
+	CSP_Detune	$01
+
+@channel02start:	; Loc: 00EC
 	dc.b	$2A
 	dc.w	$E927
 	dc.w	$E729
@@ -284,12 +297,14 @@
 	dc.b	$31
 	dc.b	$38
 	dc.b	$35
-  MusCmd_Jump @channel02start
-@channel05start: ; Loc: 0140
+	CSP_Jump	@channel02start
+
+@channel05start:	; Loc: 0140
 	dc.b	$00
 	dc.b	$E2
-	MusCmd_SetMinorPitch $04
-@channel04start: ; Loc: 0144
+	CSP_Detune	$04
+
+@channel04start:	; Loc: 0144
 	dc.b	$1E
 	dc.w	$E51E
 	dc.b	$1E
@@ -338,4 +353,4 @@
 	dc.b	$19
 	dc.b	$19
 	dc.b	$19
-  MusCmd_Jump @channel04start
+	CSP_Jump	@channel04start

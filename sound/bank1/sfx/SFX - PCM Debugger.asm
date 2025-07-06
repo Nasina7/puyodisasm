@@ -1,5 +1,6 @@
 	include "sound/z80_macros.asm"
-	include "sound/bank1/macros.asm"
+;	include "sound/bank1/CSP2ASM.asm"
+
 ; Unreferenced SFX - PCM Debugger
 SE_Unk_Header:
 	dc.b	$01
@@ -14,7 +15,7 @@ SE_Unk_Ch06_Init:
 	dc.b	$00
 	dc.b	$05
 	ptrZ80	SE_Unk_Ch06
-	dc.b	$C0
+	dc.b	panCentre
 	dc.b	$00
 
 SE_Unk_Ch06:

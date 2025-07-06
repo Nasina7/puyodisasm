@@ -10,12 +10,14 @@
 ;“ú–{Œê
 
 startOfRom:
-	include "tools/Macros - More CPUs.asm"
+	include	"tools/Macros - More CPUs.asm"
 	cpu 68000
-	include "build_flags.asm"
-	include "puyo_constants.asm"
-	include "puyo_macros.asm"
-	include "sound/sound_ids.asm"
+	include	"build_flags.asm"
+	include	"puyo_constants.asm"
+	include	"puyo_macros.asm"
+	include	"sound/CSP2ASM.asm"
+	include	"sound/sound_ids.asm"
+
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset

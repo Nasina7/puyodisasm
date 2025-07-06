@@ -29,7 +29,7 @@ loc_8010:	; Also no idea (has a 4 then points to the Arle PCM Pointers?)
 	ptrZ80	$0000		; Points to "Fire" PCM
 
 FM_Instrument_Patches:		; TODO: Figure out the instrument format
-	incbin "sound/bank1/data/801D.bin"
+	include "sound/bank1/data/Patches.asm"
 
 NoteTimings:	; loc_89BA
 	incbin "sound/bank1/data/NoteTimings.bin"

@@ -18,7 +18,18 @@ bank1_start:
 ; -----------------------------------------------------------------------------
 
 loc_8010:	; Also no idea (has a 4 then points to the Arle PCM Pointers?)
-	incbin "sound/bank1/data/8010.bin"
+	dc.b	$04		; Don't know what this does but... it affects the samples
+	ptrZ80	loc_D4DB	; Location of PCM Table in Bank 1
+	ptrZ80	bank2_start	; Location of PCM Table in Bank 2
+
+;	PCM Table of some kind (relative to the table for the Bank????)
+	ptrZ80	$0000		; Points to "Fire" PCM
+	ptrZ80	$0200		; Points to Bank 2 "Yattana" PCM
+	ptrZ80	$0202		; Points to Bank 2 "Puyo Puyo" PCM
+	ptrZ80	$0000		; Points to "Fire" PCM
+
+FM_Instrument_Patches:		; TODO: Figure out the instrument format
+	incbin "sound/bank1/data/801D.bin"
 
 NoteTimings:	; loc_89BA
 	incbin "sound/bank1/data/NoteTimings.bin"
@@ -527,6 +538,7 @@ BGM_13:
 ; An unreferenced SFX lies here - Likely used to debug PCM data before adding Voices
 ; -----------------------------------------------------------------------------
 
+SFX_DEBUG:
 	include "sound/bank1/sfx/SFX - PCM Debugger.asm"
 
 ; -----------------------------------------------------------------------------

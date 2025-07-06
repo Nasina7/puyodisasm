@@ -18,8 +18,8 @@ bank1_start:
 ; -----------------------------------------------------------------------------
 
 loc_8010:	; Also no idea (has a 4 then points to the Arle PCM Pointers?)
-	dc.b	$04		; Don't know what this does but... it affects the samples
-	ptrZ80	loc_D4DB	; Location of PCM Table in Bank 1
+	dc.b	$04		; Offset Value for Bank Data (What's the point?)
+	ptrZ80	PCMData_Bank1	; Location of PCM Table in Bank 1
 	ptrZ80	bank2_start	; Location of PCM Table in Bank 2
 
 ;	PCM Table of some kind (relative to the table for the Bank????)
@@ -34,7 +34,7 @@ FM_Instrument_Patches:		; TODO: Figure out the instrument format
 NoteTimings:	; loc_89BA
 	incbin "sound/bank1/data/NoteTimings.bin"
 
-;	Drum Mappings (I think)	
+DrumMappings:
 	;	Patch ID, ???, ???, ???, Panning, Pitch, $0000
 	dc.b	$3D, $00, $00, $20, $C0, $1B, $00, $00		; Kick 1
 	dc.b	$3F, $00, $0C, $20, $C0, $25, $00, $00		; Snare 1 (General Snare)
@@ -363,285 +363,474 @@ SoundPtrs:
 	ptrZ80	BGM_12
 	; Unplayable in the Sound Test
 	ptrZ80	BGM_13
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
-	ptrZ80	$CE89	; SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
+	ptrZ80	SFX_50
 	ptrZ80	SFX_21	; 21
-	ptrZ80	$C77E
-	ptrZ80	$C796
-	ptrZ80	$C7A9
-	ptrZ80	$C7DE
-	ptrZ80	$C7F4
-	ptrZ80	$C837
-	ptrZ80	$C86A
-	ptrZ80	$C887
-	ptrZ80	$C8CA
-	ptrZ80	$C8DA
-	ptrZ80	$C8F2
-	ptrZ80	$C938
-	ptrZ80	$C94C
-	ptrZ80	$C985
-	ptrZ80	$C9EE	; 30
-	ptrZ80	$CA14
-	ptrZ80	$CA34
-	ptrZ80	$CA9B
-	ptrZ80	$CAAB
-	ptrZ80	$CAD0
-	ptrZ80	$CAEC
-	ptrZ80	$CB04
-	ptrZ80	$CB29
-	ptrZ80	$CB4F
-	ptrZ80	$CB5F
-	ptrZ80	$CB77
-	ptrZ80	$CBB4
-	ptrZ80	$CBC4
-	ptrZ80	$CC0A
-	ptrZ80	$CC38
-	ptrZ80	$CC3F	; 40
-	ptrZ80	$CC4C
-	ptrZ80	$CC5C
-	ptrZ80	$CC6C
-	ptrZ80	$CC87
-	ptrZ80	$CC9F
-	ptrZ80	$CCB7
-	ptrZ80	$CCCF
-	ptrZ80	$CCE8
-	ptrZ80	$CD39
-	ptrZ80	$CD51
-	ptrZ80	$CD61
-	ptrZ80	$CD7E
-	ptrZ80	$CD92
-	ptrZ80	$CDAD
-	ptrZ80	$CDAD
-	ptrZ80	$CE89	; 50
-	ptrZ80	$CE9D
-	ptrZ80	$CEAE
-	ptrZ80	$CECB
-	ptrZ80	$CEDF
-	ptrZ80	$CF04
-	ptrZ80	$CF1D
-	ptrZ80	$CF3C
-	ptrZ80	$CF49
-	ptrZ80	$CF56
-	ptrZ80	$CF63
-	ptrZ80	$CF70
-	ptrZ80	$CF7D
-	ptrZ80	$CF8A
-	ptrZ80	$CFA7
-	ptrZ80	$CFBE
-	ptrZ80	$CFF3	; 60
-	ptrZ80	$D00B
-	ptrZ80	$D050
-	ptrZ80	$D064
-	ptrZ80	$D076
-	ptrZ80	$D0A0
-	ptrZ80	$D100
-	ptrZ80	$D136
-	ptrZ80	$D146
-	ptrZ80	$D17C
-	ptrZ80	$D19A
-	ptrZ80	$D1D2
-	ptrZ80	$D201
-	ptrZ80	$D215
-	ptrZ80	$D228
-	ptrZ80	$D235
-	ptrZ80	$D255	; 70
-	ptrZ80	$D262
-	ptrZ80	$D27F
-	ptrZ80	$D2A9
-	ptrZ80	$D2D1
-	ptrZ80	$D2FB
-	ptrZ80	$D30E
-	ptrZ80	$D3AF
-	ptrZ80	$D3D1
-	ptrZ80	$D3F8
-	ptrZ80	$D41A
-	ptrZ80	$D437
-	ptrZ80	$D462
-	ptrZ80	$D49D
-	ptrZ80	$D4BA
-	ptrZ80	loc_D4DB	; 7F	(??? = This points to the Arle "Fire" Pointer Data?!)
+	ptrZ80	SFX_22
+	ptrZ80	SFX_23
+	ptrZ80	SFX_24
+	ptrZ80	SFX_25
+	ptrZ80	SFX_26
+	ptrZ80	SFX_27
+	ptrZ80	SFX_28
+	ptrZ80	SFX_29
+	ptrZ80	SFX_2A
+	ptrZ80	SFX_2B
+	ptrZ80	SFX_2C
+	ptrZ80	SFX_2D
+	ptrZ80	SFX_2E
+	ptrZ80	SFX_2F
+	ptrZ80	SFX_30	; 30
+	ptrZ80	SFX_31
+	ptrZ80	SFX_32
+	ptrZ80	SFX_33
+	ptrZ80	SFX_34
+	ptrZ80	SFX_35
+	ptrZ80	SFX_36
+	ptrZ80	SFX_37
+	ptrZ80	SFX_38
+	ptrZ80	SFX_39
+	ptrZ80	SFX_3A
+	ptrZ80	SFX_3B
+	ptrZ80	SFX_3C
+	ptrZ80	SFX_3D
+	ptrZ80	SFX_3E
+	ptrZ80	SFX_3F
+	ptrZ80	SFX_40
+	ptrZ80	SFX_41
+	ptrZ80	SFX_42
+	ptrZ80	SFX_43
+	ptrZ80	SFX_44
+	ptrZ80	SFX_45
+	ptrZ80	SFX_46
+	ptrZ80	SFX_47
+	ptrZ80	SFX_48
+	ptrZ80	SFX_49
+	ptrZ80	SFX_4A
+	ptrZ80	SFX_4B
+	ptrZ80	SFX_4C
+	ptrZ80	SFX_4D
+	ptrZ80	SFX_4E
+	ptrZ80	SFX_4F
+	ptrZ80	SFX_50
+	ptrZ80	SFX_51
+	ptrZ80	SFX_52
+	ptrZ80	SFX_53
+	ptrZ80	SFX_54
+	ptrZ80	SFX_55
+	ptrZ80	SFX_56
+	ptrZ80	SFX_57
+	ptrZ80	SFX_58
+	ptrZ80	SFX_59
+	ptrZ80	SFX_5A
+	ptrZ80	SFX_5B
+	ptrZ80	SFX_5C
+	ptrZ80	SFX_5D
+	ptrZ80	SFX_5E
+	ptrZ80	SFX_5F
+	ptrZ80	SFX_60
+	ptrZ80	SFX_61
+	ptrZ80	SFX_62
+	ptrZ80	SFX_63
+	ptrZ80	SFX_64
+	ptrZ80	SFX_65
+	ptrZ80	SFX_66
+	ptrZ80	SFX_67
+	ptrZ80	SFX_68
+	ptrZ80	SFX_69
+	ptrZ80	SFX_6A
+	ptrZ80	SFX_6B
+	ptrZ80	SFX_6C
+	ptrZ80	SFX_6D
+	ptrZ80	SFX_6E
+	ptrZ80	SFX_6F
+	ptrZ80	SFX_70
+	ptrZ80	SFX_71
+	ptrZ80	SFX_72
+	ptrZ80	SFX_73
+	ptrZ80	SFX_74
+	ptrZ80	SFX_75
+	ptrZ80	SFX_76
+	ptrZ80	SFX_77
+	ptrZ80	SFX_78
+	ptrZ80	SFX_79
+	ptrZ80	SFX_7A
+	ptrZ80	SFX_7B
+	ptrZ80	SFX_7C
+	ptrZ80	SFX_7D
+	ptrZ80	SFX_7E
+	ptrZ80	SoundIDs_End	; (??? = This points to the Arle "Fire" Pointer Data?!)
 
 ; -----------------------------------------------------------------------------
 ; Music Data (to Disassemble)
 ; -----------------------------------------------------------------------------
 
-BGM_00:
-	include "sound/bank1/music/00.asm"
+BGM_00:		; loc_8F74
+	include	"sound/bank1/bgm/BGM_00.asm"
 
-BGM_01:
-	incbin "sound/bank1/music/01.bin"
+BGM_01:		; loc_8F8A
+	incbin	"sound/bank1/bgm/BGM_01.bin"
 
-BGM_02:
-	incbin "sound/bank1/music/02.bin"
+BGM_02:		; loc_9504
+	incbin	"sound/bank1/bgm/BGM_02.bin"
 
-BGM_03:
-	incbin "sound/bank1/music/03.bin"
+BGM_03:		; loc_992E
+	incbin	"sound/bank1/bgm/BGM_03.bin"
 
-BGM_04:
-	incbin "sound/bank1/music/04.bin"
+BGM_04:		; loc_9ADD
+	incbin	"sound/bank1/bgm/BGM_04.bin"
 
-BGM_05:
-	include "sound/bank1/music/05.asm"
+BGM_05:		; loc_9CFC
+	include	"sound/bank1/bgm/BGM_05.asm"
 
-BGM_06:
-	incbin "sound/bank1/music/06.bin"
+BGM_06:		; loc_9E74
+	incbin	"sound/bank1/bgm/BGM_06.bin"
 
-BGM_07:
-	include "sound/bank1/music/07.asm"
+BGM_07:		; loc_A154
+	include	"sound/bank1/bgm/BGM_07.asm"
 
-BGM_08:
-	incbin "sound/bank1/music/08.bin"
+BGM_08:		; loc_A2AB
+	incbin	"sound/bank1/bgm/BGM_08.bin"
 
-BGM_09: ; This song's data no longer exists.
-BGM_0A:
-	incbin "sound/bank1/music/0A.bin"
+BGM_09:		; This song's data no longer exists.
+BGM_0A:		; loc_ABA7
+	incbin	"sound/bank1/bgm/BGM_0A.bin"
 
-BGM_0B:
-	incbin "sound/bank1/music/0B.bin"
+BGM_0B:		; loc_B1E6
+	incbin	"sound/bank1/bgm/BGM_0B.bin"
 
-BGM_0C:
-	incbin "sound/bank1/music/0C.bin"
+BGM_0C:		; loc_B3DC
+	incbin	"sound/bank1/bgm/BGM_0C.bin"
 
-BGM_0D:
-	include "sound/bank1/music/0D.asm"
+BGM_0D:		; loc_B743
+	include	"sound/bank1/bgm/BGM_0D.asm"
 
-BGM_0E:
-	include "sound/bank1/music/0E.asm"
+BGM_0E:		; loc_B77F
+	include	"sound/bank1/bgm/BGM_0E.asm"
 
-BGM_0F:
-	incbin "sound/bank1/music/0F.bin"
+BGM_0F:		; loc_B84E
+	incbin	"sound/bank1/bgm/BGM_0F.bin"
 
-BGM_10:
-	incbin "sound/bank1/music/10.bin"
+BGM_10:		; loc_BAE4
+	incbin	"sound/bank1/bgm/BGM_10.bin"
 
-BGM_11:
-	incbin "sound/bank1/music/11.bin"
+BGM_11:		; loc_BD0B
+	incbin	"sound/bank1/bgm/BGM_11.bin"
 
-BGM_12:
-	include "sound/bank1/music/12.asm"
+BGM_12:		; loc_C534
+	include	"sound/bank1/bgm/BGM_12.asm"
 
-BGM_13:
-	include "sound/bank1/music/13.asm"
+BGM_13:		; loc_C6BF
+	include	"sound/bank1/bgm/BGM_13.asm"
 
 ; -----------------------------------------------------------------------------
 ; An unreferenced SFX lies here - Likely used to debug PCM data before adding Voices
 ; -----------------------------------------------------------------------------
 
-SFX_DEBUG:
-	include "sound/bank1/sfx/SFX - PCM Debugger.asm"
+SFX_DEBUG:	; loc_C750
+	include	"sound/bank1/sfx/SFX - PCM Debugger.asm"
 
 ; -----------------------------------------------------------------------------
 ; SFX Data (and Arle "Fire" PCM), to split and disassemble
 ; -----------------------------------------------------------------------------
 
-SFX_21:
-	incbin "sound/bank1/sfx/SFX.bin"
-;SFX_C77E:
-;SFX_C796:
-;SFX_C7A9:
-;SFX_C7DE:
-;SFX_C7F4:
-;SFX_C837:
-;SFX_C86A:
-;SFX_C887:
-;SFX_C8CA:
-;SFX_C8DA:
-;SFX_C8F2:
-;SFX_C938:
-;SFX_C94C:
-;SFX_C985:
-;SFX_C9EE:
-;SFX_CA14:
-;SFX_CA34:
-;SFX_CA9B:
-;SFX_CAAB:
-;SFX_CAD0:
-;SFX_CAEC:
-;SFX_CB04:
-;SFX_CB29:
-;SFX_CB4F:
-;SFX_CB5F:
-;SFX_CB77:
-;SFX_CBB4:
-;SFX_CBC4:
-;SFX_CC0A:
-;SFX_CC38:
-;SFX_CC3F:
-;SFX_CC4C:
-;SFX_CC5C:
-;SFX_CC6C:
-;SFX_CC87:
-;SFX_CC9F:
-;SFX_CCB7:
-;SFX_CCCF:
-;SFX_CCE8:
-;SFX_CD39:
-;SFX_CD51:
-;SFX_CD61:
-;SFX_CD7E:
-;SFX_CD92:
-;SFX_CDAD:
-;SFX_CDAD:
-;SFX_CE89:
-;SFX_CE9D:
-;SFX_CEAE:
-;SFX_CECB:
-;SFX_CEDF:
-;SFX_CF04:
-;SFX_CF1D:
-;SFX_CF3C:
-;SFX_CF49:
-;SFX_CF56:
-;SFX_CF63:
-;SFX_CF70:
-;SFX_CF7D:
-;SFX_CF8A:
-;SFX_CFA7:
-;SFX_CFBE:
-;SFX_CFF3:
-;SFX_D00B:
-;SFX_D050:
-;SFX_D064:
-;SFX_D076:
-;SFX_D0A0:
-;SFX_D100:
-;SFX_D136:
-;SFX_D146:
-;SFX_D17C:
-;SFX_D19A:
-;SFX_D1D2:
-;SFX_D201:
-;SFX_D215:
-;SFX_D228:
-;SFX_D235:
-;SFX_D255:
-;SFX_D262:
-;SFX_D27F:
-;SFX_D2A9:
-;SFX_D2D1:
-;SFX_D2FB:
-;SFX_D30E:
-;SFX_D3AF:
-;SFX_D3D1:
-;SFX_D3F8:
-;SFX_D41A:
-;SFX_D437:
-;SFX_D462:
-;SFX_D49D:
-;SFX_D4BA:
+SFX_21:		; loc_C76C
+	incbin	"sound/bank1/sfx/SFX_21.bin"
 
-loc_D4DB:
+SFX_22:		; loc_C77E:
+	incbin	"sound/bank1/sfx/SFX_22.bin"
+
+SFX_23:		; loc_C796:
+	incbin	"sound/bank1/sfx/SFX_23.bin"
+
+SFX_24:		; loc_C7A9:
+	incbin	"sound/bank1/sfx/SFX_24.bin"
+
+SFX_25:		; loc_C7DE:
+	incbin	"sound/bank1/sfx/SFX_25.bin"
+
+SFX_26:		; loc_C7F4:
+	incbin	"sound/bank1/sfx/SFX_26.bin"
+
+SFX_27:		; loc_C837:
+	incbin	"sound/bank1/sfx/SFX_27.bin"
+
+SFX_28:		; loc_C86A:
+	incbin	"sound/bank1/sfx/SFX_28.bin"
+
+SFX_29:		; loc_C887:
+	incbin	"sound/bank1/sfx/SFX_29.bin"
+
+SFX_2A:		; loc_C8CA:
+	incbin	"sound/bank1/sfx/SFX_2A.bin"
+
+SFX_2B:		; loc_C8DA:
+	incbin	"sound/bank1/sfx/SFX_2B.bin"
+
+SFX_2C:		; loc_C8F2:
+	incbin	"sound/bank1/sfx/SFX_2C.bin"
+
+SFX_2D:		; loc_C938:
+	incbin	"sound/bank1/sfx/SFX_2D.bin"
+
+SFX_2E:		; loc_C94C:
+	incbin	"sound/bank1/sfx/SFX_2E.bin"
+
+SFX_2F:		; loc_C985:
+	incbin	"sound/bank1/sfx/SFX_2F.bin"
+
+SFX_30:		; loc_C9EE:
+	incbin	"sound/bank1/sfx/SFX_30.bin"
+
+SFX_31:		; loc_CA14:
+	incbin	"sound/bank1/sfx/SFX_31.bin"
+
+SFX_32:		; loc_CA34:
+	incbin	"sound/bank1/sfx/SFX_32.bin"
+
+SFX_33:		; loc_CA9B:
+	incbin	"sound/bank1/sfx/SFX_33.bin"
+
+SFX_34:		; loc_CAAB:
+	incbin	"sound/bank1/sfx/SFX_34.bin"
+
+SFX_35:		; loc_CAD0:
+	incbin	"sound/bank1/sfx/SFX_35.bin"
+
+SFX_36:		; loc_CAEC:
+	incbin	"sound/bank1/sfx/SFX_36.bin"
+
+SFX_37:		; loc_CB04:
+	incbin	"sound/bank1/sfx/SFX_37.bin"
+
+SFX_38:		; loc_CB29:
+	incbin	"sound/bank1/sfx/SFX_38.bin"
+
+SFX_39:		; loc_CB4F:
+	incbin	"sound/bank1/sfx/SFX_39.bin"
+
+SFX_3A:		; loc_CB5F:
+	incbin	"sound/bank1/sfx/SFX_3A.bin"
+
+SFX_3B:		; loc_CB77:
+	incbin	"sound/bank1/sfx/SFX_3B.bin"
+
+SFX_3C:		; loc_CBB4:
+	incbin	"sound/bank1/sfx/SFX_3C.bin"
+
+SFX_3D:		; loc_CBC4:
+	incbin	"sound/bank1/sfx/SFX_3D.bin"
+
+SFX_3E:		; loc_CC0A:
+	incbin	"sound/bank1/sfx/SFX_3E.bin"
+
+SFX_3F:		; loc_CC38:
+	incbin	"sound/bank1/sfx/SFX_3F.bin"
+
+SFX_40:		; loc_CC3F:
+	incbin	"sound/bank1/sfx/SFX_40.bin"
+
+SFX_41:		; loc_CC4C:
+	incbin	"sound/bank1/sfx/SFX_41.bin"
+
+SFX_42:		; loc_CC5C:
+	incbin	"sound/bank1/sfx/SFX_42.bin"
+
+SFX_43:		; loc_CC6C:
+	incbin	"sound/bank1/sfx/SFX_43.bin"
+
+SFX_44:		; loc_CC87:
+	incbin	"sound/bank1/sfx/SFX_44.bin"
+
+SFX_45:		; loc_CC9F:
+	incbin	"sound/bank1/sfx/SFX_45.bin"
+
+SFX_46:		; loc_CCB7:
+	incbin	"sound/bank1/sfx/SFX_46.bin"
+
+SFX_47:		; loc_CCCF:
+	incbin	"sound/bank1/sfx/SFX_47.bin"
+
+SFX_48:		; loc_CCE8:
+	incbin	"sound/bank1/sfx/SFX_48.bin"
+
+SFX_49:		; loc_CD39:
+	incbin	"sound/bank1/sfx/SFX_49.bin"
+
+SFX_4A:		; loc_CD51:
+	incbin	"sound/bank1/sfx/SFX_4A.bin"
+
+SFX_4B:		; loc_CD61:
+	incbin	"sound/bank1/sfx/SFX_4B.bin"
+
+SFX_4C:		; loc_CD7E:
+	incbin	"sound/bank1/sfx/SFX_4C.bin"
+
+SFX_4D:		; loc_CD92:
+	incbin	"sound/bank1/sfx/SFX_4D.bin"
+
+SFX_4E:		; loc_CDAD
+SFX_4F:
+	incbin	"sound/bank1/sfx/SFX_4E.bin"
+
+; loc_CE4C - This SFX's data has been dummied out
+	incbin	"sound/bank1/sfx/SFX_4F.bin"
+
+SFX_50:		; loc_CE89:
+	incbin	"sound/bank1/sfx/SFX_50.bin"
+
+SFX_51:		; loc_CE9D:
+	incbin	"sound/bank1/sfx/SFX_51.bin"
+
+SFX_52:		; loc_CEAE:
+	incbin	"sound/bank1/sfx/SFX_52.bin"
+
+SFX_53:		; loc_CECB:
+	incbin	"sound/bank1/sfx/SFX_53.bin"
+
+SFX_54:		; loc_CEDF:
+	incbin	"sound/bank1/sfx/SFX_54.bin"
+
+SFX_55:		; loc_CF04:
+	incbin	"sound/bank1/sfx/SFX_55.bin"
+
+SFX_56:		; loc_CF1D:
+	incbin	"sound/bank1/sfx/SFX_56.bin"
+
+SFX_57:		; loc_CF3C:
+	incbin	"sound/bank1/sfx/SFX_57.bin"
+
+SFX_58:		; loc_CF49:
+	incbin	"sound/bank1/sfx/SFX_58.bin"
+
+SFX_59:		; loc_CF56:
+	incbin	"sound/bank1/sfx/SFX_59.bin"
+
+SFX_5A:		; loc_CF63:
+	incbin	"sound/bank1/sfx/SFX_5A.bin"
+
+SFX_5B:		; loc_CF70:
+	incbin	"sound/bank1/sfx/SFX_5B.bin"
+
+SFX_5C:		; loc_CF7D:
+	incbin	"sound/bank1/sfx/SFX_5C.bin"
+
+SFX_5D:		; loc_CF8A:
+	incbin	"sound/bank1/sfx/SFX_5D.bin"
+
+SFX_5E:		; loc_CFA7:
+	incbin	"sound/bank1/sfx/SFX_5E.bin"
+
+SFX_5F:		; loc_CFBE:
+	incbin	"sound/bank1/sfx/SFX_5F.bin"
+
+SFX_60:		; loc_CFF3:
+	incbin	"sound/bank1/sfx/SFX_60.bin"
+
+SFX_61:		; loc_D00B:
+	incbin	"sound/bank1/sfx/SFX_61.bin"
+
+SFX_62:		; loc_D050:
+	incbin	"sound/bank1/sfx/SFX_62.bin"
+
+SFX_63:		; loc_D064:
+	incbin	"sound/bank1/sfx/SFX_63.bin"
+
+SFX_64:		; loc_D076:
+	incbin	"sound/bank1/sfx/SFX_64.bin"
+
+SFX_65:		; loc_D0A0:
+	incbin	"sound/bank1/sfx/SFX_65.bin"
+
+SFX_66:		; loc_D100:
+	incbin	"sound/bank1/sfx/SFX_66.bin"
+
+SFX_67:		; loc_D136:
+	incbin	"sound/bank1/sfx/SFX_67.bin"
+
+SFX_68:		; loc_D146:
+	incbin	"sound/bank1/sfx/SFX_68.bin"
+
+SFX_69:		; loc_D17C:
+	incbin	"sound/bank1/sfx/SFX_69.bin"
+
+SFX_6A:		; loc_D19A:
+	incbin	"sound/bank1/sfx/SFX_6A.bin"
+
+SFX_6B:		; loc_D1D2:
+	incbin	"sound/bank1/sfx/SFX_6B.bin"
+
+SFX_6C:		; loc_D201:
+	incbin	"sound/bank1/sfx/SFX_6C.bin"
+
+SFX_6D:		; loc_D215:
+	incbin	"sound/bank1/sfx/SFX_6D.bin"
+
+SFX_6E:		; loc_D228:
+	incbin	"sound/bank1/sfx/SFX_6E.bin"
+
+SFX_6F:		; loc_D235:
+	incbin	"sound/bank1/sfx/SFX_6F.bin"
+
+SFX_70:		; loc_D255:
+	incbin	"sound/bank1/sfx/SFX_70.bin"
+
+SFX_71:		; loc_D262:
+	incbin	"sound/bank1/sfx/SFX_71.bin"
+
+SFX_72:		; loc_D27F:
+	incbin	"sound/bank1/sfx/SFX_72.bin"
+
+SFX_73:		; loc_D2A9:
+	incbin	"sound/bank1/sfx/SFX_73.bin"
+
+SFX_74:		; loc_D2D1:
+	incbin	"sound/bank1/sfx/SFX_74.bin"
+
+SFX_75:		; loc_D2FB:
+	incbin	"sound/bank1/sfx/SFX_75.bin"
+
+SFX_76:		; loc_D30E:
+	incbin	"sound/bank1/sfx/SFX_76.bin"
+
+SFX_77:		; loc_D3AF:
+	incbin	"sound/bank1/sfx/SFX_77.bin"
+
+SFX_78:		; loc_D3D1:
+	incbin	"sound/bank1/sfx/SFX_78.bin"
+
+SFX_79:		; loc_D3F8:
+	incbin	"sound/bank1/sfx/SFX_79.bin"
+
+SFX_7A:		; loc_D41A:
+	incbin	"sound/bank1/sfx/SFX_7A.bin"
+
+SFX_7B:		; loc_D437:
+	incbin	"sound/bank1/sfx/SFX_7B.bin"
+
+SFX_7C:		;loc_D462:
+	incbin	"sound/bank1/sfx/SFX_7C.bin"
+
+SFX_7D:		; loc_D49D
+	incbin	"sound/bank1/sfx/SFX_7D.bin"
+
+SFX_7E:		; loc_D4BA
+	incbin	"sound/bank1/sfx/SFX_7E.bin"
+
+SoundIDs_End:
+
+PCMData_Bank1:
 	ptrZ80	Header_Arle_Fire
 
 Header_Arle_Fire:

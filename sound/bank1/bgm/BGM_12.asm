@@ -1,5 +1,4 @@
 	include "sound/z80_macros.asm"
-;	include "sound/bank1/CSP2ASM.asm"
 
 ;	BGM 12 - Victory of Puyo Puyo
 BGM12_Header:
@@ -84,8 +83,7 @@ BGM12_Header:
 	dc.b	$20
 
 @channel01start:	; loc_0049
-	dc.b	$00
-	dc.b	$E3
+	dc.b	$00, NL6
 	CSP_Detune	$04
 
 @channel00start:	; loc_004D

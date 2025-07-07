@@ -1,38 +1,13 @@
 	include "sound/z80_macros.asm"
-;	include "sound/bank1/CSP2ASM.asm"
 
 ;	BGM 0D - Theme For Harpy
 BGM0D_Header:
-	dc.b	$02	; Channels to Initialize
-
-BGM0D_PLR_06_Init:
-	dc.b	$06		; Playback Channel
-	dc.b	$01		; Channel Type
-	dc.b	$19		; Volume
-	dc.b	$08		; Volume Envelope
-	dc.b	$03		; Modulation Envelope
-	dc.b	$0C		; Transposition
-	dc.b	$50		; Tempo
-	dc.b	$00		; Output Channel
-	ptrZ80	BGM0D_PLR_06
-	dc.b	panCentre
-	dc.b	$04		; Instrument
-
-BGM0D_PLR_07_Init:
-	dc.b	$07		; Playback Channel
-	dc.b	$01		; Channel Type
-	dc.b	$14		; Volume
-	dc.b	$08		; Volume Envelope
-	dc.b	$03		; Modulation Envelope
-	dc.b	$0C		; Transposition
-	dc.b	$50		; Tempo
-	dc.b	$01		; Output Channel
-	ptrZ80	BGM0D_PLR_07
-	dc.b	panCentre
-	dc.b	$04
+	CSPHeader_ChanCnt	$02
+	CSPHeader_ChanFM	$06, $19, $08, $03, $0C, $50, $00, BGM0D_PLR_06, panCentre,	$04
+	CSPHeader_ChanFM	$07, $14, $08, $03, $0C, $50, $01, BGM0D_PLR_07, panCentre,	$04
 
 BGM0D_PLR_07:
-	dc.b	$00, NL6
+	dc.b	nRST, NL6
 	CSP_Detune	$04
 
 BGM0D_PLR_06:

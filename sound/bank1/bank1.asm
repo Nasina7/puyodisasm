@@ -28,7 +28,7 @@ loc_8010:	; Also no idea (has a 4 then points to the Arle PCM Pointers?)
 	ptrZ80	$0202		; Points to Bank 2 "Puyo Puyo" PCM
 	ptrZ80	$0000		; Points to "Fire" PCM
 
-FM_Instrument_Patches:		; TODO: Figure out the instrument format
+FM_Instrument_Patches:
 	include "sound/bank1/data/Patches.asm"
 
 NoteTimings:	; loc_89BA
@@ -480,38 +480,38 @@ BGM_00:		; loc_8F74
 	include	"sound/bank1/bgm/BGM_00.asm"
 
 BGM_01:		; loc_8F8A
-	incbin	"sound/bank1/bgm/BGM_01.bin"
+	include	"sound/bank1/bgm/BGM_01.asm"
 
 BGM_02:		; loc_9504
-	incbin	"sound/bank1/bgm/BGM_02.bin"
+	include	"sound/bank1/bgm/BGM_02.asm"
 
 BGM_03:		; loc_992E
-	incbin	"sound/bank1/bgm/BGM_03.bin"
+	include	"sound/bank1/bgm/BGM_03.asm"
 
 BGM_04:		; loc_9ADD
-	incbin	"sound/bank1/bgm/BGM_04.bin"
+	include	"sound/bank1/bgm/BGM_04.asm"
 
 BGM_05:		; loc_9CFC
 	include	"sound/bank1/bgm/BGM_05.asm"
 
 BGM_06:		; loc_9E74
-	incbin	"sound/bank1/bgm/BGM_06.bin"
+	include	"sound/bank1/bgm/BGM_06.asm"
 
 BGM_07:		; loc_A154
 	include	"sound/bank1/bgm/BGM_07.asm"
 
 BGM_08:		; loc_A2AB
-	incbin	"sound/bank1/bgm/BGM_08.bin"
+	include	"sound/bank1/bgm/BGM_08.asm"
 
 BGM_09:		; This song's data no longer exists.
 BGM_0A:		; loc_ABA7
-	incbin	"sound/bank1/bgm/BGM_0A.bin"
+	include	"sound/bank1/bgm/BGM_0A.asm"
 
 BGM_0B:		; loc_B1E6
-	incbin	"sound/bank1/bgm/BGM_0B.bin"
+	include	"sound/bank1/bgm/BGM_0B.asm"
 
 BGM_0C:		; loc_B3DC
-	incbin	"sound/bank1/bgm/BGM_0C.bin"
+	include	"sound/bank1/bgm/BGM_0C.asm"
 
 BGM_0D:		; loc_B743
 	include	"sound/bank1/bgm/BGM_0D.asm"
@@ -520,13 +520,13 @@ BGM_0E:		; loc_B77F
 	include	"sound/bank1/bgm/BGM_0E.asm"
 
 BGM_0F:		; loc_B84E
-	incbin	"sound/bank1/bgm/BGM_0F.bin"
+	include	"sound/bank1/bgm/BGM_0F.asm"
 
 BGM_10:		; loc_BAE4
-	incbin	"sound/bank1/bgm/BGM_10.bin"
+	include	"sound/bank1/bgm/BGM_10.asm"
 
 BGM_11:		; loc_BD0B
-	incbin	"sound/bank1/bgm/BGM_11.bin"
+	include	"sound/bank1/bgm/BGM_11.asm"
 
 BGM_12:		; loc_C534
 	include	"sound/bank1/bgm/BGM_12.asm"

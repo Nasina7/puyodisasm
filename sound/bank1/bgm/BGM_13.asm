@@ -1,5 +1,4 @@
 	include	"sound/z80_macros.asm"
-;	include	"sound/bank1/CSP2ASM.asm"
 
 ;	BGM 13 - Victory Jingle
 BGM13_Header:

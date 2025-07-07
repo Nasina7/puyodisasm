@@ -1,129 +1,55 @@
 	include "sound/z80_macros.asm"
-;	include "sound/bank1/CSP2ASM.asm"
-;	TODO - Fix Formatting
 
 ;	BGM 05 - Morning of Puyo Puyo
 BGM05_Header:
-	dc.b	$06
+	CSPHeader_ChanCnt	$06
+	CSPHeader_ChanFM	$00, $1B, $00, $08, $0C, $78, $00, BGM05_PLR_00, panCentre,	$0B
+	CSPHeader_ChanFM	$01, $17, $00, $08, $0C, $78, $01, BGM05_PLR_01, panRight,	$0B
+	CSPHeader_ChanFM	$02, $14, $08, $08, $18, $78, $02, BGM05_PLR_02, panCentre,	$04
+	CSPHeader_ChanFM	$03, $0F, $08, $08, $18, $78, $04, BGM05_PLR_03, panLeft,	$04
+	CSPHeader_ChanFM	$04, $1B, $00, $00, $00, $78, $03, BGM05_PLR_04, panCentre,	$09
+	CSPHeader_ChanFM	$05, $18, $00, $08, $00, $78, $05, BGM05_PLR_05, panCentre,	$09
 
-@channel00init:
-	dc.b	$00
-	dc.b	$01
-	dc.b	$1B
-	dc.b	$00
-	dc.b	$08
-	dc.b	$0C
-	dc.b	$78
-	dc.b	$00
-	ptrZ80	@channel00start
-	dc.b	panCentre
-	dc.b	$0B
-
-@channel01init:
-	dc.b	$01
-	dc.b	$01
-	dc.b	$17
-	dc.b	$00
-	dc.b	$08
-	dc.b	$0C
-	dc.b	$78
-	dc.b	$01
-	ptrZ80	@channel01start
-	dc.b	panRight
-	dc.b	$0B
-
-@channel02init:
-	dc.b	$02
-	dc.b	$01
-	dc.b	$14
-	dc.b	$08
-	dc.b	$08
-	dc.b	$18
-	dc.b	$78
-	dc.b	$02
-	ptrZ80	@channel02start
-	dc.b	panCentre
-	dc.b	$04
-
-@channel03init:
-	dc.b	$03
-	dc.b	$01
-	dc.b	$0F
-	dc.b	$08
-	dc.b	$08
-	dc.b	$18
-	dc.b	$78
-	dc.b	$04
-	ptrZ80	@channel03start
-	dc.b	panLeft
-	dc.b	$04
-
-@channel04init:
-	dc.b	$04
-	dc.b	$01
-	dc.b	$1B
-	dc.b	$00
-	dc.b	$00
-	dc.b	$00
-	dc.b	$78
-	dc.b	$03
-	ptrZ80	@channel04start
-	dc.b	panCentre
-	dc.b	$09
-
-@channel05init:
-	dc.b	$05
-	dc.b	$01
-	dc.b	$18
-	dc.b	$00
-	dc.b	$08
-	dc.b	$00
-	dc.b	$78
-	dc.b	$05
-	ptrZ80	@channel05start
-	dc.b	panCentre
-	dc.b	$09
-
-@channel01start:	; Loc: 0049
-	dc.b	$00, $E1
+BGM05_PLR_01:
+	dc.b	$00, NL3
 	CSP_Detune	$04
 
-@channel00start:	; Loc: 004D
+BGM05_PLR_00:
+	dc.b	$2E, NL6
+	dc.b	$31
+	dc.b	$36, NL3
+	dc.b	$35
+	dc.b	$36, NL12
+	dc.b	$31, NL6
 	dc.b	$2E
-	dc.w	$E331
-	dc.b	$36
-	dc.w	$E135
-	dc.b	$36
-	dc.w	$E531
-	dc.w	$E32E
 	dc.b	$31
-	dc.b	$2F
-	dc.w	$E131
+	dc.b	$2F, NL3
+	dc.b	$31
+	dc.b	$33, NL6
 	dc.b	$33
-	dc.w	$E333
 	dc.b	$30
+	dc.b	$31, NL2
+	dc.b	$33
 	dc.b	$31
-	dc.w	$E033
+	dc.b	$31, NL18
+	dc.b	$2E, NL6
 	dc.b	$31
+	dc.b	$36, NL3
+	dc.b	$35
+	dc.b	$36, NL12
+	dc.b	$31, NL6
+	dc.b	$2E
 	dc.b	$31
-	dc.w	$EB2E
-	dc.w	$E331
-	dc.b	$36
-	dc.w	$E135
-	dc.b	$36
-	dc.w	$E531
-	dc.w	$E32E
-	dc.b	$31
-	dc.b	$2F
-	dc.w	$E12E
-	dc.b	$2F
-	dc.w	$E52A
-	dc.w	$E32C
-	dc.w	$E02E
+	dc.b	$2F, NL3
+	dc.b	$2E
+	dc.b	$2F, NL12
+	dc.b	$2A, NL6
+	dc.b	$2C, NL2
+	dc.b	$2E
 	dc.b	$2C
-	dc.b	$2C
-	dc.w	$E52A
-	dc.w	$E325
+	dc.b	$2C, NL12
+	dc.b	$2A, NL6
+	dc.b	$25
 	dc.b	$2A
 	dc.b	$29
 	dc.b	$2A
@@ -141,22 +67,22 @@ BGM05_Header:
 	dc.b	$2C
 	dc.b	$2A
 	dc.b	$27
-	dc.b	$2F
-	dc.w	$E12E
-	dc.b	$2F
-	dc.w	$E52E
-	dc.w	$E32C
+	dc.b	$2F, NL3
+	dc.b	$2E
+	dc.b	$2F, NL12
+	dc.b	$2E, NL6
+	dc.b	$2C
 	dc.b	$2A
 	dc.b	$29
 	dc.b	$25
-	dc.b	$2E
-	dc.w	$E12C
-	dc.b	$2E
-	dc.w	$E531
-	dc.w	$E333
+	dc.b	$2E, NL3
+	dc.b	$2C
+	dc.b	$2E, NL12
+	dc.b	$31, NL6
+	dc.b	$33
 	dc.b	$31
-	dc.b	$2A
-	dc.w	$E12F
+	dc.b	$2A, NL3
+	dc.b	$2F
 	dc.b	$31
 	dc.b	$2F
 	dc.b	$33
@@ -211,29 +137,28 @@ BGM05_Header:
 	dc.b	$29
 	dc.b	$27
 	dc.b	$29
-	dc.b	$25
-	dc.w	$E329
+	dc.b	$25, NL6
+	dc.b	$29
 	dc.b	$2C
 	dc.b	$31
-	CSP_Jump	@channel00start
+	CSP_Jump	BGM05_PLR_00
 
-@channel03start:	; Loc: 00E8
-	dc.b	$00
-	dc.b	$E1
+BGM05_PLR_03:
+	dc.b	$00, NL3
 	CSP_Detune	$01
 
-@channel02start:	; Loc: 00EC
-	dc.b	$2A
-	dc.w	$E927
-	dc.w	$E729
-	dc.b	$2A
-	dc.w	$E927
-	dc.w	$E729
-	dc.w	$E02A
+BGM05_PLR_02:
+	dc.b	$2A, NL48
+	dc.b	$27, NL24
 	dc.b	$29
+	dc.b	$2A, NL48
+	dc.b	$27, NL24
+	dc.b	$29, NL2
+	dc.b	$2A
 	dc.b	$29
-	dc.w	$E525
-	dc.w	$E300
+	dc.b	$29, NL12
+	dc.b	$25, NL6
+	dc.b	$00
 	dc.b	$22
 	dc.b	$25
 	dc.b	$2A
@@ -297,16 +222,15 @@ BGM05_Header:
 	dc.b	$31
 	dc.b	$38
 	dc.b	$35
-	CSP_Jump	@channel02start
+	CSP_Jump	BGM05_PLR_02
 
-@channel05start:	; Loc: 0140
-	dc.b	$00
-	dc.b	$E2
+BGM05_PLR_05:
+	dc.b	$00, NL4
 	CSP_Detune	$04
 
-@channel04start:	; Loc: 0144
+BGM05_PLR_04:
+	dc.b	$1E, NL12
 	dc.b	$1E
-	dc.w	$E51E
 	dc.b	$1E
 	dc.b	$1E
 	dc.b	$17
@@ -353,4 +277,4 @@ BGM05_Header:
 	dc.b	$19
 	dc.b	$19
 	dc.b	$19
-	CSP_Jump	@channel04start
+	CSP_Jump	BGM05_PLR_04

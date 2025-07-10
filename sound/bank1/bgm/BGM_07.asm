@@ -47,7 +47,7 @@ BGM07_PLR_00:		; loc_A1A1
 	CSP_Stop
 
 BGM07_PLR_03:		; loc_A1CF
-	dc.b	NRST, NL6
+	dc.b	nRST, NL6
 	CSP_Detune	$02
 
 BGM07_PLR_02:		; loc_A1D3

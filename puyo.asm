@@ -12150,7 +12150,7 @@ loc_0000BE18:
 	dbf    	d0, loc_0000BE18
 	lea		(StaffCredits_LoadTextObj).l, a1
 	jsr		ObjSys_InitObjWithFunc
-	lea		(loc_0000be38).l, a1
+	lea		(loc_0000BE38).l, a1
 	jsr		ObjSys_InitObjWithFunc
 	rts
 loc_0000BE38:
@@ -22574,7 +22574,7 @@ BadCheck_Init:
 BadCheck_Update:
 	move.w #$100, D0
 	jsr ObjSys_SetObjNextOpTimer
-	jsr loc_00002b40
+	jsr loc_00002B40
 	clr.b (rRunningOptionsMenuCode).l
 	clr.b (rBytecode_StopRun).l
 	jmp ObjSys_DeleteObjectA0

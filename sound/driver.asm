@@ -2376,10 +2376,10 @@ loc_0EBA:
 	ld a, (bc)
 	cp $F0
 	jp c, loc_0ED1
-	add a
+	add a ; F0h becomes E0h, F1h to E2h etc
 	ld e, a
 	ld d, 0
-	ld hl, ptr_0F1A+2 ; ??
+	ld hl, EffectsList-0E0h
 	add hl, de
 	ld e, (hl)
 	inc hl
@@ -2576,7 +2576,8 @@ ptr_0FDC:
 	dc.b $04
 	dc.b $02
 	dc.b $00
-ptr_0FFC: ; Todo: Is this a seperate table?
+; ptr_0FFC:
+EffectsList:
 	ptrZ80 sub_101C
 	ptrZ80 sub_101D
 	ptrZ80 sub_1023
@@ -2918,10 +2919,10 @@ loc_1261:
 	ld a, (bc)
 	cp $F0
 	jp c, loc_1278
-	add a
+	add a ; F0h becomes E0h, F1h to E2h etc
 	ld e, a
 	ld d, 0
-	ld hl, ptr_0F1A+2 ; ??
+	ld hl, EffectsList-0E0h
 	add hl, de
 	ld e, (hl)
 	inc hl

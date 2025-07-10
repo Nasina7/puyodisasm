@@ -86,6 +86,12 @@ CSP_PitchEnv: macro env
 	dc.b	env
 	endm
 
+;CSP_Cmd84:
+
+;CSP_Cmd85:
+
+;CSP_Cmd86:
+
 ;	MusCmd_SetVolume
 CSP_SetVol: macro vol
 	dc.b	$87
@@ -114,16 +120,32 @@ CSP_InsFM: macro inst
 	dc.b	inst
 	endm
 
+;CSP_Cmd8C:
+
 ;	MusCmd_SetChRegToVal
 CSP_LoopSet: macro index, cnt
 	dc.b	$8D, index, cnt
 	endm
+
+;CSP_Cmd8E:
+
+;CSP_Cmd8F:
+
+;CSP_Cmd90:
+
+;CSP_Cmd91:
+
+;CSP_Cmd92:
+
+;CSP_Cmd93:
 
 ;	MusCmd_Unk94
 CSP_Cmd94: macro dat
 	dc.b	$94
 	dc.b	dat
 	endm
+
+;CSP_Cmd95:
 
 ;	MusCmd_SetChPlaybackSpeed
 CSP_SetTempo: macro speed
@@ -137,11 +159,43 @@ CSP_Detune: macro pitch
 	dc.b	pitch
 	endm
 
+;CSP_Cmd98:
+
+;CSP_Cmd99:
+
+;CSP_Cmd9A:
+
+;CSP_Cmd9B:
+
+;CSP_Cmd9C:
+
+;CSP_Cmd9D:
+
+;CSP_Cmd9E:
+
 ;	MusCmd_Unk9F
 CSP_Pan: macro pan
 	dc.b	$9F
 	dc.b	pan
 	endm
+
+;CSP_CmdA0:
+
+;CSP_CmdA1:
+
+;CSP_CmdA2:
+
+;CSP_CmdA3:
+
+;CSP_CmdA4:
+
+;CSP_CmdA5:
+
+;CSP_CmdA6:
+
+;CSP_CmdA7:
+
+;CSP_CmdA8:
 
 ; -----------------------------------------------------------------------------
 ; Header
@@ -152,32 +206,46 @@ CSPHeader_ChanCnt: macro count
 	dc.b	count
 	endm
 
-CSPHeader_ChanStop: macro chan
-	dc.b	chan, $00
+CSPHeader_StopPLR: macro plr
+	dc.b	plr, $00
 	endm
 
-CSPHeader_ChanFM: macro chan, vol, volenv, modenv, trans, tempo, fmchan, loc, pan, inst
-	dc.b	chan, $01
+; Update these macros as it seems value two is a bit more complex
+CSPHeader_ChanFM: macro plr, vol, volenv, modenv, trans, tempo, chan, loc, pan, inst
+	dc.b	plr, $01
 	dc.b	vol
 	dc.b	volenv
 	dc.b	modenv
 	dc.b	trans
 	dc.b	tempo
-	dc.b	fmchan
+	dc.b	chan
 	dc.w	((loc&$00ff)<<8)|(loc>>8)
 	dc.b	pan
 	dc.b	inst
 	endm
 
-CSPHeader_ChanDrum: macro chan, vol, tempo, fmchan, loc, pan, inst
-	dc.b	chan, $02
+CSPHeader_ChanDrum: macro plr, vol, tempo, chan, loc, pan, inst
+	dc.b	plr, $02
 	dc.b	vol
 	dc.b	$00, $00, $00			; These aren't used for Drum Channels
 	dc.b	tempo
-	dc.b	fmchan
+	dc.b	chan
 	dc.w	((loc&$00ff)<<8)|(loc>>8)
 	dc.b	pan
 	dc.b	inst
 	endm
 
+CSPHeader_Player: macro plr, chtype, vol, volenv, modenv, trans, tempo, chan, loc, pan, inst
+	dc.b	plr
+	dc.b	chtype
+	dc.b	vol
+	dc.b	volenv
+	dc.b	modenv
+	dc.b	trans
+	dc.b	tempo
+	dc.b	chan
+	dc.w	((loc&$00ff)<<8)|(loc>>8)
+	dc.b	pan
+	dc.b	inst
+	endm
 ; -----------------------------------------------------------------------------

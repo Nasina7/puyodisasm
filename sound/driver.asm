@@ -536,16 +536,16 @@ tbl_commands:
 	ptrZ80 CmdSetMinorPitch ; 2 Byte Command
 	ptrZ80 sub_04A4
 	ptrZ80 sub_047A
-	ptrZ80 sub_04D8
-	ptrZ80 sub_04D8
+	ptrZ80 CmdSetAMSFMS
+	ptrZ80 CmdSetAMSFMS
 	ptrZ80 sub_0412
 	ptrZ80 sub_04A8
 	ptrZ80 sub_0469
-	ptrZ80 sub_04E3 ; 0x9F
+	ptrZ80 CmdSetPan ; 0x9F
 	ptrZ80 sub_034F
 	ptrZ80 sub_0491
 	ptrZ80 sub_049B
-	ptrZ80 sub_04D8
+	ptrZ80 CmdSetAMSFMS
 	ptrZ80 sub_04B6
 	ptrZ80 sub_04BE
 	ptrZ80 sub_04EE
@@ -880,7 +880,8 @@ sub_04CC:
 	ld (1F68h), a
 	ret
 
-sub_04D8:
+; sub_04D8:
+CmdSetAMSFMS:
 	ld b, a
 	ld a, (ix+09h)
 	and a, $C0
@@ -888,7 +889,8 @@ sub_04D8:
 	ld (ix+09h), a
 	ret
 
-sub_04E3:
+; sub_04E3:
+CmdSetPan:
 	ld b, a
 	ld a, (ix+09h)
 	and a, 3Fh

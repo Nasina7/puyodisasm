@@ -3,6 +3,8 @@
 ;	BGM 08 - Sticker of Puyo Puyo
 BGM08_Header:
 	dc.b	$06
+
+BGM08_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$1F
@@ -11,10 +13,11 @@ BGM08_Header:
 	dc.b	$00
 	dc.b	$90
 	dc.b	$00
-	dc.b	$F4
-	dc.b	$A2
-	dc.b	$C0
+	ptrZ80	BGM08_PLR00
+	dc.b	panCentre
 	dc.b	$0E
+
+BGM08_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$18
@@ -23,10 +26,11 @@ BGM08_Header:
 	dc.b	$0C
 	dc.b	$90
 	dc.b	$01
-	dc.b	$C0
-	dc.b	$A4
-	dc.b	$C0
+	ptrZ80	BGM08_PLR01
+	dc.b	panCentre
 	dc.b	$0E
+
+BGM08_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$1A
@@ -35,10 +39,11 @@ BGM08_Header:
 	dc.b	$0C
 	dc.b	$90
 	dc.b	$02
-	dc.b	$B7
-	dc.b	$A5
-	dc.b	$C0
+	ptrZ80	BGM08_PLR02
+	dc.b	panCentre
 	dc.b	$07
+
+BGM08_PLR03_Init:
 	dc.b	$03
 	dc.b	$01
 	dc.b	$1A
@@ -47,10 +52,11 @@ BGM08_Header:
 	dc.b	$0C
 	dc.b	$90
 	dc.b	$03
-	dc.b	$87
-	dc.b	$A7
-	dc.b	$40
+	ptrZ80	BGM08_PLR03
+	dc.b	panRight
 	dc.b	$07
+
+BGM08_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$1A
@@ -59,10 +65,11 @@ BGM08_Header:
 	dc.b	$0C
 	dc.b	$90
 	dc.b	$05
-	dc.b	$99
-	dc.b	$A9
-	dc.b	$80
+	ptrZ80	BGM08_PLR04
+	dc.b	panLeft
 	dc.b	$07
+
+BGM08_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$15
@@ -71,10 +78,11 @@ BGM08_Header:
 	dc.b	$0C
 	dc.b	$90
 	dc.b	$04
-	dc.b	$B3
-	dc.b	$A5
-	dc.b	$C0
+	ptrZ80	BGM08_PLR05
+	dc.b	panCentre
 	dc.b	$07
+
+BGM08_PLR00:
 	dc.b	$C6
 	dc.b	$E3
 	dc.b	$C4
@@ -532,12 +540,11 @@ BGM08_Header:
 	dc.b	$C4
 	dc.b	$C1
 	dc.b	$C1
-	dc.b	$80
-	dc.b	$F4
-	dc.b	$A2
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$08
+	CSP_Jump	BGM08_PLR00
+
+BGM08_PLR01:
+	CSP_LoopSet	$10, $08
+BGM08_Loop00:
 	dc.b	$1B
 	dc.b	$E3
 	dc.b	$00
@@ -575,10 +582,7 @@ BGM08_Header:
 	dc.b	$14
 	dc.b	$19
 	dc.b	$19
-	dc.b	$81
-	dc.b	$10
-	dc.b	$C3
-	dc.b	$A4
+	CSP_LoopBack	$10, BGM08_Loop00
 	dc.b	$12
 	dc.b	$12
 	dc.b	$14
@@ -775,13 +779,13 @@ BGM08_Header:
 	dc.b	$1E
 	dc.b	$14
 	dc.b	$20
-	dc.b	$80
-	dc.b	$C0
-	dc.b	$A4
-	dc.b	$00
-	dc.b	$E3
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM08_PLR01
+
+BGM08_PLR05:
+	dc.b	$00, $E3
+	dc.b	$97, $04
+
+BGM08_PLR02:
 	dc.b	$8B
 	dc.b	$07
 	dc.b	$31
@@ -1243,9 +1247,9 @@ BGM08_Header:
 	dc.b	$EB
 	dc.b	$8A
 	dc.b	$FF
-	dc.b	$80
-	dc.b	$B7
-	dc.b	$A5
+	CSP_Jump	BGM08_PLR02
+
+BGM08_PLR03:
 	dc.b	$8B
 	dc.b	$07
 	dc.b	$2E
@@ -1773,9 +1777,9 @@ BGM08_Header:
 	dc.b	$48
 	dc.b	$8A
 	dc.b	$FE
-	dc.b	$80
-	dc.b	$87
-	dc.b	$A7
+	CSP_Jump	BGM08_PLR03
+
+BGM08_PLR04:
 	dc.b	$8B
 	dc.b	$07
 	dc.b	$2A
@@ -2299,6 +2303,4 @@ BGM08_Header:
 	dc.b	$44
 	dc.b	$8A
 	dc.b	$05
-	dc.b	$80
-	dc.b	$99
-	dc.b	$A9
+	CSP_Jump	BGM08_PLR04

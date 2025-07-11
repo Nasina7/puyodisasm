@@ -3,6 +3,8 @@
 ;	BGM 0A - Sunset of Puyo Puyo
 BGM0A_Header:
 	dc.b	$06
+
+BGM0A_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$19
@@ -11,10 +13,11 @@ BGM0A_Header:
 	dc.b	$0C
 	dc.b	$5D
 	dc.b	$00
-	dc.b	$F0
-	dc.b	$AB
-	dc.b	$C0
+	ptrZ80	BGM0A_PLR00
+	dc.b	panCentre
 	dc.b	$1E
+
+BGM0A_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$1F
@@ -23,10 +26,11 @@ BGM0A_Header:
 	dc.b	$00
 	dc.b	$5D
 	dc.b	$01
-	dc.b	$12
-	dc.b	$AE
-	dc.b	$C0
+	ptrZ80	BGM0A_PLR01
+	dc.b	panCentre
 	dc.b	$01
+
+BGM0A_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$19
@@ -35,10 +39,11 @@ BGM0A_Header:
 	dc.b	$0C
 	dc.b	$5D
 	dc.b	$02
-	dc.b	$71
-	dc.b	$AE
-	dc.b	$C0
+	ptrZ80	BGM0A_PLR02
+	dc.b	panCentre
 	dc.b	$07
+
+BGM0A_PLR03_Init:
 	dc.b	$03
 	dc.b	$01
 	dc.b	$15
@@ -47,10 +52,11 @@ BGM0A_Header:
 	dc.b	$0C
 	dc.b	$5D
 	dc.b	$04
-	dc.b	$6D
-	dc.b	$AE
-	dc.b	$40
+	ptrZ80	BGM0A_PLR03
+	dc.b	panRight
 	dc.b	$07
+
+BGM0A_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$18
@@ -59,10 +65,11 @@ BGM0A_Header:
 	dc.b	$0C
 	dc.b	$5D
 	dc.b	$03
-	dc.b	$A5
-	dc.b	$AF
-	dc.b	$C0
+	ptrZ80	BGM0A_PLR04
+	dc.b	panCentre
 	dc.b	$07
+
+BGM0A_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$14
@@ -71,10 +78,11 @@ BGM0A_Header:
 	dc.b	$0C
 	dc.b	$5D
 	dc.b	$05
-	dc.b	$A1
-	dc.b	$AF
-	dc.b	$80
+	ptrZ80	BGM0A_PLR05
+	dc.b	panLeft
 	dc.b	$07
+
+BGM0A_PLR00:
 	dc.b	$19
 	dc.b	$E3
 	dc.b	$19
@@ -618,12 +626,11 @@ BGM0A_Header:
 	dc.b	$1E
 	dc.b	$8B
 	dc.b	$1E
-	dc.b	$80
-	dc.b	$F0
-	dc.b	$AB
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$03
+	CSP_Jump	BGM0A_PLR00
+
+BGM0A_PLR01:
+	CSP_LoopSet	$10, $03
+BGM0A_Loop00:
 	dc.b	$C0
 	dc.b	$E3
 	dc.b	$C4
@@ -651,10 +658,7 @@ BGM0A_Header:
 	dc.b	$C4
 	dc.b	$E1
 	dc.b	$C4
-	dc.b	$81
-	dc.b	$10
-	dc.b	$15
-	dc.b	$AE
+	CSP_LoopBack	$10, BGM0A_Loop00
 	dc.b	$C0
 	dc.b	$E3
 	dc.b	$C4
@@ -682,6 +686,8 @@ BGM0A_Header:
 	dc.b	$C2
 	dc.b	$E1
 	dc.b	$C2
+
+BGM0A_Jump00:
 	dc.b	$C0
 	dc.b	$E3
 	dc.b	$C4
@@ -709,13 +715,13 @@ BGM0A_Header:
 	dc.b	$C4
 	dc.b	$E1
 	dc.b	$C4
-	dc.b	$80
-	dc.b	$4F
-	dc.b	$AE
-	dc.b	$00
-	dc.b	$E3
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM0A_Jump00
+
+BGM0A_PLR03:
+	dc.b	$00, $E3
+	dc.b	$97, $04
+
+BGM0A_PLR02:
 	dc.b	$2E
 	dc.b	$E3
 	dc.b	$00
@@ -1017,13 +1023,13 @@ BGM0A_Header:
 	dc.b	$3D
 	dc.b	$3F
 	dc.b	$41
-	dc.b	$80
-	dc.b	$71
-	dc.b	$AE
-	dc.b	$00
-	dc.b	$E3
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM0A_PLR02
+
+BGM0A_PLR05:
+	dc.b	$00, $E3
+	dc.b	$97, $04
+
+BGM0A_PLR04:
 	dc.b	$2A
 	dc.b	$E3
 	dc.b	$00
@@ -1598,6 +1604,4 @@ BGM0A_Header:
 	dc.b	$3A
 	dc.b	$3C
 	dc.b	$3D
-	dc.b	$80
-	dc.b	$A5
-	dc.b	$AF
+	CSP_Jump	BGM0A_PLR04

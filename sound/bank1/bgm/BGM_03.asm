@@ -3,6 +3,8 @@
 ;	BGM 03 - Baroque of Puyo Puyo
 BGM03_Header:
 	dc.b	$06
+
+BGM03_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$1A
@@ -11,10 +13,11 @@ BGM03_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$00
-	dc.b	$7B
-	dc.b	$99
-	dc.b	$40
+	ptrZ80	BGM03_PLR00
+	dc.b	panRight
 	dc.b	$0B
+
+BGM03_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$18
@@ -23,10 +26,11 @@ BGM03_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$01
-	dc.b	$77
-	dc.b	$99
-	dc.b	$80
+	ptrZ80	BGM03_PLR01
+	dc.b	panLeft
 	dc.b	$0B
+
+BGM03_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$19
@@ -35,10 +39,11 @@ BGM03_Header:
 	dc.b	$18
 	dc.b	$66
 	dc.b	$02
-	dc.b	$08
-	dc.b	$9A
-	dc.b	$80
+	ptrZ80	BGM03_PLR02
+	dc.b	panLeft
 	dc.b	$0B
+
+BGM03_PLR03_Init:
 	dc.b	$03
 	dc.b	$01
 	dc.b	$17
@@ -47,10 +52,11 @@ BGM03_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$04
-	dc.b	$04
-	dc.b	$9A
-	dc.b	$40
+	ptrZ80	BGM03_PLR03
+	dc.b	panRight
 	dc.b	$0B
+
+BGM03_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$17
@@ -59,10 +65,11 @@ BGM03_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$03
-	dc.b	$7D
-	dc.b	$9A
-	dc.b	$C0
+	ptrZ80	BGM03_PLR04
+	dc.b	panCentre
 	dc.b	$0B
+
+BGM03_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$15
@@ -71,53 +78,43 @@ BGM03_Header:
 	dc.b	$18
 	dc.b	$66
 	dc.b	$05
-	dc.b	$7D
-	dc.b	$9A
-	dc.b	$C0
+	ptrZ80	BGM03_PLR04
+	dc.b	panCentre
 	dc.b	$0B
-	dc.b	$00
-	dc.b	$DF
-	dc.b	$97
-	dc.b	$02
-	dc.b	$35
-	dc.b	$E3
+
+BGM03_PLR01:
+	dc.b	$00, $DF
+	dc.b	$97, $02
+
+BGM03_PLR00:
+	dc.b	$35, $E3
 	dc.b	$31
 	dc.b	$00
 	dc.b	$31
-	dc.b	$30
-	dc.b	$E1
+	dc.b	$30, $E1
 	dc.b	$31
-	dc.b	$33
-	dc.b	$E3
+	dc.b	$33, $E3
 	dc.b	$31
 	dc.b	$2C
-	dc.b	$2E
-	dc.b	$E1
+	dc.b	$2E, $E1
 	dc.b	$30
+	dc.b	$31, $E5
+	dc.b	$2E, $E3
+	dc.b	$30, $E1
 	dc.b	$31
-	dc.b	$E5
-	dc.b	$2E
-	dc.b	$E3
-	dc.b	$30
-	dc.b	$E1
-	dc.b	$31
-	dc.b	$31
-	dc.b	$E3
+	dc.b	$31, $E3
 	dc.b	$2E
 	dc.b	$2C
 	dc.b	$35
 	dc.b	$31
 	dc.b	$00
 	dc.b	$31
-	dc.b	$30
-	dc.b	$E1
+	dc.b	$30, $E1
 	dc.b	$31
-	dc.b	$33
-	dc.b	$E3
+	dc.b	$33, $E3
 	dc.b	$31
 	dc.b	$2C
-	dc.b	$2A
-	dc.b	$E1
+	dc.b	$2A, $E1
 	dc.b	$2C
 	dc.b	$2A
 	dc.b	$29
@@ -125,189 +122,142 @@ BGM03_Header:
 	dc.b	$29
 	dc.b	$25
 	dc.b	$27
-	dc.b	$29
-	dc.b	$EB
-	dc.b	$29
-	dc.b	$E3
+	dc.b	$29, $EB
+	dc.b	$29, $E3
 	dc.b	$27
 	dc.b	$27
 	dc.b	$29
 	dc.b	$29
 	dc.b	$2A
 	dc.b	$29
-	dc.b	$27
-	dc.b	$E5
+	dc.b	$27, $E5
 	dc.b	$25
-	dc.b	$29
-	dc.b	$E3
+	dc.b	$29, $E3
 	dc.b	$27
 	dc.b	$25
 	dc.b	$27
-	dc.b	$29
-	dc.b	$E5
-	dc.b	$27
-	dc.b	$E3
+	dc.b	$29, $E5
+	dc.b	$27, $E3
 	dc.b	$27
 	dc.b	$29
 	dc.b	$29
 	dc.b	$2A
 	dc.b	$2A
-	dc.b	$29
-	dc.b	$E5
+	dc.b	$29, $E5
 	dc.b	$2B
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$2C, $E3
 	dc.b	$2B
 	dc.b	$29
 	dc.b	$2B
 	dc.b	$2C
 	dc.b	$2E
-	dc.b	$30
-	dc.b	$E5
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$30, $E5
+	dc.b	$2C, $E3
 	dc.b	$35
-	dc.b	$36
-	dc.b	$E1
+	dc.b	$36, $E1
 	dc.b	$35
-	dc.b	$33
-	dc.b	$E3
+	dc.b	$33, $E3
 	dc.b	$35
 	dc.b	$31
-	dc.b	$2E
-	dc.b	$E1
+	dc.b	$2E, $E1
 	dc.b	$30
-	dc.b	$31
-	dc.b	$E3
-	dc.b	$2C
-	dc.b	$E1
+	dc.b	$31, $E3
+	dc.b	$2C, $E1
 	dc.b	$30
-	dc.b	$31
-	dc.b	$E3
+	dc.b	$31, $E3
 	dc.b	$2A
 	dc.b	$2C
 	dc.b	$29
 	dc.b	$2C
-	dc.b	$31
-	dc.b	$E5
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$31, $E5
+	dc.b	$2C, $E3
 	dc.b	$35
-	dc.b	$36
-	dc.b	$E1
+	dc.b	$36, $E1
 	dc.b	$35
-	dc.b	$33
-	dc.b	$E3
+	dc.b	$33, $E3
 	dc.b	$35
 	dc.b	$31
-	dc.b	$2E
-	dc.b	$E1
+	dc.b	$2E, $E1
 	dc.b	$30
 	dc.b	$31
 	dc.b	$2E
 	dc.b	$2C
 	dc.b	$2E
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$2C, $E3
 	dc.b	$2A
 	dc.b	$2C
 	dc.b	$29
 	dc.b	$2C
-	dc.b	$80
-	dc.b	$7B
-	dc.b	$99
-	dc.b	$00
-	dc.b	$DF
-	dc.b	$97
-	dc.b	$02
-	dc.b	$2C
-	dc.b	$E3
+	CSP_Jump	BGM03_PLR00
+
+BGM03_PLR03:
+	dc.b	$00, $DF
+	dc.b	$97, $02
+
+BGM03_PLR02:
+	dc.b	$2C, $E3
 	dc.b	$29
 	dc.b	$00
 	dc.b	$29
-	dc.b	$27
-	dc.b	$E5
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$27, $E5
+	dc.b	$2C, $E3
 	dc.b	$25
-	dc.b	$25
-	dc.b	$E7
+	dc.b	$25, $E7
 	dc.b	$27
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$2C, $E3
 	dc.b	$29
 	dc.b	$00
 	dc.b	$29
-	dc.b	$27
-	dc.b	$E5
-	dc.b	$2C
-	dc.b	$E3
+	dc.b	$27, $E5
+	dc.b	$2C, $E3
 	dc.b	$25
-	dc.b	$22
-	dc.b	$E5
+	dc.b	$22, $E5
 	dc.b	$24
-	dc.b	$25
-	dc.b	$EB
-	dc.b	$25
-	dc.b	$E3
+	dc.b	$25, $EB
+	dc.b	$25, $E3
 	dc.b	$24
 	dc.b	$24
 	dc.b	$25
 	dc.b	$25
 	dc.b	$27
 	dc.b	$25
-	dc.b	$24
-	dc.b	$E5
+	dc.b	$24, $E5
 	dc.b	$22
-	dc.b	$25
-	dc.b	$E3
+	dc.b	$25, $E3
 	dc.b	$24
 	dc.b	$22
 	dc.b	$24
-	dc.b	$25
-	dc.b	$E5
-	dc.b	$24
-	dc.b	$E3
+	dc.b	$25, $E5
+	dc.b	$24, $E3
 	dc.b	$24
 	dc.b	$25
 	dc.b	$25
 	dc.b	$27
 	dc.b	$27
-	dc.b	$25
-	dc.b	$E5
+	dc.b	$25, $E5
 	dc.b	$27
-	dc.b	$29
-	dc.b	$E1
+	dc.b	$29, $E1
 	dc.b	$27
 	dc.b	$25
 	dc.b	$27
-	dc.b	$24
-	dc.b	$E3
+	dc.b	$24, $E3
 	dc.b	$25
-	dc.b	$27
-	dc.b	$E5
+	dc.b	$27, $E5
 	dc.b	$29
-	dc.b	$25
-	dc.b	$E3
+	dc.b	$25, $E3
 	dc.b	$2C
-	dc.b	$2E
-	dc.b	$E1
+	dc.b	$2E, $E1
 	dc.b	$2C
-	dc.b	$2A
-	dc.b	$E3
+	dc.b	$2A, $E3
 	dc.b	$2C
 	dc.b	$29
-	dc.b	$2A
-	dc.b	$E1
+	dc.b	$2A, $E1
 	dc.b	$2C
-	dc.b	$2E
-	dc.b	$E3
+	dc.b	$2E, $E3
 	dc.b	$29
+	dc.b	$2C, $E1
 	dc.b	$2C
-	dc.b	$E1
-	dc.b	$2C
-	dc.b	$25
-	dc.b	$E3
+	dc.b	$25, $E3
 	dc.b	$27
 	dc.b	$20
 	dc.b	$25
@@ -334,13 +284,11 @@ BGM03_Header:
 	dc.b	$EB
 	dc.b	$29
 	dc.b	$E3
-	dc.b	$80
-	dc.b	$08
-	dc.b	$9A
-	dc.b	$19
-	dc.b	$E5
-	dc.b	$00
-	dc.b	$E3
+	CSP_Jump	BGM03_PLR02
+
+BGM03_PLR04:
+	dc.b	$19, $E5
+	dc.b	$00, $E3
 	dc.b	$19
 	dc.b	$20
 	dc.b	$E5
@@ -430,6 +378,4 @@ BGM03_Header:
 	dc.b	$20
 	dc.b	$25
 	dc.b	$E5
-	dc.b	$80
-	dc.b	$7D
-	dc.b	$9A
+	CSP_Jump	BGM03_PLR04

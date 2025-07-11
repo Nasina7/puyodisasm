@@ -42,7 +42,7 @@ dSnare03	EQU	$C3
 dHiHat		EQU	$C4
 dUnkDrum05	EQU	$C5
 dKick02		EQU	$C6
-dUnkDrum07	EQU	$C7
+dBell		EQU	$C7
 dHiTom		EQU	$C8
 dMidHiTom	EQU	$C9
 dMidTom		EQU	$CA

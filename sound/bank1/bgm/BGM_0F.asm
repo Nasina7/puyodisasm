@@ -3,6 +3,8 @@
 ;	BGM 0F - Theme of Satan
 BGM0F_Header:
 	dc.b	$06
+
+BGM0F_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$19
@@ -11,10 +13,11 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$00
-	dc.b	$9B
-	dc.b	$B8
-	dc.b	$C0
+	ptrZ80	BGM0F_PLR00
+	dc.b	panCentre
 	dc.b	$17
+
+BGM0F_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$15
@@ -23,10 +26,11 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$01
-	dc.b	$97
-	dc.b	$B8
-	dc.b	$C0
+	ptrZ80	BGM0F_PLR01
+	dc.b	panCentre
 	dc.b	$17
+
+BGM0F_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$18
@@ -35,10 +39,11 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$02
-	dc.b	$10
-	dc.b	$BA
-	dc.b	$C0
+	ptrZ80	BGM0F_PLR02
+	dc.b	panCentre
 	dc.b	$1E
+
+BGM0F_PLR03_Init:
 	dc.b	$03
 	dc.b	$01
 	dc.b	$13
@@ -47,10 +52,11 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$04
-	dc.b	$0C
-	dc.b	$BA
-	dc.b	$C0
+	ptrZ80	BGM0F_PLR03
+	dc.b	panCentre
 	dc.b	$1E
+
+BGM0F_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$14
@@ -59,10 +65,11 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$03
-	dc.b	$14
-	dc.b	$B9
-	dc.b	$40
+	ptrZ80	BGM0F_PLR04
+	dc.b	panRight
 	dc.b	$09
+
+BGM0F_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$12
@@ -71,14 +78,15 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$05
-	dc.b	$10
-	dc.b	$B9
-	dc.b	$80
+	ptrZ80	BGM0F_PLR05
+	dc.b	panLeft
 	dc.b	$09
-	dc.b	$00
-	dc.b	$E3
-	dc.b	$97
-	dc.b	$04
+
+BGM0F_PLR01:
+	dc.b	$00, $E3
+	dc.b	$97, $04
+
+BGM0F_PLR00:
 	dc.b	$22
 	dc.b	$EC
 	dc.b	$24
@@ -193,13 +201,13 @@ BGM0F_Header:
 	dc.b	$0C
 	dc.b	$8B
 	dc.b	$17
-	dc.b	$80
-	dc.b	$9B
-	dc.b	$B8
-	dc.b	$00
-	dc.b	$DF
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM0F_PLR00
+
+BGM0F_PLR05:
+	dc.b	$00, $DF
+	dc.b	$97, $04
+
+BGM0F_PLR04:
 	dc.b	$1D
 	dc.b	$E5
 	dc.b	$1E
@@ -445,13 +453,13 @@ BGM0F_Header:
 	dc.b	$26
 	dc.b	$1F
 	dc.b	$25
-	dc.b	$80
-	dc.b	$14
-	dc.b	$B9
-	dc.b	$00
-	dc.b	$E2
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM0F_PLR04
+
+BGM0F_PLR03:
+	dc.b	$00, $E2
+	dc.b	$97, $04
+
+BGM0F_PLR02:
 	dc.b	$16
 	dc.b	$E3
 	dc.b	$16
@@ -661,6 +669,4 @@ BGM0F_Header:
 	dc.b	$19
 	dc.b	$15
 	dc.b	$15
-	dc.b	$80
-	dc.b	$10
-	dc.b	$BA
+	CSP_Jump	BGM0F_PLR02

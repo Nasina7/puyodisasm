@@ -3,6 +3,8 @@
 ;	BGM 04 - Cooking of Puyo Puyo
 BGM04_Header:
 	dc.b	$06
+
+BGM04_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$14
@@ -11,10 +13,11 @@ BGM04_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$00
-	dc.b	$28
-	dc.b	$9B
-	dc.b	$C0
+	ptrZ80	BGM04_PLR00
+	dc.b	panCentre
 	dc.b	$25
+
+BGM04_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$14
@@ -23,10 +26,11 @@ BGM04_Header:
 	dc.b	$18
 	dc.b	$66
 	dc.b	$01
-	dc.b	$26
-	dc.b	$9B
-	dc.b	$C0
+	ptrZ80	BGM04_PLR01
+	dc.b	panCentre
 	dc.b	$25
+
+BGM04_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$15
@@ -35,10 +39,11 @@ BGM04_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$02
-	dc.b	$AB
-	dc.b	$9B
-	dc.b	$C0
+	ptrZ80	BGM04_PLR02
+	dc.b	panCentre
 	dc.b	$25
+
+BGM04_PLR03_Init:
 	dc.b	$03
 	dc.b	$01
 	dc.b	$16
@@ -47,10 +52,11 @@ BGM04_Header:
 	dc.b	$24
 	dc.b	$66
 	dc.b	$04
-	dc.b	$1F
-	dc.b	$9C
-	dc.b	$C0
+	ptrZ80	BGM04_PLR03
+	dc.b	panCentre
 	dc.b	$25
+
+BGM04_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$15
@@ -59,10 +65,11 @@ BGM04_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$03
-	dc.b	$8D
-	dc.b	$9C
-	dc.b	$C0
+	ptrZ80	BGM04_PLR04
+	dc.b	panCentre
 	dc.b	$25
+
+BGM04_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$14
@@ -71,20 +78,18 @@ BGM04_Header:
 	dc.b	$0C
 	dc.b	$66
 	dc.b	$05
-	dc.b	$8B
-	dc.b	$9C
-	dc.b	$C0
+	ptrZ80	BGM04_PLR05
+	dc.b	panCentre
 	dc.b	$25
-	dc.b	$97
-	dc.b	$04
-	dc.b	$27
-	dc.b	$E4
-	dc.b	$2B
-	dc.b	$E1
-	dc.b	$2C
-	dc.b	$EA
-	dc.b	$27
-	dc.b	$E1
+
+BGM04_PLR01:
+	dc.b	$97, $04
+
+BGM04_PLR00:
+	dc.b	$27, $E4
+	dc.b	$2B, $E1
+	dc.b	$2C, $EA
+	dc.b	$27, $E1
 	dc.b	$2B
 	dc.b	$EA
 	dc.b	$2E
@@ -205,9 +210,9 @@ BGM04_Header:
 	dc.b	$EA
 	dc.b	$2B
 	dc.b	$E1
-	dc.b	$80
-	dc.b	$28
-	dc.b	$9B
+	CSP_Jump	BGM04_PLR00
+
+BGM04_PLR02:
 	dc.b	$37
 	dc.b	$E4
 	dc.b	$3F
@@ -321,9 +326,9 @@ BGM04_Header:
 	dc.b	$EA
 	dc.b	$00
 	dc.b	$E1
-	dc.b	$80
-	dc.b	$AB
-	dc.b	$9B
+	CSP_Jump	BGM04_PLR02
+
+BGM04_PLR03:
 	dc.b	$33
 	dc.b	$EA
 	dc.b	$00
@@ -429,11 +434,13 @@ BGM04_Header:
 	dc.b	$EA
 	dc.b	$00
 	dc.b	$E1
-	dc.b	$80
-	dc.b	$1F
-	dc.b	$9C
+	CSP_Jump	BGM04_PLR03
+
+BGM04_PLR05:
 	dc.b	$97
 	dc.b	$04
+
+BGM04_PLR04:
 	dc.b	$1B
 	dc.b	$EA
 	dc.b	$00
@@ -542,6 +549,4 @@ BGM04_Header:
 	dc.b	$00
 	dc.b	$E1
 	dc.b	$1D
-	dc.b	$80
-	dc.b	$8D
-	dc.b	$9C
+	CSP_Jump	BGM04_PLR04

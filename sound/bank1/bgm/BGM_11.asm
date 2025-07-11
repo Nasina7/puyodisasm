@@ -3,6 +3,8 @@
 ;	BGM 11 - Ondo of Puyo Puyo
 BGM11_Header:
 	dc.b	$06
+
+BGM11_PLR00_Init:
 	dc.b	$00
 	dc.b	$01
 	dc.b	$1D
@@ -11,10 +13,11 @@ BGM11_Header:
 	dc.b	$0E
 	dc.b	$78
 	dc.b	$00
-	dc.b	$B3
-	dc.b	$C2
-	dc.b	$C0
+	ptrZ80	BGM11_PLR00
+	dc.b	panCentre
 	dc.b	$07
+
+BGM11_PLR01_Init:
 	dc.b	$01
 	dc.b	$01
 	dc.b	$18
@@ -23,10 +26,11 @@ BGM11_Header:
 	dc.b	$0E
 	dc.b	$78
 	dc.b	$01
-	dc.b	$AF
-	dc.b	$C2
-	dc.b	$40
+	ptrZ80	BGM11_PLR01
+	dc.b	panRight
 	dc.b	$07
+
+BGM11_PLR02_Init:
 	dc.b	$02
 	dc.b	$01
 	dc.b	$1B
@@ -35,10 +39,11 @@ BGM11_Header:
 	dc.b	$02
 	dc.b	$78
 	dc.b	$02
-	dc.b	$54
-	dc.b	$BD
-	dc.b	$C0
+	ptrZ80	BGM11_PLR02
+	dc.b	panCentre
 	dc.b	$1D
+
+BGM11_PLR03_Init:
 	dc.b	$03
 	dc.b	$02
 	dc.b	$1F
@@ -47,10 +52,11 @@ BGM11_Header:
 	dc.b	$00
 	dc.b	$78
 	dc.b	$03
-	dc.b	$DA
-	dc.b	$C4
-	dc.b	$80
+	ptrZ80	BGM11_PLR03
+	dc.b	panLeft
 	dc.b	$01
+
+BGM11_PLR04_Init:
 	dc.b	$04
 	dc.b	$01
 	dc.b	$1A
@@ -59,10 +65,11 @@ BGM11_Header:
 	dc.b	$0E
 	dc.b	$78
 	dc.b	$04
-	dc.b	$C9
-	dc.b	$BF
-	dc.b	$C0
+	ptrZ80	BGM11_PLR04
+	dc.b	panCentre
 	dc.b	$07
+
+BGM11_PLR05_Init:
 	dc.b	$05
 	dc.b	$01
 	dc.b	$15
@@ -71,10 +78,17 @@ BGM11_Header:
 	dc.b	$0E
 	dc.b	$78
 	dc.b	$05
-	dc.b	$19
-	dc.b	$BE
-	dc.b	$80
+	ptrZ80	BGM11_PLR05
+	dc.b	panLeft
 	dc.b	$07
+
+;	PLR02		- loc_BD54
+;	PLR05		- loc_BE19
+;	PLR04		- loc_BFC9
+;	PLR01		- loc_C2AF
+;	PLR00		- loc_C2B3
+;	PLR03		- loc_C4DA
+BGM11_PLR02:
 	dc.b	$1B
 	dc.b	$E5
 	dc.b	$1B
@@ -130,6 +144,8 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$1B
 	dc.b	$E2
+
+BGM11_Jump00:
 	dc.b	$1B
 	dc.b	$E5
 	dc.b	$00
@@ -269,9 +285,9 @@ BGM11_Header:
 	dc.b	$16
 	dc.b	$1B
 	dc.b	$1B
-	dc.b	$80
-	dc.b	$8B
-	dc.b	$BD
+	CSP_Jump	BGM11_Jump00
+
+BGM11_PLR05:
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$97
@@ -375,6 +391,8 @@ BGM11_Header:
 	dc.b	$E2
 	dc.b	$89
 	dc.b	$F4
+
+BGM11_Jump01:
 	dc.b	$8B
 	dc.b	$0B
 	dc.b	$00
@@ -479,9 +497,9 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$2E
 	dc.b	$E2
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$03
+
+	CSP_LoopSet	$10, $03
+BGM11_Loop00:
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$33
@@ -532,10 +550,7 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$32
 	dc.b	$E2
-	dc.b	$81
-	dc.b	$10
-	dc.b	$EB
-	dc.b	$BE
+	CSP_LoopBack	$10, BGM11_Loop00
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$33
@@ -701,9 +716,9 @@ BGM11_Header:
 	dc.b	$37
 	dc.b	$89
 	dc.b	$F4
-	dc.b	$80
-	dc.b	$80
-	dc.b	$BE
+	CSP_Jump	BGM11_Jump01
+
+BGM11_PLR04:
 	dc.b	$83
 	dc.b	$03
 	dc.b	$2E
@@ -803,6 +818,8 @@ BGM11_Header:
 	dc.b	$E2
 	dc.b	$89
 	dc.b	$F4
+
+BGM11_Jump02:
 	dc.b	$8B
 	dc.b	$0B
 	dc.b	$00
@@ -907,9 +924,9 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$2E
 	dc.b	$E2
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$04
+
+	CSP_LoopSet	$10, $04
+BGM11_Loop01:
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$33
@@ -960,10 +977,7 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$32
 	dc.b	$E2
-	dc.b	$81
-	dc.b	$10
-	dc.b	$97
-	dc.b	$C0
+	CSP_LoopBack	$10, BGM11_Loop01
 	dc.b	$8B
 	dc.b	$07
 	dc.b	$89
@@ -1075,9 +1089,9 @@ BGM11_Header:
 	dc.b	$37
 	dc.b	$89
 	dc.b	$F4
-	dc.b	$80
-	dc.b	$2C
-	dc.b	$C0
+	CSP_Jump	BGM11_Jump02
+
+loc_C13F:		; Unreferenced Sequence Data?
 	dc.b	$2E
 	dc.b	$E5
 	dc.b	$2E
@@ -1169,6 +1183,7 @@ BGM11_Header:
 	dc.b	$E2
 	dc.b	$8A
 	dc.b	$FE
+BGM11_Jump03:
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$2E
@@ -1269,9 +1284,9 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$2E
 	dc.b	$E2
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$04
+
+	CSP_LoopSet	$10, $04
+BGM11_Loop02:
 	dc.b	$00
 	dc.b	$E3
 	dc.b	$33
@@ -1322,10 +1337,7 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$32
 	dc.b	$E2
-	dc.b	$81
-	dc.b	$10
-	dc.b	$01
-	dc.b	$C2
+	CSP_LoopBack	$10, BGM11_Loop02
 	dc.b	$88
 	dc.b	$1A
 	dc.b	$89
@@ -1443,13 +1455,13 @@ BGM11_Header:
 	dc.b	$37
 	dc.b	$E5
 	dc.b	$37
-	dc.b	$80
-	dc.b	$9A
-	dc.b	$C1
-	dc.b	$00
-	dc.b	$E3
-	dc.b	$97
-	dc.b	$04
+	CSP_Jump	BGM11_Jump03
+
+BGM11_PLR01:
+	dc.b	$00, $E3
+	dc.b	$97, $04
+
+BGM11_PLR00:
 	dc.b	$83
 	dc.b	$03
 	dc.b	$33
@@ -1559,6 +1571,8 @@ BGM11_Header:
 	dc.b	$E2
 	dc.b	$83
 	dc.b	$00
+
+BGM11_Jump04:
 	dc.b	$8B
 	dc.b	$0B
 	dc.b	$89
@@ -1998,9 +2012,9 @@ BGM11_Header:
 	dc.b	$33
 	dc.b	$E5
 	dc.b	$33
-	dc.b	$80
-	dc.b	$20
-	dc.b	$C3
+	CSP_Jump	BGM11_Jump04
+
+BGM11_PLR03:
 	dc.b	$C0
 	dc.b	$E5
 	dc.b	$C0
@@ -2049,9 +2063,9 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$C7
 	dc.b	$E2
-	dc.b	$8D
-	dc.b	$10
-	dc.b	$19
+
+	CSP_LoopSet	$10, $19
+BGM11_Loop03:
 	dc.b	$C0
 	dc.b	$E3
 	dc.b	$C7
@@ -2069,10 +2083,7 @@ BGM11_Header:
 	dc.b	$E4
 	dc.b	$C7
 	dc.b	$E2
-	dc.b	$81
-	dc.b	$10
-	dc.b	$0D
-	dc.b	$C5
+	CSP_LoopBack	$10, BGM11_Loop03
 	dc.b	$C0
 	dc.b	$E3
 	dc.b	$C7
@@ -2089,6 +2100,4 @@ BGM11_Header:
 	dc.b	$C1
 	dc.b	$8A
 	dc.b	$FF
-	dc.b	$80
-	dc.b	$0D
-	dc.b	$C5
+	CSP_Jump	BGM11_Loop03

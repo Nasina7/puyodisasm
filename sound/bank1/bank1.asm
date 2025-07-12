@@ -1,4 +1,3 @@
-; Note: This file is a work in progress, and is not currently shiftable!
 	include "sound/z80_macros.asm"
 	cpu z80
 	obj $8000

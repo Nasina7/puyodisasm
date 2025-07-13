@@ -17,7 +17,7 @@
 
 
 animtbl_CutsceneDraco:
-	dc.l	anim_draco_Idle, anim_draco_idletalk, anim_draco_GloatTalk, anim_draco_PointUp, anim_draco_Anger 
+	dc.l	anim_draco_Idle, anim_draco_IdleTalk, anim_draco_GloatTalk, anim_draco_PointUp, anim_draco_Anger 
 anim_draco_Idle:
 	dc.b	$F0
 	dc.b	$00

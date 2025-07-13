@@ -536,16 +536,16 @@ tbl_commands:
 	ptrZ80 CmdSetMinorPitch ; 2 Byte Command
 	ptrZ80 sub_04A4
 	ptrZ80 sub_047A
-	ptrZ80 sub_04D8
-	ptrZ80 sub_04D8
+	ptrZ80 CmdSetAMSFMS
+	ptrZ80 CmdSetAMSFMS
 	ptrZ80 sub_0412
 	ptrZ80 sub_04A8
 	ptrZ80 sub_0469
-	ptrZ80 sub_04E3 ; 0x9F
+	ptrZ80 CmdSetPan ; 0x9F
 	ptrZ80 sub_034F
 	ptrZ80 sub_0491
 	ptrZ80 sub_049B
-	ptrZ80 sub_04D8
+	ptrZ80 CmdSetAMSFMS
 	ptrZ80 sub_04B6
 	ptrZ80 sub_04BE
 	ptrZ80 sub_04EE
@@ -880,7 +880,8 @@ sub_04CC:
 	ld (1F68h), a
 	ret
 
-sub_04D8:
+; sub_04D8:
+CmdSetAMSFMS:
 	ld b, a
 	ld a, (ix+09h)
 	and a, $C0
@@ -888,7 +889,8 @@ sub_04D8:
 	ld (ix+09h), a
 	ret
 
-sub_04E3:
+; sub_04E3:
+CmdSetPan:
 	ld b, a
 	ld a, (ix+09h)
 	and a, 3Fh
@@ -2376,10 +2378,10 @@ loc_0EBA:
 	ld a, (bc)
 	cp $F0
 	jp c, loc_0ED1
-	add a
+	add a ; F0h becomes E0h, F1h to E2h etc
 	ld e, a
 	ld d, 0
-	ld hl, ptr_0F1A+2 ; ??
+	ld hl, EffectsList-0E0h
 	add hl, de
 	ld e, (hl)
 	inc hl
@@ -2576,7 +2578,8 @@ ptr_0FDC:
 	dc.b $04
 	dc.b $02
 	dc.b $00
-ptr_0FFC: ; Todo: Is this a seperate table?
+; ptr_0FFC:
+EffectsList:
 	ptrZ80 sub_101C
 	ptrZ80 sub_101D
 	ptrZ80 sub_1023
@@ -2918,10 +2921,10 @@ loc_1261:
 	ld a, (bc)
 	cp $F0
 	jp c, loc_1278
-	add a
+	add a ; F0h becomes E0h, F1h to E2h etc
 	ld e, a
 	ld d, 0
-	ld hl, ptr_0F1A+2 ; ??
+	ld hl, EffectsList-0E0h
 	add hl, de
 	ld e, (hl)
 	inc hl

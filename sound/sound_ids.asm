@@ -34,7 +34,9 @@ sfxID_38 = $38
 ; 38-3C: ???
 sfxID_SatanThunderSmall = $3D
 sfxID_SatanThunder = $3E
-; 3F-49: ???
+; 3F-47: ???
+; 48: All Clear SFX in Puyo Puyo Tsuu
+; 49: ???
 sfxID_SatanMovePuyo = $4A
 ; 4B-4F: ???
 sfxID_TextboxDialogue = $50
@@ -82,7 +84,7 @@ sfxID_ComboComplete2 = $7B
 sfxID_ComboComplete3 = $7C
 sfxID_7D = $7D
 ; 7E: ???
-; 7F: ??? (Doesn't appear in the sound test, but is a valid ID in the driver.
+; 7F: ??? (Doesn't appear in the sound test, but is a valid ID in the driver, not a sequence though.
 
 ; PCM
 pcmID_Fire = $80

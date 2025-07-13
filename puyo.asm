@@ -10,12 +10,14 @@
 ;“ú–{Œê
 
 startOfRom:
-	include "tools/Macros - More CPUs.asm"
+	include	"tools/Macros - More CPUs.asm"
 	cpu 68000
-	include "build_flags.asm"
-	include "puyo_constants.asm"
-	include "puyo_macros.asm"
-	include "sound/sound_ids.asm"
+	include	"build_flags.asm"
+	include	"puyo_constants.asm"
+	include	"puyo_macros.asm"
+	include	"sound/CSP2ASM.asm"
+	include	"sound/sound_ids.asm"
+
 vectorTable:
 	dc.l	SystemStack
 	dc.l	Reset
@@ -12148,7 +12150,7 @@ loc_0000BE18:
 	dbf    	d0, loc_0000BE18
 	lea		(StaffCredits_LoadTextObj).l, a1
 	jsr		ObjSys_InitObjWithFunc
-	lea		(loc_0000be38).l, a1
+	lea		(loc_0000BE38).l, a1
 	jsr		ObjSys_InitObjWithFunc
 	rts
 loc_0000BE38:
@@ -22572,7 +22574,7 @@ BadCheck_Init:
 BadCheck_Update:
 	move.w #$100, D0
 	jsr ObjSys_SetObjNextOpTimer
-	jsr loc_00002b40
+	jsr loc_00002B40
 	clr.b (rRunningOptionsMenuCode).l
 	clr.b (rBytecode_StopRun).l
 	jmp ObjSys_DeleteObjectA0
@@ -24103,16 +24105,20 @@ art_menuScreen:
 	align $8000, $FF
 sound_bank1:
 	include "sound/bank1/bank1.asm"
+
+	align $C00, $FF
 sound_driver:
 	include "sound/driver.asm"
+
 	align $8000, $FF
 sound_bank2:
 	include "sound/bank2/bank2.asm"
+
 	pad $344, $FF	; Example of the above todo.
-	
 art_titleScreen:
 	incbin "art/art/title/titlescreen.puyo"
 	even
+
 	align $80, $FF
 	padToPowerOfTwo
 endOfRom:

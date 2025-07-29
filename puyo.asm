@@ -1753,7 +1753,7 @@ pal_titleScreenLogo_cycle:
 	incbin "art/palettes/title/logo_green.bin"
 	incbin "art/palettes/title/logo_red.bin"
 	incbin "art/palettes/title/logo_yellow.bin"
-	incbin "art/palettes/title/logo_lightBlue.bin"
+	incbin "art/palettes/title/logo_lightblue.bin"
 	incbin "art/palettes/title/logo_purple.bin"
 pal_ruinsBattle:
 	incbin "art/palettes/boards/ruins.bin"
@@ -18816,7 +18816,7 @@ sprMappings_tutorial:
 sprMappings_title:
 	include "art/sprite_mappings/title/title.asm"
 sprMappings_twoPlayer:
-	include "art/sprite_mappings/twoPlayer/sprites.asm"
+	include "art/sprite_mappings/twoplayer/sprites.asm"
 sprMappings_demoControls:
 	include "art/sprite_mappings/demo/controls.asm"
 sprMappings_unk6:

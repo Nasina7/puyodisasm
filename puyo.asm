@@ -23857,244 +23857,244 @@ loc_0001DE1A:
 	
 ; Beginning of data segment
 art_grassBoard:
-	incbin "art/art/boards/grass.puyo"
+	incbin "build_cache/art/art/boards/grass.puyo"
 	even
 	align $1000, $FF
 art_bgGrass:
-	incbin "art/art/cutscene/background/grass.puyo"
+	incbin "build_cache/art/art/cutscene/background/grass.puyo"
 	even
 	pad $26, $FF ; Todo: What is this aligned to?
 art_bgRuins:
-	incbin "art/art/cutscene/background/ruins.puyo"
+	incbin "build_cache/art/art/cutscene/background/ruins.puyo"
 	even
 	align $10, $FF
 art_bgSatan:
-	incbin "art/art/cutscene/background/satan.puyo"
+	incbin "build_cache/art/art/cutscene/background/satan.puyo"
 	even
 	align $10, $FF
 art_winLose:
-	incbin "art/art/twoplayer/winlose.puyo"
+	incbin "build_cache/art/art/twoplayer/winlose.puyo"
 	even
 	align $100, $FF
 art_cutsceneCharset_lessonEnd:
-	incbin "art/art/cutscene/lesson_end/charset.puyo"
+	incbin "build_cache/art/art/cutscene/lesson_end/charset.puyo"
 	even
 	align $100, $FF
 art_modeNames:
-	incbin "art/art/record/modenames.puyo"
+	incbin "build_cache/art/art/record/modenames.puyo"
 	even
 	align $80, $FF
 ; Unreferenced japanese character set.  Oddly enough, it contains some 16x16 english characters, making it the only
 ; charset in the entire game to do so.
 ;art_unrefCharset:
-	incbin "art/art/unused/unrefcharset.puyo"
+	incbin "build_cache/art/art/unused/unrefcharset.puyo"
 	even
 	align $100, $FF
 art_gameOver:
-	incbin "art/art/gameover/gameover.puyo"
+	incbin "build_cache/art/art/gameover/gameover.puyo"
 	even
 	align $100, $FF
 art_recordScreen:
-	incbin "art/art/record/recordscreen.puyo"
+	incbin "build_cache/art/art/record/recordscreen.puyo"
 	even
 	align $100, $FF
 art_arleVictory:
-	incbin "art/art/ending/arlevictory.puyo"
+	incbin "build_cache/art/art/ending/arlevictory.puyo"
 	even
 	align $100, $FF
 
 art_cutsceneArle:
-	incbin "art/art/cutscene/general/arle.puyo"
+	incbin "build_cache/art/art/cutscene/general/arle.puyo"
 	even
 art_cutsceneDraco:
-	incbin "art/art/cutscene/stage1/draco.puyo"
+	incbin "build_cache/art/art/cutscene/stage1/draco.puyo"
 	even
 art_cutsceneZombie:
-	incbin "art/art/cutscene/stage7/zombie.puyo"
+	incbin "build_cache/art/art/cutscene/stage7/zombie.puyo"
 	even
 art_cutsceneSuketoudara:
-	incbin "art/art/cutscene/stage2/suketoudara.puyo"
+	incbin "build_cache/art/art/cutscene/stage2/suketoudara.puyo"
 	even
 art_cutsceneZoh:
-	incbin "art/art/cutscene/stage9/zoh.puyo"
+	incbin "build_cache/art/art/cutscene/stage9/zoh.puyo"
 	even
 art_cutsceneSkeletonT:
-	incbin "art/art/cutscene/lesson1/skeleton-t.puyo"
+	incbin "build_cache/art/art/cutscene/lesson1/skeleton-t.puyo"
 	even
 art_cutsceneMinotauros:
-	incbin "art/art/cutscene/stage11/minotauros.puyo"
+	incbin "build_cache/art/art/cutscene/stage11/minotauros.puyo"
 	even
 art_cutsceneSasoriman:
-	incbin "art/art/cutscene/stage5/sasoriman.puyo"
+	incbin "build_cache/art/art/cutscene/stage5/sasoriman.puyo"
 	even
 art_cutsceneWitch:
-	incbin "art/art/cutscene/stage8/witch.puyo"
+	incbin "build_cache/art/art/cutscene/stage8/witch.puyo"
 	even
 art_cutsceneRulue:
-	incbin "art/art/cutscene/stage12/rulue.puyo"
+	incbin "build_cache/art/art/cutscene/stage12/rulue.puyo"
 	even
 ;art_cutsceneHarpyDuplicate:
-	incbin "art/art/cutscene/stage4/harpy.puyo"
+	incbin "build_cache/art/art/cutscene/stage4/harpy.puyo"
 	even
 art_cutsceneSchezo:
-	incbin "art/art/cutscene/stage10/schezo.puyo"
+	incbin "build_cache/art/art/cutscene/stage10/schezo.puyo"
 	even
 art_cutsceneSatan:
-	incbin "art/art/cutscene/stage13/satan.puyo"
+	incbin "build_cache/art/art/cutscene/stage13/satan.puyo"
 	even
 art_cutsceneNasu:
-	incbin "art/art/cutscene/lesson2/nasu.puyo"
+	incbin "build_cache/art/art/cutscene/lesson2/nasu.puyo"
 	even
 art_cutsceneMummy:
-	incbin "art/art/cutscene/lesson3/mummy.puyo"
+	incbin "build_cache/art/art/cutscene/lesson3/mummy.puyo"
 	even
 art_cutsceneSukiyapotes:
-	incbin "art/art/cutscene/stage3/sukiyapotes.puyo"
+	incbin "build_cache/art/art/cutscene/stage3/sukiyapotes.puyo"
 	even
 art_cutscenePanotty:
-	incbin "art/art/cutscene/stage6/panotty.puyo"
+	incbin "build_cache/art/art/cutscene/stage6/panotty.puyo"
 	even
 	align $100, $FF
 	
 ; Cutscene Charsets
 art_cutsceneCharset_stage1:
-	incbin "art/art/cutscene/stage1/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage1/charset.puyo"
 	even
 art_cutsceneCharset_stage7:
-	incbin "art/art/cutscene/stage7/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage7/charset.puyo"
 	even
 art_cutsceneCharset_stage2:
-	incbin "art/art/cutscene/stage2/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage2/charset.puyo"
 	even
 art_cutsceneCharset_stage9:
-	incbin "art/art/cutscene/stage9/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage9/charset.puyo"
 	even
 art_cutsceneCharset_lesson1:
-	incbin "art/art/cutscene/lesson1/charset.puyo"
+	incbin "build_cache/art/art/cutscene/lesson1/charset.puyo"
 	even
 art_cutsceneCharset_stage11:
-	incbin "art/art/cutscene/stage11/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage11/charset.puyo"
 	even
 art_cutsceneCharset_stage5:
-	incbin "art/art/cutscene/stage5/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage5/charset.puyo"
 	even
 art_cutsceneCharset_stage8:
-	incbin "art/art/cutscene/stage8/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage8/charset.puyo"
 	even
 art_cutsceneCharset_stage12:
-	incbin "art/art/cutscene/stage12/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage12/charset.puyo"
 	even
 art_cutsceneCharset_stage4:
-	incbin "art/art/cutscene/stage4/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage4/charset.puyo"
 	even
 art_cutsceneCharset_stage10:
-	incbin "art/art/cutscene/stage10/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage10/charset.puyo"
 	even
 art_cutsceneCharset_stage13:
-	incbin "art/art/cutscene/stage13/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage13/charset.puyo"
 	even
 art_cutsceneCharset_lesson2:
-	incbin "art/art/cutscene/lesson2/charset.puyo"
+	incbin "build_cache/art/art/cutscene/lesson2/charset.puyo"
 	even
 art_cutsceneCharset_lesson3:
-	incbin "art/art/cutscene/lesson3/charset.puyo"
+	incbin "build_cache/art/art/cutscene/lesson3/charset.puyo"
 	even
 art_cutsceneCharset_stage3:
-	incbin "art/art/cutscene/stage3/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage3/charset.puyo"
 	even
 art_cutsceneCharset_stage6:
-	incbin "art/art/cutscene/stage6/charset.puyo"
+	incbin "build_cache/art/art/cutscene/stage6/charset.puyo"
 	even
 	align $100, $FF
 
 ; Portraits
 art_portraitArle:
-	incbin "art/art/portrait/arle.puyo"
+	incbin "build_cache/art/art/portrait/arle.puyo"
 	even
 art_portraitDraco:
-	incbin "art/art/portrait/draco.puyo"
+	incbin "build_cache/art/art/portrait/draco.puyo"
 	even
 art_portraitZombie:
-	incbin "art/art/portrait/zombie.puyo"
+	incbin "build_cache/art/art/portrait/zombie.puyo"
 	even
 art_portraitSuketoudara:
-	incbin "art/art/portrait/suketoudara.puyo"
+	incbin "build_cache/art/art/portrait/suketoudara.puyo"
 	even
 art_portraitZohDaimaoh:
-	incbin "art/art/portrait/zoh.puyo"
+	incbin "build_cache/art/art/portrait/zoh.puyo"
 	even
 art_portraitSkeletonT:
-	incbin "art/art/portrait/skeleton-t.puyo"
+	incbin "build_cache/art/art/portrait/skeleton-t.puyo"
 	even
 art_portraitMinotauros:
-	incbin "art/art/portrait/minotauros.puyo"
+	incbin "build_cache/art/art/portrait/minotauros.puyo"
 	even
 art_portraitSasoriman:
-	incbin "art/art/portrait/sasoriman.puyo"
+	incbin "build_cache/art/art/portrait/sasoriman.puyo"
 	even
 art_portraitWitch:
-	incbin "art/art/portrait/witch.puyo"
+	incbin "build_cache/art/art/portrait/witch.puyo"
 	even
 art_portraitRulue:
-	incbin "art/art/portrait/rulue.puyo"
+	incbin "build_cache/art/art/portrait/rulue.puyo"
 	even
 art_portraitHarpy:
-	incbin "art/art/portrait/harpy.puyo"
+	incbin "build_cache/art/art/portrait/harpy.puyo"
 	even
 art_portraitSchezo:
-	incbin "art/art/portrait/schezo.puyo"
+	incbin "build_cache/art/art/portrait/schezo.puyo"
 	even
 art_portraitSatan:
-	incbin "art/art/portrait/satan.puyo"
+	incbin "build_cache/art/art/portrait/satan.puyo"
 	even
 art_portraitNasu:
-	incbin "art/art/portrait/nasu.puyo"
+	incbin "build_cache/art/art/portrait/nasu.puyo"
 	even
 art_portraitSukiyapotes:
-	incbin "art/art/portrait/sukiyapotes.puyo"
+	incbin "build_cache/art/art/portrait/sukiyapotes.puyo"
 	even
 art_portraitMummy:
-	incbin "art/art/portrait/mummy.puyo"
+	incbin "build_cache/art/art/portrait/mummy.puyo"
 	even
 art_portraitPanotty:
-	incbin "art/art/portrait/panotty.puyo"
+	incbin "build_cache/art/art/portrait/panotty.puyo"
 	even
 	align $100, $FF
 	
 art_battleCharset:
-	incbin "art/art/battle/charset.puyo"
+	incbin "build_cache/art/art/battle/charset.puyo"
 	even
 art_castCharset:
-	incbin "art/art/cast/charset.puyo"
+	incbin "build_cache/art/art/cast/charset.puyo"
 	even
 art_tutorial:
-	incbin "art/art/tutorial/tutorial.puyo"
+	incbin "build_cache/art/art/tutorial/tutorial.puyo"
 	even
 art_optionsCharset:
-	incbin "art/art/options/charset.puyo"
+	incbin "build_cache/art/art/options/charset.puyo"
 	even
 art_cutsceneHarpy:
-	incbin "art/art/cutscene/stage4/harpy.puyo"
+	incbin "build_cache/art/art/cutscene/stage4/harpy.puyo"
 	even
 	align $1000, $FF
 art_ingameAssets:
-	incbin "art/art/battle/puyos.puyo"
+	incbin "build_cache/art/art/battle/puyos.puyo"
 	even
 	align $80, $FF
 art_woodBoard:
-	incbin "art/art/boards/wood.puyo"
+	incbin "build_cache/art/art/boards/wood.puyo"
 	even
 	align $80, $FF
 art_puzzleBoard:
-	incbin "art/art/boards/puzzle.puyo"
+	incbin "build_cache/art/art/boards/puzzle.puyo"
 	even
 	align $80, $FF
 art_ruinsBoard:
-	incbin "art/art/boards/ruins.puyo"
+	incbin "build_cache/art/art/boards/ruins.puyo"
 	even
 	align $80, $FF
 art_menuScreen:
-	incbin "art/art/menu/menu.puyo"
+	incbin "build_cache/art/art/menu/menu.puyo"
 	even
 	align $80, $FF
 
@@ -24116,7 +24116,7 @@ sound_bank2:
 
 	pad $344, $FF	; Example of the above todo.
 art_titleScreen:
-	incbin "art/art/title/titlescreen.puyo"
+	incbin "build_cache/art/art/title/titlescreen.puyo"
 	even
 
 	align $80, $FF

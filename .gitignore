@@ -6,3 +6,4 @@
 out/*
 desktop.ini
 errors.txt
+build_cache/

@@ -1,15 +1,14 @@
-echo --- The files in art/compressed will be compressed and decompressed during 
-echo --- the build process.  Do not modify any files in that folder until the 
-echo --- build process is complete. 
+if ! [ -d "./build_cache" ]; then
+   echo \"build_cache\" folder not found, it will be created.
+fi
 
-echo Cleaning any previous builds...
 if ! [ -d "./out" ]; then
-   echo \"out\" folder not found.  It will be created.
+   echo \"out\" folder not found, It will be created.
    mkdir out
 fi
 
 echo Compressing all puyo compressed data in art/art...
-find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool compress {} \;
+find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool ifnewer compress {} build_cache/{} \;
 
 wine tools/windows/build_rom.bat
 
@@ -17,5 +16,5 @@ if [ -f out/puyobuilt.bin ]; then
    tools/linux/puyomdtool fix out/puyobuilt.bin
 fi
 
-echo Decompressing all puyo compressed data in art/art...
-find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool decompress {} \;
+# echo Decompressing all puyo compressed data in art/art...
+# find art/art -type f -name "*.puyo" -exec tools/linux/puyomdtool decompress {} \;

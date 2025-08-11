@@ -10467,7 +10467,7 @@ pal_segaPart2:
 art_segaLogo:
 	incbin "art/art/sega/sega_logo.unc"
 ;bgmap_segaLogo_unused:
-	incbin "art/bg_mappings/sega/logo_unused.bgword"
+	incbin "build_cache/art/bg_mappings/sega/logo_unused.bgword"
 	
 ; Object initialized by StaffCredits_Init
 StaffCredits_LoadTextObj:
@@ -20387,56 +20387,56 @@ Video_SetVRAMAddressRead:
 
 ; Frame 1 seems to be included twice for each of these.  Need to investigate why.
 bgmap_grassCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_2.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_3.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_4.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_5.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/grass/board_top.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_2.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_3.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_4.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_5.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/grass/board_top.bgbyte"
 bgmap_stoneCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_2.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_3.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_4.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_5.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/ruins/board_top.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_2.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_3.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_4.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_5.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/ruins/board_top.bgbyte"
 bgmap_cabinCrumbleFloor:
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_2.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_3.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_4.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_5.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/cabin/board_top.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_2.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_3.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_4.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_5.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/cabin/board_top.bgbyte"
 bgmap_puzzleCrumbleFloor1P:
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_2.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_3.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_4.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_5.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/1p_board_top.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_2.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_3.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_4.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_5.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/1p_board_top.bgbyte"
 bgmap_puzzleCrumbleFloor2P:
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_2.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_3.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_4.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_5.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
-	incbin "art/bg_mappings/boards/floor_crumble/puzzle/2p_board_top.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_2.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_3.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_4.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_5.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_frame_1.bgbyte"
+	incbin "build_cache/art/bg_mappings/boards/floor_crumble/puzzle/2p_board_top.bgbyte"
 
 portrait_default_base_bgmap:
 	dc.w	$0009
 	dc.w	$0006
 	dc.w	$C61E
-	incbin "art/bg_mappings/portrait/normal_base.bgbyte"
+	incbin "build_cache/art/bg_mappings/portrait/normal_base.bgbyte"
 portrait_defeated_base_bgmap:
 	dc.w	$0009
 	dc.w	$0006
 	dc.w	$C61E
-	incbin "art/bg_mappings/portrait/defeated_base.bgbyte"
+	incbin "build_cache/art/bg_mappings/portrait/defeated_base.bgbyte"
 loc_00015E46:
 	dc.l	tbl_portrait_skeleton_t_bgmap
 	dc.l	tbl_portrait_suketoudara_bgmap
@@ -20472,52 +20472,52 @@ tbl_portrait_mummy_bgmap:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/0.bgbyte"
 @portrait_mummy_fragment_1:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/1.bgbyte"
 @portrait_mummy_fragment_2:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/2.bgbyte"
 @portrait_mummy_fragment_3:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/3.bgbyte"
 @portrait_mummy_fragment_4:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/4.bgbyte"
 @portrait_mummy_fragment_5:
 	dc.w	$0003
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/mummy/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/5.bgbyte"
 @portrait_mummy_fragment_6:
 	dc.w	$0007
 	dc.w	$0002
 	dc.w	$C720
-	incbin	"art/bg_mappings/portrait/mummy/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/6.bgbyte"
 @portrait_mummy_fragment_7:
 	dc.w	$0007
 	dc.w	$0002
 	dc.w	$C720
-	incbin	"art/bg_mappings/portrait/mummy/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/7.bgbyte"
 @portrait_mummy_fragment_8:
 	dc.w	$0007
 	dc.w	$0002
 	dc.w	$C720
-	incbin	"art/bg_mappings/portrait/mummy/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/8.bgbyte"
 @portrait_mummy_fragment_9:
 	dc.w	$0009
 	dc.w	$0006
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/mummy/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/mummy/9.bgbyte"
 tbl_portrait_sukiyapotes_bgmap:
     dc.l    portrait_default_base_bgmap
     dc.l    portrait_defeated_base_bgmap
@@ -20537,62 +20537,62 @@ tbl_portrait_sukiyapotes_bgmap:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/sukiyapotes/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/0.bgbyte"
 @portrait_sukiyapotes_fragment_1:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/sukiyapotes/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/1.bgbyte"
 @portrait_sukiyapotes_fragment_2:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/sukiyapotes/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/2.bgbyte"
 @portrait_sukiyapotes_fragment_3:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/sukiyapotes/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/3.bgbyte"
 @portrait_sukiyapotes_fragment_4:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/sukiyapotes/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/4.bgbyte"
 @portrait_sukiyapotes_fragment_11:
 	dc.w	$0006
 	dc.w	$0004
 	dc.w	$C624
-	incbin	"art/bg_mappings/portrait/sukiyapotes/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/11.bgbyte"
 @portrait_sukiyapotes_fragment_5:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/5.bgbyte"
 @portrait_sukiyapotes_fragment_6:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/6.bgbyte"
 @portrait_sukiyapotes_fragment_7:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/7.bgbyte"
 @portrait_sukiyapotes_fragment_8:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/8.bgbyte"
 @portrait_sukiyapotes_fragment_9:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/9.bgbyte"
 @portrait_sukiyapotes_fragment_10:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/sukiyapotes/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sukiyapotes/10.bgbyte"
 tbl_portrait_panotty_bgmap:
     dc.l    portrait_default_base_bgmap
     dc.l    portrait_defeated_base_bgmap
@@ -20613,67 +20613,67 @@ tbl_portrait_panotty_bgmap:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C822
-	incbin	"art/bg_mappings/portrait/panotty/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/0.bgbyte"
 @portrait_panotty_fragment_1:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C822
-	incbin	"art/bg_mappings/portrait/panotty/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/1.bgbyte"
 @portrait_panotty_fragment_2:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C822
-	incbin	"art/bg_mappings/portrait/panotty/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/2.bgbyte"
 @portrait_panotty_fragment_3:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C822
-	incbin	"art/bg_mappings/portrait/panotty/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/3.bgbyte"
 @portrait_panotty_fragment_4:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C822
-	incbin	"art/bg_mappings/portrait/panotty/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/4.bgbyte"
 @portrait_panotty_fragment_5:
 	dc.w	$0009
 	dc.w	$0005
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/panotty/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/5.bgbyte"
 @portrait_panotty_fragment_6:
 	dc.w	$0009
 	dc.w	$0005
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/panotty/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/6.bgbyte"
 @portrait_panotty_fragment_7:
 	dc.w	$0009
 	dc.w	$0005
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/panotty/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/7.bgbyte"
 @portrait_panotty_fragment_8:
 	dc.w	$0009
 	dc.w	$0005
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/panotty/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/8.bgbyte"
 @portrait_panotty_fragment_9:
 	dc.w	$0009
 	dc.w	$0005
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/panotty/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/9.bgbyte"
 @portrait_panotty_fragment_10:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/panotty/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/10.bgbyte"
 @portrait_panotty_fragment_11:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/panotty/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/11.bgbyte"
 @portrait_panotty_fragment_12:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/panotty/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/panotty/12.bgbyte"
 
 tbl_portrait_skeleton_t_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -20694,62 +20694,62 @@ tbl_portrait_skeleton_t_bgmap:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/skeleton-t/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/0.bgbyte"
 @portrait_skeleton_t_fragment_1:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/skeleton-t/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/1.bgbyte"
 @portrait_skeleton_t_fragment_2:
 	dc.w	$0006
 	dc.w	$0003
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/skeleton-t/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/2.bgbyte"
 @portrait_skeleton_t_fragment_3:
 	dc.w	$0006
 	dc.w	$0003
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/skeleton-t/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/3.bgbyte"
 @portrait_skeleton_t_fragment_4:
 	dc.w	$0006
 	dc.w	$0003
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/skeleton-t/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/4.bgbyte"
 @portrait_skeleton_t_fragment_5:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/5.bgbyte"
 @portrait_skeleton_t_fragment_6:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/6.bgbyte"
 @portrait_skeleton_t_fragment_7:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/7.bgbyte"
 @portrait_skeleton_t_fragment_8:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/8.bgbyte"
 @portrait_skeleton_t_fragment_9:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/9.bgbyte"
 @portrait_skeleton_t_fragment_10:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/10.bgbyte"
 @portrait_skeleton_t_fragment_11:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/skeleton-t/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/skeleton-t/11.bgbyte"
 
 tbl_portrait_suketoudara_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -20767,47 +20767,47 @@ tbl_portrait_suketoudara_bgmap:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/suketoudara/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/0.bgbyte"
 @portrait_suketoudara_fragment_1:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/suketoudara/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/1.bgbyte"
 @portrait_suketoudara_fragment_2:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/suketoudara/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/2.bgbyte"
 @portrait_suketoudara_fragment_3:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/suketoudara/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/3.bgbyte"
 @portrait_suketoudara_fragment_4:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/suketoudara/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/4.bgbyte"
 @portrait_suketoudara_fragment_5:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/suketoudara/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/5.bgbyte"
 @portrait_suketoudara_fragment_6:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/suketoudara/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/6.bgbyte"
 @portrait_suketoudara_fragment_7:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/suketoudara/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/7.bgbyte"
 @portrait_suketoudara_fragment_8:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/suketoudara/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/suketoudara/8.bgbyte"
 tbl_portrait_zombie_bgmap:
     dc.l    portrait_default_base_bgmap
     dc.l    portrait_defeated_base_bgmap
@@ -20821,32 +20821,32 @@ tbl_portrait_zombie_bgmap:
 	dc.w	$0003
 	dc.w	$0002
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/zombie/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/0.bgbyte"
 @portrait_zombie_fragment_1:
 	dc.w	$0003
 	dc.w	$0002
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/zombie/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/1.bgbyte"
 @portrait_zombie_fragment_2:
 	dc.w	$0003
 	dc.w	$0002
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/zombie/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/2.bgbyte"
 @portrait_zombie_fragment_3:
 	dc.w	$0006
 	dc.w	$0006
 	dc.w	$C624
-	incbin	"art/bg_mappings/portrait/zombie/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/3.bgbyte"
 @portrait_zombie_fragment_4:
 	dc.w	$0002
 	dc.w	$0002
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/zombie/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/4.bgbyte"
 @portrait_zombie_fragment_5:
 	dc.w	$0002
 	dc.w	$0002
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/zombie/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zombie/5.bgbyte"
 
 tbl_portrait_draco_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -20870,77 +20870,77 @@ tbl_portrait_draco_bgmap:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/0.bgbyte"
 @portrait_draco_fragment_1:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/1.bgbyte"
 @portrait_draco_fragment_2:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/2.bgbyte"
 @portrait_draco_fragment_3:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/3.bgbyte"
 @portrait_draco_fragment_4:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/4.bgbyte"
 @portrait_draco_fragment_5:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/5.bgbyte"
 @portrait_draco_fragment_6:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/6.bgbyte"
 @portrait_draco_fragment_7:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/7.bgbyte"
 @portrait_draco_fragment_8:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/8.bgbyte"
 @portrait_draco_fragment_9:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/9.bgbyte"
 @portrait_draco_fragment_10:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/10.bgbyte"
 @portrait_draco_fragment_11:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/draco/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/11.bgbyte"
 @portrait_draco_fragment_12:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/12.bgbyte"
 @portrait_draco_fragment_13:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/13.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/13.bgbyte"
 @portrait_draco_fragment_14:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/draco/14.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/draco/14.bgbyte"
 tbl_portrait_nasu_bgmap:
     dc.l    portrait_default_base_bgmap
     dc.l    portrait_defeated_base_bgmap
@@ -20956,42 +20956,42 @@ tbl_portrait_nasu_bgmap:
 	dc.w	$0008
 	dc.w	$0005
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/nasu/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/0.bgbyte"
 @portrait_nasu_fragment_1:
 	dc.w	$0008
 	dc.w	$0005
 	dc.w	$C6A0
-	incbin	"art/bg_mappings/portrait/nasu/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/1.bgbyte"
 @portrait_nasu_fragment_2:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/nasu/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/2.bgbyte"
 @portrait_nasu_fragment_3:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/nasu/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/3.bgbyte"
 @portrait_nasu_fragment_5:
 	dc.w	$0003
 	dc.w	$0003
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/nasu/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/5.bgbyte"
 @portrait_nasu_fragment_6:
 	dc.w	$0003
 	dc.w	$0003
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/nasu/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/6.bgbyte"
 @portrait_nasu_fragment_7:
 	dc.w	$0003
 	dc.w	$0003
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/nasu/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/7.bgbyte"
 @portrait_nasu_fragment_4:
 	dc.w	$0009
 	dc.w	$0006
 	dc.w	$C61E
-	incbin	"art/bg_mappings/portrait/nasu/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/nasu/4.bgbyte"
 
 tbl_portrait_witch_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21015,77 +21015,77 @@ tbl_portrait_witch_bgmap:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/witch/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/0.bgbyte"
 @portrait_witch_fragment_1:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/witch/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/1.bgbyte"
 @portrait_witch_fragment_2:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/witch/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/2.bgbyte"
 @portrait_witch_fragment_3:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/3.bgbyte"
 @portrait_witch_fragment_4:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/4.bgbyte"
 @portrait_witch_fragment_5:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/5.bgbyte"
 @portrait_witch_fragment_6:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/witch/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/6.bgbyte"
 @portrait_witch_fragment_7:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/witch/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/7.bgbyte"
 @portrait_witch_fragment_8:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/witch/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/8.bgbyte"
 @portrait_witch_fragment_9:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/9.bgbyte"
 @portrait_witch_fragment_10:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/10.bgbyte"
 @portrait_witch_fragment_11:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/11.bgbyte"
 @portrait_witch_fragment_12:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/12.bgbyte"
 @portrait_witch_fragment_13:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/13.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/13.bgbyte"
 @portrait_witch_fragment_14:
 	dc.w	$0001
 	dc.w	$0000
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/witch/14.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/witch/14.bgbyte"
 
 tbl_portrait_sasoriman_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21100,32 +21100,32 @@ tbl_portrait_sasoriman_bgmap:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/0.bgbyte"
 @portrait_sasoriman_fragment_1:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/1.bgbyte"
 @portrait_sasoriman_fragment_2:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/2.bgbyte"
 @portrait_sasoriman_fragment_3:
 	dc.w	$0006
 	dc.w	$0003
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/3.bgbyte"
 @portrait_sasoriman_fragment_4:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/4.bgbyte"
 @portrait_sasoriman_fragment_5:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C7A0
-	incbin	"art/bg_mappings/portrait/sasoriman/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/sasoriman/5.bgbyte"
 
 tbl_portrait_harpy_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21146,62 +21146,62 @@ tbl_portrait_harpy_bgmap:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/0.bgbyte"
 @portrait_harpy_fragment_1:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/1.bgbyte"
 @portrait_harpy_fragment_2:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/2.bgbyte"
 @portrait_harpy_fragment_3:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/3.bgbyte"
 @portrait_harpy_fragment_4:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/4.bgbyte"
 @portrait_harpy_fragment_5:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/5.bgbyte"
 @portrait_harpy_fragment_6:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/6.bgbyte"
 @portrait_harpy_fragment_7:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/7.bgbyte"
 @portrait_harpy_fragment_8:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C826
-	incbin	"art/bg_mappings/portrait/harpy/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/8.bgbyte"
 @portrait_harpy_fragment_9:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/9.bgbyte"
 @portrait_harpy_fragment_10:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/10.bgbyte"
 @portrait_harpy_fragment_11:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C724
-	incbin	"art/bg_mappings/portrait/harpy/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/harpy/11.bgbyte"
 
 tbl_portrait_zoh_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21219,47 +21219,47 @@ tbl_portrait_zoh_bgmap:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/zoh/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/0.bgbyte"
 @portrait_zoh_fragment_1:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/zoh/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/1.bgbyte"
 @portrait_zoh_fragment_2:
 	dc.w	$0005
 	dc.w	$0003
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/zoh/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/2.bgbyte"
 @portrait_zoh_fragment_3:
 	dc.w	$0006
 	dc.w	$0004
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/zoh/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/3.bgbyte"
 @portrait_zoh_fragment_4:
 	dc.w	$0006
 	dc.w	$0004
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/zoh/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/4.bgbyte"
 @portrait_zoh_fragment_5:
 	dc.w	$0006
 	dc.w	$0004
 	dc.w	$C71E
-	incbin	"art/bg_mappings/portrait/zoh/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/5.bgbyte"
 @portrait_zoh_fragment_6:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C69E
-	incbin	"art/bg_mappings/portrait/zoh/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/6.bgbyte"
 @portrait_zoh_fragment_7:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C69E
-	incbin	"art/bg_mappings/portrait/zoh/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/7.bgbyte"
 @portrait_zoh_fragment_8:
 	dc.w	$0007
 	dc.w	$0005
 	dc.w	$C69E
-	incbin	"art/bg_mappings/portrait/zoh/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/zoh/8.bgbyte"
 
 tbl_portrait_schezo_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21287,97 +21287,97 @@ tbl_portrait_schezo_bgmap:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/0.bgbyte"
 @portrait_schezo_fragment_1:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/1.bgbyte"
 @portrait_schezo_fragment_2:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/2.bgbyte"
 @portrait_schezo_fragment_3:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/3.bgbyte"
 @portrait_schezo_fragment_4:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/4.bgbyte"
 @portrait_schezo_fragment_5:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/5.bgbyte"
 @portrait_schezo_fragment_6:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/6.bgbyte"
 @portrait_schezo_fragment_7:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/7.bgbyte"
 @portrait_schezo_fragment_8:
 	dc.w	$0004
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/schezo/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/8.bgbyte"
 @portrait_schezo_fragment_9:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/9.bgbyte"
 @portrait_schezo_fragment_10:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/10.bgbyte"
 @portrait_schezo_fragment_11:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/11.bgbyte"
 @portrait_schezo_fragment_12:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/12.bgbyte"
 @portrait_schezo_fragment_13:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/13.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/13.bgbyte"
 @portrait_schezo_fragment_14:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/14.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/14.bgbyte"
 @portrait_schezo_fragment_15:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/schezo/15.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/15.bgbyte"
 @portrait_schezo_fragment_16:
 	dc.w	$0002
 	dc.w	$0000
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/schezo/16.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/16.bgbyte"
 @portrait_schezo_fragment_17:
 	dc.w	$0002
 	dc.w	$0000
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/schezo/17.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/17.bgbyte"
 @portrait_schezo_fragment_18:
 	dc.w	$0002
 	dc.w	$0000
 	dc.w	$C7A6
-	incbin	"art/bg_mappings/portrait/schezo/18.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/schezo/18.bgbyte"
 
 tbl_portrait_minotauros_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21394,42 +21394,42 @@ tbl_portrait_minotauros_bgmap:
 	dc.w	$0001
 	dc.w	$0002
 	dc.w	$C6AC
-	incbin	"art/bg_mappings/portrait/minotauros/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/0.bgbyte"
 @portrait_minotauros_fragment_1:
 	dc.w	$0001
 	dc.w	$0002
 	dc.w	$C6AC
-	incbin	"art/bg_mappings/portrait/minotauros/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/1.bgbyte"
 @portrait_minotauros_fragment_2:
 	dc.w	$0001
 	dc.w	$0002
 	dc.w	$C6AC
-	incbin	"art/bg_mappings/portrait/minotauros/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/2.bgbyte"
 @portrait_minotauros_fragment_3:
 	dc.w	$0001
 	dc.w	$0002
 	dc.w	$C6AC
-	incbin	"art/bg_mappings/portrait/minotauros/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/3.bgbyte"
 @portrait_minotauros_fragment_4:
 	dc.w	$0004
 	dc.w	$0003
 	dc.w	$C7A8
-	incbin	"art/bg_mappings/portrait/minotauros/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/4.bgbyte"
 @portrait_minotauros_fragment_5:
 	dc.w	$0008
 	dc.w	$0005
 	dc.w	$C620
-	incbin	"art/bg_mappings/portrait/minotauros/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/5.bgbyte"
 @portrait_minotauros_fragment_6:
 	dc.w	$0003
 	dc.w	$0003
 	dc.w	$C72A
-	incbin	"art/bg_mappings/portrait/minotauros/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/6.bgbyte"
 @portrait_minotauros_fragment_7:
 	dc.w	$0003
 	dc.w	$0003
 	dc.w	$C72A
-	incbin	"art/bg_mappings/portrait/minotauros/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/minotauros/7.bgbyte"
 
 tbl_portrait_rulue_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21453,77 +21453,77 @@ tbl_portrait_rulue_bgmap:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/0.bgbyte"
 @portrait_rulue_fragment_1:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/1.bgbyte"
 @portrait_rulue_fragment_2:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/2.bgbyte"
 @portrait_rulue_fragment_3:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/3.bgbyte"
 @portrait_rulue_fragment_4:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/4.bgbyte"
 @portrait_rulue_fragment_5:
 	dc.w	$0005
 	dc.w	$0002
 	dc.w	$C6A2
-	incbin	"art/bg_mappings/portrait/rulue/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/5.bgbyte"
 @portrait_rulue_fragment_6:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/6.bgbyte"
 @portrait_rulue_fragment_7:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/7.bgbyte"
 @portrait_rulue_fragment_8:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/8.bgbyte"
 @portrait_rulue_fragment_9:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/9.bgbyte"
 @portrait_rulue_fragment_10:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/10.bgbyte"
 @portrait_rulue_fragment_11:
 	dc.w	$0001
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/11.bgbyte"
 @portrait_rulue_fragment_12:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/12.bgbyte"
 @portrait_rulue_fragment_13:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/13.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/13.bgbyte"
 @portrait_rulue_fragment_14:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/rulue/14.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/rulue/14.bgbyte"
 
 tbl_portrait_satan_bgmap:
     dc.l    portrait_default_base_bgmap
@@ -21547,77 +21547,77 @@ tbl_portrait_satan_bgmap:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/satan/0.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/0.bgbyte"
 @portrait_satan_fragment_1:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/satan/1.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/1.bgbyte"
 @portrait_satan_fragment_2:
 	dc.w	$0005
 	dc.w	$0001
 	dc.w	$C722
-	incbin	"art/bg_mappings/portrait/satan/2.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/2.bgbyte"
 @portrait_satan_fragment_3:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/3.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/3.bgbyte"
 @portrait_satan_fragment_4:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/4.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/4.bgbyte"
 @portrait_satan_fragment_5:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/5.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/5.bgbyte"
 @portrait_satan_fragment_6:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/6.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/6.bgbyte"
 @portrait_satan_fragment_7:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/7.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/7.bgbyte"
 @portrait_satan_fragment_8:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/8.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/8.bgbyte"
 @portrait_satan_fragment_9:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/9.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/9.bgbyte"
 @portrait_satan_fragment_10:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/10.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/10.bgbyte"
 @portrait_satan_fragment_11:
 	dc.w	$0002
 	dc.w	$0001
 	dc.w	$C824
-	incbin	"art/bg_mappings/portrait/satan/11.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/11.bgbyte"
 @portrait_satan_fragment_12:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/satan/12.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/12.bgbyte"
 @portrait_satan_fragment_13:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/satan/13.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/13.bgbyte"
 @portrait_satan_fragment_14:
 	dc.w	$0004
 	dc.w	$0001
 	dc.w	$C7A4
-	incbin	"art/bg_mappings/portrait/satan/14.bgbyte"
+	incbin	"build_cache/art/bg_mappings/portrait/satan/14.bgbyte"
 
 tbl_bgMappings:
 	dc.l	bgdata_cutsceneGrass
@@ -22301,9 +22301,9 @@ bgdata_cutRuins_unk1:
 bgdata_cutRuins_unk2:
 	bgmac_ByteIndex bgmap_cutRuinsUnk2, $4, $8, $D59C, $22
 bgmap_cutRuinsUnk1:
-    incbin "art/bg_mappings/cutscene/ruins/unknown1.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/unknown1.bgbyte"
 bgmap_cutRuinsUnk2:
-    incbin "art/bg_mappings/cutscene/ruins/unknown2.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/unknown2.bgbyte"
 	
 	
 bgdata_cutsceneHell:
@@ -22331,181 +22331,181 @@ bgdata_cutsceneHell:
 	bgmac_Clear $40, $06, $FD00, $22AE
 
 bgmap_batGrassTopLeft:
-    incbin "art/bg_mappings/boards/grass/top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/top_left.bgbyte"
 bgmap_batGrassTopRight:
-    incbin "art/bg_mappings/boards/grass/top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/top_right.bgbyte"
 bgmap_batGrassBottomLeft:
-    incbin "art/bg_mappings/boards/grass/bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/bottom_left.bgbyte"
 bgmap_batGrassBottomRight:
-    incbin "art/bg_mappings/boards/grass/bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/bottom_right.bgbyte"
 bgmap_batBakGrassTopLeft:
-    incbin "art/bg_mappings/boards/grass/backdrop_top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/backdrop_top_left.bgbyte"
 bgmap_batBakGrassTopRight:
-    incbin "art/bg_mappings/boards/grass/backdrop_top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/backdrop_top_right.bgbyte"
 bgmap_batBakGrassBottomLeft:
-    incbin "art/bg_mappings/boards/grass/backdrop_bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/backdrop_bottom_left.bgbyte"
 bgmap_batBakGrassBottomRight:
-    incbin "art/bg_mappings/boards/grass/backdrop_bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/grass/backdrop_bottom_right.bgbyte"
 bgmap_cutGrassTreesTopLeft:
-    incbin "art/bg_mappings/cutscene/grass/trees_top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/trees_top_left.bgbyte"
 bgmap_cutGrassTreesTopRight:
-    incbin "art/bg_mappings/cutscene/grass/trees_top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/trees_top_right.bgbyte"
 bgmap_cutGrassTreesBottomLeft:
-    incbin "art/bg_mappings/cutscene/grass/trees_bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/trees_bottom_left.bgbyte"
 bgmap_cutGrassTreesBottomRight:
-    incbin "art/bg_mappings/cutscene/grass/trees_bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/trees_bottom_right.bgbyte"
 bgmap_cutGrassFarLeft:
-    incbin "art/bg_mappings/cutscene/grass/grass_far_left.bgword"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/grass_far_left.bgword"
 bgmap_cutGrassFarRight:
-    incbin "art/bg_mappings/cutscene/grass/grass_far_right.bgword"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/grass_far_right.bgword"
 bgmap_cutGrassLeft:
-    incbin "art/bg_mappings/cutscene/grass/grass_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/grass_left.bgbyte"
 bgmap_cutGrassRight:
-    incbin "art/bg_mappings/cutscene/grass/grass_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/grass_right.bgbyte"
 bgmap_cutGrassCloud1:
-    incbin "art/bg_mappings/cutscene/grass/cloud1.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/cloud1.bgbyte"
 bgmap_cutGrassCloud2:
-    incbin "art/bg_mappings/cutscene/grass/cloud2.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/cloud2.bgbyte"
 bgmap_cutGrassCloud3:
-    incbin "art/bg_mappings/cutscene/grass/cloud3.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/grass/cloud3.bgbyte"
 bgmap_cutRuinsGroundRight:
-    incbin "art/bg_mappings/cutscene/ruins/ground_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/ground_right.bgbyte"
 bgmap_cutRuinsGroundLeft:
-    incbin "art/bg_mappings/cutscene/ruins/ground_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/ground_left.bgbyte"
 bgmap_cutRuinsSkyRight:
-    incbin "art/bg_mappings/cutscene/ruins/sky_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/sky_right.bgbyte"
 bgmap_cutRuinsSkyLeft:
-    incbin "art/bg_mappings/cutscene/ruins/sky_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/sky_left.bgbyte"
 bgmap_cutRuinsMountainLeft:
-    incbin "art/bg_mappings/cutscene/ruins/mountain_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/mountain_left.bgbyte"
 bgmap_cutRuinsMountainRight:
-    incbin "art/bg_mappings/cutscene/ruins/mountain_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/mountain_right.bgbyte"
 bgmap_cutRuinsUnk3:
-    incbin "art/bg_mappings/cutscene/ruins/unknown3.bgword"
+    incbin "build_cache/art/bg_mappings/cutscene/ruins/unknown3.bgword"
 bgmap_cutHellGroundRight:
-    incbin "art/bg_mappings/cutscene/hell/ground_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/hell/ground_right.bgbyte"
 bgmap_cutHellGroundLeft:
-    incbin "art/bg_mappings/cutscene/hell/ground_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/hell/ground_left.bgbyte"
 bgmap_cutHellSkyRight:
-    incbin "art/bg_mappings/cutscene/hell/sky_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/hell/sky_right.bgbyte"
 bgmap_cutHellSkyLeft:
-    incbin "art/bg_mappings/cutscene/hell/sky_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/cutscene/hell/sky_left.bgbyte"
 bgmap_gameoverTopLeft:
-    incbin "art/bg_mappings/gameover/top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/gameover/top_left.bgbyte"
 bgmap_gameoverTopRight:
-    incbin "art/bg_mappings/gameover/top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/gameover/top_right.bgbyte"
 bgmap_gameoverBottomLeft:
-    incbin "art/bg_mappings/gameover/bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/gameover/bottom_left.bgbyte"
 bgmap_gameoverBottomRight:
-    incbin "art/bg_mappings/gameover/bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/gameover/bottom_right.bgbyte"
 bgmap_recordLeft:
-    incbin "art/bg_mappings/record/left.bgbyte"
+    incbin "build_cache/art/bg_mappings/record/left.bgbyte"
 bgmap_recordRight:
-    incbin "art/bg_mappings/record/right.bgbyte"
+    incbin "build_cache/art/bg_mappings/record/right.bgbyte"
 bgmap_recordUnk1:
-    incbin "art/bg_mappings/record/unknown.bgbyte"
+    incbin "build_cache/art/bg_mappings/record/unknown.bgbyte"
 bgmap_endingArleTop:
-    incbin "art/bg_mappings/ending/arle_top.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/arle_top.bgbyte"
 bgmap_endingArleBottom:
-    incbin "art/bg_mappings/ending/arle_bottom.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/arle_bottom.bgbyte"
 bgmap_endingSunsetScroll:
-    incbin "art/bg_mappings/ending/sunset_scroll.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/sunset_scroll.bgbyte"
 bgmap_endingCloudScroll:
-    incbin "art/bg_mappings/ending/cloud_scroll.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/cloud_scroll.bgbyte"
 bgmap_endingSunset:
-    incbin "art/bg_mappings/ending/sunset.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/sunset.bgbyte"
 bgmap_endingGround:
-    incbin "art/bg_mappings/ending/ground.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/ground.bgbyte"
 bgmap_endingSunsetNight:
-    incbin "art/bg_mappings/ending/sunset_night.bgbyte"
+    incbin "build_cache/art/bg_mappings/ending/sunset_night.bgbyte"
 bgmap_titleBG1:
-    incbin "art/bg_mappings/title/background1.bgword"
+    incbin "build_cache/art/bg_mappings/title/background1.bgword"
 bgmap_titleBG2:
-    incbin "art/bg_mappings/title/background2.bgword"
+    incbin "build_cache/art/bg_mappings/title/background2.bgword"
 bgmap_titlePu1:
-    incbin "art/bg_mappings/title/first_pu.bgbyte"
+    incbin "build_cache/art/bg_mappings/title/first_pu.bgbyte"
 bgmap_titleYo1:
-    incbin "art/bg_mappings/title/first_yo.bgbyte"
+    incbin "build_cache/art/bg_mappings/title/first_yo.bgbyte"
 bgmap_titlePu2:
-    incbin "art/bg_mappings/title/second_pu.bgbyte"
+    incbin "build_cache/art/bg_mappings/title/second_pu.bgbyte"
 bgmap_titleYo2:
-    incbin "art/bg_mappings/title/second_yo.bgbyte"
+    incbin "build_cache/art/bg_mappings/title/second_yo.bgbyte"
 bgmap_batCabinTopLeft:
-    incbin "art/bg_mappings/boards/cabin/top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/top_left.bgbyte"
 bgmap_batCabinTopRight:
-    incbin "art/bg_mappings/boards/cabin/top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/top_right.bgbyte"
 bgmap_batCabinBottomLeft:
-    incbin "art/bg_mappings/boards/cabin/bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/bottom_left.bgbyte"
 bgmap_batCabinBottomRight:
-    incbin "art/bg_mappings/boards/cabin/bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/bottom_right.bgbyte"
 bgmap_batBakCabinTopLeft:
-    incbin "art/bg_mappings/boards/cabin/backdrop_top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/backdrop_top_left.bgbyte"
 bgmap_batBakCabinTopRight:
-    incbin "art/bg_mappings/boards/cabin/backdrop_top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/backdrop_top_right.bgbyte"
 bgmap_batBakCabinBottomLeft:
-    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/backdrop_bottom_left.bgbyte"
 bgmap_batBakCabinBottomRight:
-    incbin "art/bg_mappings/boards/cabin/backdrop_bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/cabin/backdrop_bottom_right.bgbyte"
 bgmap_batStoneLeft:
-    incbin "art/bg_mappings/boards/ruins/left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/ruins/left.bgbyte"
 bgmap_batStoneRight:
-    incbin "art/bg_mappings/boards/ruins/right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/ruins/right.bgbyte"
 bgmap_batBakStoneLeft:
-    incbin "art/bg_mappings/boards/ruins/backdrop_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/ruins/backdrop_left.bgbyte"
 bgmap_batBakStoneRight:
-    incbin "art/bg_mappings/boards/ruins/backdrop_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/ruins/backdrop_right.bgbyte"
 bgmap_batPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/top_left.bgpalm"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/top_left.bgpalm"
 bgmap_batPalPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/top_left.bgpalp"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/top_left.bgpalp"
 bgmap_batPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/top_right.bgpalm"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/top_right.bgpalm"
 bgmap_batPalPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/top_right.bgpalp"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/top_right.bgpalp"
 bgmap_batPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/bottom_left.bgpalm"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/bottom_left.bgpalm"
 bgmap_batPalPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/bottom_left.bgpalp"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/bottom_left.bgpalp"
 bgmap_batPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/bottom_right.bgpalm"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/bottom_right.bgpalm"
 bgmap_batPalPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/bottom_right.bgpalp"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/bottom_right.bgpalp"
 bgmap_batBakPuzzleTopLeft:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_top_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/backdrop_top_left.bgbyte"
 bgmap_batBakPuzzleTopRight:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_top_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/backdrop_top_right.bgbyte"
 bgmap_batBakPuzzleBottomLeft:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/backdrop_bottom_left.bgbyte"
 bgmap_batBakPuzzleBottomRight:
-    incbin "art/bg_mappings/boards/puzzle/backdrop_bottom_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/boards/puzzle/backdrop_bottom_right.bgbyte"
 bgmap_segaLogo:
-    incbin "art/bg_mappings/sega/logo.bgbyte"
+    incbin "build_cache/art/bg_mappings/sega/logo.bgbyte"
 bgmap_demoPatch1:
-    incbin "art/bg_mappings/tutorial/patch1.bgbyte"
+    incbin "build_cache/art/bg_mappings/tutorial/patch1.bgbyte"
 bgmap_demoPatch2:
-    incbin "art/bg_mappings/tutorial/patch2.bgbyte"
+    incbin "build_cache/art/bg_mappings/tutorial/patch2.bgbyte"
 bgmap_menuMain:
-    incbin "art/bg_mappings/menu/main_menu.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/main_menu.bgbyte"
 bgmap_menu1PlayerHighlight:
-    incbin "art/bg_mappings/menu/1player_highlight.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/1player_highlight.bgbyte"
 bgmap_menu1Player:
-    incbin "art/bg_mappings/menu/1player.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/1player.bgbyte"
 bgmap_menu2PlayerHighlight:
-    incbin "art/bg_mappings/menu/2player_highlight.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/2player_highlight.bgbyte"
 bgmap_menu2Player:
-    incbin "art/bg_mappings/menu/2player.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/2player.bgbyte"
 bgmap_menuEndlessHighlight:
-    incbin "art/bg_mappings/menu/endless_highlight.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/endless_highlight.bgbyte"
 bgmap_menuEndless:
-    incbin "art/bg_mappings/menu/endless.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/endless.bgbyte"
 bgmap_menuOptionsionsHighlight:
-    incbin "art/bg_mappings/menu/options_highlight.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/options_highlight.bgbyte"
 bgmap_menuOptions:
-    incbin "art/bg_mappings/menu/options.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/options.bgbyte"
 bgmap_menuDifficultyLeft:
-    incbin "art/bg_mappings/menu/difficulty_left.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/difficulty_left.bgbyte"
 bgmap_menuDifficultyRight:
-    incbin "art/bg_mappings/menu/difficulty_right.bgbyte"
+    incbin "build_cache/art/bg_mappings/menu/difficulty_right.bgbyte"
 ; ---------- File End: game/bg_mappings.asm ----------
 
 ; ---------- File Start: game/options.asm ----------

@@ -2507,7 +2507,7 @@ ObjSys_InterpolateY:
 loc_00002D34:
 	CMPI.b	#cutID_ZohDaimaoh, rOnePlayer_CurCutscene
 	BNE.w	SndDrv_PlayPlacePuyo
-	TST.b	sPlayer_IsCpu(A0)
+	TST.b	sPlayer_BattleSide(A0)
 	BEQ.w	SndDrv_PlayPlacePuyo
 	MOVE.b	#sfxID_MajorGarbagePuyoFall1, D0
 	JSR	SndDrv_QueueSoundEffect
@@ -2570,7 +2570,7 @@ Battle_PlayWarningMusicIfStoryMode:
 	BEQ.w	@IsStoryMode
 	RTS
 @IsStoryMode:
-	TST.b	sPlayer_IsCpu(A0)
+	TST.b	sPlayer_BattleSide(A0)
 	BEQ.w	@IsNotCpu
 	RTS
 	
@@ -2775,7 +2775,7 @@ loc_00003070:
 	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F1, $0(A1)
-	MOVE.b	#0, sPlayer_IsCpu(A1)
+	MOVE.b	#0, sPlayer_BattleSide(A1)
 	MOVE.b	#3, $7(A1)
 	MOVE.l	$00FF187A, $A(A1)
 	MOVE.w	$00FF187E, $16(A1)
@@ -2785,7 +2785,7 @@ loc_00003070:
 	LEA	Battle_PlayerObjStart, A1
 	BSR.w	ObjSys_InitObjWithFunc
 	MOVE.b	#$F2, $0(A1)
-	MOVE.b	#1, sPlayer_IsCpu(A1)
+	MOVE.b	#1, sPlayer_BattleSide(A1)
 	MOVE.b	#3, $7(A1)
 	MOVE.l	A1, sPlayer_Opponent(A2)
 	MOVE.l	A2, sPlayer_Opponent(A1)
@@ -2824,7 +2824,7 @@ Battle_PlayerObjStart:
 	JSR	loc_0000F134
 	BSR.w	loc_00003A04 ; Load pieces into piece queue?
 	MOVE.b	$00FF1888, D0
-	CMP.b	$2A(A0), D0
+	CMP.b	sPlayer_BattleSide(A0), D0
 	BEQ.w	loc_0000319A
 	BTST.b	#GameModeID_VS, rCurGameMode
 	BEQ.w	loc_0000319A
@@ -2832,10 +2832,10 @@ Battle_PlayerObjStart:
 
 loc_0000319A:
 	CLR.w	D0
-	MOVE.b	sPlayer_IsCpu(A0), D0
+	MOVE.b	sPlayer_BattleSide(A0), D0
 	LEA	$00FF18C8, A1
 	MOVE.b	#0, (A1,D0.w)
-	BSR.w	loc_00004B26
+	BSR.w	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	ANDI	#$F8FF, SR
 	CLR.l	D0
@@ -3566,7 +3566,7 @@ loc_00003BB2:
 	BNE.w	loc_00003BBC
 	RTS
 loc_00003BBC:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$0000000C, A2
 	LEA	$00FF18B4, A3
 	BSR.w	loc_00003CE0
@@ -3723,7 +3723,7 @@ loc_00003D98:
 	BRA.w	loc_00004576
 loc_00003DBE:
 	MOVE.w	$26(A0), $28(A0)
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ANDI.w	#$007F, D0
 	MOVE.w	D0, $2C(A0)
 	BSR.w	ObjSys_UpdateObjNextOpTimer
@@ -3811,7 +3811,7 @@ loc_00003EEC:
 	ANDI	#$FFFE, SR
 	RTS
 loc_00003EF6:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	ADDA.l	#$00000138, A3
 	MOVE.w	#$0053, D0
@@ -3820,7 +3820,7 @@ loc_00003F06:
 	DBF	D0, loc_00003F06
 	RTS
 loc_00003F0E:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000018, A2
 	MOVEA.l	A2, A3
 	ADDA.l	#$00000090, A3
@@ -3847,7 +3847,7 @@ loc_00003F4C:
 	ANDI	#$F8FF, SR
 	RTS
 loc_00003F62:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	BSR.w	loc_00005064
 	ADDQ.w	#8, D0
 	MOVE.w	D0, D2
@@ -4140,7 +4140,7 @@ loc_000042F8:
 	dc.b	$FE
 	dc.b	$00 
 loc_00004302:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	ADDA.l	#$0000000C, A2
 	ADDA.l	#$000001E0, A3
@@ -4182,7 +4182,7 @@ loc_0000436E:
 	CMPI.b	#$1A, D1
 	BEQ.w	loc_000078BA
 	MOVEM.l	D1/D0, -(A7)
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVEM.l	(A7)+, D0/D1
 	TST.b	$1C(A2)
 	BEQ.w	loc_0000439C
@@ -4791,12 +4791,14 @@ loc_00004B02:
 	ANDI	#$F8FF, SR
 loc_00004B24:
 	RTS
-loc_00004B26:
-	BSR.w	loc_00005022
-	MOVE.w	#$0053, D0
-loc_00004B2E:
+
+; Clears the Color/Anim segment of a battle board with 00FF
+Battle_ClearBoardColorAnim:
+	BSR.w	Battle_GetBoardPointers
+	MOVE.w	#$0053, D0 ; Segment size
+@Loop:
 	MOVE.w	#$00FF, (A2)+
-	DBF	D0, loc_00004B2E
+	DBF	D0, @Loop
 	RTS
 	
 ; In prototype footage of the game, the record screen makes mention of a mission mode not seen in the final arcade
@@ -4810,7 +4812,7 @@ loc_00004B2E:
 	rts
 @LoadTable:
 	MOVEM.l	A2, -(A7)
-	suba.l #$48, a2
+	suba.l #$48, a2 ; Go back 24 words, to halfway point of board
 	clr.w d0
 	move.b (rMissionMode_CurBoard), d0
 	subq.b #1, d0
@@ -4828,11 +4830,29 @@ loc_00004B2E:
 	rts
 MissionMode_BoardTable:
 	; Board 1
-	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $80, $90, $00, $00, $00, $00, $80, $90, $00, $00, $00, $00, $D0, $80, $90, $00, $00, $D0, $D0, $80, $90, $00, $00, $05, $03
+	dc.b	$00, $00, $00, $00, $00, $00
+	dc.b 	$00, $00, $00, $00, $00, $00
+	dc.b 	$00, $80, $90, $00, $00, $00
+	dc.b 	$00, $80, $90, $00, $00, $00
+	dc.b 	$00, $D0, $80, $90, $00, $00
+	dc.b 	$D0, $D0, $80, $90, $00, $00
+	dc.b 	$05, $03
 	; Board 2
-	dc.b	$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $B0, $C0, $00, $00, $00, $00, $D0, $B0, $C0, $00, $00, $00, $D0, $B0, $C0, $00, $00, $00, $D0, $B0, $C0, $00, $00, $05, $04 
+	dc.b	$00, $00, $00, $00, $00, $00
+	dc.b 	$00, $00, $00, $00, $00, $00
+	dc.b 	$00, $B0, $C0, $00, $00, $00
+	dc.b 	$00, $D0, $B0, $C0, $00, $00
+	dc.b 	$00, $D0, $B0, $C0, $00, $00
+	dc.b 	$00, $D0, $B0, $C0, $00, $00
+	dc.b 	$05, $04 
 	; Board 3
-	dc.b	$00, $00, $00, $C0, $00, $00, $00, $00, $00, $90, $00, $00, $00, $00, $80, $90, $00, $B0, $00, $00, $D0, $80, $00, $B0, $00, $D0, $80, $90, $00, $C0, $C0, $D0, $80, $90, $B0, $B0, $05, $00
+	dc.b	$00, $00, $00, $C0, $00, $00
+	dc.b 	$00, $00, $00, $90, $00, $00
+	dc.b 	$00, $00, $80, $90, $00, $B0
+	dc.b 	$00, $00, $D0, $80, $00, $B0
+	dc.b 	$00, $D0, $80, $90, $00, $C0
+	dc.b 	$C0, $D0, $80, $90, $B0, $B0
+	dc.b 	$05, $00
 
 GetMainControllerHeld:
 	MOVE.w	rPad1Held, D0
@@ -4901,7 +4921,7 @@ loc_00004CC2:
 loc_00004CC4:
 	dc.b	$40, $10, $20, $FF, $00, $40, $20, $40 
 loc_00004CCC:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	D0, D1
 	MOVEQ	#0, D2
 	MOVEQ	#0, D3
@@ -5011,7 +5031,7 @@ loc_00004E0C:
 	dc.b	$11
 	dc.b	$12, $14 
 loc_00004E12:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000018, A2
 	MOVEA.l	A2, A3
 	ADDA.l	#$00000090, A3
@@ -5065,7 +5085,7 @@ loc_00004E98:
 loc_00004EA2:
 	dc.w	$000C, $FFF4, $0002, $FFFE 
 loc_00004EAA:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000018, A2
 	MOVEA.l	A2, A3
 	ADDA.l	#$00000090, A3
@@ -5183,7 +5203,7 @@ loc_00004FE4:
 	MOVEM.l	D3/D2, -(A7)
 	MOVE.w	D0, D2
 	MOVE.w	D1, D3
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	LSL.b	#1, D3
 	MOVE.w	D2, D1
 	ADD.w	D3, D1
@@ -5205,22 +5225,23 @@ loc_0000500C:
 	MOVEM.l	(A7)+, D0/D1
 	RTS
 
-loc_00005022:
+; This grabs the RAM and VRAM pointers for each board.
+Battle_GetBoardPointers:
 	MOVEM.l	D1, -(A7)
 	CLR.w	D1
 	MOVE.b	rCurMainPlayer, D1
 	LSL.b	#1, D1
-	OR.b	$2A(A0), D1
+	OR.b	sPlayer_BattleSide(A0), D1
 	LSL.b	#3, D1
-	MOVEA.l	loc_00005044(PC,D1.w), A2
-	MOVE.w	loc_00005044+4(PC,D1.w), D0
+	MOVEA.l	@Pointers(PC,D1.w), A2
+	MOVE.w	@Pointers+4(PC,D1.w), D0
 	MOVEM.l	(A7)+, D1
 	RTS
-loc_00005044:
-	dc.l	$00FF1C80, $C1040000
-	dc.l  $00FF1FEA, $C1340000
-	dc.l  $00FF1C80, $C1340000
-	dc.l  $00FF1FEA, $C1040000
+@Pointers:
+	dc.l  rPlayer1Board, $C1040000
+	dc.l  rPlayer2Board, $C1340000
+	dc.l  rPlayer1Board, $C1340000
+	dc.l  rPlayer2Board, $C1040000
 
 loc_00005064:
 	CLR.w	D1
@@ -6142,7 +6163,7 @@ loc_000063A0:
 	MOVE.b	#0, $6(A0)
 	BRA.b	loc_0000637C
 loc_000063BA:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000018, A2
 	MOVE.w	#$008E, D0
 loc_000063C8:
@@ -6167,7 +6188,7 @@ loc_000063E2:
 	MOVE.l	#loc_00006F94, $32(A1)
 	MOVE.b	#$FF, $8(A1)
 loc_00006416:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000018, A2
 	ANDI.w	#$007F, D0
 	MOVE.w	D0, D2
@@ -6211,12 +6232,12 @@ loc_000064A6:
 	BEQ.w	loc_000064BC
 	RTS
 loc_000064BC:
-	BSR.w	loc_00004B26
+	BSR.w	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
 	BSR.w	ObjSys_UpdateObjNextOpTimer
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ANDI.w	#$007F, D0
 	MOVE.w	#5, D1
 	LEA	rScrollYScanFront, A2
@@ -6463,7 +6484,7 @@ loc_000068A4:
 	BEQ.w	loc_000068B4
 	RTS
 loc_000068B4:
-	BSR.w	loc_00004B26
+	BSR.w	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
@@ -6743,7 +6764,7 @@ loc_00006D36:
 	RTS
 
 loc_00006D46:
-	BSR.w	loc_00004B26
+	BSR.w	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
@@ -6752,7 +6773,7 @@ loc_00006D56:
 	BSR.w	ObjSys_UpdateObjNextOpTimer
 	MOVE.b	$00FF1883, D0
 	EORI.b	#3, D0
-	BEQ.w	loc_00006E16
+	BEQ.w	loc_00006E16 ; Something related to ending a battle early?
 	BSR.w	loc_00004C0A
 	BTST.l	#7, D0
 	BEQ.w	loc_00006D88
@@ -6792,7 +6813,7 @@ loc_00006DC8:
 	MOVE.b	#5, D0
 	JSR	Video_QueueBgMapSpecial
 	BSR.w	loc_00006E2A
-	BSR.w	loc_00004B26
+	BSR.w	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	BSR.w	loc_00004CCC
 	ANDI	#$F8FF, SR
@@ -7405,7 +7426,7 @@ loc_000074A0:
 	BMI.w	loc_00007504
 	CMPI.w	#2, $1E(A1)
 	BCS.w	loc_00007504
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	ADDA.l	#$00000294, A2
 	ADDA.l	#$0000029E, A3
@@ -7510,7 +7531,7 @@ loc_0000763C:
 loc_0000764C:
 	MOVE.b	#sfxID_PlacePuyo, D0	
 	BSR.w	SndDrv_QueueSoundEffect	
-	BSR.w	loc_00005022	
+	BSR.w	Battle_GetBoardPointers	
 	MOVE.w	$1A(A0), D0	
 	ADDQ.w	#1, $1C(A0)	
 	MOVE.w	$1C(A0), D1	
@@ -7546,7 +7567,7 @@ loc_000076B4:
 	BEQ.w	loc_000076D2	
 	RTS	
 loc_000076D2:
-	BSR.w	loc_00005022	
+	BSR.w	Battle_GetBoardPointers	
 	MOVE.w	$26(A0), D0	
 	MOVE.b	$36(A0), (A2,D0.w)	
 	ORI	#$0700, SR	
@@ -7616,7 +7637,7 @@ loc_000077E0:
 	MOVE.b	#$FF, $00FF18C7	
 	BRA.w	ObjSys_DeleteObjectA0	
 loc_000077FE:
-	BSR.w	loc_00005022	
+	BSR.w	Battle_GetBoardPointers	
 	LEA	loc_000078A6, A1	
 	EORI.b	#$80, $7(A0)	
 	BSR.w	UpdateRNG	
@@ -7717,7 +7738,7 @@ loc_00007962:
 loc_00007986:
 	RTS
 loc_00007988:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	$1A(A0), D0
 	LSL.w	#1, D0
 	CLR.w	(A2,D0.w)
@@ -7791,7 +7812,7 @@ loc_00007A9C:
 	RTS
 loc_00007AB0:
 	MOVE.w	D0, $1E(A0)
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	$26(A0), D0
 	MOVEM.l	D0, -(A7)
 	BSR.w	loc_00007AEE
@@ -7870,7 +7891,7 @@ loc_00007BC2:
 	bcs.w ObjSys_DeleteObjectA0
 	bra.w ObjSys_UpdateObjAnim
 loc_00007BD2:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	D0, D1
 	ANDI.w	#$007F, D1
 	MOVE.w	$1A(A0), D2
@@ -8109,7 +8130,7 @@ loc_00007F1A:
 	BNE.w	loc_00007F5C
 	TST.w	$16(A0)
 	BEQ.w	loc_00007F5C
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$00000294, A2
 	TST.w	$8(A2)
 	BNE.w	loc_00007F5C
@@ -8610,7 +8631,7 @@ loc_00008628:
 	SWAP	D0
 	JMP	Video_QueueBgMapSpecial
 loc_0000863E:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	ADDA.l	#$000001E0, A2
 	BSR.w	loc_00008766
 	BSR.w	loc_000080C8
@@ -11494,7 +11515,7 @@ loc_0000B5BC:
 loc_0000B5BE:
 	dc.w 	$8500, $CC3A, $A500, $CC3A, $8500, $CC0A, $A500
 loc_0000B5CC:
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	D0, D5
 	ADDI.w	#$0606, D5
 	LEA	loc_0000B718, A1
@@ -11502,7 +11523,7 @@ loc_0000B5CC:
 	MOVE.b	$B(A0), D0
 	ADDI.b	#$21, D0
 	BSR.w	loc_0000B7AA
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	D0, D5
 	ADDI.w	#$0702, D5
 	LEA	loc_0000B71E, A1
@@ -11591,7 +11612,7 @@ loc_0000B71E:
 	dc.b	$00 
 loc_0000B72A:
 	MOVEM.l	D0, -(A7)
-	BSR.w	loc_00005022
+	BSR.w	Battle_GetBoardPointers
 	MOVE.w	D0, D5
 	ADDI.w	#$0888, D5
 	MOVEM.l	(A7)+, D2
@@ -16212,7 +16233,7 @@ loc_0000F128:
 loc_0000F134:
 	MOVE.b	rCurGameMode, D2
 	OR.b	rOnePlayer_CurStage, D2
-	OR.b	$2A(A0), D2
+	OR.b	sPlayer_BattleSide(A0), D2
 	BNE.w	loc_0000F18A
 	LEA	loc_0000F18C, A1
 	JSR	loc_00002AB0
@@ -16279,7 +16300,7 @@ loc_0000F240:
 	BEQ.w	loc_0000F254
 	LEA	$00FF1A7E, A1
 loc_0000F254:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVE.w	#5, D0
 	MOVE.w	#$009C, D1
 loc_0000F262:
@@ -16399,7 +16420,7 @@ loc_0000F3BE:
 loc_0000F3CA:
 	RTS
 loc_0000F3CC:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	LEA	$00FF18D4, A1
 	TST.b	$2A(A0)
 	BEQ.w	loc_0000F3E6
@@ -16854,7 +16875,7 @@ loc_0000F9E8:
 	BCS.w	loc_0000F9F2
 	RTS
 loc_0000F9F2:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	MOVEA.l	A2, A4
 	MOVEA.l	A2, A5
@@ -17110,7 +17131,7 @@ loc_0000FD5F:
 	dc.b 	$01, $01, $03, $02, $03, $03, $03, $04
 	dc.b 	$03, $05, $03
 loc_0000FD8A:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	ADDA.l	#$0000029E, A2
 	MOVE.w	#$000A, D0
 	LEA	loc_0000FDBA, A3
@@ -17129,7 +17150,7 @@ loc_0000FDB4:
 loc_0000FDBA:
 	dc.w	$FFFE, $FFFC, $FFFA, $0000, $FFFE, $FFFC, $0000, $FFFE, $0000, $0000, $0002, $0000, $0002, $0004, $0000 
 loc_0000FDD8:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	MOVEA.l	A2, A4
 	MOVEA.l	A2, A5
@@ -17186,7 +17207,7 @@ loc_0000FE66:
 	BEQ.w	loc_0000FE80
 	RTS
 loc_0000FE80:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	ADDA.l	#$00000294, A2
 	MOVEA.l	A2, A3
 	ADDA.l	#$FFFFFC96, A3
@@ -17205,7 +17226,7 @@ loc_0000FEB8:
 	BCS.w	loc_0000FEC2
 	RTS
 loc_0000FEC2:
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	MOVEA.l	A2, A4
 	MOVEA.l	A2, A5
@@ -17935,7 +17956,7 @@ loc_000105CC:
 loc_0001062A:
 	CLR.l	D0
 	BSR.w	loc_00008832
-	JSR	loc_00004B26
+	JSR	Battle_ClearBoardColorAnim
 	MOVE.w	#0, D3
 	MOVE.w	#$FF38, D4
 	JSR	loc_00003A08
@@ -18029,11 +18050,11 @@ loc_000107B8:
 	BEQ.w	loc_000107E8
 	RTS
 loc_000107E8:
-	JSR	loc_00004B26
+	JSR	Battle_ClearBoardColorAnim
 	ORI	#$0700, SR
 	JSR	loc_00004CCC
 	ANDI	#$F8FF, SR
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	ANDI.w	#$007F, D0
 	MOVE.w	#5, D1
 	LEA	rScrollYScanFront, A2
@@ -18192,7 +18213,7 @@ loc_00010998:
 	RTS
 loc_000109BA:
 	MOVE.b	#0, $27(A0)
-	JSR	loc_00004B26
+	JSR	Battle_ClearBoardColorAnim
 	MOVE.w	#$0023, D0
 	LEA	tbl_00010A2C_end, A1
 loc_000109D0:
@@ -19431,7 +19452,7 @@ loc_00014B54:
 	MOVE.w	$2(A2), D0
 	ADDA.l	D0, A0
 	BCLR.b	#4, $7(A0)
-	JSR	loc_00005022
+	JSR	Battle_GetBoardPointers
 	MOVEA.l	A2, A3
 	MOVEA.l	A2, A4
 	ADDI.w	#$0A14, D0

@@ -150,6 +150,9 @@ rCurMainPlayer = $FF1884    ; Byte (Set to the controller number that should be 
 
 rMissionMode_CurBoard = $FF1889 ; Byte
 
+rPlayer1Board = $FF1C80 ; Size: 0x1E0
+rPlayer2Board = $FF1FEA ; Size: 0x1E0
+
 rPlaneBuffer = $FFC000 ; Goes to FFCDFF, used as a temporary plane buffer for menus (and other things?)
 ObjectBuffer = $FFE000
 
@@ -200,7 +203,7 @@ Obj_Anim = $32 ; 32-35 (Pointer to current anim)
 
 
 ; Battle_PlayerObj Struct Offset Names
-sPlayer_IsCpu = $2A ; Byte
+sPlayer_BattleSide = $2A ; Byte
 sPlayer_Opponent = $2E ; Long
 
 ; Sprite Mapping IDs
